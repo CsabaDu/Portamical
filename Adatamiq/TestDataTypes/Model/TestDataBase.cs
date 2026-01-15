@@ -42,13 +42,13 @@ public abstract class TestDataBase(string definition)
     => DefinitionString.FallbackIfNullOrEmpty(_definition);
 
     /// <summary>
-    /// Convenience overload of <see cref="ToParams(ArgsCode, PropsCode)"/> for the most common use case:
+    /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:
     /// use the <see cref="PropsCode.Expected"/> property selection.
     /// </summary>
     /// <param name="argsCode">Determines instance vs properties inclusion.</param>
     /// <returns></returns>
-    public object?[] ToParams(ArgsCode argsCode)
-    => ToParams(argsCode, PropsCode.Expected);
+    public object?[] ToArgs(ArgsCode argsCode)
+    => ToArgs(argsCode, PropsCode.Expected);
 
     /// <summary>
     /// Converts the test data to a parameter array with precise control over included properties.
@@ -61,14 +61,14 @@ public abstract class TestDataBase(string definition)
     /// <exception cref="InvalidEnumArgumentException">
     /// Thrown when invalid enum values are provided.
     /// </exception>
-    public virtual object?[] ToParams(ArgsCode argsCode, PropsCode propsCode)
+    public virtual object?[] ToArgs(ArgsCode argsCode, PropsCode propsCode)
     {
         if (argsCode == ArgsCode.Properties)
         {
             _ = propsCode.Defined(nameof(propsCode));
         }
 
-        return ToArgs(argsCode);
+        return ToObjectArray(argsCode);
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public abstract class TestDataBase(string definition)
     /// <exception cref="InvalidEnumargumentException">
     /// Thrown when an undefined <paramref name="ArgsCode"/> value is provided.
     /// </exception>
-    protected virtual object?[] ToArgs(ArgsCode argsCode)
+    protected virtual object?[] ToObjectArray(ArgsCode argsCode)
     => argsCode switch
     {
         ArgsCode.Instance => [this],
@@ -137,34 +137,34 @@ public abstract class TestDataBase(string definition)
     };
 
     protected static object?[] Extend<T>(
-    Func<ArgsCode, object?[]> baseToArgs,
+    Func<ArgsCode, object?[]> baseToObjectArray,
     ArgsCode argsCode,
     T? newArg)
     {
-        var baseArgs = baseToArgs(argsCode);
+        var baseObjectArray = baseToObjectArray(argsCode);
 
         return argsCode switch
         {
-            ArgsCode.Instance => baseArgs,
-            ArgsCode.Properties => [.. baseArgs, newArg],
+            ArgsCode.Instance => baseObjectArray,
+            ArgsCode.Properties => [.. baseObjectArray, newArg],
             _ => throw argsCode.GetInvalidEnumArgumentException(nameof(argsCode)),
         };
     }
 
     protected static object?[] Trim(
-        Func<ArgsCode, PropsCode, object?[]> baseToParams,
+        Func<ArgsCode, PropsCode, object?[]> baseToArgs,
         ArgsCode argsCode,
         PropsCode propsCode,
         bool propsCodeMatches)
     {
-        var baseParams = baseToParams(argsCode, propsCode);
+        var baseArgs = baseToArgs(argsCode, propsCode);
         var strategyMatches =
             argsCode == ArgsCode.Properties &&
             propsCodeMatches;
 
         return strategyMatches ?
-            baseParams[1..]
-            : baseParams;
+            baseArgs[1..]
+            : baseArgs;
     }
     #endregion
 }

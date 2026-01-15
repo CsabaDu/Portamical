@@ -24,8 +24,8 @@ where TResult : notnull
     public object GetExpected()
     => Expected;
 
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Expected);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Expected);
 
     protected string GetExpectedResult(string? expectedString)
     {
@@ -38,9 +38,9 @@ where TResult : notnull
     protected string GetResultPrefix(string resultPrefix)
     => ResultsString.FallbackIfNullOrEmpty(resultPrefix);
 
-    public override object?[] ToParams(
+    public override object?[] ToArgs(
         ArgsCode argsCode,
         PropsCode propsCode)
-    => Trim(base.ToParams, argsCode, propsCode,
+    => Trim(base.ToArgs, argsCode, propsCode,
         propsCode != PropsCode.TestCaseName);
 }

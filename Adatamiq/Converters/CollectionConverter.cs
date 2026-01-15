@@ -46,7 +46,7 @@ public static class CollectionConverter
         PropsCode propsCode)
     where TTestData : notnull, ITestData
     => testDataCollection.ConvertDistinct(
-        testData => testData.ToParams(argsCode, propsCode));
+        testData => testData.ToArgs(argsCode, propsCode));
 
     /// <summary>
     /// Converts a collection of <see cref="ITestData"/> into an enumeration of
@@ -73,7 +73,7 @@ public static class CollectionConverter
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
     => testDataCollection.ConvertDistinct(
-        testData => testData.ToParams(argsCode));
+        testData => testData.ToArgs(argsCode));
 
     /// <summary>
     /// Converts a collection of <see cref="ITestData"/> into a sequence of custom 

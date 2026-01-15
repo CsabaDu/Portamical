@@ -29,7 +29,7 @@ public interface ITestData : INamedTestCase
     /// </summary>
     string GetResult();
 
-    object?[] ToParams(ArgsCode argsCode);
+    object?[] ToArgs(ArgsCode argsCode);
 
     /// <summary>
     /// Converts the test case to parameters with precise control over included elements.
@@ -39,5 +39,5 @@ public interface ITestData : INamedTestCase
     /// <returns>
     /// A parameter array tailored for test execution.
     /// </returns>
-    object?[] ToParams(ArgsCode argsCode, PropsCode propsCode);
+    object?[] ToArgs(ArgsCode argsCode, PropsCode propsCode);
 }

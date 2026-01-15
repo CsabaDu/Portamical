@@ -17,10 +17,10 @@ public abstract class TestData(
     public override sealed string GetResult()
     => ResultString.FallbackIfNullOrEmpty(_result);
 
-    public override sealed object?[] ToParams(
+    public override sealed object?[] ToArgs(
         ArgsCode argsCode,
         PropsCode propsCode)
-    => Trim(base.ToParams, argsCode, propsCode,
+    => Trim(base.ToArgs, argsCode, propsCode,
         propsCode != PropsCode.TestCaseName);
 }
 
@@ -41,8 +41,8 @@ public class TestData<T1>(
     public T1? Arg1 { get; init; } = arg1;
 
     /// <inheritdoc/>
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Arg1);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Arg1);
 }
 
 /// <summary>
@@ -61,8 +61,8 @@ public class TestData<T1, T2>(
     public T2? Arg2 { get; init; } = arg2;
 
     /// <inheritdoc/>
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Arg2);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Arg2);
 }
 
 /// <summary>
@@ -80,8 +80,8 @@ public class TestData<T1, T2, T3>(
     public T3? Arg3 { get; init; } = arg3;
 
     /// <inheritdoc/>
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Arg3);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Arg3);
 }
 
 /// <summary>
@@ -102,8 +102,8 @@ public class TestData<T1, T2, T3, T4>(
     public T4? Arg4 { get; init; } = arg4;
 
     /// <inheritdoc cref="TestData.ToArgs(argsCode)" />
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Arg4);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Arg4);
 }
 
 /// <summary>
@@ -124,8 +124,8 @@ public class TestData<T1, T2, T3, T4, T5>(
     public T5? Arg5 { get; init; } = arg5;
 
     /// <inheritdoc cref="TestData.ToArgs(argsCode)" />
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Arg5);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Arg5);
 }
 
 /// <summary>
@@ -146,8 +146,8 @@ public class TestData<T1, T2, T3, T4, T5, T6>(
     public T6? Arg6 { get; init; } = arg6;
 
     /// <inheritdoc cref="TestData.ToArgs(argsCode)" />
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Arg6);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Arg6);
 }
 
 /// <summary>
@@ -168,8 +168,8 @@ public class TestData<T1, T2, T3, T4, T5, T6, T7>(
     public T7? Arg7 { get; init; } = arg7;
 
     /// <inheritdoc cref="TestData.ToArgs(argsCode)" />
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Arg7);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Arg7);
 }
 
 /// <summary>
@@ -190,8 +190,8 @@ public class TestData<T1, T2, T3, T4, T5, T6, T7, T8>(
     public T8? Arg8 { get; init; } = arg8;
 
     /// <inheritdoc cref="TestData.ToArgs(argsCode)" />
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Arg8);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Arg8);
 }
 
 /// <summary>
@@ -212,7 +212,7 @@ public class TestData<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
     public T9? Arg9 { get; init; } = arg9;
 
     /// <inheritdoc cref="TestData.ToArgs(argsCode)" />
-    protected override object?[] ToArgs(ArgsCode argsCode)
-    => Extend(base.ToArgs, argsCode, Arg9);
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Arg9);
 }
 #endregion
