@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Adatamiq.xUnit/Adatamiq.xUnit.csproj" />
+  <Project Path="Adatamiq/Adatamiq.csproj" />
+</Solution>

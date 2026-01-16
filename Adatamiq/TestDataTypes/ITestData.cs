@@ -12,12 +12,12 @@ namespace Adatamiq.TestDataTypes;
 /// <remarks>
 /// Provides fundamental operations for:
 /// <list type="bullet">
-///   <item>Test case naming and identification (via <see cref="INamedTestCase"/>)</item>
+///   <item>Test case naming and identification (via <see cref="INamedCase"/>)</item>
 ///   <item>Test scenario definition</item>
 ///   <item>Argument generation for test execution</item>
 /// </list>
 /// </remarks>
-public interface ITestData : INamedTestCase
+public interface ITestData : INamedCase
 {
     /// <summary>
     /// Gets the description of the test scenario being verified.
@@ -25,7 +25,7 @@ public interface ITestData : INamedTestCase
     string GetDefinition();
 
     /// <summary>
-    /// Returns the Expected value of the test case.
+    /// TrimReturned the TrimName value of the test case.
     /// </summary>
     string GetResult();
 

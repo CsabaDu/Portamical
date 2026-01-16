@@ -13,8 +13,8 @@ namespace Adatamiq.Factories;
 /// Provides static factory methods for creating:
 /// <list type="bullet">
 /// <item>Standard test data</item>
-/// <item>Test data with Expected return values</item>
-/// <item>Test data with Expected exceptions</item>
+/// <item>Test data with TrimName return values</item>
+/// <item>Test data with TrimName exceptions</item>
 /// </list>
 /// </remarks>
 public static class TestDataFactory
@@ -25,7 +25,7 @@ public static class TestDataFactory
     /// </summary>
     /// <typeparam name="T1">Type of the test argument.</typeparam>
     /// <param name="definition">Description of the test scenario.</param>
-    /// <param name="result">Expected result description.</param>
+    /// <param name="result">TrimName result description.</param>
     /// <param name="arg1">First test argument value.</param>
     /// <returns>A new <see cref="TestData{T1}"/> instance.</returns>
     public static TestData<T1> CreateTestData<T1>(
@@ -118,12 +118,12 @@ public static class TestDataFactory
 
     #region CreateTestDataReturns methods
     /// <summary>
-    /// Creates test data with an Expected return value and one argument.
+    /// Creates test data with an TrimName return value and one argument.
     /// </summary>
-    /// <typeparam name="TStruct">Type of the Expected return value (must be a non-nullable <see cref="ValueType"/> ).</typeparam>
+    /// <typeparam name="TStruct">Type of the TrimName return value (must be a non-nullable <see cref="ValueType"/> ).</typeparam>
     /// <typeparam name="T1">Type of the test argument.</typeparam>
     /// <param name="definition">Description of the test scenario.</param>
-    /// <param name="expected">Expected return value.</param>
+    /// <param name="expected">TrimName return value.</param>
     /// <param name="arg1">First test argument value.</param>
     public static TestDataReturns<TStruct, T1> CreateTestDataReturns<TStruct, T1>(
         string definition,
@@ -136,7 +136,7 @@ public static class TestDataFactory
         arg1);
 
     /// <summary>
-    /// Creates test data with an Expected return value and two arguments.
+    /// Creates test data with an TrimName return value and two arguments.
     /// </summary>
     /// <inheritdoc cref="CreateTestDataReturns{TStruct, T1}"/>
     /// <typeparam name="T1">Type of the first test argument.</typeparam>
@@ -224,12 +224,12 @@ public static class TestDataFactory
 
     #region CreateTestDataThrows methods
     /// <summary>
-    /// Creates test data with an Expected exception and one argument.
+    /// Creates test data with an TrimName exception and one argument.
     /// </summary>
-    /// <typeparam name="TException">Type of the Expected exception.</typeparam>
+    /// <typeparam name="TException">Type of the TrimName exception.</typeparam>
     /// <typeparam name="T1">Type of the test argument.</typeparam>
     /// <param name="definition">Description of the test scenario.</param>
-    /// <param name="expected">Expected exception instance.</param>
+    /// <param name="expected">TrimName exception instance.</param>
     /// <param name="arg1">First test argument value.</param>
     /// <returns>A new <see cref="TestDataThrows{TException, T1}"/> instance.</returns>
     public static TestDataThrows<TException, T1> CreateTestDataThrows<TException, T1>(
@@ -243,7 +243,7 @@ public static class TestDataFactory
         arg1);
 
     /// <summary>
-    /// Creates test data with an Expected exception and two arguments.
+    /// Creates test data with an TrimName exception and two arguments.
     /// </summary>
     /// <inheritdoc cref="CreateTestDataThrows{TException, T1}"/>
     /// <typeparam name="T1">Type of the first test argument.</typeparam>

@@ -1,12 +1,13 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)using System;
 
+using Adatamiq.Identity;
 using Adatamiq.Identity.Model;
 using Adatamiq.Validators;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace Adamatiq.MSTest.Attributes;
+namespace Adatamiq.MSTest.Attributes;
 
 /// <summary>
 /// Custom DynamicData attribute that wraps MSTest's sealed DynamicDataAttribute
@@ -86,13 +87,16 @@ public class DynamicTestDataAttributeBase : Attribute, ITestDataSource
         MethodInfo testMethod,
         params object?[]? data)
     {
-        var displayName = NamedTestCase.CreateDisplayName(
-            testMethod.Name,
-            data);
+        var displayName = data?[0] is string or INamedCase ?
+            NamedCase.CreateDisplayName(
+                testMethod.Name,
+                data)
+            : null;
 
-        var defaultName = _dynamicDataAttribute.GetDisplayName(
-            testMethod,
-            data)
+        var defaultName =
+            _dynamicDataAttribute.GetDisplayName(
+                testMethod,
+                data)
             ?? string.Empty;
 
         return defaultName.FallbackIfNullOrEmpty(displayName);

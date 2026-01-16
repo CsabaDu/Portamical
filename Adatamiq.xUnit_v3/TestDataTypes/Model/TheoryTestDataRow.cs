@@ -1,0 +1,87 @@
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025. Csaba Dudas (CsabaDu)
+
+using Adatamiq.Identity;
+using Adatamiq.Strategy;
+using Adatamiq.TestDataTypes;
+using static Adatamiq.Identity.Model.NamedCase;
+
+namespace Adatamiq.xUnit_v3.TestDataTypes.Model;
+
+internal class TheoryTestDataRow
+: TheoryDataRowBase,
+ITheoryTestDataRow
+{
+    internal TheoryTestDataRow(
+        ITestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+    {
+        _data = testData.ToArgs(argsCode);
+        TestCaseName = testData.TestCaseName;
+        TestDisplayName = GetDisplayName(testMethodName);
+    }
+
+    internal TheoryTestDataRow(
+        ITheoryTestDataRow other,
+        string? testMethodName)
+    {
+        Guard.ArgumentNotNull(other, nameof(other));
+
+        _data = other.GetData();
+        TestCaseName = other.TestCaseName;
+        TestDisplayName = GetDisplayName(testMethodName)
+            ?? other.TestDisplayName;
+
+        Explicit = other.Explicit;
+        Skip = other.Skip;
+        Label = other.Label;
+        SkipType = other.SkipType;
+        SkipUnless = other.SkipUnless;
+        SkipWhen = other.SkipWhen;
+        Timeout = other.Timeout;
+        Traits = other.Traits ?? [];
+    }
+
+    #region Fields
+    private readonly object?[] _data;
+    #endregion
+
+    #region Properties
+    public string TestCaseName { get; init; }
+    #endregion
+
+    #region Methods
+    public bool ContainedBy(IEnumerable<INamedCase>? namedCase)
+    => Contains(this, namedCase);
+
+    public bool Equals(INamedCase? other)
+    => Comparer.Equals(this, other);
+
+    public override bool Equals(object? obj)
+    => Equals(obj as INamedCase);
+
+    public string? GetDisplayName(string? testMethodName)
+    => CreateDisplayName(testMethodName, TestCaseName);
+
+    public override int GetHashCode()
+    => Comparer.GetHashCode(this);
+
+    #region Non-Public Methods
+    protected override sealed object?[] GetData()
+    => _data;
+    #endregion
+    #endregion
+}
+
+internal sealed class TheoryTestDataRow<TTestData> : TheoryTestDataRow
+    where TTestData : notnull, ITestData
+{
+    internal TheoryTestDataRow(
+        TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+    : base(testData, argsCode, testMethodName)
+    {
+    }
+}

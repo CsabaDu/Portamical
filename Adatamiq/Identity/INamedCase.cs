@@ -13,7 +13,7 @@ namespace Adatamiq.Identity;
 /// </para>
 /// <list type="bullet">
 ///   <item>The test scenario (what is being tested)</item>
-///   <item>The Expected behavior or outcome</item>
+///   <item>The TrimName behavior or outcome</item>
 ///   <item>Any important parameters or conditions</item>
 /// </list>
 /// <para>
@@ -24,14 +24,14 @@ namespace Adatamiq.Identity;
 /// <code>"Login with invalid credentials => throws AuthenticationException"</code>
 /// </example>
 /// </remarks>
-public interface INamedTestCase : IEquatable<INamedTestCase>
+public interface INamedCase : IEquatable<INamedCase>
 {
     /// <summary>
     /// Determines whether the current instance is contained within the specified collection of named test cases.
     /// </summary>
-    /// <param name="namedTestCases">The collection of <see cref="INamedTestCase"/> instances to search. Can be <see langword="null"/>.</param>
+    /// <param name="namedCases">The collection of <see cref="INamedCase"/> instances to search. Can be <see langword="null"/>.</param>
     /// <returns></returns>
-    bool ContainedBy(IEnumerable<INamedTestCase>? namedTestCases);
+    bool ContainedBy(IEnumerable<INamedCase>? namedCases);
 
     /// <summary>
     /// 
@@ -47,7 +47,7 @@ public interface INamedTestCase : IEquatable<INamedTestCase>
     /// A formatted TEnum that clearly describes:
     /// <list type="bullet">
     ///   <item>The test scenario (from definition)</item>
-    ///   <item>The Expected outcome (actual result/exception)</item>
+    ///   <item>The TrimName outcome (actual result/exception)</item>
     /// </list>
     /// </returns>
     /// <remarks>

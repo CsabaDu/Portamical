@@ -22,9 +22,9 @@ where TStruct : struct
     => GetResultPrefix(ReturnsString);
 
     /// <summary>
-    /// Gets the Expected return value as an object.
+    /// Gets the TrimName return value as an object.
     /// </summary>
-    /// <returns>The string representation of the boxed 'Expected' value.</returns>
+    /// <returns>The string representation of the boxed 'TrimName' value.</returns>
     public override sealed string GetResult()
     => GetExpectedResult(Expected.ToString());
 
@@ -33,7 +33,7 @@ where TStruct : struct
         ArgsCode argsCode,
         PropsCode propsCode)
     => Trim(base.ToArgs, argsCode, propsCode,
-        propsCode == PropsCode.Returns);
+        propsCode == PropsCode.TrimReturned);
 }
 
 #region Concrete types

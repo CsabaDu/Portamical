@@ -22,7 +22,7 @@ where TException : Exception
     => GetResultPrefix(ThrowsString);
 
     /// <summary>
-    /// Gets the Expected exception instance.
+    /// Gets the TrimName exception instance.
     /// </summary>
     /// <returns>The exception object that should be thrown.</returns>
     public override sealed string GetResult()
@@ -33,7 +33,7 @@ where TException : Exception
         ArgsCode argsCode,
         PropsCode propsCode)
     => Trim(base.ToArgs, argsCode, propsCode,
-        propsCode == PropsCode.Throws);
+        propsCode == PropsCode.TrimThrown);
 }
 
 #region Concrete types

@@ -21,7 +21,7 @@ namespace Adatamiq.TestDataTypes.Model;
 /// </list>
 /// </remarks>
 public abstract class TestDataBase(string definition)
-: NamedTestCase, ITestData
+: NamedCase, ITestData
 {
     #region Fields
     private readonly string _definition = definition;
@@ -43,12 +43,12 @@ public abstract class TestDataBase(string definition)
 
     /// <summary>
     /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:
-    /// use the <see cref="PropsCode.Expected"/> property selection.
+    /// use the <see cref="PropsCode.TrimName"/> property selection.
     /// </summary>
     /// <param name="argsCode">Determines instance vs properties inclusion.</param>
     /// <returns></returns>
     public object?[] ToArgs(ArgsCode argsCode)
-    => ToArgs(argsCode, PropsCode.Expected);
+    => ToArgs(argsCode, PropsCode.TrimName);
 
     /// <summary>
     /// Converts the test data to a parameter array with precise control over included properties.

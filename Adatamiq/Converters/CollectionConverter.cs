@@ -31,7 +31,7 @@ public static class CollectionConverter
     /// Specifies the argument transformation strategy (e.g., instance vs. properties).
     /// </param>
     /// <param name="propsCode">
-    /// Specifies the property transformation semantics (e.g., Expected, returns, throws).
+    /// Specifies the property transformation semantics (e.g., TrimName, returns, throws).
     /// </param>
     /// <returns>
     /// An <see cref="IEnumerable{T}"/> of parameter arrays, each representing a 
@@ -50,7 +50,7 @@ public static class CollectionConverter
 
     /// <summary>
     /// Converts a collection of <see cref="ITestData"/> into an enumeration of
-    /// parameter arrays using the default <see cref="PropsCode.Expected"/> semantics.
+    /// parameter arrays using the default <see cref="PropsCode.TrimName"/> semantics.
     /// </summary>
     /// <typeparam name="TTestData">
     /// The concrete test data type, constrained to <see cref="ITestData"/>.
@@ -172,7 +172,7 @@ public static class CollectionConverter
     /// <remarks>
     /// This private method provides the shared transformation pipeline for all
     /// public <c>CollectionConverter</c> overloads. It performs semantic
-    /// deduplication using <see cref="INamedTestCase"/> identity and equality
+    /// deduplication using <see cref="INamedCase"/> identity and equality
     /// semantics, ensuring that each logical test case is emitted only once.
     /// Results are streamed using <c>yield return</c> for efficient, on‑demand
     /// processing.
@@ -195,12 +195,12 @@ public static class CollectionConverter
             testDataConverter,
             nameof(testDataConverter));
 
-        // Deduplicate based on INamedTestCase identity/equality semantics
-        HashSet<INamedTestCase> namedTestCases = new(NamedTestCase.Comparer);
+        // Deduplicate based on INamedCase identity/equality semantics
+        HashSet<INamedCase> namedCases = new(NamedCase.Comparer);
 
         foreach (var testData in testDataCollection)
         {
-            if (namedTestCases.Add(testData))
+            if (namedCases.Add(testData))
             {
                 yield return testDataConverter(testData);
             }

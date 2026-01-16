@@ -42,5 +42,5 @@ where TResult : notnull
         ArgsCode argsCode,
         PropsCode propsCode)
     => Trim(base.ToArgs, argsCode, propsCode,
-        propsCode != PropsCode.TestCaseName);
+        propsCode != PropsCode.All);
 }

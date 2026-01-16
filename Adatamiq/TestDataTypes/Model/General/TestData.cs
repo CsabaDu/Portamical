@@ -21,7 +21,7 @@ public abstract class TestData(
         ArgsCode argsCode,
         PropsCode propsCode)
     => Trim(base.ToArgs, argsCode, propsCode,
-        propsCode != PropsCode.TestCaseName);
+        propsCode != PropsCode.All);
 }
 
 #region Concrete types

@@ -3,20 +3,20 @@
 
 namespace Adatamiq.Identity.Model;
 
-public abstract class NamedTestCase : INamedTestCase
+public abstract class NamedCase : INamedCase
 {
     /// <summary>
     /// Gets the unique name identifying this test case.
     /// </summary>
     public abstract string TestCaseName { get; }
 
-    public static IEqualityComparer<INamedTestCase> Comparer { get; } =
+    public static IEqualityComparer<INamedCase> Comparer { get; } =
         new NamedTestCaseEqualityComparer();
 
     private sealed class NamedTestCaseEqualityComparer
-    : IEqualityComparer<INamedTestCase>
+    : IEqualityComparer<INamedCase>
     {
-        public bool Equals(INamedTestCase? x, INamedTestCase? y)
+        public bool Equals(INamedCase? x, INamedCase? y)
         {
             if (ReferenceEquals(x, y)) return true;
 
@@ -27,35 +27,35 @@ public abstract class NamedTestCase : INamedTestCase
                 y.TestCaseName);
         }
 
-        public int GetHashCode(INamedTestCase obj)
+        public int GetHashCode(INamedCase obj)
         => StringComparer.Ordinal.GetHashCode(obj.TestCaseName);
     }
 
     /// <summary>
     /// Determines whether the current instance is contained within the specified collection of named test cases.
     /// </summary>
-    /// <param name="namedTestCases">The collection of <see cref="INamedTestCase"/> instances to search. Can be <see langword="null"/>.</param>
+    /// <param name="namedCases">The collection of <see cref="INamedCase"/> instances to search. Can be <see langword="null"/>.</param>
     /// <returns><see langword="true"/> if the current instance is found in the specified collection; otherwise, <see
-    /// langword="false"/>.  Returns <see langword="false"/> if <paramref name="namedTestCases"/> is <see
+    /// langword="false"/>.  TrimReturned <see langword="false"/> if <paramref name="namedCases"/> is <see
     /// langword="null"/>.</returns>
-    public bool ContainedBy(IEnumerable<INamedTestCase>? namedTestCases)
-    => Contains(this, namedTestCases);
+    public bool ContainedBy(IEnumerable<INamedCase>? namedCases)
+    => Contains(this, namedCases);
 
     public string? GetDisplayName(string? testMethodName)
     => CreateDisplayName(testMethodName, TestCaseName);
 
     /// <summary>
-    /// Determines equality with another <see cref="INamedTestCase"/> based on test case name comparison.
+    /// Determines equality with another <see cref="INamedCase"/> based on test case name comparison.
     /// </summary>
-    /// <param name="other">The <see cref="INamedTestCase"/> to compare against.</param>
+    /// <param name="other">The <see cref="INamedCase"/> to compare against.</param>
     /// <returns>
     /// <c>true</c> if the test case names match; otherwise <c>false</c>.
     /// </returns>
-    public bool Equals(INamedTestCase? other)
+    public bool Equals(INamedCase? other)
     => Comparer.Equals(this, other);
 
     public override sealed bool Equals(object? obj)
-    => Equals(obj as INamedTestCase);
+    => Equals(obj as INamedCase);
 
     /// <summary>
     /// Generates a hash code derived from the return value of the <see cref="GetTestCaseName"/> method.
@@ -67,7 +67,7 @@ public abstract class NamedTestCase : INamedTestCase
     /// <summary>
     /// Generates a display name for test cases combining method name and test data.
     /// </summary>
-    /// <param name="testMethodName">Name of the test method.</param>
+    /// <param name="testMethodName">TestCaseName of the test method.</param>
     /// <param name="args">Test arguments (first argument should be the test case name).</param>
     /// <returns>
     /// Formatted TEnum in pattern: "{testMethodName}(testData: {testCaseName})",
@@ -91,7 +91,7 @@ public abstract class NamedTestCase : INamedTestCase
     }
 
     public static bool Contains(
-        INamedTestCase namedTestCase,
-        IEnumerable<INamedTestCase>? namedTestCases)
-    => namedTestCases?.Any(namedTestCase.Equals) == true;
+        INamedCase namedCase,
+        IEnumerable<INamedCase>? namedCases)
+    => namedCases?.Any(namedCase.Equals) == true;
 }
