@@ -4,7 +4,7 @@
 using Adatamiq.Identity.Model;
 using Adatamiq.Strategy;
 
-namespace Adatamiq.TestDataTypes.Model;
+namespace Adatamiq.TestDataTypes.Models;
 
 /// <summary>
 /// Abstract base class representing test case data with core functionality for test argument generation.

@@ -3,7 +3,7 @@
 
 using Adatamiq.Strategy;
 
-namespace Adatamiq.TestDataTypes.Model.General;
+namespace Adatamiq.TestDataTypes.Models.General;
 
 public abstract class TestData(
     string definition,

@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Adatamiq.PatternMarkers;
 using Adatamiq.Strategy;
+using Adatamiq.TestDataTypes.Patterns;
 
-namespace Adatamiq.TestDataTypes.Model.Specialized;
+namespace Adatamiq.TestDataTypes.Models.Specialized;
 
 public abstract class TestDataExpected<TResult>(
     string definition,

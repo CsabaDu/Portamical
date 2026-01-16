@@ -1,8 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Adatamiq.TestDataTypes.Model.General;
-using Adatamiq.TestDataTypes.Model.Specialized;
+using Adatamiq.TestDataTypes.Models.General;
+using Adatamiq.TestDataTypes.Models.Specialized;
 
 namespace Adatamiq.Factories;
 

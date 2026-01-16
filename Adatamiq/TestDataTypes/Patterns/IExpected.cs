@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Adatamiq.PatternMarkers;
+namespace Adatamiq.TestDataTypes.Patterns;
 
 /// <summary>
 /// Represents a base interface for test data that has a primary test parameter for test case result.

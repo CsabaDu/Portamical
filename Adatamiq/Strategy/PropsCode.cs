@@ -10,30 +10,35 @@ namespace Adatamiq.Strategy;
 public enum PropsCode
 {
     /// <summary>
-    /// Includes all properties of the <see cref="TestDataTypes.Core.Interfaces.ITestData"/> instance in the test data object array,
-    /// including the 'All'. This is the most comprehensive inclusion option.
+    /// Includes all properties of the <see cref="TestDataTypes.ITestData"/> instance in the test data object array,
+    /// including the <see cref="Identity.INamedCase.TestCaseName"/>.
+    /// This is the most comprehensive inclusion option.
     /// For MSTest: 'DynamicDataAttribute.DynamicDataDisplayName' can use
-    /// 'DisplayNameFactory.CreateDisplayName' to construct the display name.
+    /// <see cref="Identity.Model.NamedCase.CreateDisplayName(string?, object?[]?)"/>
+    /// to construct the display name.
     /// </summary>
     All,
 
     /// <summary>
-    /// Includes all properties of the <see cref="TestDataTypes.Core.Interfaces.ITestData"/> instance except the All property.
+    /// Includes all properties of the <see cref="TestDataTypes.ITestData"/> instanc
+    /// except the <see cref="Identity.INamedCase.TestCaseName"/> property.
     /// Most common case: Useful when the test case name isn't needed to be contained 
     /// by the test data object array.
     /// </summary>
     TrimName,
 
     /// <summary>
-    /// Excludes also the TrimName property if the <see cref="TestDataTypes.Core.Interfaces.ITestData"/> instance implements
-    /// <see cref="SpecificationContracts.IReturns"/>. Otherwise, the 'TrimName' property is included.
+    /// Excludes also the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
+    /// if the <see cref="TestDataTypes.ITestData"/> instance implements
+    /// <see cref="TestDataTypes.Patterns.IReturns"/>. Otherwise, the 'TrimName' property is included.
     // Useful for NUnit/TestNG style tests returning values.
     /// </summary>
     TrimReturned,
 
     /// <summary>
-    /// Excludes the also TrimName property if the <see cref="TestDataTypes.Core.Interfaces.ITestData"/> instance implements
-    /// <see cref="SpecificationContracts.IThrows"/>. Otherwise, the TrimName property is included.
+    /// Excludes the also <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
+    /// if the <see cref="TestDataTypes.ITestData"/> instance implements
+    /// <see cref="TestDataTypes.Patterns.IThrows"/>. Otherwise, the TrimName property is included.
     /// </summary>
     TrimThrown,
 }
