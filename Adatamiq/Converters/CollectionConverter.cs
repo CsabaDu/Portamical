@@ -186,12 +186,10 @@ public static class CollectionConverter
         Func<TTestData, TRow> testDataConverter)
     where TTestData : notnull, ITestData
     {
-        ArgumentNullException.ThrowIfNull(
+        Validator.ThrowIfNullOrEmpty(
             testDataCollection,
             nameof(testDataCollection));
-        // Force early enumeration null check
-        _ = testDataCollection.First();
-        ArgumentNullException.ThrowIfNull(
+        Validator.ThrowIfNull(
             testDataConverter,
             nameof(testDataConverter));
 
