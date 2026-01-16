@@ -23,9 +23,7 @@ ITheoryTestDataRow
         ITheoryTestDataRow other,
         string? testMethodName)
     {
-        Guard.ArgumentNotNull(other, nameof(other));
-
-        _data = other.GetData();
+        _data = Validator.ThrowIfNull(other).GetData();
         TestCaseName = other.TestCaseName;
         TestDisplayName = GetDisplayName(testMethodName)
             ?? other.TestDisplayName;
