@@ -2,7 +2,6 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Adatamiq.Strategy;
-using Adatamiq.Validators;
 
 namespace Adatamiq.TestDataTypes.Model.General;
 

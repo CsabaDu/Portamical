@@ -17,7 +17,7 @@ where TTestData : notnull, ITestData
         ArgsCode argsCode,
         string? testMethodName)
     {
-        Validator.ThrowIfNull(theoryTestDataRow, nameof(theoryTestDataRow));
+        Guard.ArgumentNotNull(theoryTestDataRow, nameof(theoryTestDataRow));
         ArgsCode = argsCode.Defined(nameof(argsCode));
         TestMethodName = testMethodName;
 

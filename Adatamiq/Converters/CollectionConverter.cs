@@ -5,7 +5,6 @@ using Adatamiq.Identity;
 using Adatamiq.Identity.Model;
 using Adatamiq.Strategy;
 using Adatamiq.TestDataTypes;
-using Adatamiq.Validators;
 
 namespace Adatamiq.Converters;
 
@@ -186,12 +185,15 @@ public static class CollectionConverter
         Func<TTestData, TRow> testDataConverter)
     where TTestData : notnull, ITestData
     {
-        Validator.ThrowIfNullOrEmpty(
+        var paramName = nameof(testDataCollection);
+        Validator.NotNullOrEmpty(
             testDataCollection,
-            nameof(testDataCollection));
-        Validator.ThrowIfNull(
+            paramName);
+
+        paramName = nameof(testDataConverter);
+        ArgumentNullException.ThrowIfNull(
             testDataConverter,
-            nameof(testDataConverter));
+            paramName);
 
         // Deduplicate based on INamedCase identity/equality semantics
         HashSet<INamedCase> namedCases = new(NamedCase.Comparer);

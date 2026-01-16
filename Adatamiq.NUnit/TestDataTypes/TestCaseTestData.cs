@@ -20,8 +20,8 @@ public abstract class TestCaseTestData
 
     public abstract string TestCaseName { get; init; }
 
-    public bool ContainedBy(IEnumerable<INamedCase>? identifiables)
-    => Contains(this, identifiables);
+    public bool ContainedBy(IEnumerable<INamedCase>? namedCases)
+    => Contains(this, namedCases);
 
     public override sealed bool Equals(object? obj)
     => Equals(obj as INamedCase);

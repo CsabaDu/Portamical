@@ -3,15 +3,15 @@
 
 using System.ComponentModel;
 
-namespace Adatamiq.Validators;
+namespace Adatamiq.Strategy;
 
 /// <summary>
 /// Provides extension methods for validating and handling enumeration values in a type-safe manner.
 /// </summary>
-/// <remarks>The <see cref="EnumValidator"/> class offers utility methods to ensure that enumeration values are
+/// <remarks>The <see cref="Validator"/> class offers utility methods to ensure that enumeration values are
 /// valid and to standardize exception handling for invalid enum arguments. These methods are intended to simplify
 /// validation logic and promote consistent error reporting when working with strongly typed enums.</remarks>
-public static class EnumValidator
+public static class Validator
 {
     /// <summary>
     /// Validates that the <see cref="enum"/> value is defined in the 'TEnum'-type enumeration.
@@ -42,4 +42,25 @@ public static class EnumValidator
         string? paramName)
     where TEnum : struct, Enum
     => new(paramName, (int)(object)enumValue, typeof(TEnum));
+
+    public static string FallbackIfNullOrEmpty(
+    this string label,
+    string? value)
+    => string.IsNullOrEmpty(value) ?
+        label
+        : value;
+
+    public static IEnumerable<T> NotNullOrEmpty<T>(IEnumerable<T>? enumerable, string? paramName)
+    {
+        var moveNext = enumerable
+            ?.GetEnumerator()
+            .MoveNext()
+            ?? throw new ArgumentNullException(paramName);
+
+        if (moveNext) return enumerable;
+
+        throw new ArgumentException(
+            "The sequence must contain at least one element.",
+            paramName);
+    }
 }

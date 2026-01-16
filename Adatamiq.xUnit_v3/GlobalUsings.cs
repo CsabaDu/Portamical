@@ -6,7 +6,6 @@ global using Adatamiq.Identity;
 global using Adatamiq.Identity.Model;
 global using Adatamiq.Strategy;
 global using Adatamiq.TestDataTypes;
-global using Adatamiq.Validators;
 global using System.Reflection;
 global using Xunit;
 global using Xunit.Internal;

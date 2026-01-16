@@ -3,7 +3,6 @@
 
 using Adatamiq.Identity.Model;
 using Adatamiq.Strategy;
-using Adatamiq.Validators;
 
 namespace Adatamiq.TestDataTypes.Model;
 

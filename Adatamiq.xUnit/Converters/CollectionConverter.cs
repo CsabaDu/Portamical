@@ -4,7 +4,6 @@
 using Adatamiq.Converters;
 using Adatamiq.Strategy;
 using Adatamiq.TestDataTypes;
-using Adatamiq.Validators;
 using Xunit;
 
 namespace Adatamiq.xUnit.Converters;

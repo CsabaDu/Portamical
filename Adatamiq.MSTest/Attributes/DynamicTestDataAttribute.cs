@@ -3,7 +3,7 @@
 
 using Adatamiq.Identity;
 using Adatamiq.Identity.Model;
-using Adatamiq.Validators;
+using Adatamiq.Strategy;
 using System.ComponentModel;
 using System.Reflection;
 
