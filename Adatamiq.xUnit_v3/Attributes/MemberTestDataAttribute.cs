@@ -1,9 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Adatamiq.Identity.Model;
-using Adatamiq.Strategy;
-using Adatamiq.TestDataTypes;
 using Adatamiq.xUnit_v3.Converters;
 using Adatamiq.xUnit_v3.TestDataTypes;
 using Adatamiq.xUnit_v3.TestDataTypes.Model;

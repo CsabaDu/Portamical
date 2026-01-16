@@ -1,9 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Adatamiq.Identity;
-using Adatamiq.Strategy;
-using Adatamiq.TestDataTypes;
 using static Adatamiq.Identity.Model.NamedCase;
 
 namespace Adatamiq.xUnit_v3.TestDataTypes.Model;
