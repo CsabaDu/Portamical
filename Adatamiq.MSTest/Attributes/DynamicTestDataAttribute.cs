@@ -4,161 +4,102 @@
 using Adatamiq.Identity;
 using Adatamiq.Identity.Model;
 using Adatamiq.Strategy;
-using System.ComponentModel;
 using System.Reflection;
 
 namespace Adatamiq.MSTest.Attributes;
 
-/// <summary>
-/// Custom DynamicData attribute that wraps MSTest's sealed DynamicDataAttribute
-/// to provide custom display names via TestDataFactory.
-/// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class DynamicTestDataAttributeBase : Attribute, ITestDataSource
+public abstract class DynamicTestDataAttributeBase : Attribute, ITestDataSource
 {
-    private readonly DynamicDataAttribute _dynamicDataAttribute;
+    private readonly DynamicDataAttribute _innerAttribute;
 
-    #region Constructors
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public DynamicTestDataAttributeBase(
-        string dynamicDataSourceName,
-        DynamicDataSourceType dynamicDataSourceType)
+    protected DynamicTestDataAttributeBase(
+        string sourceName,
+        Type? declaringType = null,
+        DynamicDataSourceType? sourceType = null,
+        object?[]? sourceArgs = null)
     {
-        _dynamicDataAttribute = new DynamicDataAttribute(
-            dynamicDataSourceName,
-            dynamicDataSourceType);
+        _innerAttribute = Create(sourceName, declaringType, sourceType, sourceArgs);
     }
 
-    public DynamicTestDataAttributeBase(string dynamicDataSourceName)
+    private static DynamicDataAttribute Create(
+        string sourceName,
+        Type? declaringType,
+        DynamicDataSourceType? sourceType,
+        object?[]? sourceArgs)
     {
-        _dynamicDataAttribute =
-            new DynamicDataAttribute(dynamicDataSourceName);
+        // 1. Declaring type + source type
+        if (declaringType is not null && sourceType is not null)
+        {
+            return new DynamicDataAttribute(sourceName, declaringType, sourceType.Value);
+        }
+
+        // 2. Declaring type + source args
+        if (declaringType is not null && sourceArgs is not null)
+        {
+            return new DynamicDataAttribute(sourceName, declaringType, sourceArgs);
+        }
+
+        // 3. Declaring type only
+        if (declaringType is not null)
+        {
+            return new DynamicDataAttribute(sourceName, declaringType);
+        }
+
+        // 4. Source type only
+        if (sourceType is not null)
+        {
+            return new DynamicDataAttribute(sourceName, sourceType.Value);
+        }
+
+        // 5. Source args only
+        if (sourceArgs is not null)
+        {
+            return new DynamicDataAttribute(sourceName, sourceArgs);
+        }
+
+        // 6. Source name only
+        return new DynamicDataAttribute(sourceName);
     }
 
-    public DynamicTestDataAttributeBase(
-        string dynamicDataSourceName,
-        params object?[] dynamicDataSourceArguments)
-    {
-        _dynamicDataAttribute = new DynamicDataAttribute(
-            dynamicDataSourceName,
-            dynamicDataSourceArguments);
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public DynamicTestDataAttributeBase(
-        string dynamicDataSourceName,
-        Type dynamicDataDeclaringType,
-        DynamicDataSourceType dynamicDataSourceType)
-    {
-        _dynamicDataAttribute = new DynamicDataAttribute(
-            dynamicDataSourceName,
-            dynamicDataDeclaringType,
-            dynamicDataSourceType);
-    }
-
-    public DynamicTestDataAttributeBase(
-        string dynamicDataSourceName,
-        Type dynamicDataDeclaringType)
-    {
-        _dynamicDataAttribute = new DynamicDataAttribute(
-            dynamicDataSourceName,
-            dynamicDataDeclaringType);
-    }
-
-    public DynamicTestDataAttributeBase(
-        string dynamicDataSourceName,
-        Type dynamicDataDeclaringType,
-        params object?[] dynamicDataSourceArguments)
-    {
-        _dynamicDataAttribute = new DynamicDataAttribute
-            (dynamicDataSourceName,
-            dynamicDataDeclaringType,
-            dynamicDataSourceArguments);
-    }
-    #endregion
-
-    #region ITestDataSource members
-    /// <inheritdoc />
     public IEnumerable<object?[]> GetData(MethodInfo testMethod)
-    => _dynamicDataAttribute.GetData(testMethod);
+    => _innerAttribute.GetData(testMethod);
 
-    /// <inheritdoc />
-    public string? GetDisplayName(
-        MethodInfo testMethod,
-        params object?[]? data)
+    public string? GetDisplayName(MethodInfo testMethod, params object?[]? data)
     {
-        var displayName = data?[0] is string or INamedCase ?
-            NamedCase.CreateDisplayName(
-                testMethod.Name,
-                data)
-            : null;
+        ArgumentNullException.ThrowIfNull(testMethod);
 
-        var defaultName =
-            _dynamicDataAttribute.GetDisplayName(
-                testMethod,
-                data)
+        string? adatamiqName =
+            data is { Length: > 0 } &&
+            data[0] is string or INamedCase ?
+                NamedCase.CreateDisplayName(testMethod.Name, data)
+                : null;
+
+        string mstestName =
+            _innerAttribute.GetDisplayName(testMethod!, data)
             ?? string.Empty;
 
-        return defaultName.FallbackIfNullOrEmpty(displayName);
+        return mstestName.FallbackIfNullOrEmpty(adatamiqName);
     }
-    #endregion
 }
 
-public class DynamicTestDataAttribute
-: DynamicTestDataAttributeBase
+public sealed class DynamicTestDataAttribute : DynamicTestDataAttributeBase
 {
-    #region Constructors
-    public DynamicTestDataAttribute(string dynamicDataSourceName)
-    : base(dynamicDataSourceName)
-    {
-    }
+    public DynamicTestDataAttribute(string sourceName)
+    : base(sourceName) { }
 
-    public DynamicTestDataAttribute(
-        string dynamicDataSourceName,
-        DynamicDataSourceType dynamicDataSourceType)
-    : base(
-        dynamicDataSourceName,
-        dynamicDataSourceType)
-    {
-    }
+    public DynamicTestDataAttribute(string sourceName, DynamicDataSourceType sourceType)
+    : base(sourceName, sourceType: sourceType) { }
 
-    public DynamicTestDataAttribute(
-        string dynamicDataSourceName,
-        params object?[] dynamicDataSourceArguments)
-    : base(
-        dynamicDataSourceName,
-        dynamicDataSourceArguments)
-    {
-    }
+    public DynamicTestDataAttribute(string sourceName, params object?[] sourceArgs)
+    : base(sourceName, sourceArgs: sourceArgs) { }
 
-    public DynamicTestDataAttribute(
-        string dynamicDataSourceName,
-        Type dynamicDataDeclaringType)
-    : base(
-        dynamicDataSourceName,
-        dynamicDataDeclaringType)
-    {
-    }
+    public DynamicTestDataAttribute(string sourceName, Type declaringType)
+    : base(sourceName, declaringType: declaringType) { }
 
-    public DynamicTestDataAttribute(
-        string dynamicDataSourceName,
-        Type dynamicDataDeclaringType,
-        DynamicDataSourceType dynamicDataSourceType)
-    : base(
-        dynamicDataSourceName,
-        dynamicDataDeclaringType,
-        dynamicDataSourceType)
-    {
-    }
+    public DynamicTestDataAttribute(string sourceName, Type declaringType, DynamicDataSourceType sourceType)
+    : base(sourceName, declaringType: declaringType, sourceType: sourceType) { }
 
-    public DynamicTestDataAttribute(
-        string dynamicDataSourceName,
-        Type dynamicDataDeclaringType,
-        params object?[] dynamicDataSourceArguments)
-    : base(dynamicDataSourceName,
-        dynamicDataDeclaringType,
-        dynamicDataSourceArguments)
-    {
-    }
-    #endregion
+    public DynamicTestDataAttribute(string sourceName, Type declaringType, params object?[] sourceArgs)
+    : base(sourceName, declaringType: declaringType, sourceArgs: sourceArgs) { }
 }

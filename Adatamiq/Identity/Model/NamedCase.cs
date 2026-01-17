@@ -93,5 +93,5 @@ public abstract class NamedCase : INamedCase
     public static bool Contains(
         INamedCase namedCase,
         IEnumerable<INamedCase>? namedCases)
-    => namedCases?.Any(namedCase.Equals) == true;
+    => namedCases?.Contains(namedCase, Comparer) == true;
 }
