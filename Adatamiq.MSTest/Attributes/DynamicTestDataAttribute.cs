@@ -9,18 +9,15 @@ using System.Reflection;
 namespace Adatamiq.MSTest.Attributes;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public abstract class DynamicTestDataAttributeBase : Attribute, ITestDataSource
+public abstract class DynamicTestDataAttributeBase(
+    string sourceName,
+    Type? declaringType = null,
+    DynamicDataSourceType? sourceType = null,
+    object?[]? sourceArgs = null)
+: Attribute, ITestDataSource
 {
-    private readonly DynamicDataAttribute _innerAttribute;
-
-    protected DynamicTestDataAttributeBase(
-        string sourceName,
-        Type? declaringType = null,
-        DynamicDataSourceType? sourceType = null,
-        object?[]? sourceArgs = null)
-    {
-        _innerAttribute = Create(sourceName, declaringType, sourceType, sourceArgs);
-    }
+    private readonly DynamicDataAttribute _innerAttribute =
+        Create(sourceName, declaringType, sourceType, sourceArgs);
 
     private static DynamicDataAttribute Create(
         string sourceName,
