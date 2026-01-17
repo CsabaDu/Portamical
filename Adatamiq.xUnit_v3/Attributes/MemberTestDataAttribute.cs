@@ -93,7 +93,8 @@ public abstract class MemberTestDataAttributeBase
             return base.ConvertDataRow(dataRow);
         }
 
-        if (Arguments?.Length == 1 && Arguments[0] is ArgsCode argsCode)
+        if (Arguments is [ArgsCode argsCode])
+
         {
             return testData.ToTheoryTestDataRow(argsCode);
         }

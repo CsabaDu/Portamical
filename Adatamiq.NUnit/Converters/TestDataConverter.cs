@@ -13,7 +13,7 @@ public static class TestDataConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => new(testData, argsCode, testMethodName);
+    => From(testData, argsCode, testMethodName);
 
     public static TestCaseData ToTestCaseData<TTestData>(
         this TTestData testData,
@@ -21,7 +21,7 @@ public static class TestDataConverter
         string? testMethodName)
     where TTestData : notnull, ITestData
     {
-        var row = ConvertToReturnsArgs(testData, argsCode);
+        var row = TestCaseDataArgsFrom(testData, argsCode);
         var testCaseData = new TestCaseData(row)
         {
             TypeArgs = GetTypeArgs(testData, argsCode),

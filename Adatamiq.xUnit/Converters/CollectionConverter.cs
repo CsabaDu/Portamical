@@ -21,18 +21,28 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     => argsCode switch
     {
-        ArgsCode.Instance => testDataCollection.Convert(
-            (testData, argsCode, testMethodName) => testData,
-            (testData) => new TheoryData<TTestData>(testData),
-            (theoryData, testData) => theoryData.Add(testData),
-            argsCode,
-            null),
-        ArgsCode.Properties => testDataCollection.Convert(
-            (testData, argsCode, testMethodName) => testData.ToArgs(argsCode),
-            (properties) => new TheoryData<object?[]>(properties),
-            (theoryData, properties) => theoryData.Add(properties),
-            argsCode,
-            null),
+        ArgsCode.Instance => testDataCollection.InstanceToTheoryData(),
+        ArgsCode.Properties => testDataCollection.PropertiesToTheoryData(),
         _ => throw argsCode.GetInvalidEnumArgumentException(nameof(argsCode)),
     };
+
+    public static TheoryData<TTestData> InstanceToTheoryData<TTestData>(
+        this IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    => testDataCollection.Convert(
+        convertRow: (testData, _, _) => testData,
+        initDataProvider: testData => new TheoryData<TTestData>(testData),
+        addRow: (theoryData, testData) => theoryData.Add(testData),
+        ArgsCode.Instance,
+        testMethodName: null);
+
+    public static TheoryData<object?[]> PropertiesToTheoryData<TTestData>(
+        this IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    => testDataCollection.Convert(
+        convertRow: (testData, argsCode, _) => testData.ToArgs(argsCode),
+        initDataProvider: row => new TheoryData<object?[]>(row),
+        addRow: (theoryData, row) => theoryData.Add(row),
+        ArgsCode.Properties,
+        testMethodName: null);
 }

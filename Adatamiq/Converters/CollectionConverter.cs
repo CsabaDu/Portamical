@@ -120,7 +120,7 @@ public static class CollectionConverter
 
     public static TDataProvider Convert<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TRow> testDataConverter,
+        Func<TTestData, ArgsCode, string?, TRow> convertRow,
         Func<TRow, TDataProvider> initDataProvider,
         Action<TDataProvider, TRow> addRow,
         ArgsCode argsCode,
@@ -129,7 +129,7 @@ public static class CollectionConverter
     {
         IEnumerable<TRow> rowCollection =
             testDataCollection.Convert(
-                testDataConverter,
+                convertRow,
                 argsCode,
                 testMethodName);
         TDataProvider dataProvider = initDataProvider(rowCollection.First());
@@ -155,12 +155,12 @@ public static class CollectionConverter
     /// The concrete test data type, constrained to <see cref="ITestData"/>.
     /// </typeparam>
     /// <typeparam name="TRow">
-    /// The target row type produced by the <paramref name="testDataConverter"/> delegate.
+    /// The target row type produced by the <paramref name="convertRow"/> delegate.
     /// </typeparam>
     /// <param name="testDataCollection">
     /// The source collection of test data items to be transformed.
     /// </param>
-    /// <param name="testDataConverter">
+    /// <param name="convertRow">
     /// A delegate that converts a single <typeparamref name="TTestData"/> instance
     /// into a <typeparamref name="TRow"/> result.
     /// </param>
@@ -178,11 +178,11 @@ public static class CollectionConverter
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="testDataCollection"/> or
-    /// <paramref name="testDataConverter"/> is <c>null</c>.
+    /// <paramref name="convertRow"/> is <c>null</c>.
     /// </exception>
     private static IEnumerable<TRow> ConvertDistinct<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, TRow> testDataConverter)
+        Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
         var paramName = nameof(testDataCollection);
@@ -190,9 +190,9 @@ public static class CollectionConverter
             testDataCollection,
             paramName);
 
-        paramName = nameof(testDataConverter);
+        paramName = nameof(convertRow);
         ArgumentNullException.ThrowIfNull(
-            testDataConverter,
+            convertRow,
             paramName);
 
         // Deduplicate based on INamedCase identity/equality semantics
@@ -202,7 +202,7 @@ public static class CollectionConverter
         {
             if (namedCases.Add(testData))
             {
-                yield return testDataConverter(testData);
+                yield return convertRow(testData);
             }
         }
     }

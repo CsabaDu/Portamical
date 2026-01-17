@@ -35,24 +35,29 @@ public abstract class TestCaseTestData
     public override sealed int GetHashCode()
     => Comparer.GetHashCode(this);
 
+    public static TestCaseTestData<TTestData> From<TTestData>(
+        TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName = null)
+    where TTestData : notnull, ITestData
+    => new(testData, argsCode, testMethodName);
+
     public static Type[]? GetTypeArgs<TTestData>(
         TTestData testData,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
     {
-        var testDataType = typeof(TTestData);
-        var typeArgs = testDataType.GetGenericArguments();
+        if (argsCode != ArgsCode.Properties) return null;
 
-        typeArgs = testData is IReturns ?
+        var typeArgs = typeof(TTestData).GetGenericArguments();
+
+        return testData is IReturns ?
             typeArgs[1..]
             : typeArgs;
 
-        return argsCode == ArgsCode.Properties ?
-            typeArgs
-            : null;
     }
 
-    public static object?[] ConvertToReturnsArgs(
+    public static object?[] TestCaseDataArgsFrom(
         ITestData testData,
         ArgsCode argsCode)
     => testData.ToArgs(argsCode, PropsCode.TrimReturned);
@@ -73,10 +78,18 @@ where TTestData : notnull, ITestData
         TTestData testData,
         ArgsCode argsCode,
         string? testMethodName)
-    : base(ConvertToReturnsArgs(testData, argsCode))
+    : base(TestCaseDataArgsFrom(testData, argsCode))
     {
         TestCaseName = testData.TestCaseName;
         TypeArgs = GetTypeArgs(testData, argsCode);
+
+        ApplyMetadata(testData, testMethodName);
+    }
+
+    public override string TestCaseName { get; init; }
+
+    private void ApplyMetadata(TTestData testData, string? testMethodName)
+    {
         Properties.Set(PropertyNames.Description, TestCaseName);
 
         if (!string.IsNullOrEmpty(testMethodName))
@@ -89,6 +102,4 @@ where TTestData : notnull, ITestData
             ExpectedResult = returns.GetExpected();
         }
     }
-
-    public override string TestCaseName { get; init; }
 }

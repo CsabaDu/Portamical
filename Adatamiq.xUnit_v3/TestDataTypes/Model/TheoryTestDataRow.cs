@@ -9,24 +9,40 @@ internal class TheoryTestDataRow
 : TheoryDataRowBase,
 ITheoryTestDataRow
 {
+    private TheoryTestDataRow(
+        INamedCase? namedCase,
+        string paramName,
+        Func<object?[]> getData,
+        string? testMethodName)
+    {
+        namedCase = Guard.ArgumentNotNull(namedCase, paramName);
+        TestCaseName = namedCase.TestCaseName;
+        TestDisplayName = GetDisplayName(testMethodName);
+        _data = getData();
+    }
+
     internal TheoryTestDataRow(
         ITestData testData,
         ArgsCode argsCode,
         string? testMethodName)
+    : this(
+        testData,
+        nameof(testData),
+        getData: () => testData.ToArgs(argsCode),
+        testMethodName)
     {
-        _data = testData.ToArgs(argsCode);
-        TestCaseName = testData.TestCaseName;
-        TestDisplayName = GetDisplayName(testMethodName);
     }
 
     internal TheoryTestDataRow(
         ITheoryTestDataRow other,
         string? testMethodName)
+    : this(
+        other,
+        nameof(other),
+        getData: other.GetData,
+        testMethodName)
     {
-        _data = Guard.ArgumentNotNull(other).GetData();
-        TestCaseName = other.TestCaseName;
-        TestDisplayName = GetDisplayName(testMethodName)
-            ?? other.TestDisplayName;
+        TestDisplayName ??= other.TestDisplayName;
 
         Explicit = other.Explicit;
         Skip = other.Skip;
@@ -35,7 +51,10 @@ ITheoryTestDataRow
         SkipUnless = other.SkipUnless;
         SkipWhen = other.SkipWhen;
         Timeout = other.Timeout;
-        Traits = other.Traits ?? [];
+        Traits = other.Traits?.ToDictionary(
+            kvp => kvp.Key,
+            kvp => new HashSet<string>(kvp.Value))
+            ?? [];
     }
 
     #region Fields
@@ -47,8 +66,8 @@ ITheoryTestDataRow
     #endregion
 
     #region Methods
-    public bool ContainedBy(IEnumerable<INamedCase>? namedCase)
-    => Contains(this, namedCase);
+    public bool ContainedBy(IEnumerable<INamedCase>? namedCases)
+    => Contains(this, namedCases);
 
     public bool Equals(INamedCase? other)
     => Comparer.Equals(this, other);
@@ -69,14 +88,11 @@ ITheoryTestDataRow
     #endregion
 }
 
-internal sealed class TheoryTestDataRow<TTestData> : TheoryTestDataRow
-    where TTestData : notnull, ITestData
+internal sealed class TheoryTestDataRow<TTestData>(
+    TTestData testData,
+    ArgsCode argsCode,
+    string? testMethodName)
+: TheoryTestDataRow(testData, argsCode, testMethodName)
+where TTestData : notnull, ITestData
 {
-    internal TheoryTestDataRow(
-        TTestData testData,
-        ArgsCode argsCode,
-        string? testMethodName)
-    : base(testData, argsCode, testMethodName)
-    {
-    }
 }

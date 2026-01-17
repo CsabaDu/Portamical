@@ -7,7 +7,6 @@ namespace Adatamiq.xUnit_v3.Converters;
 
 public static class TestDataConverter
 {
-    #region ToTheoryTestDataRow
     internal static TheoryTestDataRow<TTestData> ToTheoryTestDataRow<TTestData>(
         this TTestData testData,
         ArgsCode argsCode,
@@ -19,6 +18,4 @@ public static class TestDataConverter
         this ITestData testData,
         ArgsCode argsCode)
     => testData.ToTheoryTestDataRow(argsCode, null);
-
-    #endregion
 }
