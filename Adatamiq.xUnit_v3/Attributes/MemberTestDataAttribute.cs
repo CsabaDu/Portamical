@@ -24,7 +24,9 @@ public abstract class MemberTestDataAttributeBase
         string memberName,
         params object[] arguments)
     : base(memberName, arguments)
-    => DisableDiscoveryEnumeration = true;
+    {
+        DisableDiscoveryEnumeration = true;
+    }
     #endregion
 
     #region Methods
@@ -74,32 +76,36 @@ public abstract class MemberTestDataAttributeBase
     /// <inheritdoc/>
     protected override ITheoryDataRow ConvertDataRow(object dataRow)
     {
-        if (dataRow is ITheoryTestDataRow theoryTestDataRow)
+        if (dataRow is not ITheoryTestDataRow theoryTestDataRow)
         {
-            Dictionary<string, HashSet<string>> traits =
-                new(StringComparer.OrdinalIgnoreCase);
+            if (dataRow is not ITestData testData)
+            {
+                return base.ConvertDataRow(dataRow);
+            }
 
-            if (theoryTestDataRow.Traits is not null)
-                foreach (var kvp in theoryTestDataRow.Traits)
-                    traits.AddOrGet(kvp.Key).AddRange(kvp.Value);
+            if (Arguments is not [ArgsCode argsCode])
+            {
+                argsCode = ArgsCode.Instance;
+            }
 
-            TestIntrospectionHelper.MergeTraitsInto(traits, Traits);
-
-            return new TheoryTestDataRow(theoryTestDataRow, null);
-        }
-
-        if (dataRow is not ITestData testData)
-        {
-            return base.ConvertDataRow(dataRow);
-        }
-
-        if (Arguments is [ArgsCode argsCode])
-
-        {
             return testData.ToTheoryTestDataRow(argsCode);
         }
 
-        return testData.ToTheoryTestDataRow(ArgsCode.Instance);
+        var ttdrTraits = theoryTestDataRow.Traits;
+        var traits = new Dictionary<string, HashSet<string>>(
+            StringComparer.OrdinalIgnoreCase);
+
+        if (ttdrTraits is not null)
+        {
+            foreach (var kvp in ttdrTraits)
+            {
+                traits.AddOrGet(kvp.Key).AddRange(kvp.Value);
+            }
+        }
+
+        TestIntrospectionHelper.MergeTraitsInto(traits, Traits);
+
+        return new TheoryTestDataRow(theoryTestDataRow, null);
     }
     #endregion
 }

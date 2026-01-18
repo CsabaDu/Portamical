@@ -42,13 +42,15 @@ public static class Validator
     => new(paramName, (int)(object)enumValue, typeof(TEnum));
 
     public static string FallbackIfNullOrEmpty(
-    this string label,
-    string? value)
+        this string label,
+        string? value)
     => string.IsNullOrEmpty(value) ?
         label
         : value;
 
-    public static IEnumerable<T> NotNullOrEmpty<T>(IEnumerable<T>? enumerable, string? paramName)
+    public static IEnumerable<T> NotNullOrEmpty<T>(
+        IEnumerable<T>? enumerable,
+        string? paramName)
     {
         var moveNext = enumerable
             ?.GetEnumerator()

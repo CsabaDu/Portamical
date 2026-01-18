@@ -54,7 +54,6 @@ public abstract class TestCaseTestData
         return testData is IReturns ?
             typeArgs[1..]
             : typeArgs;
-
     }
 
     public static object?[] TestCaseDataArgsFrom(
