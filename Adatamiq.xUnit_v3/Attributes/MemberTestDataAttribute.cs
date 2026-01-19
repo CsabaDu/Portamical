@@ -41,9 +41,14 @@ public abstract class MemberTestDataAttributeBase
             await base.GetData(testMethod, disposalTracker)
             .ConfigureAwait(false);
 
-        if (testMethodName is null || theoryDataRowCollection is null)
+        if (theoryDataRowCollection is null)
         {
-            return theoryDataRowCollection ?? [];
+            return [];
+        }
+
+        if (string.IsNullOrEmpty(testMethodName))
+        {
+            return theoryDataRowCollection;
         }
 
         var runtimeGenericType = theoryDataRowCollection
@@ -55,22 +60,21 @@ public abstract class MemberTestDataAttributeBase
             return theoryDataRowCollection;
         }
 
-        HashSet<ITheoryTestDataRow> ttdrList = new(NamedCase.Comparer);
+        HashSet<ITheoryTestDataRow> ttdrCollection = new(NamedCase.Comparer);
 
         foreach (var item in theoryDataRowCollection)
         {
             var ttdr = (item as ITheoryTestDataRow)!;
 
-            if (!string.IsNullOrEmpty(ttdr.TestDisplayName) ||
-                string.IsNullOrEmpty(testMethodName))
+            if (string.IsNullOrEmpty(ttdr.TestDisplayName))
             {
-                ttdrList.Add(ttdr);
+                ttdr = new TheoryTestDataRow(ttdr, testMethodName);
             }
 
-            ttdrList.Add(new TheoryTestDataRow(ttdr, testMethodName));
+            ttdrCollection.Add(ttdr);
         }
 
-        return ttdrList.CastOrToReadOnlyCollection();
+        return ttdrCollection.CastOrToReadOnlyCollection();
     }
 
     /// <inheritdoc/>
