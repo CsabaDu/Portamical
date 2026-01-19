@@ -9,6 +9,7 @@ internal class TheoryTestDataRow
 : TheoryDataRowBase,
 ITheoryTestDataRow
 {
+    #region Constructors
     private TheoryTestDataRow(
         INamedCase? namedCase,
         string paramName,
@@ -26,10 +27,10 @@ ITheoryTestDataRow
         ArgsCode argsCode,
         string? testMethodName)
     : this(
-        testData,
-        nameof(testData),
+        namedCase: testData,
+        paramName: nameof(testData),
         getData: () => testData.ToArgs(argsCode),
-        testMethodName)
+        testMethodName: testMethodName)
     {
     }
 
@@ -37,10 +38,10 @@ ITheoryTestDataRow
         ITheoryTestDataRow other,
         string? testMethodName)
     : this(
-        other,
-        nameof(other),
+        namedCase: other,
+        paramName: nameof(other),
         getData: other.GetData,
-        testMethodName)
+        testMethodName: testMethodName)
     {
         TestDisplayName ??= other.TestDisplayName;
 
@@ -56,6 +57,7 @@ ITheoryTestDataRow
             kvp => new HashSet<string>(kvp.Value))
             ?? [];
     }
+    #endregion
 
     #region Fields
     private readonly object?[] _data;
@@ -93,6 +95,4 @@ internal sealed class TheoryTestDataRow<TTestData>(
     ArgsCode argsCode,
     string? testMethodName)
 : TheoryTestDataRow(testData, argsCode, testMethodName)
-where TTestData : notnull, ITestData
-{
-}
+where TTestData : notnull, ITestData;
