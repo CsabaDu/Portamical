@@ -8,10 +8,11 @@ namespace Adatamiq.xUnit_v3.Converters;
 
 public static class CollectionConverter
 {
-    public static IEnumerable<ITheoryTestDataRow> ToTheoryTestDataRowCollection(
-        this IEnumerable<ITestData> testDataCollection,
+    public static IEnumerable<ITheoryTestDataRow> ToTheoryTestDataRowCollection<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         string? testMethodName = null)
+    where TTestData : notnull, ITestData
     => testDataCollection.Convert(
         TestDataConverter.ToTheoryTestDataRow,
         argsCode,

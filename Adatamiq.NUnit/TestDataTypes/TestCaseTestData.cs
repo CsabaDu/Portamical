@@ -82,15 +82,6 @@ where TTestData : notnull, ITestData
         TestCaseName = testData.TestCaseName;
         TypeArgs = GetTypeArgs(testData, argsCode);
 
-        ApplyMetadata(testData, testMethodName);
-    }
-
-    public override string TestCaseName { get; init; }
-
-    private void ApplyMetadata(TTestData testData, string? testMethodName)
-    {
-        Properties.Set(PropertyNames.Description, TestCaseName);
-
         if (!string.IsNullOrEmpty(testMethodName))
         {
             TestName = GetDisplayName(testMethodName);
@@ -100,5 +91,9 @@ where TTestData : notnull, ITestData
         {
             ExpectedResult = returns.GetExpected();
         }
+
+        Properties.Set(PropertyNames.Description, TestCaseName);
     }
+
+    public override string TestCaseName { get; init; }
 }
