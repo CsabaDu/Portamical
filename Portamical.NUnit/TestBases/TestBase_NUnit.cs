@@ -23,7 +23,7 @@ public abstract class TestBase_NUnit : TestBase
         }
     }
 
-    protected static TException? AssertThrowsDetails<TException>(
+    protected static TException AssertThrowsDetails<TException>(
         Action attempt,
         TException expected)
     where TException : Exception
@@ -42,19 +42,10 @@ public abstract class TestBase_NUnit : TestBase
             {
                 Assert.That(actual, Is.TypeOf(expectedType));
 
-                if (expected.Message is string expectedMessage)
-                {
-                    Assert.That(actual.Message, Is.EqualTo(expectedMessage));
-                }
-
-                if (AreArgumentExceptionsWithParamNames(
+                AssertMetadataEquality(
                     expected,
                     actual,
-                    out string? expectedParamName,
-                    out string? actualParamName))
-                {
-                    Assert.That(actualParamName, Is.EqualTo(expectedParamName));
-                }
+                    assertEquality);
             });
 
             return actual;
@@ -64,6 +55,11 @@ public abstract class TestBase_NUnit : TestBase
             Assert.Fail(UnexpectedTypeExceptionThrownMessage<TException>(actual.GetType()));
         }
 
-        return null;
+        throw new InvalidOperationException("Unreachable code path.");
+
+        #region Local methods
+        static void assertEquality(string expectedString, string? actualString)
+        => Assert.That(actualString, Is.EqualTo(expectedString));
+        #endregion
     }
 }

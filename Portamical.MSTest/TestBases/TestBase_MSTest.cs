@@ -7,12 +7,13 @@ namespace Portamical.MSTest.TestBases;
 
 public abstract class TestBase_MSTest : TestBase
 {
-    protected static TException? AssertThrowsDetails<TException>(
+    protected static TException AssertThrowsDetails<TException>(
         Action attempt,
         TException expected)
     where TException : Exception
     {
         var expectedType = expected.GetType();
+
         try
         {
             attempt();
@@ -23,19 +24,10 @@ public abstract class TestBase_MSTest : TestBase
         {
             Assert.IsInstanceOfType(actual, expectedType);
 
-            if (expected.Message is string expectedMessage)
-            {
-                Assert.AreEqual(expectedMessage, actual.Message);
-            }
-
-            if (AreArgumentExceptionsWithParamNames(
+            AssertMetadataEquality(
                 expected,
                 actual,
-                out string? expectedParamName,
-                out string? actualParamName))
-            {
-                Assert.AreEqual(expectedParamName, actualParamName);
-            }
+                assertEquality);
 
             return actual;
         }
@@ -44,6 +36,11 @@ public abstract class TestBase_MSTest : TestBase
             Assert.Fail(UnexpectedTypeExceptionThrownMessage<TException>(actual.GetType()));
         }
 
-        return null;
+        throw new InvalidOperationException("Unreachable code path.");
+
+        #region Local methods
+        static void assertEquality(string expectedString, string? actualString)
+        => Assert.AreEqual(expectedString, actualString);
+        #endregion
     }
 }

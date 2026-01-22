@@ -7,7 +7,7 @@ namespace Portamical.xUnit.TestBases;
 
 public abstract class TestBase_xUnit : TestBase
 {
-    protected static TException? AssertThrowsDetails<TException>(
+    protected static TException AssertThrowsDetails<TException>(
         Action attempt,
         TException expected)
     where TException : Exception
@@ -15,33 +15,17 @@ public abstract class TestBase_xUnit : TestBase
         var expectedType = expected.GetType();
         var actual = Record.Exception(attempt);
 
-        if (actual is null)
-        {
-            Assert.Fail(ExpectedTypeExceptionNotThrownMessage(expectedType));
-        }
-
-        if (actual is not TException)
-        {
-            Assert.Fail(UnexpectedTypeExceptionThrownMessage<TException>(actual.GetType()));
-
-            return null;
-        }
+        AssertActualType<TException>(
+            actual,
+            expectedType,
+            Assert.Fail);
 
         Assert.IsType(expectedType, actual);
 
-        if (expected.Message is string expectedMessage)
-        {
-            Assert.Equal(expectedMessage, actual!.Message);
-        }
-
-        if (AreArgumentExceptionsWithParamNames(
+        AssertMetadataEquality(
             expected,
-            actual,
-            out string? expectedParamName,
-            out string? actualParamName))
-        {
-            Assert.Equal(expectedParamName, actualParamName);
-        }
+            (TException)actual,
+            Assert.Equal);
 
         return (TException)actual;
     }

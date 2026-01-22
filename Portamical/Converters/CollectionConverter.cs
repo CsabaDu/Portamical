@@ -67,7 +67,7 @@ public static class CollectionConverter
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="testDataCollection"/> is <c>null</c>.
     /// </exception>
-    public static IEnumerable<object?[]> Convert<TTestData>(
+    public static IEnumerable<object?[]> ConvertToArgs<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
@@ -195,7 +195,7 @@ public static class CollectionConverter
             convertRow,
             paramName);
 
-        // Deduplicate based on INamedCase identity/equality semantics
+        // Deduplicate based on 'INamedCase' identity/equality semantics
         HashSet<INamedCase> namedCases = new(NamedCase.Comparer);
 
         foreach (var testData in testDataCollection)

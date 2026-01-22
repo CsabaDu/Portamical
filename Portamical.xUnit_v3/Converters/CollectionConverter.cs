@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.Converters;
 using Portamical.xUnit_v3.DataProviders.Model;
 using Portamical.xUnit_v3.TestDataTypes;
 
@@ -27,6 +28,16 @@ public static class CollectionConverter
         TestDataConverter.ToTheoryTestDataRow,
         ttdr => new TheoryTestData<TTestData>(ttdr, argsCode, testMethodName),
         TheoryTestData<TTestData>.AddRow,
+        argsCode,
+        testMethodName);
+
+    public static IEnumerable<ITheoryDataRow> ToTheoryDataRowCollection<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        string? testMethodName = null)
+    where TTestData : notnull, ITestData
+    => testDataCollection.Convert(
+        TestDataConverter.ToTheoryDataRow,
         argsCode,
         testMethodName);
 }

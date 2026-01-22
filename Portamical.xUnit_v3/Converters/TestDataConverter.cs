@@ -18,4 +18,22 @@ public static class TestDataConverter
         this ITestData testData,
         ArgsCode argsCode)
     => testData.ToTheoryTestDataRow(argsCode, null);
+
+    internal static ITheoryDataRow ToTheoryDataRow<TTestData>(
+        this TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    {
+        object row = argsCode == ArgsCode.Properties ?
+            testData.ToArgs(argsCode)
+            : testData;
+
+        // Create the xUnit theory row with a unified display name.
+        return new TheoryDataRow(row)
+        {
+            TestDisplayName =
+                testData.GetDisplayName(testMethodName)
+        };
+    }
 }
