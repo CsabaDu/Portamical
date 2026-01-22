@@ -68,7 +68,7 @@ public abstract class TestBase(ArgsCode argsCode = ArgsCode.Instance)
             $"but exception of type {actualType.Name} was thrown.";
     }
 
-    protected IEnumerable<object?[]> ConvertToArgs<TTestData>(
+    protected IReadOnlyCollection<object?[]> ConvertToArgs<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.ConvertToArgs(ArgsCode);

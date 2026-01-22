@@ -8,7 +8,7 @@ namespace Portamical.NUnit.Converters;
 
 public static class CollectionConverter
 {
-    public static IEnumerable<TestCaseData> ToTestCaseDataCollection<TTestData>(
+    public static IReadOnlyCollection<TestCaseData> ToTestCaseDataCollection<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         string? testMethodName = null)
@@ -18,7 +18,7 @@ public static class CollectionConverter
         argsCode,
         testMethodName);
 
-    public static IEnumerable<TestCaseTestData<TTestData>> ToTestCaseTestDataCollection<TTestData>(
+    public static IReadOnlyCollection<TestCaseTestData<TTestData>> ToTestCaseTestDataCollection<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         string? testMethodName = null)

@@ -8,7 +8,7 @@ namespace Portamical.xUnit_v3.TestBases;
 public abstract class TestBase_TheoryDataRows(ArgsCode argsCode = ArgsCode.Instance)
 : TestBase_xUnit_v3(argsCode)
 {
-    public IEnumerable<ITheoryDataRow> Convert<TTestData>(
+    public IReadOnlyCollection<ITheoryDataRow> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,
         string? testMethodName = null)
     where TTestData : notnull, ITestData

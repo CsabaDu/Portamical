@@ -9,7 +9,7 @@ namespace Portamical.MSTest.TestBases;
 
 public abstract class TestBase_NamedObjectArrays : TestBase_MSTest
 {
-    protected IEnumerable<object?[]> Convert<TTestData>(
+    protected IReadOnlyCollection<object?[]> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.Convert(

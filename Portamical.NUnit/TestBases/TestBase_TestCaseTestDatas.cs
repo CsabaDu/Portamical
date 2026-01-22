@@ -9,7 +9,7 @@ namespace Portamical.NUnit.TestBases;
 public abstract class TestBase_TestCaseTestDatas(ArgsCode argsCode = ArgsCode.Instance)
 : TestBase_NUnit(argsCode)
 {
-    protected IEnumerable<TestCaseTestData<TTestData>> Convert<TTestData>(
+    protected IReadOnlyCollection<TestCaseTestData<TTestData>> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,
         string? testMethodName = null)
     where TTestData : notnull, ITestData

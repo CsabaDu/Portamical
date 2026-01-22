@@ -9,7 +9,7 @@ namespace Portamical.xUnit_v3.Converters;
 
 public static class CollectionConverter
 {
-    public static IEnumerable<ITheoryTestDataRow> ToTheoryTestDataRowCollection<TTestData>(
+    public static IReadOnlyCollection<ITheoryTestDataRow> ToTheoryTestDataRowCollection<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         string? testMethodName = null)
@@ -31,7 +31,7 @@ public static class CollectionConverter
         argsCode,
         testMethodName);
 
-    public static IEnumerable<ITheoryDataRow> ToTheoryDataRowCollection<TTestData>(
+    public static IReadOnlyCollection<ITheoryDataRow> ToTheoryDataRowCollection<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         string? testMethodName = null)

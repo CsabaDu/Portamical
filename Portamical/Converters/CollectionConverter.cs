@@ -39,7 +39,7 @@ public static class CollectionConverter
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="testDataCollection"/> is <c>null</c>.
     /// </exception>
-    public static IEnumerable<object?[]> Convert<TTestData>(
+    public static IReadOnlyCollection<object?[]> Convert<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         PropsCode propsCode)
@@ -67,7 +67,7 @@ public static class CollectionConverter
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="testDataCollection"/> is <c>null</c>.
     /// </exception>
-    public static IEnumerable<object?[]> ConvertToArgs<TTestData>(
+    public static IReadOnlyCollection<object?[]> ConvertToArgs<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
@@ -106,7 +106,7 @@ public static class CollectionConverter
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="testDataCollection"/> or <paramref name="testDataConverter"/> is <c>null</c>.
     /// </exception>
-    public static IEnumerable<TRow> Convert<TTestData, TRow>(
+    public static IReadOnlyCollection<TRow> Convert<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TRow> testDataConverter,
         ArgsCode argsCode,
@@ -132,15 +132,12 @@ public static class CollectionConverter
                 convertRow,
                 argsCode,
                 testMethodName);
-        TDataProvider dataProvider = initDataProvider(rowCollection.First());
-        var count = rowCollection.Count();
+        var rows = rowCollection.ToArray();
+        var dataProvider = initDataProvider(rows[0]);
 
-        if (count == 1) return dataProvider;
-
-        for (int i = 1; i < count; i++)
+        for (int i = 1; i < rows.Length; i++)
         {
-            var row = rowCollection.ElementAt(i);
-            addRow(dataProvider, row);
+            addRow(dataProvider, rows[i]);
         }
 
         return dataProvider;
@@ -180,30 +177,31 @@ public static class CollectionConverter
     /// Thrown if <paramref name="testDataCollection"/> or
     /// <paramref name="convertRow"/> is <c>null</c>.
     /// </exception>
-    private static IEnumerable<TRow> ConvertDistinct<TTestData, TRow>(
+    private static TRow[] ConvertDistinct<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        var paramName = nameof(testDataCollection);
         Validator.NotNullOrEmpty(
             testDataCollection,
-            paramName);
+            nameof(testDataCollection));
 
-        paramName = nameof(convertRow);
         ArgumentNullException.ThrowIfNull(
             convertRow,
-            paramName);
+            nameof(convertRow));
 
         // Deduplicate based on 'INamedCase' identity/equality semantics
         HashSet<INamedCase> namedCases = new(NamedCase.Comparer);
+        List<TRow> rows = [];
 
         foreach (var testData in testDataCollection)
         {
             if (namedCases.Add(testData))
             {
-                yield return convertRow(testData);
+                rows.Add(convertRow(testData));
             }
         }
+
+        return [.. rows];
     }
 }
