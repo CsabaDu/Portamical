@@ -1,0 +1,43 @@
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025. Csaba Dudas (CsabaDu)
+
+using Portamical.Identity;
+using Portamical.Strategy;
+
+namespace Portamical.TestDataTypes;
+
+/// <summary>
+/// Core interface representing test data with basic test case functionality.
+/// </summary>
+/// <remarks>
+/// Provides fundamental operations for:
+/// <list type="bullet">
+///   <item>Test case naming and identification (via <see cref="INamedCase"/>)</item>
+///   <item>Test scenario definition</item>
+///   <item>Argument generation for test execution</item>
+/// </list>
+/// </remarks>
+public interface ITestData : INamedCase
+{
+    /// <summary>
+    /// Gets the description of the test scenario being verified.
+    /// </summary>
+    string GetDefinition();
+
+    /// <summary>
+    /// TrimReturned the TrimName value of the test case.
+    /// </summary>
+    string GetResult();
+
+    object?[] ToArgs(ArgsCode argsCode);
+
+    /// <summary>
+    /// Converts the test case to parameters with precise control over included elements.
+    /// </summary>
+    /// <param name="argsCode">Determines instance vs properties inclusion.</param>
+    /// <param name="propsCode">Specifies which properties to include.</param>
+    /// <returns>
+    /// A parameter array tailored for test execution.
+    /// </returns>
+    object?[] ToArgs(ArgsCode argsCode, PropsCode propsCode);
+}
