@@ -5,7 +5,8 @@ using Portamical.TestBases;
 
 namespace Portamical.xUnit_v3.TestBases;
 
-public abstract class TestBase_xUnit_v3 : TestBase
+public abstract class TestBase_xUnit_v3(ArgsCode argsCode = ArgsCode.Instance)
+: TestBase(argsCode)
 {
     protected static TException AssertThrowsDetails<TException>(
         Action attempt,
@@ -22,11 +23,13 @@ public abstract class TestBase_xUnit_v3 : TestBase
 
         Assert.IsType(expectedType, actual);
 
+        var typedActual = (TException)actual!;
+
         AssertMetadataEquality(
             expected,
-            (TException)actual,
+            typedActual,
             Assert.Equal);
 
-        return (TException)actual;
+        return typedActual;
     }
 }

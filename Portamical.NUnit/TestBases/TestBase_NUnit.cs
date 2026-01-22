@@ -1,11 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.TestBases;
-
 namespace Portamical.NUnit.TestBases;
 
-public abstract class TestBase_NUnit : TestBase
+public abstract class TestBase_NUnit(ArgsCode argsCode = ArgsCode.Instance)
+: TestBase(argsCode)
 {
     protected static void AssertMultiple(Action assertions)
     {

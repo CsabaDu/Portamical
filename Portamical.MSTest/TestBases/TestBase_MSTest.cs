@@ -1,11 +1,13 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.Strategy;
 using Portamical.TestBases;
 
 namespace Portamical.MSTest.TestBases;
 
-public abstract class TestBase_MSTest : TestBase
+public abstract class TestBase_MSTest(ArgsCode argsCode = ArgsCode.Instance)
+: TestBase(argsCode)
 {
     protected static TException AssertThrowsDetails<TException>(
         Action attempt,

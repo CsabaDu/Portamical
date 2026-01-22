@@ -5,7 +5,8 @@ using Portamical.xUnit_v3.Converters;
 
 namespace Portamical.xUnit_v3.TestBases;
 
-public abstract class TestBase_TheoryDataRows : TestBase_xUnit_v3
+public abstract class TestBase_TheoryDataRows(ArgsCode argsCode = ArgsCode.Instance)
+: TestBase_xUnit_v3(argsCode)
 {
     public IEnumerable<ITheoryDataRow> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,

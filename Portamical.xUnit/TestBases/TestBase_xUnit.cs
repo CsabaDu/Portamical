@@ -1,11 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.TestBases;
-
 namespace Portamical.xUnit.TestBases;
 
-public abstract class TestBase_xUnit : TestBase
+public abstract class TestBase_xUnit(ArgsCode argsCode = ArgsCode.Instance)
+: TestBase(argsCode)
 {
     protected static TException AssertThrowsDetails<TException>(
         Action attempt,
@@ -22,11 +21,13 @@ public abstract class TestBase_xUnit : TestBase
 
         Assert.IsType(expectedType, actual);
 
+        var typedActual = (TException)actual!;
+
         AssertMetadataEquality(
             expected,
-            (TException)actual,
+            typedActual,
             Assert.Equal);
 
-        return (TException)actual;
+        return typedActual;
     }
 }
