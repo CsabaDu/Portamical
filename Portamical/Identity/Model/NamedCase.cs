@@ -1,6 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using System.ComponentModel.DataAnnotations;
+using static Portamical.Strategy.Validator;
+
 namespace Portamical.Identity.Model;
 
 public abstract class NamedCase : INamedCase
@@ -29,12 +32,8 @@ public abstract class NamedCase : INamedCase
 
         public int GetHashCode(INamedCase obj)
         {
-            if (obj is null)
-            {
-                throw new ArgumentNullException(nameof(obj));
-            }
-
-            var name = obj.TestCaseName ?? string.Empty;
+            var name = NotNull(obj, nameof(obj))
+                .TestCaseName ?? string.Empty;
 
             return StringComparer.Ordinal.GetHashCode(name);
         }

@@ -27,38 +27,24 @@ public abstract class TestBase_NUnit(ArgsCode argsCode = ArgsCode.Instance)
         TException expected)
     where TException : Exception
     {
-        var expectedType = expected.GetType();
+        var actual = Assert.Catch(() => attempt());
+        var typedActual = AssertActualType(
+            actual,
+            expected,
+            assertIsType,
+            Assert.Fail);
 
-        try
-        {
-            attempt();
-
-            Assert.Fail(ExpectedTypeExceptionNotThrownMessage(expectedType));
-        }
-        catch (TException actual)
-        {
-            AssertMultiple(() =>
-            {
-                Assert.That(actual, Is.TypeOf(expectedType));
-
-                AssertMetadataEquality(
-                    expected,
-                    actual,
-                    assertEquality);
-            });
-
-            return actual;
-        }
-        catch (Exception actual)
-        {
-            Assert.Fail(UnexpectedTypeExceptionThrownMessage<TException>(actual.GetType()));
-        }
-
-        throw new InvalidOperationException("Unreachable code path.");
+        return AssertMetadataEquality(
+            expected,
+            typedActual,
+            assertEquality);
 
         #region Local methods
         static void assertEquality(string expectedString, string? actualString)
         => Assert.That(actualString, Is.EqualTo(expectedString));
+
+        static void assertIsType(Type expectedType, Exception actual)
+        => Assert.That(actual, Is.TypeOf(expectedType));
         #endregion
     }
 }

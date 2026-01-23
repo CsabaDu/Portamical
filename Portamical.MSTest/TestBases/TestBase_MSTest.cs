@@ -14,35 +14,38 @@ public abstract class TestBase_MSTest(ArgsCode argsCode = ArgsCode.Instance)
         TException expected)
     where TException : Exception
     {
-        var expectedType = expected.GetType();
+        var expectedType =
+            Validator.NotNull(expected, nameof(expected))
+            .GetType();
 
         try
         {
             attempt();
 
             Assert.Fail(ExpectedTypeExceptionNotThrownMessage(expectedType));
-        }
-        catch (TException actual)
-        {
-            Assert.IsInstanceOfType(actual, expectedType);
 
-            AssertMetadataEquality(
-                expected,
-                actual,
-                assertEquality);
-
-            return actual;
+            throw new InvalidOperationException("Unreachable code path.");
         }
         catch (Exception actual)
         {
-            Assert.Fail(UnexpectedTypeExceptionThrownMessage<TException>(actual.GetType()));
-        }
+            var typedActual = AssertActualType(
+                actual,
+                expected,
+                assertIsType,
+                Assert.Fail);
 
-        throw new InvalidOperationException("Unreachable code path.");
+            return AssertMetadataEquality(
+                expected,
+                typedActual,
+                assertEquality);
+        }
 
         #region Local methods
         static void assertEquality(string expectedString, string? actualString)
         => Assert.AreEqual(expectedString, actualString);
+
+        static void assertIsType(Type expectedType, Exception actual)
+        => Assert.AreEqual(expectedType, actual.GetType());
         #endregion
     }
 }

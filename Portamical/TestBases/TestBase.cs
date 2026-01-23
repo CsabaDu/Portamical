@@ -4,6 +4,7 @@
 using Portamical.Converters;
 using Portamical.Strategy;
 using Portamical.TestDataTypes;
+using static Portamical.Strategy.Validator;
 
 namespace Portamical.TestBases;
 
@@ -14,7 +15,7 @@ public abstract class TestBase(ArgsCode argsCode = ArgsCode.Instance)
     protected static readonly ArgsCode AsInstance = ArgsCode.Instance;
     protected static readonly ArgsCode AsProperties = ArgsCode.Properties;
 
-    protected static void AssertMetadataEquality<TException>(
+    protected static TException AssertMetadataEquality<TException>(
         TException expected,
         TException actual,
         Action<string, string?> assertEquality)
@@ -23,7 +24,6 @@ public abstract class TestBase(ArgsCode argsCode = ArgsCode.Instance)
         if (expected.Message is string expectedMessage)
         {
             var actualMessage = actual.Message;
-
             assertEquality(expectedMessage, actualMessage);
         }
 
@@ -32,41 +32,48 @@ public abstract class TestBase(ArgsCode argsCode = ArgsCode.Instance)
             actual is ArgumentException argActual)
         {
             var actualParamName = argActual.ParamName;
-
             assertEquality(expectedParamName, actualParamName);
         }
+
+        return actual;
     }
 
     protected static TException AssertActualType<TException>(
         Exception? actual,
-        Type expectedType,
+        TException expected,
+        Action<Type, Exception> assertIsType,
         Action<string> assertFail)
-    where TException : Exception
+        where TException : Exception
     {
+        var expectedType = NotNull(expected, nameof(expected)).GetType();
+        _ = NotNull(assertIsType, nameof(assertIsType));
+        _ = NotNull(assertFail, nameof(assertFail));
+
         if (actual is null)
         {
             assertFail(ExpectedTypeExceptionNotThrownMessage(expectedType));
+            throw getAssertionFailedException("expected exception was not thrown.");
         }
 
-        if (actual is not TException)
+        if (actual.GetType() == expectedType &&
+            actual is TException typedActual)
         {
-            assertFail(UnexpectedTypeExceptionThrownMessage<TException>(actual!.GetType()));
+            assertIsType(expectedType, typedActual);
+            return typedActual;
         }
 
-        return (TException)actual;
+        assertFail($"Expected exception of type {typeof(TException).Name}, " +
+            $"but exception of type {actual.GetType().Name} was thrown.");
+        throw getAssertionFailedException("unexpected exception type thrown.");
+
+        #region Local methods
+        static InvalidOperationException getAssertionFailedException(string message)
+        => new($"Assertion failed: {message}");
+        #endregion
     }
 
     protected static string ExpectedTypeExceptionNotThrownMessage(Type expectedType)
-    {
-        return $"Expected {expectedType.Name} was not thrown.";
-    }
-
-    protected static string UnexpectedTypeExceptionThrownMessage<TException>(Type actualType)
-    where TException : Exception
-    {
-        return $"Expected exception of type {typeof(TException).Name}, " +
-            $"but exception of type {actualType.Name} was thrown.";
-    }
+        => $"Expected exception of type {expectedType.Name} was not thrown.";
 
     protected IReadOnlyCollection<object?[]> ConvertToArgs<TTestData>(
         IEnumerable<TTestData> testDataCollection)

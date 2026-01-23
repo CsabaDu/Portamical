@@ -50,13 +50,9 @@ public static class Validator
 
     public static T[] NotNullOrEmpty<T>(IEnumerable<T>? enumerable, string? paramName)
     {
-        if (enumerable is null)
-        {
-            throw new ArgumentNullException(paramName);
-        }
-
         // Take a stable snapshot once
-        var snapshot = enumerable as T[] ?? enumerable.ToArray();
+        var snapshot = NotNull(enumerable, paramName) as T[]
+            ?? enumerable!.ToArray();
 
         if (snapshot.Length == 0)
         {
@@ -67,4 +63,9 @@ public static class Validator
 
         return snapshot;
     }
+
+    public static T NotNull<T>(T? value, string? paramName)
+    => value is null ?
+        throw new ArgumentNullException(paramName)
+        : value;
 }

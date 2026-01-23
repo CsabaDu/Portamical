@@ -13,23 +13,17 @@ public abstract class TestBase_xUnit_v3(ArgsCode argsCode = ArgsCode.Instance)
         TException expected)
     where TException : Exception
     {
-        var expectedType = expected.GetType();
         var actual = Record.Exception(attempt);
 
-        AssertActualType<TException>(
+        var typedActual = AssertActualType(
             actual,
-            expectedType,
+            expected,
+            Assert.IsType,
             Assert.Fail);
 
-        Assert.IsType(expectedType, actual);
-
-        var typedActual = (TException)actual!;
-
-        AssertMetadataEquality(
+        return AssertMetadataEquality(
             expected,
             typedActual,
             Assert.Equal);
-
-        return typedActual;
     }
 }
