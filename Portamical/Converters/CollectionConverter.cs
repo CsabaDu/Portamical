@@ -93,6 +93,6 @@ public static class CollectionConverter
             }
         }
 
-        return rows.ToArray();
+        return [.. rows];
     }
 }

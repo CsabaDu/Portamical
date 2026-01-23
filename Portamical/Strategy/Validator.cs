@@ -52,7 +52,7 @@ public static class Validator
     {
         // Take a stable snapshot once
         var snapshot = NotNull(enumerable, paramName) as T[]
-            ?? enumerable!.ToArray();
+            ?? [.. enumerable!];
 
         if (snapshot.Length == 0)
         {

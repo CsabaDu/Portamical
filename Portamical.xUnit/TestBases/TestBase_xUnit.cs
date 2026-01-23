@@ -6,7 +6,7 @@ namespace Portamical.xUnit.TestBases;
 public abstract class TestBase_xUnit(ArgsCode argsCode = ArgsCode.Instance)
 : TestBase(argsCode)
 {
-    protected static TException AssertThrowsDetails<TException>(
+    public static TException AssertThrowsDetails<TException>(
         Action attempt,
         TException expected)
     where TException : Exception

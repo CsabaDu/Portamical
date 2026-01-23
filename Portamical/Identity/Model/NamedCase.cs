@@ -105,7 +105,7 @@ public abstract class NamedCase : INamedCase
         if (namedCases is null) return false;
 
         var snapshot = namedCases as INamedCase[]
-            ?? namedCases.ToArray();
+            ?? [.. namedCases];
 
         return snapshot.Contains(namedCase, Comparer);
     }

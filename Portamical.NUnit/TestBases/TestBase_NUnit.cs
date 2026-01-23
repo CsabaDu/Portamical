@@ -6,7 +6,7 @@ namespace Portamical.NUnit.TestBases;
 public abstract class TestBase_NUnit(ArgsCode argsCode = ArgsCode.Instance)
 : TestBase(argsCode)
 {
-    protected static void AssertMultiple(Action assertions)
+    public static void AssertMultiple(Action assertions)
     {
         using (Assert.EnterMultipleScope())
         {
@@ -14,7 +14,7 @@ public abstract class TestBase_NUnit(ArgsCode argsCode = ArgsCode.Instance)
         }
     }
 
-    protected static async Task AssertMultipleAsync(Func<Task> assertions)
+    public static async Task AssertMultipleAsync(Func<Task> assertions)
     {
         using (Assert.EnterMultipleScope())
         {
@@ -22,7 +22,7 @@ public abstract class TestBase_NUnit(ArgsCode argsCode = ArgsCode.Instance)
         }
     }
 
-    protected static TException AssertThrowsDetails<TException>(
+    public static TException AssertThrowsDetails<TException>(
         Action attempt,
         TException expected)
     where TException : Exception
