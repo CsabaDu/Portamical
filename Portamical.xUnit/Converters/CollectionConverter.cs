@@ -25,8 +25,8 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.Convert(
-        convertRow: (testData, _, _) => testData,
         initDataProvider: testData => new TheoryData<TTestData>(testData),
+        convertRow: (testData, _, _) => testData,
         addRow: (theoryData, testData) => theoryData.Add(testData),
         ArgsCode.Instance,
         testMethodName: null);
@@ -35,8 +35,8 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.Convert(
-        convertRow: (testData, argsCode, _) => testData.ToArgs(argsCode),
         initDataProvider: row => new TheoryData<object?[]>(row),
+        convertRow: (testData, argsCode, _) => testData.ToArgs(argsCode),
         addRow: (theoryData, row) => theoryData.Add(row),
         ArgsCode.Properties,
         testMethodName: null);

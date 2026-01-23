@@ -5,6 +5,7 @@ using Portamical.Identity;
 using Portamical.Identity.Model;
 using Portamical.Strategy;
 using Portamical.TestDataTypes;
+using static Portamical.Strategy.Validator;
 
 namespace Portamical.Converters;
 
@@ -32,20 +33,20 @@ public static class CollectionConverter
 
     public static IReadOnlyCollection<TRow> Convert<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TRow> testDataConverter,
+        Func<TTestData, ArgsCode, string?, TRow> convertRow,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
     => testDataCollection.ConvertDistinct(
-        testData => testDataConverter(
+        testData => convertRow(
             testData,
             argsCode.Defined(nameof(argsCode)),
             testMethodName));
 
     public static TDataProvider Convert<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TRow> convertRow,
         Func<TRow, TDataProvider> initDataProvider,
+        Func<TTestData, ArgsCode, string?, TRow> convertRow,
         Action<TDataProvider, TRow> addRow,
         ArgsCode argsCode,
         string? testMethodName)
@@ -77,19 +78,14 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        var source = Validator.NotNullOrEmpty(
-            testDataCollection,
-            nameof(testDataCollection));
-
-        ArgumentNullException.ThrowIfNull(
-            convertRow,
-            nameof(convertRow));
+        _ = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        _ = NotNull(convertRow, nameof(convertRow));
 
         // Deduplicate based on 'NamedCase' identity/equality semantics
         var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
         var rows = new List<TRow>();
 
-        foreach (var testData in source)
+        foreach (var testData in testDataCollection)
         {
             if (namedCases.Add(testData))
             {
