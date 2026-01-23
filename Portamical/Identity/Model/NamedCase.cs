@@ -28,7 +28,12 @@ public abstract class NamedCase : INamedCase
         }
 
         public int GetHashCode(INamedCase obj)
-        => StringComparer.Ordinal.GetHashCode(obj.TestCaseName);
+        {
+            if (obj is null) throw new ArgumentNullException(nameof(obj));
+            var name = obj.TestCaseName ?? string.Empty;
+
+            return StringComparer.Ordinal.GetHashCode(name);
+        }
     }
 
     /// <summary>
@@ -93,5 +98,12 @@ public abstract class NamedCase : INamedCase
     public static bool Contains(
         INamedCase namedCase,
         IEnumerable<INamedCase>? namedCases)
-    => namedCases?.Contains(namedCase, Comparer) == true;
+    {
+        if (namedCases is null) return false;
+
+        var snapshot = namedCases as INamedCase[] ?? [.. namedCases];
+
+        return snapshot.Contains(namedCase, Comparer);
+    }
+    //=> namedCases?.Contains(namedCase, Comparer) == true;
 }

@@ -48,19 +48,23 @@ public static class Validator
         label
         : value;
 
-    public static IEnumerable<T> NotNullOrEmpty<T>(
-        IEnumerable<T>? enumerable,
-        string? paramName)
+    public static T[] NotNullOrEmpty<T>(IEnumerable<T>? enumerable, string? paramName)
     {
-        var moveNext = enumerable
-            ?.GetEnumerator()
-            .MoveNext()
-            ?? throw new ArgumentNullException(paramName);
+        if (enumerable is null)
+        {
+            throw new ArgumentNullException(paramName);
+        }
 
-        if (moveNext) return enumerable;
+        // Take a stable snapshot once
+        var snapshot = enumerable as T[] ?? enumerable.ToArray();
 
-        throw new ArgumentException(
-            "The sequence must contain at least one element.",
-            paramName);
+        if (snapshot.Length == 0)
+        {
+            throw new ArgumentException(
+                "The sequence must contain at least one element.",
+                paramName);
+        }
+
+        return snapshot;
     }
 }
