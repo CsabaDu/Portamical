@@ -29,7 +29,11 @@ public abstract class NamedCase : INamedCase
 
         public int GetHashCode(INamedCase obj)
         {
-            if (obj is null) throw new ArgumentNullException(nameof(obj));
+            if (obj is null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             var name = obj.TestCaseName ?? string.Empty;
 
             return StringComparer.Ordinal.GetHashCode(name);
@@ -101,9 +105,9 @@ public abstract class NamedCase : INamedCase
     {
         if (namedCases is null) return false;
 
-        var snapshot = namedCases as INamedCase[] ?? [.. namedCases];
+        var snapshot = namedCases as INamedCase[]
+            ?? namedCases.ToArray();
 
         return snapshot.Contains(namedCase, Comparer);
     }
-    //=> namedCases?.Contains(namedCase, Comparer) == true;
 }
