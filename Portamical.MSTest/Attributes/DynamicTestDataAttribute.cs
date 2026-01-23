@@ -3,8 +3,6 @@
 
 using Portamical.Identity;
 using Portamical.Identity.Model;
-using Portamical.Strategy;
-using System.Reflection;
 
 namespace Portamical.MSTest.Attributes;
 

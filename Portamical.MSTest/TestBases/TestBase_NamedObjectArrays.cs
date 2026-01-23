@@ -3,7 +3,6 @@
 
 using Portamical.Converters;
 using Portamical.TestDataTypes;
-using Portamical.Strategy;
 
 namespace Portamical.MSTest.TestBases;
 
