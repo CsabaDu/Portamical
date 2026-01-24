@@ -1,10 +1,11 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.NUnit.TestBases;
+using Portamical.TestHelpers;
 
-public abstract class TestBase_NUnit(ArgsCode argsCode = ArgsCode.Instance)
-: TestBase(argsCode)
+namespace Portamical.NUnit.TestHelpers;
+
+public class FramedAssert : FramedAssertBase
 {
     public static void AssertMultiple(Action assertions)
     {
@@ -22,22 +23,19 @@ public abstract class TestBase_NUnit(ArgsCode argsCode = ArgsCode.Instance)
         }
     }
 
-    public static TException AssertThrowsDetails<TException>(
+    public static TException ThrowsDetails<TException>(
         Action attempt,
         TException expected)
-    where TException : Exception
+    where TException : notnull, Exception
     {
         var actual = Assert.Catch(() => attempt());
-        var typedActual = AssertActualType(
-            actual,
-            expected,
-            assertIsType,
-            Assert.Fail);
 
-        return AssertMetadataEquality(
+        return AssertThrowsDetails(
             expected,
-            typedActual,
-            assertEquality);
+            actual,
+            assertIsType,
+            assertEquality,
+            Assert.Fail);
 
         #region Local methods
         static void assertEquality(string expectedString, string? actualString)

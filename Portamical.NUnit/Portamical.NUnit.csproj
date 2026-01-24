@@ -14,4 +14,9 @@
     <ProjectReference Include="..\Portamical\Portamical.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestBases\TestCaseTestDataCollection\" />
+    <Folder Include="TestBases\TestCaseDataCollection\" />
+  </ItemGroup>
+
 </Project>

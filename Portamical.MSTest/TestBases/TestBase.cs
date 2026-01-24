@@ -6,7 +6,8 @@ using Portamical.TestDataTypes;
 
 namespace Portamical.MSTest.TestBases;
 
-public abstract class TestBase_NamedObjectArrays : TestBase_MSTest
+public abstract class TestBase(ArgsCode argsCode = ArgsCode.Instance)
+: Portamical.TestBases.TestBase(argsCode)
 {
     protected IReadOnlyCollection<object?[]> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection)

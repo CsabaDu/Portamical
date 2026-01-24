@@ -9,39 +9,28 @@ using static Portamical.Strategy.Validator;
 
 namespace Portamical.Converters;
 
-/// <summary>
-/// Provides extension methods for transforming collections of strongly typed <see cref="ITestData"/> 
-/// into framework-ready representations. Acts as a dual-strategy converter supporting 
-/// both parameter arrays and custom row formats.
-/// </summary>
 public static class CollectionConverter
 {
+    public static IReadOnlyCollection<TTestData> ToDistinctReadOnly<TTestData>(
+        this IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctReadOnly(
+        testData => testData);
+
+    public static IReadOnlyCollection<object?[]> Convert<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctReadOnly(
+        testData => testData.ToArgs(argsCode));
+
     public static IReadOnlyCollection<object?[]> Convert<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         PropsCode propsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ConvertDistinct(
+    => testDataCollection.ToDistinctReadOnly(
         testData => testData.ToArgs(argsCode, propsCode));
-
-    public static IReadOnlyCollection<object?[]> ConvertToArgs<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ConvertDistinct(
-        testData => testData.ToArgs(argsCode));
-
-    public static IReadOnlyCollection<TRow> Convert<TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TRow> convertRow,
-        ArgsCode argsCode,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ConvertDistinct(
-        testData => convertRow(
-            testData,
-            argsCode.Defined(nameof(argsCode)),
-            testMethodName));
 
     public static TDataProvider Convert<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
@@ -73,7 +62,19 @@ public static class CollectionConverter
         return dataProvider;
     }
 
-    private static TRow[] ConvertDistinct<TTestData, TRow>(
+    public static IReadOnlyCollection<TRow> Convert<TTestData, TRow>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, ArgsCode, string?, TRow> convertRow,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctReadOnly(
+        testData => convertRow(
+            testData,
+            argsCode.Defined(nameof(argsCode)),
+            testMethodName));
+
+    private static TRow[] ToDistinctReadOnly<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData

@@ -3,10 +3,10 @@
 
 using Portamical.xUnit_v3.Converters;
 
-namespace Portamical.xUnit_v3.TestBases;
+namespace Portamical.xUnit_v3.TestBases.TheoryDataRowCollection;
 
-public abstract class TestBase_TheoryDataRows(ArgsCode argsCode = ArgsCode.Instance)
-: TestBase_xUnit_v3(argsCode)
+public abstract class TestBase(ArgsCode argsCode = ArgsCode.Instance)
+: Portamical.TestBases.TestBase(argsCode)
 {
     public IReadOnlyCollection<ITheoryDataRow> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,

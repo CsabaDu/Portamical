@@ -3,10 +3,10 @@
 
 using Portamical.NUnit.Converters;
 
-namespace Portamical.NUnit.TestBases;
+namespace Portamical.NUnit.TestBases.TestCaseDataCollection;
 
-public abstract class TestBase_TestCaseData(ArgsCode argsCode = ArgsCode.Instance)
-: TestBase_NUnit(argsCode)
+public abstract class TestBase(ArgsCode argsCode = ArgsCode.Instance)
+: Portamical.TestBases.TestBase(argsCode)
 {
     protected IReadOnlyCollection<TestCaseData> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,

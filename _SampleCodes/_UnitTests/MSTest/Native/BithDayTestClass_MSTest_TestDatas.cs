@@ -1,25 +1,24 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.Converters;
 using Portamical.MSTest.Attributes;
 using Portamical.MSTest.TestBases;
+using Portamical.MSTest.TestHelpers;
 using Portamical.SampleCodes.DataSources;
 using Portamical.SampleCodes.Testables;
-using Portamical.TestBases;
 using Portamical.TestDataTypes.Models.General;
 using Portamical.TestDataTypes.Models.Specialized;
-using System.Data.Common;
 
-namespace Portamical.SampleCodes.UnitTests.MSTest;
+namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
 
 [TestClass]
-public sealed class BithDayTestClass_MSTest_TestDatas
-: TestBase
+public sealed class BithDayTestClass_MSTest_TestDatas : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
     private static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
-    => _dataSource.GetBirthDayConstructorValidArgs();
+    => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly();
 
     [TestMethod, DynamicTestData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
@@ -38,7 +37,7 @@ public sealed class BithDayTestClass_MSTest_TestDatas
     }
 
     private static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
-    => _dataSource.GetBirthDayConstructorInvalidArgs();
+    => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly();
 
     [TestMethod, DynamicTestData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
@@ -51,17 +50,17 @@ public sealed class BithDayTestClass_MSTest_TestDatas
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        TestBase_MSTest.AssertThrowsDetails(attempt, testData.Expected);
+        FramedAssert.ThrowsDetails(attempt, testData.Expected);
     }
 
     private static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
-    => _dataSource.GetCompareToArgs();
+    => _dataSource.GetCompareToArgs().ToDistinctReadOnly();
 
     [TestMethod, DynamicTestData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange
-        string name = "valid name";
+        const string name = "valid name";
         DateOnly dateOfBirth = testData.Arg1;
         BirthDay? other = testData.Arg2;
         BirthDay sut = new(name, dateOfBirth);
