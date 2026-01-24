@@ -5,20 +5,17 @@ using Portamical.TestHelpers;
 
 namespace Portamical.xUnit.TestHelpers;
 
-public abstract class FramedAssert : FramedAssertBase
+public abstract class PortamicalAssert : PortamicalAssertBase
 {
     public static TException ThrowsDetails<TException>(
         Action attempt,
         TException expected)
     where TException : notnull, Exception
-    {
-        var actual = Record.Exception(attempt);
-
-        return AssertThrowsDetails(
-            expected,
-            actual,
-            Assert.IsType,
-            Assert.Equal,
-            Assert.Fail);
-    }
+    => ThrowsDetails(
+        expected,
+        attempt,
+        assertIsType: Assert.IsType,
+        assertEquality: Assert.Equal,
+        assertFail: Assert.Fail,
+        catchException: Record.Exception);
 }

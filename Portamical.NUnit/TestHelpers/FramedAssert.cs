@@ -5,7 +5,7 @@ using Portamical.TestHelpers;
 
 namespace Portamical.NUnit.TestHelpers;
 
-public class FramedAssert : FramedAssertBase
+public class PortamicalAssert : PortamicalAssertBase
 {
     public static void AssertMultiple(Action assertions)
     {
@@ -27,22 +27,11 @@ public class FramedAssert : FramedAssertBase
         Action attempt,
         TException expected)
     where TException : notnull, Exception
-    {
-        var actual = Assert.Catch(() => attempt());
-
-        return AssertThrowsDetails(
-            expected,
-            actual,
-            assertIsType,
-            assertEquality,
-            Assert.Fail);
-
-        #region Local methods
-        static void assertEquality(string expectedString, string? actualString)
-        => Assert.That(actualString, Is.EqualTo(expectedString));
-
-        static void assertIsType(Type expectedType, Exception actual)
-        => Assert.That(actual, Is.TypeOf(expectedType));
-        #endregion
-    }
+    => ThrowsDetails(
+        expected,
+        attempt,
+        assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
+        assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
+        assertFail: Assert.Fail,
+        catchException: (attempt) => Assert.Catch(() => attempt()));
 }

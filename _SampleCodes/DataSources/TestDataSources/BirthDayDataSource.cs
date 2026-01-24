@@ -1,12 +1,12 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.SampleCodes.Testables;
+using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestDataTypes.Models.General;
 using Portamical.TestDataTypes.Models.Specialized;
 using static Portamical.Factories.TestDataFactory;
 
-namespace Portamical.SampleCodes.DataSources;
+namespace Portamical.SampleCodes.DataSources.TestDataSources;
 
 public class BirthDayDataSource()
 {

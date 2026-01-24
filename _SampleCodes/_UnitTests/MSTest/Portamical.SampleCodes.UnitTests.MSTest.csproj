@@ -32,8 +32,4 @@
     <PackageReference Update="MSTest.TestFramework" Version="4.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Specific\" />
-  </ItemGroup>
-
 </Project>

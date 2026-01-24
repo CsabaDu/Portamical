@@ -5,7 +5,7 @@ using static Portamical.Strategy.Validator;
 
 namespace Portamical.TestHelpers;
 
-public abstract class FramedAssertBase
+public abstract class PortamicalAssertBase
 {
     protected const string ExpectedExceptionNotThrownMessage =
         "Expected exception was not thrown.";
@@ -19,18 +19,28 @@ public abstract class FramedAssertBase
     private static string? GetFullName(Exception exception)
     => exception.GetType().FullName;
 
-    protected static string GwetExpectedTypeExceptionNotThrownMessage<TException>(TException expected)
+    public static string GetExpectedTypeExceptionNotThrownMessage<TException>(TException expected)
     where TException : notnull, Exception
     => $"Expected exception of type {GetFullName(expected)} was not thrown.";
 
-    protected static TException AssertThrowsDetails<TException>(
+    public static string GetNotExpectedTypeExceptionThrownMessage<TException>(TException expected, Exception actual)
+    where TException : notnull, Exception
+    => $"Expected exception of type {GetFullName(expected)}, " +
+        $"but exception of type {GetFullName(actual)} was thrown.";
+
+    public static TException ThrowsDetails<TException>(
         TException expected,
-        Exception? actual,
+        Action attempt,
         Action<Type, Exception> assertIsType,
         Action<string, string?> assertEquality,
-        Action<string> assertFail)
+        Action<string> assertFail,
+        Func<Action, Exception?>? catchException = null)
     where TException : notnull, Exception
     {
+        var actual = catchException is null ?
+            CatchExceptionOrNull(attempt)
+            : catchException(attempt);
+
         var typedActual = AssertActualType(
             expected,
             actual,
@@ -50,11 +60,12 @@ public abstract class FramedAssertBase
         Action<string> assertFail)
     where TException : notnull, Exception
     {
+        NotNull(assertFail, nameof(assertFail));
+        NotNull(assertIsType, nameof(assertIsType));
+
         if (actual is null)
         {
-            NotNull(assertFail, nameof(assertFail))(
-                GwetExpectedTypeExceptionNotThrownMessage(expected));
-
+            assertFail(GetExpectedTypeExceptionNotThrownMessage(expected));
             throw GetAssertionFailedException(ExpectedExceptionNotThrownMessage);
         }
 
@@ -62,16 +73,11 @@ public abstract class FramedAssertBase
 
         if (actual.GetType() == expectedType && actual is TException typedActual)
         {
-            NotNull(assertIsType, nameof(assertIsType))(
-                expectedType, typedActual);
-
+            assertIsType(expectedType, typedActual);
             return typedActual;
         }
 
-        assertFail(
-            $"Expected exception of type {GetFullName(expected)}, " +
-            $"but exception of type {GetFullName(actual)} was thrown.");
-
+        assertFail(GetNotExpectedTypeExceptionThrownMessage(expected, actual));
         throw GetAssertionFailedException("Unexpected exception type thrown.");
     }
 
@@ -81,7 +87,7 @@ public abstract class FramedAssertBase
         Action<string, string?> assertEquality)
     where TException : notnull, Exception
     {
-        _ = NotNull(assertEquality, nameof(assertEquality));
+        NotNull(assertEquality, nameof(assertEquality));
 
         if (expected.Message is string expectedMessage)
         {
@@ -102,16 +108,30 @@ public abstract class FramedAssertBase
 
     public static void DoesNotThrow(Action attempt, Action<string> assertFail)
     {
+        var exception = CatchExceptionOrNull(attempt);
+        NotNull(assertFail, nameof(assertFail));
+
+        if (exception is not null)
+        {
+            assertFail(
+                $"Did not expect exception to be thrown, " +
+                $"but exception of type {GetFullName(exception)} was thrown. " +
+                $"Message: '{exception.Message}'");
+        }
+    }
+
+    public static Exception? CatchExceptionOrNull(Action attempt)
+    {
+        _ = NotNull(attempt, nameof(attempt));
+
         try
         {
             attempt();
+            return null;
         }
-        catch (Exception actual)
+        catch (Exception exception)
         {
-            NotNull(assertFail, nameof(assertFail))(
-                $"Did not expect exception to be thrown, " +
-                $"but exception of type {GetFullName(actual)} was thrown. " +
-                $"Message: '{actual.Message}'");
+            return exception;
         }
     }
 }

@@ -3,9 +3,9 @@
 
 using Portamical.TestHelpers;
 
-namespace Portamical.xUnit_v3.TestHelpers;
+namespace Portamical.MSTest.TestHelpers;
 
-public abstract class PortamicalAssert : PortamicalAssertBase
+public class PortamicalAssert : PortamicalAssertBase
 {
     public static TException ThrowsDetails<TException>(
         Action attempt,
@@ -14,8 +14,7 @@ public abstract class PortamicalAssert : PortamicalAssertBase
     => ThrowsDetails(
         expected,
         attempt,
-        assertIsType: Assert.IsType,
-        assertEquality: Assert.Equal,
-        assertFail: Assert.Fail,
-        catchException: Record.Exception);
+        assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
+        assertEquality: (e, a) => Assert.AreEqual(e, a),
+        assertFail: Assert.Fail);
 }

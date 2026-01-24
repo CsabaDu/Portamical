@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.SampleCodes.Testables;
+namespace Portamical.SampleCodes.Testables.SampleClasses;
 
 public class BirthDay : IComparable<BirthDay>
 {
