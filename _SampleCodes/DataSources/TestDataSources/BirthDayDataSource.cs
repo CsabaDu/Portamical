@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.TestDataTypes.Models.General;
+using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestDataTypes.Models.General;
-using Portamical.TestDataTypes.Models.Specialized;
-using static Portamical.Factories.TestDataFactory;
+using static Portamical.Core.Factories.TestDataFactory;
 
 namespace Portamical.SampleCodes.DataSources.TestDataSources;
 

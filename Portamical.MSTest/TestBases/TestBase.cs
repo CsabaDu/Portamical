@@ -2,7 +2,7 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.Converters;
-using Portamical.TestDataTypes;
+using Portamical.Core.TestDataTypes;
 
 namespace Portamical.MSTest.TestBases;
 

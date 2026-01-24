@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.TestDataTypes.Models.General;
-using Portamical.TestDataTypes.Models.Specialized;
+using Portamical.Core.TestDataTypes.Models.General;
+using Portamical.Core.TestDataTypes.Models.Specialized;
 
-namespace Portamical.Factories;
+namespace Portamical.Core.Factories;
 
 /// <summary>
 /// Factory class for creating and working with test data instances.

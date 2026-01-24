@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Identity;
+namespace Portamical.Core.Identity;
 
 /// <summary>
 /// Provides a standardized way to generate descriptive display names for test cases.

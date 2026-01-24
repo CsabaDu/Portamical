@@ -1,12 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Identity;
-using Portamical.Identity.Model;
-using Portamical.Strategy;
-using Portamical.TestDataTypes;
-using static Portamical.Strategy.Validator;
-
 namespace Portamical.Converters;
 
 public static class CollectionConverter

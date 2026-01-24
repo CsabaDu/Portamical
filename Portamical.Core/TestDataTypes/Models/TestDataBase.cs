@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Identity.Model;
-using Portamical.Strategy;
+using Portamical.Core.Identity.Model;
+using Portamical.Core.Strategy;
 
-namespace Portamical.TestDataTypes.Models;
+namespace Portamical.Core.TestDataTypes.Models;
 
 /// <summary>
 /// Abstract base class representing test case data with core functionality for test argument generation.

@@ -2,10 +2,10 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.Converters;
+using Portamical.Core.TestDataTypes.Models.General;
+using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestDataTypes.Models.General;
-using Portamical.TestDataTypes.Models.Specialized;
 using static Portamical.TestHelpers.PortamicalAssertBase;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Native;

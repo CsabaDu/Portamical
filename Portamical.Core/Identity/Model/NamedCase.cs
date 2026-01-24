@@ -1,9 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using static Portamical.Strategy.Validator;
+using static Portamical.Core.Strategy.Validator;
 
-namespace Portamical.Identity.Model;
+namespace Portamical.Core.Identity.Model;
 
 public abstract class NamedCase : INamedCase
 {

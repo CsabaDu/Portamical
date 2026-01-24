@@ -1,4 +1,3 @@
 <Solution>
   <Project Path="Portamical.Core/Portamical.Core.csproj" />
-  <Project Path="Portamical/Portamical.csproj" />
 </Solution>

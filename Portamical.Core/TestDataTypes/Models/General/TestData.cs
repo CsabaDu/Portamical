@@ -1,9 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Strategy;
+using Portamical.Core.Strategy;
 
-namespace Portamical.TestDataTypes.Models.General;
+namespace Portamical.Core.TestDataTypes.Models.General;
 
 public abstract class TestData(
     string definition,

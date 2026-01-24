@@ -3,7 +3,6 @@
 
 global using NUnit.Framework;
 global using NUnit.Framework.Internal;
-global using Portamical.Strategy;
-global using Portamical.TestBases;
-global using Portamical.TestDataTypes;
-global using Portamical.TestDataTypes.Patterns;
+global using Portamical.Core.Strategy;
+global using Portamical.Core.TestDataTypes;
+global using Portamical.Core.TestDataTypes.Patterns;

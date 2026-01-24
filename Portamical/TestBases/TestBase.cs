@@ -2,8 +2,6 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.Converters;
-using Portamical.Strategy;
-using Portamical.TestDataTypes;
 
 namespace Portamical.TestBases;
 

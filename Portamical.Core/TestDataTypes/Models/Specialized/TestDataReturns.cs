@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Strategy;
-using Portamical.TestDataTypes.Patterns;
+using Portamical.Core.Strategy;
+using Portamical.Core.TestDataTypes.Patterns;
 
-namespace Portamical.TestDataTypes.Models.Specialized;
+namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
 public abstract class TestDataReturns<TStruct>(
     string definition,

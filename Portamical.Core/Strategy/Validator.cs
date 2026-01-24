@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Strategy;
+namespace Portamical.Core.Strategy;
 
 /// <summary>
 /// Provides extension methods for validating and handling enumeration values in a type-safe manner.

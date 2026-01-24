@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Strategy;
+namespace Portamical.Core.Strategy;
 
 /// <summary>
 /// Specifies which properties of an <see cref="ITestData"/> instance should be included in the test data object array

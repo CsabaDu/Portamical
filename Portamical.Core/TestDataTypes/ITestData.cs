@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Identity;
-using Portamical.Strategy;
+using Portamical.Core.Identity;
+using Portamical.Core.Strategy;
 
-namespace Portamical.TestDataTypes;
+namespace Portamical.Core.TestDataTypes;
 
 /// <summary>
 /// Core interface representing test data with basic test case functionality.
