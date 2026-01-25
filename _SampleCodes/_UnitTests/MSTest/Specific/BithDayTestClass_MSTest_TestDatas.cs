@@ -6,7 +6,7 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.MSTest.Attributes;
 using Portamical.MSTest.TestBases;
-using Portamical.MSTest.TestHelpers;
+using Portamical.MSTest.Assertions;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 

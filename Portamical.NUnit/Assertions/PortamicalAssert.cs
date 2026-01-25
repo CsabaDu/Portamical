@@ -1,11 +1,11 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.TestHelpers;
+using Portamical.Assertions;
 
-namespace Portamical.NUnit.TestHelpers;
+namespace Portamical.NUnit.Assertions;
 
-public class PortamicalAssert : PortamicalAssertBase
+public abstract class PortamicalAssert : PortamicalAssertBase
 {
     public static void AssertMultiple(Action assertions)
     {

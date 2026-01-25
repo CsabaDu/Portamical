@@ -1,11 +1,11 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.TestHelpers;
+using Portamical.Assertions;
 
-namespace Portamical.MSTest.TestHelpers;
+namespace Portamical.xUnit_v3.Assertions;
 
-public class PortamicalAssert : PortamicalAssertBase
+public abstract class PortamicalAssert : PortamicalAssertBase
 {
     public static TException ThrowsDetails<TException>(
         Action attempt,
@@ -14,7 +14,8 @@ public class PortamicalAssert : PortamicalAssertBase
     => ThrowsDetails(
         expected,
         attempt,
-        assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
-        assertEquality: (e, a) => Assert.AreEqual(e, a),
-        assertFail: Assert.Fail);
+        assertIsType: Assert.IsType,
+        assertEquality: Assert.Equal,
+        assertFail: Assert.Fail,
+        catchException: Record.Exception);
 }

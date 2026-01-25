@@ -1,9 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.TestHelpers;
+using Portamical.Assertions;
 
-namespace Portamical.xUnit.TestHelpers;
+namespace Portamical.xUnit.Assertions;
 
 public abstract class PortamicalAssert : PortamicalAssertBase
 {
