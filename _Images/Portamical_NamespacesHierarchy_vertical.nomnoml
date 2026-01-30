@@ -1,5 +1,5 @@
 #title: Portamical_NamespacesHierarchy_vertical
-#direction: 
+#direction: down
 
 #.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
 #.static: fill=#C9DEEF title=center,bold,underline body=left,italic
@@ -94,15 +94,23 @@ TestDataTypes.Models.Specialized
 [Portamical] <--
 [<package> Portamical.MSTest
 |
+[<static>Converters]
 [<concrete>Attributes]
 [<abstract>TestBases]
 [<abstract>Assertions]
+
+[
+Converters
+] <--[
+TestBases
+]
 ]
 
 [Portamical] <--
 [<package> Portamical.NUnit
 |
 [<concrete>TestDataTypes]
+[<concrete>Attributes]
 [<static>Converters]
 [<abstract>TestBases.TestCaseDataCollection]
 [<abstract>TestBases.TestCaseTestDataCollection]
@@ -111,6 +119,12 @@ TestDataTypes.Models.Specialized
 TestDataTypes
 ] <-- [
 Converters
+]
+
+[
+TestDataTypes
+] <-- [
+Attributes
 ]
 
 [

@@ -27,7 +27,7 @@ public static class TestDataConverter
         {
             TypeArgs = GetTypeArgs(testData, argsCode),
         }
-        .SetDescription(testData.TestCaseName);
+        .SetDescription(testData.GetDefinition());
 
         testCaseData.Properties.Set(
             HasFullNameProperty,

@@ -19,6 +19,7 @@ public abstract class TestCaseTestData
     }
 
     public abstract string TestCaseName { get; init; }
+
     public const string HasFullNameProperty = "HasFullName";
 
     public bool ContainedBy(IEnumerable<INamedCase>? namedCases)
@@ -92,7 +93,7 @@ where TTestData : notnull, ITestData
             ExpectedResult = returns.GetExpected();
         }
 
-        Properties.Set(PropertyNames.Description, TestCaseName);
+        Properties.Set(PropertyNames.Description, testData.GetDefinition());
         Properties.Set(HasFullNameProperty, hasFullName);
     }
 
