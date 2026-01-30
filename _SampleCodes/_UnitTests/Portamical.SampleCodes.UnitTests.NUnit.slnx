@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../../Portamical.NUnit/Portamical.NUnit.csproj" />
+  <Project Path="../DataSources/Portamical.SampleCodes.DataSources.csproj" />
+  <Project Path="../Testables/Portamical.SampleCodes.Testables.csproj" />
+  <Project Path="NUnit/Portamical.SampleCodes.UnitTests.NUnit.csproj" />
+</Solution>

@@ -20,7 +20,7 @@ public abstract class TestCaseTestData
 
     public abstract string TestCaseName { get; init; }
 
-    public const string HasFullNameProperty = "HasFullName";
+    internal const string HasFullNameProperty = "HasFullName";
 
     public bool ContainedBy(IEnumerable<INamedCase>? namedCases)
     => Contains(this, namedCases);
@@ -36,6 +36,27 @@ public abstract class TestCaseTestData
 
     public override sealed int GetHashCode()
     => Comparer.GetHashCode(this);
+
+    public static TTestCaseData SetHasFullNameProperty<TTestCaseData, TTestData>(
+        TTestCaseData testCaseData,
+        TTestData testData,
+        string? testMethodName,
+        out string testName)
+    where TTestCaseData : notnull, TestCaseData
+    where TTestData : notnull, ITestData
+    {
+        bool hasFullName = !string.IsNullOrEmpty(testMethodName);
+
+        testCaseData.Properties.Set(
+            HasFullNameProperty,
+            hasFullName);
+
+        testName = hasFullName ?
+            testData.GetDisplayName(testMethodName)!
+            : testData.TestCaseName;
+
+        return testCaseData;
+    }   
 
     public static TestCaseTestData<TTestData> From<TTestData>(
         TTestData testData,
@@ -81,20 +102,24 @@ where TTestData : notnull, ITestData
         string? testMethodName)
     : base(TestCaseDataArgsFrom(testData, argsCode))
     {
-        TypeArgs = GetTypeArgs(testData, argsCode);
-        TestCaseName = testData.TestCaseName;
-        bool hasFullName = !string.IsNullOrEmpty(testMethodName);
-        TestName = hasFullName ?
-            GetDisplayName(testMethodName)
-            : TestCaseName;
+        Properties.Set(
+            PropertyNames.Description,
+            testData.GetDefinition());
+
+        SetHasFullNameProperty(
+            this,
+            testData,
+            testMethodName,
+            out string testName);
 
         if (testData is IReturns returns)
         {
             ExpectedResult = returns.GetExpected();
         }
 
-        Properties.Set(PropertyNames.Description, testData.GetDefinition());
-        Properties.Set(HasFullNameProperty, hasFullName);
+        TestName = testName;
+        TypeArgs = GetTypeArgs(testData, argsCode);
+        TestCaseName = testData.TestCaseName;
     }
 
     public override string TestCaseName { get; init; }

@@ -7,7 +7,6 @@ using Portamical.NUnit.TestDataTypes;
 
 namespace Portamical.NUnit.Attributes;
 
-
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public abstract class TestCaseDataSourceAttributeBase(
     string sourceName,
