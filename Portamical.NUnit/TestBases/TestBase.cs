@@ -1,15 +1,16 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.xUnit.Converters;
+using Portamical.NUnit.Converters;
+using Portamical.NUnit.TestDataTypes;
 
-namespace Portamical.xUnit.TestBases;
+namespace Portamical.NUnit.TestBases;
 
 public abstract class TestBase : Portamical.TestBases.TestBase
 {
-    protected static TheoryData Convert<TTestData>(
+    protected static IReadOnlyCollection<TestCaseTestData<TTestData>> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToTheoryData(argsCode);
+    => testDataCollection.ToTestCaseTestDataCollection(argsCode);
 }

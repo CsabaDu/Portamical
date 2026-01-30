@@ -22,17 +22,22 @@ public static class TestDataConverter
     where TTestData : notnull, ITestData
     {
         var row = TestCaseDataArgsFrom(testData, argsCode);
+        bool hasFullName = !string.IsNullOrEmpty(testMethodName);
         var testCaseData = new TestCaseData(row)
         {
             TypeArgs = GetTypeArgs(testData, argsCode),
         }
         .SetDescription(testData.TestCaseName);
 
-        if (!string.IsNullOrEmpty(testMethodName))
-        {
-            var displayName = testData.GetDisplayName(testMethodName);
-            testCaseData = testCaseData.SetName(displayName);
-        }
+        testCaseData.Properties.Set(
+            HasFullNameProperty,
+            hasFullName);
+
+        var testName = hasFullName ?
+            testData.GetDisplayName(testMethodName)
+            : testData.TestCaseName;
+
+        testCaseData = testCaseData.SetName(testName);
 
         return testData is IReturns returns ?
             testCaseData.Returns(returns.GetExpected())

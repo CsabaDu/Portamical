@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using System.Reflection;
 using static Portamical.Core.Strategy.Validator;
 
 namespace Portamical.Core.Identity.Model;
@@ -97,6 +98,9 @@ public abstract class NamedCase : INamedCase
 
         return $"{testMethodName}(testData: {testCaseName})";
     }
+
+    public static string? CreateDisplayName(MethodInfo? testMethod, params object?[]? args)
+    => CreateDisplayName(testMethod?.Name, args);
 
     public static bool Contains(
         INamedCase namedCase,

@@ -23,37 +23,31 @@ public abstract class DynamicTestDataAttributeBase(
         DynamicDataSourceType? sourceType,
         object?[]? sourceArgs)
     {
-        // 1. Declaring type + source type
         if (declaringType is not null && sourceType is not null)
         {
             return new DynamicDataAttribute(sourceName, declaringType, sourceType.Value);
         }
 
-        // 2. Declaring type + source args
         if (declaringType is not null && sourceArgs is not null)
         {
             return new DynamicDataAttribute(sourceName, declaringType, sourceArgs);
         }
 
-        // 3. Declaring type only
         if (declaringType is not null)
         {
             return new DynamicDataAttribute(sourceName, declaringType);
         }
 
-        // 4. Source type only
         if (sourceType is not null)
         {
             return new DynamicDataAttribute(sourceName, sourceType.Value);
         }
 
-        // 5. Source args only
         if (sourceArgs is not null)
         {
             return new DynamicDataAttribute(sourceName, sourceArgs);
         }
 
-        // 6. Source name only
         return new DynamicDataAttribute(sourceName);
     }
 
@@ -64,17 +58,17 @@ public abstract class DynamicTestDataAttributeBase(
     {
         ArgumentNullException.ThrowIfNull(testMethod);
 
-        string? adatamiqName =
+        string? displayName =
             data is { Length: > 0 } &&
             data[0] is string or INamedCase ?
                 NamedCase.CreateDisplayName(testMethod.Name, data)
                 : null;
 
-        string mstestName =
+        string defaultName =
             _innerAttribute.GetDisplayName(testMethod!, data)
             ?? string.Empty;
 
-        return mstestName.FallbackIfNullOrEmpty(adatamiqName);
+        return defaultName.FallbackIfNullOrEmpty(displayName);
     }
 }
 

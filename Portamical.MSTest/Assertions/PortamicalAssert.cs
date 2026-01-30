@@ -3,8 +3,7 @@
 
 using Portamical.Assertions;
 
-namespace Portamical.MSTest.Assertions
-    ;
+namespace Portamical.MSTest.Assertions;
 
 public abstract class PortamicalAssert : PortamicalAssertBase
 {

@@ -6,12 +6,13 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
+using Portamical.TestBases;
 using static Portamical.Assertions.PortamicalAssertBase;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
 
 [TestClass]
-public sealed class BithDayTestClass_MSTest_TestDatas : TestBases.TestBase
+public sealed class BithDayTestClass_MSTest_TestDatas
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
@@ -44,8 +45,6 @@ public sealed class BithDayTestClass_MSTest_TestDatas : TestBases.TestBase
         string? name = testData.Arg1;
         DateOnly dateOfBirth = DateOnly.FromDateTime(DateTime.Now).AddDays(1);
         ArgumentException expected = testData.Expected;
-        Type expectedType = expected.GetType();
-        string? expectedTypeFullName = expectedType.FullName;
 
         // Act
         void attempt() => _ = new BirthDay(name!, dateOfBirth);

@@ -89,14 +89,6 @@ TestDataTypes.Models.Specialized
 [<abstract>TestBases]
 [<static>Converters]
 [<abstract>Assertions]
-
-// diagram
-
-[
-Converters
-] <-- [
-TestBases
-]
 ]
 
 [Portamical] <--

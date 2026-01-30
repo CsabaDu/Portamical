@@ -11,14 +11,14 @@ public static class CollectionConverter
     => testDataCollection.ToDistinctReadOnly(
         testData => testData);
 
-    public static IReadOnlyCollection<object?[]> Convert<TTestData>(
+    public static IReadOnlyCollection<object?[]> ToDistinctReadOnly<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctReadOnly(
         testData => testData.ToArgs(argsCode));
 
-    public static IReadOnlyCollection<object?[]> Convert<TTestData>(
+    public static IReadOnlyCollection<object?[]> ToDistinctReadOnly<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         PropsCode propsCode)

@@ -1,17 +1,13 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
+using System.Reflection;
 
 namespace Portamical.TestBases;
 
-public abstract class TestBase(ArgsCode argsCode = ArgsCode.Instance)
+public abstract class TestBase
 {
-    protected ArgsCode ArgsCode { get; init; } =
-        argsCode.Defined(nameof(argsCode));
-
-    protected IReadOnlyCollection<object?[]> ConvertToArgs<TTestData>(
-        IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
-    => testDataCollection.Convert(ArgsCode);
+    protected static ArgsCode AsInstance => ArgsCode.Instance;
+    protected static ArgsCode AsProperties => ArgsCode.Properties;
+    protected static PropsCode WithTestCaseName => PropsCode.All;
 }

@@ -19,6 +19,7 @@ public abstract class TestCaseTestData
     }
 
     public abstract string TestCaseName { get; init; }
+    public const string HasFullNameProperty = "HasFullName";
 
     public bool ContainedBy(IEnumerable<INamedCase>? namedCases)
     => Contains(this, namedCases);
@@ -79,13 +80,12 @@ where TTestData : notnull, ITestData
         string? testMethodName)
     : base(TestCaseDataArgsFrom(testData, argsCode))
     {
-        TestCaseName = testData.TestCaseName;
         TypeArgs = GetTypeArgs(testData, argsCode);
-
-        if (!string.IsNullOrEmpty(testMethodName))
-        {
-            TestName = GetDisplayName(testMethodName);
-        }
+        TestCaseName = testData.TestCaseName;
+        bool hasFullName = !string.IsNullOrEmpty(testMethodName);
+        TestName = hasFullName ?
+            GetDisplayName(testMethodName)
+            : TestCaseName;
 
         if (testData is IReturns returns)
         {
@@ -93,6 +93,7 @@ where TTestData : notnull, ITestData
         }
 
         Properties.Set(PropertyNames.Description, TestCaseName);
+        Properties.Set(HasFullNameProperty, hasFullName);
     }
 
     public override string TestCaseName { get; init; }

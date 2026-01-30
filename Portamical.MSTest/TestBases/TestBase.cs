@@ -1,18 +1,16 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
 using Portamical.Core.TestDataTypes;
+using Portamical.MSTest.Converters;
 
 namespace Portamical.MSTest.TestBases;
 
-public abstract class TestBase(ArgsCode argsCode = ArgsCode.Instance)
-: Portamical.TestBases.TestBase(argsCode)
+public abstract class TestBase : Portamical.TestBases.TestBase
 {
-    protected IReadOnlyCollection<object?[]> Convert<TTestData>(
-        IEnumerable<TTestData> testDataCollection)
+    protected static IEnumerable<object?[]> Convert<TTestData>(
+        IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.Convert(
-        ArgsCode,
-        PropsCode.All);
+    => testDataCollection.ToArgsWithTestCaseName(argsCode);
 }
