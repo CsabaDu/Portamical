@@ -47,12 +47,15 @@ public abstract class TestCaseDataSourceAttributeBase(
             if (sourceType.IsClass || sourceType.IsInterface)
             {
                 var member = sourceType.GetMember(sourceName,
-                    BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+                    BindingFlags.Public |
+                    BindingFlags.Static |
+                    BindingFlags.FlattenHierarchy);
 
                 if (member.Length == 0)
                 {
                     throw new ArgumentException(
-                        $"Source member '{sourceName}' not found or not accessible on type '{sourceTypeFullName}'. " +
+                        $"Source member '{sourceName}' " +
+                        $"not found or not accessible on type '{sourceTypeFullName}'. " +
                         "Ensure it exists and is public static.",
                         nameof(sourceName));
                 }
@@ -87,7 +90,8 @@ public abstract class TestCaseDataSourceAttributeBase(
                 FieldInfo field => field.FieldType,
                 PropertyInfo property => property.PropertyType,
                 MethodInfo method => method.ReturnType,
-                _ => throw new NotSupportedException($"Member type {memberInfo.MemberType} is not supported.")
+                _ => throw new NotSupportedException(
+                    $"Member type {memberInfo.MemberType} is not supported.")
             };
         }
         #endregion
