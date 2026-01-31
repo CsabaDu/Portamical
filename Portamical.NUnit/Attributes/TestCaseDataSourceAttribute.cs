@@ -103,9 +103,12 @@ public abstract class TestCaseDataSourceAttributeBase(
         set => _innerAttribute.Category = value;
     }
 
-    public string? SourceName => _innerAttribute.SourceName;
-    public Type? SourceType => _innerAttribute.SourceType;
-    public object?[]? MethodParams => _innerAttribute.MethodParams;
+    public string? SourceName
+    => _innerAttribute.SourceName;
+    public Type? SourceType
+    => _innerAttribute.SourceType;
+    public object?[]? MethodParams
+    => _innerAttribute.MethodParams;
 
     /// <summary>
     /// Builds any number of tests from the specified method and context.
