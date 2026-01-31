@@ -4,7 +4,7 @@
 using Portamical.MSTest.TestBases;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using static Portamical.Assertions.PortamicalAssertBase;
+using static Portamical.MSTest.Assertions.PortamicalAssert;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Specific;
 
@@ -44,12 +44,7 @@ public sealed class BithDayTestClass_MSTest_PropertiesArray : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        ThrowsDetails(
-            expected,
-            attempt,
-            assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
-            assertEquality: (e, a) => Assert.AreEqual(e, a),
-            assertFail: Assert.Fail);
+        ThrowsDetails(attempt, expected);
     }
 
     private static IEnumerable<object?[]> CompareToArgs

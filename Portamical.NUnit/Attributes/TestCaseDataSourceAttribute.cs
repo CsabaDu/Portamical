@@ -138,7 +138,7 @@ public abstract class TestCaseDataSourceAttributeBase(
             var hasFullNameProperty =
                 properties.Get(HasFullNameProperty);
 
-            return hasFullNameProperty is not bool hasFullName || !hasFullName;
+            return hasFullNameProperty is bool hasFullName && !hasFullName;
         }
         #endregion
     }

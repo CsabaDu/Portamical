@@ -27,11 +27,20 @@ public abstract class PortamicalAssert : PortamicalAssertBase
         Action attempt,
         TException expected)
     where TException : notnull, Exception
-    => ThrowsDetails(
-        expected,
-        attempt,
-        assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
-        assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
-        assertFail: Assert.Fail,
-        catchException: (attempt) => Assert.Catch(() => attempt()));
+    {
+        TException actual = default!;
+
+        AssertMultiple(() =>
+        {
+            actual = ThrowsDetails(
+                expected,
+                attempt,
+                assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
+                assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
+                assertFail: Assert.Fail,
+                catchException: attempt => Assert.Catch(() => attempt()));
+        });
+
+        return actual;
+    }
 }

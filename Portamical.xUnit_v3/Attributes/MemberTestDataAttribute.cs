@@ -25,6 +25,8 @@ public abstract class MemberTestDataAttributeBase
         params object[] arguments)
     : base(memberName, arguments)
     {
+        ArgumentException.ThrowIfNullOrEmpty(memberName, nameof(memberName));
+
         DisableDiscoveryEnumeration = true;
     }
     #endregion

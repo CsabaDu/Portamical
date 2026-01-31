@@ -57,19 +57,19 @@ public class BirthDayDataSource()
         BirthDay? other = null;
         yield return createTestData();
 
-        // this.DateOfBirth is greater than other.DateOfBirth => returns -1
-        definition = "this.DateOfBirth is greater than other.DateOfBirth";
+        // this DateOfBirth is greater than other DateOfBirth => returns -1
+        definition = "this DateOfBirth is greater than other DateOfBirth";
         other = new(name, dateOfBirth.AddDays(1));
         yield return createTestData();
 
-        // this.DateOfBirth is equal with other.DateOfBirth => return 0
-        definition = "this.DateOfBirth is equal with other.DateOfBirth";
+        // this DateOfBirth is equal with other DateOfBirth => return 0
+        definition = "this DateOfBirth is equal with other DateOfBirth";
         expected = 0;
         other = new(name, dateOfBirth);
         yield return createTestData();
 
-        // this.DateOfBirth is less than other.DateOfBirth => returns 1
-        definition = "this.DateOfBirth is less than other.DateOfBirth";
+        // this DateOfBirth is less than other DateOfBirth => returns 1
+        definition = "this DateOfBirth is less than other DateOfBirth";
         expected = 1;
         other = new(name, dateOfBirth.AddDays(-1));
         yield return createTestData();
