@@ -3,7 +3,9 @@
 
 using NUnit.Framework.Interfaces;
 using Portamical.Core.Identity.Model;
-using Portamical.NUnit.TestDataTypes;
+using System.Reflection;
+using static Portamical.Core.Strategy.Validator;
+using static Portamical.NUnit.TestDataTypes.TestCaseTestData;
 
 namespace Portamical.NUnit.Attributes;
 
@@ -18,26 +20,55 @@ public abstract class TestCaseDataSourceAttributeBase(
     Create(sourceName, sourceType, methodParams);
 
     private static TestCaseSourceAttribute Create(
-    string sourceName,
-    Type? sourceType,
-    object?[]? methodParams)
+        string sourceName,
+        Type? sourceType,
+        object?[]? methodParams)
     {
-        if (sourceType is not null && methodParams is not null)
-        {
-            return new TestCaseSourceAttribute(sourceType, sourceName, methodParams);
-        }
+        _ = NotNull(sourceName, nameof(sourceName));
 
         if (sourceType is not null)
         {
-            return new TestCaseSourceAttribute(sourceType, sourceName);
+            validateSourceType(sourceType);
         }
 
-        if (methodParams is not null)
+        return (sourceType, methodParams) switch
         {
-            return new TestCaseSourceAttribute(sourceName, methodParams);
-        }
+            (null, null) => new(sourceName),
+            (null, not null) => new(sourceName, methodParams),
+            (not null, null) => new(sourceType, sourceName),
+            _ => new(sourceType, sourceName, methodParams),
+        };
 
-        return new TestCaseSourceAttribute(sourceName);
+        #region Local Methods
+        void validateSourceType(Type sourceType)
+        {
+            var sourceTypeFullName = sourceType.FullName;
+
+            if (sourceType.IsClass || sourceType.IsInterface)
+            {
+                var member = sourceType.GetMember(sourceName,
+                    BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+
+                if (member.Length == 0)
+                {
+                    throw new ArgumentException(
+                        $"Source member '{sourceName}' not found or not accessible on type '{sourceTypeFullName}'. " +
+                        "Ensure it exists and is public static.",
+                        nameof(sourceName));
+                }
+
+                return;
+            }
+
+            var message = sourceType.IsValueType ?
+                $"Source type cannot be a struct: {sourceTypeFullName}. " +
+                $"Use a class or interface instead."
+                : $"Source type must be a class or interface: {sourceTypeFullName}. " +
+                    $"Actual type: {sourceType.GetType().Name}";
+
+            throw new ArgumentException(message, nameof(sourceType));
+        }
+        #endregion
     }
 
     public string? Category
@@ -46,6 +77,9 @@ public abstract class TestCaseDataSourceAttributeBase(
         set => _innerAttribute.Category = value;
     }
 
+    public string? SourceName => _innerAttribute.SourceName;
+    public Type? SourceType => _innerAttribute.SourceType;
+    public object?[]? MethodParams => _innerAttribute.MethodParams;
 
     /// <summary>
     /// Builds any number of tests from the specified method and context.
@@ -56,17 +90,26 @@ public abstract class TestCaseDataSourceAttributeBase(
     {
         foreach (var testMethod in _innerAttribute.BuildFrom(method, suite))
         {
-            var testName = testMethod.Name;
-            var hasFullNameProperty =
-                testMethod.Properties.Get(TestCaseTestData.HasFullNameProperty);
-
-            if (hasFullNameProperty is not bool hasFullName || !hasFullName)
+            if (shouldRename(testMethod))
             {
-                testMethod.Name = NamedCase.CreateDisplayName(method.Name, testName)!;
+                testMethod.Name = NamedCase.CreateDisplayName(
+                    method.Name,
+                    testMethod.Name)!;
             }
 
             yield return testMethod;
         }
+
+        #region Local Functions
+        static bool shouldRename(TestMethod testMethod)
+        {
+            var properties = testMethod.Properties;
+            var hasFullNameProperty =
+                properties.Get(HasFullNameProperty);
+
+            return hasFullNameProperty is not bool hasFullName || !hasFullName;
+        }
+        #endregion
     }
 }
 
