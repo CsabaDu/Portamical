@@ -1,16 +1,13 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.TestDataTypes.Models.General;
-using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.NUnit.Assertions;
 using Portamical.NUnit.Attributes;
-using Portamical.NUnit.TestBases;
-using Portamical.NUnit.TestDataTypes;
+using Portamical.NUnit.TestBases.TestCaseDataCollection;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 
-namespace Portamical.SampleCodes.UnitTests.NUnit.Specific;
+namespace Portamical.SampleCodes.UnitTests.NUnit.Specific.TestCaseDataCollection;
 
 [TestFixture]
 public sealed class BithDayTestClass_NUnit_PropertiesArray : TestBase
@@ -18,7 +15,7 @@ public sealed class BithDayTestClass_NUnit_PropertiesArray : TestBase
     private static readonly BirthDayDataSource _dataSource = new();
 
     private static IEnumerable<TestCaseData> BirthDayConstructorValidArgs
-    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsProperties, nameof(Ctor_validArgs_createInstance));
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsProperties);
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(DateOnly dateOfBirth)
@@ -39,7 +36,7 @@ public sealed class BithDayTestClass_NUnit_PropertiesArray : TestBase
     }
 
     private static IEnumerable<TestCaseData> BirthDayConstructorInvalidArgs
-    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsProperties, nameof(Ctor_invalidArgs_throwsArgumentException));
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsProperties);
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(ArgumentException expected, string name)
@@ -55,7 +52,7 @@ public sealed class BithDayTestClass_NUnit_PropertiesArray : TestBase
     }
 
     private static IEnumerable<TestCaseData> CompareToArgs
-    => Convert(_dataSource.GetCompareToArgs(), AsProperties, nameof(CompareTo_validArgs_returnsExpected));
+    => Convert(_dataSource.GetCompareToArgs(), AsProperties);
 
     [Test, TestCaseDataSource(nameof(CompareToArgs))]
     public int CompareTo_validArgs_returnsExpected(DateOnly dateOfBirth, BirthDay other)

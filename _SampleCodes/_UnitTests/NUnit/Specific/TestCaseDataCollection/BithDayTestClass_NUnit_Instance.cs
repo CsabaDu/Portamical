@@ -5,11 +5,11 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.NUnit.Assertions;
 using Portamical.NUnit.Attributes;
-using Portamical.NUnit.TestBases;
+using Portamical.NUnit.TestBases.TestCaseDataCollection;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 
-namespace Portamical.SampleCodes.UnitTests.NUnit.Specific;
+namespace Portamical.SampleCodes.UnitTests.NUnit.Specific.TestCaseDataCollection;
 
 [TestFixture]
 public sealed class BithDayTestClass_NUnit_InstanceArray : TestBase
@@ -17,7 +17,7 @@ public sealed class BithDayTestClass_NUnit_InstanceArray : TestBase
     private static readonly BirthDayDataSource _dataSource = new();
 
     private static IEnumerable<TestCaseData> BirthDayConstructorValidArgs
-    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance, nameof(Ctor_validArgs_createInstance));
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
@@ -39,7 +39,7 @@ public sealed class BithDayTestClass_NUnit_InstanceArray : TestBase
     }
 
     private static IEnumerable<TestCaseData> BirthDayConstructorInvalidArgs
-    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance, nameof(Ctor_invalidArgs_throwsArgumentException));
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
@@ -57,7 +57,7 @@ public sealed class BithDayTestClass_NUnit_InstanceArray : TestBase
     }
 
     private static IEnumerable<TestCaseData> CompareToArgs
-    => Convert(_dataSource.GetCompareToArgs(), AsInstance);
+    => Convert(_dataSource.GetCompareToArgs(), AsInstance, nameof(CompareTo_validArgs_returnsExpected));
 
     [Test, TestCaseDataSource(nameof(CompareToArgs))]
     public int CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)

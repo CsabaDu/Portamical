@@ -4,20 +4,20 @@
 using Portamical.Converters;
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
+using Portamical.NUnit.Assertions;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases;
-using static Portamical.Assertions.PortamicalAssertBase;
 
 namespace Portamical.SampleCodes.UnitTests.NUnit.Native;
 
 [TestFixture]
-public sealed class BithDayTestClass_NUnit_InstanceArray : TestBase
+public sealed class BithDayTestClass_NUnit_TestData : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    private static IEnumerable<object?[]> BirthDayConstructorValidArgs
-    => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly(AsInstance);
+    private static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
+    => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly();
 
     [Test, TestCaseSource(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
@@ -38,8 +38,8 @@ public sealed class BithDayTestClass_NUnit_InstanceArray : TestBase
         }
     }
 
-    private static IEnumerable<object?[]>? BirthDayConstructorInvalidArgs
-    => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly(AsInstance);
+    private static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
+    => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly();
 
     [Test, TestCaseSource(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
@@ -53,20 +53,11 @@ public sealed class BithDayTestClass_NUnit_InstanceArray : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            ThrowsDetails(
-                expected,
-                attempt,
-                assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
-                assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
-                assertFail: Assert.Fail,
-                catchException: att => Assert.Catch(() => att()));
-        }
+        PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
     }
 
-    private static IEnumerable<object?[]>? CompareToArgs
-    => _dataSource.GetCompareToArgs().ToDistinctReadOnly(AsInstance);
+    private static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
+    => _dataSource.GetCompareToArgs().ToDistinctReadOnly();
 
     [Test, TestCaseSource(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)

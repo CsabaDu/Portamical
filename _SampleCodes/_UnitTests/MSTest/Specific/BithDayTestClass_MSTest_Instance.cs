@@ -11,7 +11,7 @@ using static Portamical.MSTest.Assertions.PortamicalAssert;
 namespace Portamical.SampleCodes.UnitTests.MSTest.Specific;
 
 [TestClass]
-public sealed class BithDayTestClass_MSTest_InstanceArray : TestBase
+public sealed class BithDayTestClass_MSTest_Instance : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 

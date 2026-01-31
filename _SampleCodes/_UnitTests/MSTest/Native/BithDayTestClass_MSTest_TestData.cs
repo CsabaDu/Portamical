@@ -6,24 +6,19 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.NUnit.TestBases;
-using static Portamical.NUnit.TestBases.TestBase;
-using Portamical.NUnit.Converters;
 using static Portamical.Assertions.PortamicalAssertBase;
-using Portamical.NUnit.Attributes;
-using Portamical.NUnit.Assertions;
 
-namespace Portamical.SampleCodes.UnitTests.NUnit.Specific;
+namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
 
-[TestFixture]
-public sealed class BithDayTestClass_NUnit_TestDatas : TestBase
+[TestClass]
+public sealed class BithDayTestClass_MSTest_TestData
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
     private static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
-    => Convert( _dataSource.GetBirthDayConstructorValidArgs());
+    => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly();
 
-    [Test, TestCaseDataSource(nameof(BirthDayConstructorValidArgs))]
+    [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -34,18 +29,15 @@ public sealed class BithDayTestClass_NUnit_TestDatas : TestBase
         var actual = new BirthDay(name, dateOfBirth);
 
         // Assert
-        PortamicalAssert.AssertMultiple(() =>
-        {
-            Assert.That(actual, Is.Not.Null);
-            Assert.That(actual.Name, Is.EqualTo(name));
-            Assert.That(actual.DateOfBirth, Is.EqualTo(dateOfBirth));
-        });
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(name, actual.Name);
+        Assert.AreEqual(dateOfBirth, actual.DateOfBirth);
     }
 
     private static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
     => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly();
 
-    [Test, TestCaseDataSource(nameof(BirthDayConstructorInvalidArgs))]
+    [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
@@ -57,22 +49,18 @@ public sealed class BithDayTestClass_NUnit_TestDatas : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            ThrowsDetails(
-                expected,
-                attempt,
-                assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
-                assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
-                assertFail: Assert.Fail,
-                catchException: att => Assert.Catch(() => att()));
-        }
+        ThrowsDetails(
+            expected,
+            attempt,
+            assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
+            assertEquality: (e, a) => Assert.AreEqual(e, a),
+            assertFail: Assert.Fail);
     }
 
     private static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
     => _dataSource.GetCompareToArgs().ToDistinctReadOnly();
 
-    [Test, TestCaseDataSource(nameof(CompareToArgs))]
+    [TestMethod, DynamicData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange
@@ -85,6 +73,6 @@ public sealed class BithDayTestClass_NUnit_TestDatas : TestBase
         var actual = sut.CompareTo(other);
 
         // Assert
-        Assert.That(actual, Is.EqualTo(testData.Expected));
+        Assert.AreEqual(testData.Expected, actual);
     }
 }

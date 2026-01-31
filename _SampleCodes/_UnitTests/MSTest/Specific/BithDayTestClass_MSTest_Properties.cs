@@ -9,7 +9,7 @@ using static Portamical.MSTest.Assertions.PortamicalAssert;
 namespace Portamical.SampleCodes.UnitTests.MSTest.Specific;
 
 [TestClass]
-public sealed class BithDayTestClass_MSTest_PropertiesArray : TestBase
+public sealed class BithDayTestClass_MSTest_Properties : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
