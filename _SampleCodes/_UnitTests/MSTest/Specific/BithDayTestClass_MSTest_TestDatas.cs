@@ -1,24 +1,23 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
-using Portamical.MSTest.Attributes;
-using Portamical.MSTest.Converters;
 using Portamical.MSTest.Assertions;
+using Portamical.MSTest.Attributes;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
+using Portamical.TestBases;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Specific;
 
 [TestClass]
-public sealed class BithDayTestClass_MSTest_TestDatas
+public sealed class BithDayTestClass_MSTest_TestDatas : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
     private static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
-    => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly();
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs());
 
     [TestMethod, DynamicTestData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
@@ -37,7 +36,7 @@ public sealed class BithDayTestClass_MSTest_TestDatas
     }
 
     private static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
-    => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly();
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
     [TestMethod, DynamicTestData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
@@ -54,7 +53,7 @@ public sealed class BithDayTestClass_MSTest_TestDatas
     }
 
     private static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
-    => _dataSource.GetCompareToArgs().ToDistinctReadOnly();
+    => Convert(_dataSource.GetCompareToArgs());
 
     [TestMethod, DynamicTestData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
