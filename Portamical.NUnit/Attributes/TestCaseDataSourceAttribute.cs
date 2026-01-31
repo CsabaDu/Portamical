@@ -105,8 +105,10 @@ public abstract class TestCaseDataSourceAttributeBase(
 
     public string? SourceName
     => _innerAttribute.SourceName;
+
     public Type? SourceType
     => _innerAttribute.SourceType;
+
     public object?[]? MethodParams
     => _innerAttribute.MethodParams;
 
