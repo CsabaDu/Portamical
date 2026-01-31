@@ -23,32 +23,17 @@ public abstract class DynamicTestDataAttributeBase(
         DynamicDataSourceType? sourceType,
         object?[]? sourceArgs)
     {
-        if (declaringType is not null && sourceType is not null)
-        {
-            return new DynamicDataAttribute(sourceName, declaringType, sourceType.Value);
-        }
+        ArgumentException.ThrowIfNullOrEmpty(sourceName, nameof(sourceName));
 
-        if (declaringType is not null && sourceArgs is not null)
+        return (declaringType, sourceType, sourceArgs) switch
         {
-            return new DynamicDataAttribute(sourceName, declaringType, sourceArgs);
-        }
-
-        if (declaringType is not null)
-        {
-            return new DynamicDataAttribute(sourceName, declaringType);
-        }
-
-        if (sourceType is not null)
-        {
-            return new DynamicDataAttribute(sourceName, sourceType.Value);
-        }
-
-        if (sourceArgs is not null)
-        {
-            return new DynamicDataAttribute(sourceName, sourceArgs);
-        }
-
-        return new DynamicDataAttribute(sourceName);
+            (not null, not null, null) => new(sourceName, declaringType, sourceType.Value),
+            (not null, null, not null) => new(sourceName, declaringType, sourceArgs),
+            (not null, null, null) => new(sourceName, declaringType),
+            (null, not null, null) => new(sourceName, sourceType.Value),
+            (null, null, not null) => new(sourceName, sourceArgs),
+            _ => new(sourceName),
+        };
     }
 
     public IEnumerable<object?[]> GetData(MethodInfo testMethod)

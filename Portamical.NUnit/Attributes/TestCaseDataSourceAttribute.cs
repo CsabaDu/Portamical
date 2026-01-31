@@ -24,11 +24,11 @@ public abstract class TestCaseDataSourceAttributeBase(
         Type? sourceType,
         object?[]? methodParams)
     {
-        _ = NotNull(sourceName, nameof(sourceName));
+        ArgumentException.ThrowIfNullOrEmpty(sourceName, nameof(sourceName));
 
         if (sourceType is not null)
         {
-            validateSourceType(sourceType);
+            validateSourceType(sourceType, sourceName);
         }
 
         return (sourceType, methodParams) switch
@@ -40,7 +40,7 @@ public abstract class TestCaseDataSourceAttributeBase(
         };
 
         #region Local Methods
-        void validateSourceType(Type sourceType)
+        static void validateSourceType(Type sourceType, string sourceName)
         {
             var sourceTypeFullName = sourceType.FullName;
 
@@ -57,7 +57,18 @@ public abstract class TestCaseDataSourceAttributeBase(
                         nameof(sourceName));
                 }
 
-                return;
+                var memberInfo = member[0];
+                var memberType = getMemberReturnType(memberInfo);
+
+                if (typeof(System.Collections.IEnumerable).IsAssignableFrom(memberType))
+                {
+                    return;
+                }
+
+                throw new ArgumentException(
+                    $"Source member '{sourceName}' must return an IEnumerable, " +
+                    $"but returns '{memberType.FullName}'.",
+                    nameof(sourceName));
             }
 
             var message = sourceType.IsValueType ?
@@ -67,6 +78,17 @@ public abstract class TestCaseDataSourceAttributeBase(
                     $"Actual type: {sourceType.GetType().Name}";
 
             throw new ArgumentException(message, nameof(sourceType));
+        }
+
+        static Type getMemberReturnType(MemberInfo memberInfo)
+        {
+            return memberInfo switch
+            {
+                FieldInfo field => field.FieldType,
+                PropertyInfo property => property.PropertyType,
+                MethodInfo method => method.ReturnType,
+                _ => throw new NotSupportedException($"Member type {memberInfo.MemberType} is not supported.")
+            };
         }
         #endregion
     }
