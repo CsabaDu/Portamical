@@ -31,8 +31,7 @@ public abstract class MemberTestDataAttributeBase
     }
     #endregion
 
-    #region Methods
-
+    #region MemberDataAttributeBase Methods
     /// <inheritdoc/>
     public override async ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
         MethodInfo testMethod,
@@ -97,21 +96,28 @@ public abstract class MemberTestDataAttributeBase
             return testData.ToTheoryTestDataRow(argsCode);
         }
 
-        var ttdrTraits = theoryTestDataRow.Traits;
-        var traits = new Dictionary<string, HashSet<string>>(
-            StringComparer.OrdinalIgnoreCase);
-
-        if (ttdrTraits is not null)
-        {
-            foreach (var kvp in ttdrTraits)
-            {
-                traits.AddOrGet(kvp.Key).AddRange(kvp.Value);
-            }
-        }
-
-        TestIntrospectionHelper.MergeTraitsInto(traits, Traits);
+        mergeTraits();
 
         return new TheoryTestDataRow(theoryTestDataRow, null);
+
+        #region Local Methods
+        void mergeTraits()
+        {
+            var ttdrTraits = theoryTestDataRow.Traits;
+            var traits = new Dictionary<string, HashSet<string>>(
+                StringComparer.OrdinalIgnoreCase);
+
+            if (ttdrTraits is not null)
+            {
+                foreach (var kvp in ttdrTraits)
+                {
+                    traits.AddOrGet(kvp.Key).AddRange(kvp.Value);
+                }
+            }
+
+            TestIntrospectionHelper.MergeTraitsInto(traits, Traits);
+        }
+        #endregion
     }
     #endregion
 }
