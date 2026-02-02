@@ -6,7 +6,7 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestBases;
+using Portamical.TestBases.ObjectArray;
 using static Portamical.Assertions.PortamicalAssertBase;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
@@ -17,7 +17,7 @@ public sealed class BithDayTestClass_MSTest_Instance : TestBase
     private static readonly BirthDayDataSource _dataSource = new();
 
     private static IEnumerable<object?[]> BirthDayConstructorValidArgs
-    => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly(AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance);
 
     [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
@@ -36,7 +36,7 @@ public sealed class BithDayTestClass_MSTest_Instance : TestBase
     }
 
     private static IEnumerable<object?[]> BirthDayConstructorInvalidArgs
-    => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly(AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance);
 
     [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
@@ -59,7 +59,7 @@ public sealed class BithDayTestClass_MSTest_Instance : TestBase
     }
 
     private static IEnumerable<object?[]> CompareToArgs
-    => _dataSource.GetCompareToArgs().ToDistinctReadOnly(AsInstance);
+    => Convert(_dataSource.GetCompareToArgs(), AsInstance);
 
     [TestMethod, DynamicData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)

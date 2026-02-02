@@ -2,6 +2,7 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.Converters;
+using Portamical.TestBases;
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
@@ -11,12 +12,12 @@ using static Portamical.Assertions.PortamicalAssertBase;
 namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
 
 [TestClass]
-public sealed class BithDayTestClass_MSTest_TestData
+public sealed class BithDayTestClass_MSTest_TestData : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
     private static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
-    => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly();
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs());
 
     [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
@@ -35,7 +36,7 @@ public sealed class BithDayTestClass_MSTest_TestData
     }
 
     private static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
-    => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly();
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
     [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
@@ -58,7 +59,7 @@ public sealed class BithDayTestClass_MSTest_TestData
     }
 
     private static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
-    => _dataSource.GetCompareToArgs().ToDistinctReadOnly();
+    => Convert(_dataSource.GetCompareToArgs());
 
     [TestMethod, DynamicData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)

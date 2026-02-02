@@ -1,12 +1,11 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestBases;
+using Portamical.TestBases.ObjectArray;
 using static Portamical.Assertions.PortamicalAssertBase;
 
 namespace Portamical.SampleCodes.UnitTests.NUnit.Native;
@@ -17,7 +16,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
     private static readonly BirthDayDataSource _dataSource = new();
 
     public static IEnumerable<object?[]> BirthDayConstructorValidArgs
-    => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly(AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance);
 
     [Test, TestCaseSource(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
@@ -39,7 +38,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
     }
 
     public static IEnumerable<object?[]>? BirthDayConstructorInvalidArgs
-    => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly(AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance);
 
     [Test, TestCaseSource(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
@@ -66,7 +65,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
     }
 
     public static IEnumerable<object?[]>? CompareToArgs
-    => _dataSource.GetCompareToArgs().ToDistinctReadOnly(AsInstance);
+    => Convert(_dataSource.GetCompareToArgs(), AsInstance);
 
     [Test, TestCaseSource(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
