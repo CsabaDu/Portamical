@@ -96,7 +96,7 @@ public abstract class NamedCase : INamedCase
 
         if (string.IsNullOrEmpty(argToString)) return null;
 
-        return $"{testMethodName}({testCaseName})";
+        return $"{testMethodName}(testData: {testCaseName})";
     }
 
     public static string? CreateDisplayName(MethodInfo? testMethod, params object?[]? args)
