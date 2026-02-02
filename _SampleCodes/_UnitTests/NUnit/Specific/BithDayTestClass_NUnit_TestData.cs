@@ -17,7 +17,7 @@ public sealed class BithDayTestClass_NUnit_TestData : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    private static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
+    public static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
     => Convert( _dataSource.GetBirthDayConstructorValidArgs());
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorValidArgs))]
@@ -39,7 +39,7 @@ public sealed class BithDayTestClass_NUnit_TestData : TestBase
         });
     }
 
-    private static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
+    public static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorInvalidArgs))]
@@ -65,7 +65,7 @@ public sealed class BithDayTestClass_NUnit_TestData : TestBase
         }
     }
 
-    private static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
+    public static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
     => Convert(_dataSource.GetCompareToArgs());
 
     [Test, TestCaseDataSource(nameof(CompareToArgs))]

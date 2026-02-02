@@ -4,7 +4,6 @@
 using NUnit.Framework.Interfaces;
 using Portamical.Core.Identity.Model;
 using System.Reflection;
-using static Portamical.Core.Strategy.Validator;
 using static Portamical.NUnit.TestDataTypes.TestCaseTestData;
 
 namespace Portamical.NUnit.Attributes;
@@ -46,21 +45,7 @@ public abstract class TestCaseDataSourceAttributeBase(
 
             if (sourceType.IsClass || sourceType.IsInterface)
             {
-                var member = sourceType.GetMember(sourceName,
-                    BindingFlags.Public |
-                    BindingFlags.Static |
-                    BindingFlags.FlattenHierarchy);
-
-                if (member.Length == 0)
-                {
-                    throw new ArgumentException(
-                        $"Source member '{sourceName}' " +
-                        $"not found or not accessible on type '{sourceTypeFullName}'. " +
-                        "Ensure it exists and is public static.",
-                        nameof(sourceName));
-                }
-
-                var memberInfo = member[0];
+                var memberInfo = getMemberInfo(sourceType, sourceName, sourceTypeFullName);
                 var memberType = getMemberReturnType(memberInfo);
 
                 if (typeof(System.Collections.IEnumerable).IsAssignableFrom(memberType))
@@ -93,6 +78,25 @@ public abstract class TestCaseDataSourceAttributeBase(
                 _ => throw new NotSupportedException(
                     $"Member type {memberInfo.MemberType} is not supported.")
             };
+        }
+
+        static MemberInfo getMemberInfo(Type sourceType, string sourceName, string? sourceTypeFullName)
+        {
+            var member = sourceType.GetMember(sourceName,
+                BindingFlags.Public |
+                BindingFlags.Static |
+                BindingFlags.FlattenHierarchy);
+
+            if (member.Length == 0)
+            {
+                throw new ArgumentException(
+                    $"Source member '{sourceName}' " +
+                    $"not found or not accessible on type '{sourceTypeFullName}'. " +
+                    "Ensure it exists and is public static.",
+                    nameof(sourceName));
+            }
+
+            return member[0];
         }
         #endregion
     }

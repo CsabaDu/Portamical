@@ -5,17 +5,13 @@ namespace Portamical.Assertions;
 
 public abstract class PortamicalAssertBase
 {
-    protected const string ExpectedExceptionNotThrownMessage =
-        "Expected exception was not thrown.";
-
-    protected static InvalidOperationException UnreachableCodePathException
-    => new("Unreachable code path.");
-
-    protected static InvalidOperationException GetAssertionFailedException(string message)
-    => new($"Assertion failed: {message}");
-
+    #region Helpers
+    #region Message Getters
     private static string? GetFullName(Exception exception)
     => exception.GetType().FullName;
+
+    protected const string ExpectedExceptionNotThrownMessage =
+        "Expected exception was not thrown.";
 
     public static string GetExpectedTypeExceptionNotThrownMessage<TException>(TException expected)
     where TException : notnull, Exception
@@ -25,7 +21,18 @@ public abstract class PortamicalAssertBase
     where TException : notnull, Exception
     => $"Expected exception of type {GetFullName(expected)}, " +
         $"but exception of type {GetFullName(actual)} was thrown.";
+    #endregion
 
+    #region Exceptions
+    protected static InvalidOperationException UnreachableCodePathException
+    => new("Unreachable code path.");
+
+    protected static InvalidOperationException GetAssertionFailedException(string message)
+    => new($"Assertion failed: {message}");
+    #endregion
+    #endregion
+
+    #region Assert Methods
     public static TException ThrowsDetails<TException>(
         TException expected,
         Action attempt,
@@ -36,7 +43,7 @@ public abstract class PortamicalAssertBase
     where TException : notnull, Exception
     {
         var actual = catchException is null ?
-            CatchExceptionOrNull(attempt)
+            CatchException(attempt)
             : catchException(attempt);
 
         var typedActual = AssertActualType(
@@ -106,7 +113,7 @@ public abstract class PortamicalAssertBase
 
     public static void DoesNotThrow(Action attempt, Action<string> assertFail)
     {
-        var exception = CatchExceptionOrNull(attempt);
+        var exception = CatchException(attempt);
         NotNull(assertFail, nameof(assertFail));
 
         if (exception is not null)
@@ -118,7 +125,7 @@ public abstract class PortamicalAssertBase
         }
     }
 
-    public static Exception? CatchExceptionOrNull(Action attempt)
+    public static Exception? CatchException(Action attempt)
     {
         _ = NotNull(attempt, nameof(attempt));
 
@@ -132,4 +139,5 @@ public abstract class PortamicalAssertBase
             return exception;
         }
     }
+    #endregion
 }

@@ -16,7 +16,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    private static IEnumerable<object?[]> BirthDayConstructorValidArgs
+    public static IEnumerable<object?[]> BirthDayConstructorValidArgs
     => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly(AsInstance);
 
     [Test, TestCaseSource(nameof(BirthDayConstructorValidArgs))]
@@ -38,7 +38,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
         }
     }
 
-    private static IEnumerable<object?[]>? BirthDayConstructorInvalidArgs
+    public static IEnumerable<object?[]>? BirthDayConstructorInvalidArgs
     => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly(AsInstance);
 
     [Test, TestCaseSource(nameof(BirthDayConstructorInvalidArgs))]
@@ -65,7 +65,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
         }
     }
 
-    private static IEnumerable<object?[]>? CompareToArgs
+    public static IEnumerable<object?[]>? CompareToArgs
     => _dataSource.GetCompareToArgs().ToDistinctReadOnly(AsInstance);
 
     [Test, TestCaseSource(nameof(CompareToArgs))]

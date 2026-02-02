@@ -16,7 +16,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    private static IEnumerable<TestCaseData> BirthDayConstructorValidArgs
+    public static IEnumerable<TestCaseData> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance);
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorValidArgs))]
@@ -38,7 +38,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
         });
     }
 
-    private static IEnumerable<TestCaseData> BirthDayConstructorInvalidArgs
+    public static IEnumerable<TestCaseData> BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance);
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorInvalidArgs))]
@@ -56,7 +56,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
         PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
     }
 
-    private static IEnumerable<TestCaseData> CompareToArgs
+    public static IEnumerable<TestCaseData> CompareToArgs
     => Convert(_dataSource.GetCompareToArgs(), AsInstance);
 
     [Test, TestCaseDataSource(nameof(CompareToArgs))]
