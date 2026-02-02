@@ -10,17 +10,6 @@ namespace Portamical.xUnit.Converters;
 /// </summary>
 public static class CollectionConverter
 {
-    public static TheoryData ToTheoryData<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
-    where TTestData : notnull, ITestData
-    => argsCode switch
-    {
-        ArgsCode.Instance => testDataCollection.InstanceToTheoryData(),
-        ArgsCode.Properties => testDataCollection.PropertiesToTheoryData(),
-        _ => throw argsCode.GetInvalidEnumArgumentException(nameof(argsCode)),
-    };
-
     public static TheoryData<TTestData> InstanceToTheoryData<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData

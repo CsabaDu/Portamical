@@ -7,9 +7,8 @@ namespace Portamical.xUnit.TestBases;
 
 public abstract class TestBase : Portamical.TestBases.TestBase
 {
-    protected static TheoryData Convert<TTestData>(
-        IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
+    protected static TheoryData<TTestData> ConvertToTheoryData<TTestData>(
+        IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToTheoryData(argsCode);
+    => testDataCollection.InstanceToTheoryData();
 }
