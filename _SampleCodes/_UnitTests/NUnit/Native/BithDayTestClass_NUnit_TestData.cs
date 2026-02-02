@@ -4,7 +4,7 @@
 using Portamical.Converters;
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
-using Portamical.NUnit.Assertions;
+using Portamical.Assertions;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases;
@@ -53,7 +53,13 @@ public sealed class BithDayTestClass_NUnit_TestData : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
+        PortamicalAssertBase.ThrowsDetails(
+            attempt,
+            testData.Expected,
+            assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
+            assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
+            assertFail: Assert.Fail,
+            catchException: att => Assert.Catch(() => att()));
     }
 
     public static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs

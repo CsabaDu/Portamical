@@ -33,12 +33,12 @@ public abstract class PortamicalAssert : PortamicalAssertBase
         AssertMultiple(() =>
         {
             actual = ThrowsDetails(
-                expected,
                 attempt,
+                expected,
                 assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
                 assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
                 assertFail: Assert.Fail,
-                catchException: attempt => Assert.Catch(() => attempt()));
+                catchException: att => Assert.Catch(() => att()));
         });
 
         return actual;

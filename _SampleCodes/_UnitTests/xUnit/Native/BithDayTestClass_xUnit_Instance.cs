@@ -8,7 +8,7 @@ using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases.ObjectArray;
 using static Portamical.Assertions.PortamicalAssertBase;
 
-namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
+namespace Portamical.SampleCodes.UnitTests.xUnit.Native;
 
 public sealed class BithDayTestClass_xUnit_Instance : TestBase
 {
@@ -49,8 +49,8 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
 
         // Assert
         ThrowsDetails(
-            expected,
             attempt,
+            expected,
             assertIsType: Assert.IsType,
             assertEquality: Assert.Equal,
             assertFail: Assert.Fail,

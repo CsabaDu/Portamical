@@ -96,14 +96,14 @@ public abstract class MemberTestDataAttributeBase
             return testData.ToTheoryTestDataRow(argsCode);
         }
 
-        mergeTraits();
+        mergeTraits(theoryTestDataRow, Traits);
 
         return new TheoryTestDataRow(theoryTestDataRow, null);
 
         #region Local Methods
-        void mergeTraits()
+        static void mergeTraits(ITheoryTestDataRow ttdr, string[]? attributeTraits)
         {
-            var ttdrTraits = theoryTestDataRow.Traits;
+            var ttdrTraits = ttdr.Traits;
             var traits = new Dictionary<string, HashSet<string>>(
                 StringComparer.OrdinalIgnoreCase);
 
@@ -115,7 +115,7 @@ public abstract class MemberTestDataAttributeBase
                 }
             }
 
-            TestIntrospectionHelper.MergeTraitsInto(traits, Traits);
+            TestIntrospectionHelper.MergeTraitsInto(traits, attributeTraits);
         }
         #endregion
     }

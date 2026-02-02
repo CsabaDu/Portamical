@@ -56,8 +56,8 @@ public sealed class BithDayTestClass_NUnit_TestData : TestBase
         using (Assert.EnterMultipleScope())
         {
             ThrowsDetails(
-                testData.Expected,
                 attempt,
+                testData.Expected,
                 assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
                 assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
                 assertFail: Assert.Fail,

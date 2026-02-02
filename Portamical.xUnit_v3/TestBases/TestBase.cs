@@ -10,8 +10,10 @@ public abstract class TestBase : Portamical.TestBases.TestBase
 {
     protected static TheoryTestData<TTestData> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
+        ArgsCode argsCode,
+        string? testMethodName = null)
     where TTestData : notnull, ITestData
     => testDataCollection.ToTheoryTestData(
-        argsCode);
+        argsCode,
+        testMethodName);
 }

@@ -12,8 +12,8 @@ public abstract class PortamicalAssert : PortamicalAssertBase
         TException expected)
     where TException : notnull, Exception
     => ThrowsDetails(
-        expected,
         attempt,
+        expected,
         assertIsType: Assert.IsType,
         assertEquality: Assert.Equal,
         assertFail: Assert.Fail,

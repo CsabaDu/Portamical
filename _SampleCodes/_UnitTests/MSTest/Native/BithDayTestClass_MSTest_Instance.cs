@@ -51,8 +51,8 @@ public sealed class BithDayTestClass_MSTest_Instance : TestBase
 
         // Assert
         ThrowsDetails(
-            expected,
             attempt,
+            expected,
             assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
             assertEquality: (e, a) => Assert.AreEqual(e, a),
             assertFail: Assert.Fail);

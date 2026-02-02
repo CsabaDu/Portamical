@@ -6,9 +6,9 @@ using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases.ObjectArray;
 using static Portamical.Assertions.PortamicalAssertBase;
 
-namespace Portamical.SampleCodes.UnitTests.xUnit.Native;
+namespace Portamical.SampleCodes.UnitTests.xUnit_v3.Native;
 
-public sealed class BithDayTestClass_xUnit_Properties : TestBase
+public sealed class BithDayTestClass_xUnit_v3_Properties : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 

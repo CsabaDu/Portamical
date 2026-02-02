@@ -10,5 +10,5 @@ public abstract class TestBase : Portamical.TestBases.TestBase
     protected static TheoryData<TTestData> ConvertToTheoryData<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.InstanceToTheoryData();
+    => testDataCollection.ToTheoryData();
 }

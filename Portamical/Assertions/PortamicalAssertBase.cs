@@ -5,37 +5,37 @@ namespace Portamical.Assertions;
 
 public abstract class PortamicalAssertBase
 {
-    #region Helpers
-    #region Message Getters
-    private static string? GetFullName(Exception exception)
-    => exception.GetType().FullName;
-
-    protected const string ExpectedExceptionNotThrownMessage =
-        "Expected exception was not thrown.";
-
-    public static string GetExpectedTypeExceptionNotThrownMessage<TException>(TException expected)
-    where TException : notnull, Exception
-    => $"Expected exception of type {GetFullName(expected)} was not thrown.";
-
-    public static string GetNotExpectedTypeExceptionThrownMessage<TException>(TException expected, Exception actual)
-    where TException : notnull, Exception
-    => $"Expected exception of type {GetFullName(expected)}, " +
-        $"but exception of type {GetFullName(actual)} was thrown.";
-    #endregion
-
-    #region Exceptions
-    protected static InvalidOperationException UnreachableCodePathException
-    => new("Unreachable code path.");
-
-    protected static InvalidOperationException GetAssertionFailedException(string message)
-    => new($"Assertion failed: {message}");
-    #endregion
-    #endregion
-
     #region Assert Methods
+    public static void DoesNotThrow(Action attempt, Action<string> assertFail)
+    {
+        var exception = CatchException(attempt);
+        _ = NotNull(assertFail, nameof(assertFail));
+
+        if (exception is not null)
+        {
+            assertFail(GetNotExpectedExceptionMessage(exception));
+        }
+    }
+
+    public static Exception? CatchException(Action attempt)
+    {
+        _ = NotNull(attempt, nameof(attempt));
+
+        try
+        {
+            attempt();
+        }
+        catch (Exception exception)
+        {
+            return exception;
+        }
+
+        return null;
+    }
+
     public static TException ThrowsDetails<TException>(
-        TException expected,
         Action attempt,
+        TException expected,
         Action<Type, Exception> assertIsType,
         Action<string, string?> assertEquality,
         Action<string> assertFail,
@@ -46,19 +46,19 @@ public abstract class PortamicalAssertBase
             CatchException(attempt)
             : catchException(attempt);
 
-        var typedActual = AssertActualType(
+        var typedActual = ThrowsActualType(
             expected,
             actual,
             assertIsType,
             assertFail);
 
-        return AssertMetadataEquality(
+        return ThrowsMetadataEquality(
             expected,
             typedActual,
             assertEquality);
     }
 
-    protected static TException AssertActualType<TException>(
+    public static TException ThrowsActualType<TException>(
         TException expected,
         Exception? actual,
         Action<Type, Exception> assertIsType,
@@ -83,10 +83,10 @@ public abstract class PortamicalAssertBase
         }
 
         assertFail(GetNotExpectedTypeExceptionThrownMessage(expected, actual));
-        throw GetAssertionFailedException("Unexpected exception type thrown.");
+        throw GetAssertionFailedException(UnexpectedExceptionMessage);
     }
 
-    protected static TException AssertMetadataEquality<TException>(
+    public static TException ThrowsMetadataEquality<TException>(
         TException expected,
         TException actual,
         Action<string, string?> assertEquality)
@@ -100,44 +100,48 @@ public abstract class PortamicalAssertBase
         }
 
         if (expected is ArgumentException argExpected &&
-            argExpected.ParamName is string expectedParamName &&
+            argExpected.ParamName is string argExpectedParamName &&
             actual is ArgumentException argActual)
         {
-            var actualParamName = argActual.ParamName;
-
-            assertEquality(expectedParamName, actualParamName);
+            assertEquality(argExpectedParamName, argActual.ParamName);
         }
 
         return actual;
     }
+    #endregion
 
-    public static void DoesNotThrow(Action attempt, Action<string> assertFail)
-    {
-        var exception = CatchException(attempt);
-        NotNull(assertFail, nameof(assertFail));
+    #region Helpers
+    #region Message Getters
+    private static string? GetFullName(Exception exception)
+    => exception.GetType().FullName;
 
-        if (exception is not null)
-        {
-            assertFail(
-                $"Did not expect exception to be thrown, " +
-                $"but exception of type {GetFullName(exception)} was thrown. " +
-                $"Message: '{exception.Message}'");
-        }
-    }
+    protected const string ExpectedExceptionNotThrownMessage =
+        "Expected exception was not thrown.";
 
-    public static Exception? CatchException(Action attempt)
-    {
-        _ = NotNull(attempt, nameof(attempt));
+    private const string UnexpectedExceptionMessage =
+        "Unexpected exception type thrown.";
 
-        try
-        {
-            attempt();
-            return null;
-        }
-        catch (Exception exception)
-        {
-            return exception;
-        }
-    }
+    public static string GetExpectedTypeExceptionNotThrownMessage<TException>(TException expected)
+    where TException : notnull, Exception
+    => $"Expected exception of type {GetFullName(expected)} was not thrown.";
+
+    public static string GetNotExpectedTypeExceptionThrownMessage<TException>(TException expected, Exception actual)
+    where TException : notnull, Exception
+    => $"Expected exception of type {GetFullName(expected)}, " +
+        $"but exception of type {GetFullName(actual)} was thrown.";
+
+    private static string GetNotExpectedExceptionMessage(Exception exception)
+    => $"Did not expect exception to be thrown, " +
+        $"but exception of type {GetFullName(exception)} was thrown. " +
+        $"Message: '{exception.Message}'";
+    #endregion
+
+    #region Exceptions
+    protected static InvalidOperationException UnreachableCodePathException
+    => new("Unreachable code path.");
+
+    protected static InvalidOperationException GetAssertionFailedException(string message)
+    => new($"Assertion failed: {message}");
+    #endregion
     #endregion
 }

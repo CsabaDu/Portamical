@@ -10,7 +10,7 @@ namespace Portamical.xUnit.Converters;
 /// </summary>
 public static class CollectionConverter
 {
-    public static TheoryData<TTestData> InstanceToTheoryData<TTestData>(
+    public static TheoryData<TTestData> ToTheoryData<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.Convert(
@@ -18,15 +18,5 @@ public static class CollectionConverter
         convertRow: (testData, _, _) => testData,
         addRow: (theoryData, testData) => theoryData.Add(testData),
         ArgsCode.Instance,
-        testMethodName: null);
-
-    public static TheoryData<object?[]> PropertiesToTheoryData<TTestData>(
-        this IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
-    => testDataCollection.Convert(
-        initDataProvider: row => new TheoryData<object?[]>(row),
-        convertRow: (testData, argsCode, _) => testData.ToArgs(argsCode),
-        addRow: (theoryData, row) => theoryData.Add(row),
-        ArgsCode.Properties,
         testMethodName: null);
 }
