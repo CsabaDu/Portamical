@@ -19,21 +19,23 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// <item>Conversion to parameter arrays for test execution</item>
 /// </list>
 /// </remarks>
-public abstract class TestDataBase(string definition)
+public abstract class TestDataBase
 : NamedCase, ITestData
 {
+    protected TestDataBase(string definition)
+    {
+        _definition = definition;
+        TestCaseName = CreateTestCaseName();
+    }
+
     #region Fields
-    private readonly string _definition = definition;
+    private readonly string _definition;
     private const string DefinitionString = "definition";
     private const string Separator = " => ";
-    private string? _cachedTestCaseName;
     #endregion
 
     #region Properties
-    public override sealed string TestCaseName
-    => LazyInitializer.EnsureInitialized(
-        ref _cachedTestCaseName,
-        CreateTestCaseName);
+    public override sealed string TestCaseName {   get; init; }
     #endregion
 
     #region Methods

@@ -59,5 +59,5 @@ public interface INamedCase : IEquatable<INamedCase>
     /// clear, self-documenting test names in test reports and runners.
     /// </para>
     /// </remarks>
-    string TestCaseName { get; }
+    string TestCaseName { get; init; }
 }

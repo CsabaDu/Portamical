@@ -29,7 +29,7 @@ public static class TestDataConverter
             testData.ToArgs(argsCode)
             : testData;
 
-        // Create the xUnit theory row with a unified display name.
+        // Create the xUnit TheoryDataRow with a unified display name.
         return new TheoryDataRow(row)
         {
             TestDisplayName =

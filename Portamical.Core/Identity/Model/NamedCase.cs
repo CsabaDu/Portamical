@@ -11,7 +11,7 @@ public abstract class NamedCase : INamedCase
     /// <summary>
     /// Gets the unique name identifying this test case.
     /// </summary>
-    public abstract string TestCaseName { get; }
+    public abstract string TestCaseName { get; init; }
 
     public static IEqualityComparer<INamedCase> Comparer { get; } =
         new NamedTestCaseEqualityComparer();
