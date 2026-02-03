@@ -14,9 +14,9 @@ public abstract class NamedCase : INamedCase
     public abstract string TestCaseName { get; init; }
 
     public static IEqualityComparer<INamedCase> Comparer { get; } =
-        new NamedTestCaseEqualityComparer();
+        new NamedCaseEqualityComparer();
 
-    private sealed class NamedTestCaseEqualityComparer
+    private sealed class NamedCaseEqualityComparer
     : IEqualityComparer<INamedCase>
     {
         public bool Equals(INamedCase? x, INamedCase? y)
@@ -32,8 +32,9 @@ public abstract class NamedCase : INamedCase
 
         public int GetHashCode(INamedCase obj)
         {
-            var testCaseName = NotNull(obj, null)
-                .TestCaseName ?? string.Empty;
+            var testCaseName =
+                NotNull(obj, null).TestCaseName 
+                ?? string.Empty;
 
             return StringComparer.Ordinal
                 .GetHashCode(testCaseName);
@@ -73,6 +74,7 @@ public abstract class NamedCase : INamedCase
     public override sealed int GetHashCode()
     => Comparer.GetHashCode(this);
 
+    #region Static Methods
     /// <summary>
     /// Generates a display name for test cases combining method name and test data.
     /// </summary>
@@ -113,4 +115,5 @@ public abstract class NamedCase : INamedCase
 
         return snapshot.Contains(namedCase, Comparer);
     }
+    #endregion Static Methods
 }

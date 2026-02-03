@@ -46,7 +46,7 @@ public abstract class DynamicTestDataAttributeBase(
         string? displayName =
             data is { Length: > 0 } &&
             data[0] is string or INamedCase ?
-                NamedCase.CreateDisplayName(testMethod.Name, data)
+                NamedCase.CreateDisplayName(testMethod, data)
                 : null;
 
         string defaultName =
