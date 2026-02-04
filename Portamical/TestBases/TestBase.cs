@@ -10,9 +10,4 @@ public abstract class TestBase
     protected static ArgsCode AsInstance => ArgsCode.Instance;
     protected static ArgsCode AsProperties => ArgsCode.Properties;
     protected static PropsCode WithTestCaseName => PropsCode.All;
-
-    protected static IEnumerable<TTestData> Convert<TTestData>(
-        IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly();
 }

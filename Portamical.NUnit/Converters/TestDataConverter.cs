@@ -8,14 +8,14 @@ namespace Portamical.NUnit.Converters;
 
 public static class TestDataConverter
 {
-    public static TestCaseTestData<TTestData> ToTestCaseTestData<TTestData>(
+    internal static TestCaseTestData<TTestData> ToTestCaseTestData<TTestData>(
         this TTestData testData,
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
     => From(testData, argsCode, testMethodName);
 
-    public static TestCaseData ToTestCaseData<TTestData>(
+    internal static TestCaseData ToTestCaseData<TTestData>(
         this TTestData testData,
         ArgsCode argsCode,
         string? testMethodName)

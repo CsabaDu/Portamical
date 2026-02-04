@@ -5,19 +5,20 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.xUnit.Assertions;
-using Portamical.xUnit.TestBases;
+using Portamical.xUnit_v3.Assertions;
+using Portamical.xUnit_v3.Attributes;
+using Portamical.xUnit_v3.TestBases.TheoryDataRowCollection;
 
-namespace Portamical.SampleCodes.UnitTests.xUnit.Specific;
+namespace Portamical.SampleCodes.UnitTests.xUnit.Specific.TheoryDataRowCollection;
 
-public sealed class BithDayTestClass_xUnit_Instance : TestBase
+public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static TheoryData<TestData<DateOnly>> BirthDayConstructorValidArgs
-    => Convert(_dataSource.GetBirthDayConstructorValidArgs());
+    public static IEnumerable<ITheoryDataRow> BirthDayConstructorValidArgs
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance);
 
-    [Theory, MemberData(nameof(BirthDayConstructorValidArgs))]
+    [Theory, MemberTestData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -33,10 +34,10 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
         Assert.Equal(dateOfBirth, actual.DateOfBirth);
     }
 
-    public static TheoryData<TestDataThrows<ArgumentException, string>> BirthDayConstructorInvalidArgs
-    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
+    public static IEnumerable<ITheoryDataRow> BirthDayConstructorInvalidArgs
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance);
 
-    [Theory, MemberData(nameof(BirthDayConstructorInvalidArgs))]
+    [Theory, MemberTestData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
@@ -51,10 +52,10 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
         PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
     }
 
-    public static TheoryData<TestDataReturns<int, DateOnly, BirthDay>> CompareToArgs
-    => Convert(_dataSource.GetCompareToArgs());
+    public static IEnumerable<ITheoryDataRow> CompareToArgs
+    => Convert(_dataSource.GetCompareToArgs(), AsInstance);
 
-    [Theory, MemberData(nameof(CompareToArgs))]
+    [Theory, MemberTestData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange

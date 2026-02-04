@@ -6,7 +6,7 @@ using Portamical.MSTest.Converters;
 
 namespace Portamical.MSTest.TestBases;
 
-public abstract class TestBase : Portamical.TestBases.TestBase
+public abstract class TestBase : Portamical.TestBases.TestData.TestBase
 {
     protected static IEnumerable<object?[]> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,

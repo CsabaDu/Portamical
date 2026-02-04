@@ -5,7 +5,7 @@ using Portamical.NUnit.Converters;
 
 namespace Portamical.NUnit.TestBases;
 
-public abstract class TestBase : Portamical.TestBases.TestBase
+public abstract class TestBase : Portamical.TestBases.TestData.TestBase
 {
     protected static IReadOnlyCollection<TestCaseData> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,

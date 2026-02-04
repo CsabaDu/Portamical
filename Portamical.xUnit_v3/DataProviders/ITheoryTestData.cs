@@ -9,6 +9,6 @@ public interface ITheoryTestData<TTestData>
 : ITestDataConverter<TTestData, ITheoryTestDataRow>
 where TTestData : notnull, ITestData
 {
-    ArgsCode ArgsCode { get; }
-    string? TestMethodName { get; }
+    ArgsCode ArgsCode { get; init; }
+    string? TestMethodName { get; init; }
 }

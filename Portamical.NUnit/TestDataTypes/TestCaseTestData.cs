@@ -96,7 +96,7 @@ public sealed class TestCaseTestData<TTestData>
 : TestCaseTestData
 where TTestData : notnull, ITestData
 {
-    public TestCaseTestData(
+    internal TestCaseTestData(
         TTestData testData,
         ArgsCode argsCode,
         string? testMethodName)

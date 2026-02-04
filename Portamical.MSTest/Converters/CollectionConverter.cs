@@ -8,7 +8,7 @@ namespace Portamical.MSTest.Converters;
 
 public static class CollectionConverter
 {
-    public static IReadOnlyCollection<object?[]> ToArgsWithTestCaseName<TTestData>(
+    internal static IReadOnlyCollection<object?[]> ToArgsWithTestCaseName<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
