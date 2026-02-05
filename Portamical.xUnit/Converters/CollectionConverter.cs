@@ -10,7 +10,7 @@ namespace Portamical.xUnit.Converters;
 /// </summary>
 public static class CollectionConverter
 {
-    internal static TheoryData<TTestData> ToTheoryData<TTestData>(
+    public static TheoryData<TTestData> ToTheoryData<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.Convert(

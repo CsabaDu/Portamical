@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.xUnit_v3.DataProviders.Model;
 using Portamical.xUnit_v3.TestDataTypes.Model;
 
 namespace Portamical.xUnit_v3.Converters;
@@ -36,4 +37,11 @@ public static class TestDataConverter
                 testData.GetDisplayName(testMethodName)
         };
     }
+
+    internal static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
+        TheoryTestDataRow<TTestData> ttdr,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => new(ttdr, argsCode, testMethodName);
 }

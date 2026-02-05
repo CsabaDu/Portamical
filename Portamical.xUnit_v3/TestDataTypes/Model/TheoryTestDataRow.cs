@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.Strategy;
+using Portamical.xUnit_v3.DataProviders.Model;
 using static Portamical.Core.Identity.Model.NamedCase;
 
 namespace Portamical.xUnit_v3.TestDataTypes.Model;
