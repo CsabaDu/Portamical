@@ -26,7 +26,7 @@ public static class CollectionConverter
         string? testMethodName = null)
     where TTestData : notnull, ITestData
     => testDataCollection.Convert(
-        initDataProvider: ttdr => TestDataConverter.ToTheoryTestData(ttdr, argsCode, testMethodName),
+        initDataProvider: ttdr => ttdr.ToTheoryTestData(argsCode, testMethodName),
         convertRow: TestDataConverter.ToTheoryTestDataRow,
         addRow: TheoryTestData<TTestData>.AddRow,
         argsCode,

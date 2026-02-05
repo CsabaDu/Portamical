@@ -39,7 +39,7 @@ public static class TestDataConverter
     }
 
     internal static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
-        TheoryTestDataRow<TTestData> ttdr,
+        this TheoryTestDataRow<TTestData> ttdr,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
