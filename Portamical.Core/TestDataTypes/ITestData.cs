@@ -25,7 +25,7 @@ public interface ITestData : INamedCase
     string GetDefinition();
 
     /// <summary>
-    /// TrimReturnsExpeccted the TrimTestCaseName value of the test case.
+    /// TrimReturnsExpected the TrimTestCaseName value of the test case.
     /// </summary>
     string GetResult();
 

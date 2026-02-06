@@ -36,7 +36,7 @@ where TStruct : struct
         ArgsCode argsCode,
         PropsCode propsCode)
     => Trim(base.ToArgs, argsCode, propsCode,
-        propsCode == PropsCode.TrimReturnsExpeccted);
+        propsCode == PropsCode.TrimReturnsExpected);
 }
 
 #region Concrete types

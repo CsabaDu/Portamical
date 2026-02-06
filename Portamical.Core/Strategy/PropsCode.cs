@@ -30,15 +30,15 @@ public enum PropsCode
     /// <summary>
     /// Excludes also the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
     /// if the <see cref="TestDataTypes.ITestData"/> instance implements
-    /// <see cref="TestDataTypes.Patterns.IReturns"/>. Otherwise, the 'TrimTestCaseName' property is included.
+    /// <see cref="TestDataTypes.Patterns.IReturns"/>. Otherwise, the 'Expected' property is included.
     // Useful for NUnit/TestNG style tests returning values.
     /// </summary>
-    TrimReturnsExpeccted,
+    TrimReturnsExpected,
 
     /// <summary>
     /// Excludes the also <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
     /// if the <see cref="TestDataTypes.ITestData"/> instance implements
-    /// <see cref="TestDataTypes.Patterns.IThrows"/>. Otherwise, the TrimTestCaseName property is included.
+    /// <see cref="TestDataTypes.Patterns.IThrows"/>. Otherwise, the 'Expected' property is included.
     /// </summary>
     TrimThrowsExpected,
 }
