@@ -14,8 +14,8 @@ public abstract class PortamicalAssert : PortamicalAssertBase
     => ThrowsDetails(
         attempt,
         expected,
+        catchException: Record.Exception,
         assertIsType: Assert.IsType,
         assertEquality: Assert.Equal,
-        assertFail: Assert.Fail,
-        catchException: Record.Exception);
+        assertFail: Assert.Fail);
 }

@@ -25,20 +25,20 @@ public enum PropsCode
     /// Most common case: Useful when the test case name isn't needed to be contained 
     /// by the test data object array.
     /// </summary>
-    TrimName,
+    TrimTestCaseName,
 
     /// <summary>
     /// Excludes also the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
     /// if the <see cref="TestDataTypes.ITestData"/> instance implements
-    /// <see cref="TestDataTypes.Patterns.IReturns"/>. Otherwise, the 'TrimName' property is included.
+    /// <see cref="TestDataTypes.Patterns.IReturns"/>. Otherwise, the 'TrimTestCaseName' property is included.
     // Useful for NUnit/TestNG style tests returning values.
     /// </summary>
-    TrimReturned,
+    TrimReturnsExpeccted,
 
     /// <summary>
     /// Excludes the also <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
     /// if the <see cref="TestDataTypes.ITestData"/> instance implements
-    /// <see cref="TestDataTypes.Patterns.IThrows"/>. Otherwise, the TrimName property is included.
+    /// <see cref="TestDataTypes.Patterns.IThrows"/>. Otherwise, the TrimTestCaseName property is included.
     /// </summary>
-    TrimThrown,
+    TrimThrowsExpected,
 }

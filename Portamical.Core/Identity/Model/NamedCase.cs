@@ -46,7 +46,7 @@ public abstract class NamedCase : INamedCase
     /// </summary>
     /// <param name="namedCases">The collection of <see cref="INamedCase"/> instances to search. Can be <see langword="null"/>.</param>
     /// <returns><see langword="true"/> if the current instance is found in the specified collection; otherwise, <see
-    /// langword="false"/>.  TrimReturned <see langword="false"/> if <paramref name="namedCases"/> is <see
+    /// langword="false"/>.  TrimReturnsExpeccted <see langword="false"/> if <paramref name="namedCases"/> is <see
     /// langword="null"/>.</returns>
     public bool ContainedBy(IEnumerable<INamedCase>? namedCases)
     => Contains(this, namedCases);

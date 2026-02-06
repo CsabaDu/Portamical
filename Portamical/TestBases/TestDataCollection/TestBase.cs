@@ -3,7 +3,7 @@
 
 using Portamical.Converters;
 
-namespace Portamical.TestBases.TestData;
+namespace Portamical.TestBases.TestDataCollection;
 
 public abstract class TestBase : TestBases.TestBase
 {

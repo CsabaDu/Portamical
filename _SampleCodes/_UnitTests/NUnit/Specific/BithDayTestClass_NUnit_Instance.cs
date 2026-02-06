@@ -5,7 +5,7 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.NUnit.Assertions;
 using Portamical.NUnit.Attributes;
-using Portamical.NUnit.TestBases;
+using Portamical.NUnit.TestBases.TestCaseDataCollection;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 

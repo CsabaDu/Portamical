@@ -44,12 +44,12 @@ public abstract class TestDataBase
 
     /// <summary>
     /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:
-    /// use the <see cref="PropsCode.TrimName"/> property selection.
+    /// use the <see cref="PropsCode.TrimTestCaseName"/> property selection.
     /// </summary>
     /// <param name="argsCode">Determines instance vs properties inclusion.</param>
     /// <returns></returns>
     public object?[] ToArgs(ArgsCode argsCode)
-    => ToArgs(argsCode, PropsCode.TrimName);
+    => ToArgs(argsCode, PropsCode.TrimTestCaseName);
 
     /// <summary>
     /// Converts the test data to a parameter array with precise control over included properties.

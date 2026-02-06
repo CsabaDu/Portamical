@@ -82,7 +82,7 @@ public abstract class TestCaseTestData
     public static object?[] TestCaseDataArgsFrom(
         ITestData testData,
         ArgsCode argsCode)
-    => testData.ToArgs(argsCode, PropsCode.TrimReturned);
+    => testData.ToArgs(argsCode, PropsCode.TrimReturnsExpeccted);
 }
 
 /// <summary>

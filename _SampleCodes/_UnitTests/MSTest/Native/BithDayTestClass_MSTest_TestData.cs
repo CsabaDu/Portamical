@@ -2,7 +2,7 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.Converters;
-using Portamical.TestBases;
+using Portamical.TestBases.TestDataCollection;
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
@@ -53,6 +53,7 @@ public sealed class BithDayTestClass_MSTest_TestData : TestBase
         ThrowsDetails(
             attempt,
             expected,
+            catchException: CatchException,
             assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
             assertEquality: (e, a) => Assert.AreEqual(e, a),
             assertFail: Assert.Fail);

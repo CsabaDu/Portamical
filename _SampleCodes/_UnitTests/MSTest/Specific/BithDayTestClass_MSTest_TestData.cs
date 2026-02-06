@@ -7,7 +7,7 @@ using Portamical.MSTest.Assertions;
 using Portamical.MSTest.Attributes;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestBases;
+using Portamical.TestBases.TestDataCollection;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Specific;
 

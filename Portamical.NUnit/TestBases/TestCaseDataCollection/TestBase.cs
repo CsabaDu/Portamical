@@ -5,7 +5,7 @@ using Portamical.NUnit.Converters;
 
 namespace Portamical.NUnit.TestBases.TestCaseDataCollection;
 
-public abstract class TestBase : Portamical.TestBases.TestData.TestBase
+public abstract class TestBase : Portamical.TestBases.TestBase
 {
     protected static IReadOnlyCollection<TestCaseData> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,
@@ -13,4 +13,10 @@ public abstract class TestBase : Portamical.TestBases.TestData.TestBase
         string? testMethodName = null)
     where TTestData : notnull, ITestData
     => testDataCollection.ToTestCaseDataCollection(argsCode, testMethodName);
+
+    protected static IReadOnlyCollection<TestCaseData> Convert<TTestData>(
+        IEnumerable<TTestData> testDataCollection,
+        string? testMethodName = null)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToTestCaseDataCollection(ArgsCode, testMethodName);
 }

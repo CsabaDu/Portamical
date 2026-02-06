@@ -5,7 +5,7 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestBases.ObjectArray;
+using Portamical.TestBases.ObjectArrayCollection;
 using static Portamical.Assertions.PortamicalAssertBase;
 
 namespace Portamical.SampleCodes.UnitTests.xUnit.Native;
@@ -51,10 +51,10 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
         ThrowsDetails(
             attempt,
             expected,
+            catchException: Record.Exception,
             assertIsType: Assert.IsType,
             assertEquality: Assert.Equal,
-            assertFail: Assert.Fail,
-            catchException: Record.Exception);
+            assertFail: Assert.Fail);
     }
 
     public static IEnumerable<object?[]> CompareToArgs

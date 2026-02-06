@@ -5,7 +5,7 @@ using Portamical.xUnit_v3.Converters;
 
 namespace Portamical.xUnit_v3.TestBases.TheoryDataRowCollection;
 
-public abstract class TestBase : Portamical.TestBases.TestData.TestBase
+public abstract class TestBase : Portamical.TestBases.TestDataCollection.TestBase
 {
     protected static IEnumerable<ITheoryDataRow> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,

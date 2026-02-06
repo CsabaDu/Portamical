@@ -36,15 +36,15 @@ public abstract class PortamicalAssertBase
     public static TException ThrowsDetails<TException>(
         Action attempt,
         TException expected,
+        Func<Action, Exception?> catchException,
         Action<Type, Exception> assertIsType,
         Action<string, string?> assertEquality,
-        Action<string> assertFail,
-        Func<Action, Exception?>? catchException = null)
+        Action<string> assertFail)
     where TException : notnull, Exception
     {
-        var actual = catchException is null ?
-            CatchException(attempt)
-            : catchException(attempt);
+        var actual = NotNull(
+            catchException(attempt),
+            nameof(catchException));
 
         var typedActual = ThrowsActualType(
             expected,
@@ -65,8 +65,8 @@ public abstract class PortamicalAssertBase
         Action<string> assertFail)
     where TException : notnull, Exception
     {
-        NotNull(assertFail, nameof(assertFail));
-        NotNull(assertIsType, nameof(assertIsType));
+        _ = NotNull(assertIsType, nameof(assertIsType));
+        _ = NotNull(assertFail, nameof(assertFail));
 
         if (actual is null)
         {
@@ -92,7 +92,7 @@ public abstract class PortamicalAssertBase
         Action<string, string?> assertEquality)
     where TException : notnull, Exception
     {
-        NotNull(assertEquality, nameof(assertEquality));
+        _ = NotNull(assertEquality, nameof(assertEquality));
 
         if (expected.Message is string expectedMessage)
         {

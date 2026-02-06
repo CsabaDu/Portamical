@@ -6,11 +6,16 @@ using Portamical.MSTest.Converters;
 
 namespace Portamical.MSTest.TestBases;
 
-public abstract class TestBase : Portamical.TestBases.TestData.TestBase
+public abstract class TestBase : Portamical.TestBases.TestBase
 {
     protected static IEnumerable<object?[]> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
     => testDataCollection.ToArgsWithTestCaseName(argsCode);
+
+    protected static IEnumerable<object?[]> Convert<TTestData>(
+        IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToArgsWithTestCaseName(ArgsCode);
 }

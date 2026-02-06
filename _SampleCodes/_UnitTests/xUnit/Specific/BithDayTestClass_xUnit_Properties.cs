@@ -3,7 +3,7 @@
 
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestBases.ObjectArray;
+using Portamical.TestBases.ObjectArrayCollection;
 using static Portamical.xUnit.Assertions.PortamicalAssert;
 
 namespace Portamical.SampleCodes.UnitTests.xUnit.Specific;

@@ -5,7 +5,7 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestBases.ObjectArray;
+using Portamical.TestBases.ObjectArrayCollection;
 using static Portamical.Assertions.PortamicalAssertBase;
 
 namespace Portamical.SampleCodes.UnitTests.NUnit.Native;
@@ -57,10 +57,10 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
             ThrowsDetails(
                 attempt,
                 expected,
+                catchException: att => Assert.Catch(() => att()),
                 assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
                 assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
-                assertFail: Assert.Fail,
-                catchException: att => Assert.Catch(() => att()));
+                assertFail: Assert.Fail);
         }
     }
 
