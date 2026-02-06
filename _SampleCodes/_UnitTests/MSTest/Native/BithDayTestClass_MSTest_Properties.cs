@@ -7,7 +7,7 @@ using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases;
 using System.Reflection;
-using static Portamical.Assertions.PortamicalAssertBase;
+using static Portamical.Assertions.PortamicalAssert;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
 

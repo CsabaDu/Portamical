@@ -55,13 +55,13 @@ public sealed class BithDayTestClass_NUnit_TestData : TestBase
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            PortamicalAssertBase.ThrowsDetails(
-            attempt,
-            expected,
-            catchException: att => Assert.Catch(() => att()),
-            assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
-            assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
-            assertFail: Assert.Fail);
+            PortamicalAssert.ThrowsDetails(
+                attempt,
+                expected,
+                catchException: att => Assert.Catch(() => att()),
+                assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
+                assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
+                assertFail: Assert.Fail);
         }
     }
 

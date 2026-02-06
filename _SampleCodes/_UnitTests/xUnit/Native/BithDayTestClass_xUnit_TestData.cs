@@ -48,7 +48,7 @@ public sealed class BithDayTestClass_xUnit_TestData : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        PortamicalAssertBase.ThrowsDetails(
+        PortamicalAssert.ThrowsDetails(
             attempt,
             expected,
             catchException: Record.Exception,

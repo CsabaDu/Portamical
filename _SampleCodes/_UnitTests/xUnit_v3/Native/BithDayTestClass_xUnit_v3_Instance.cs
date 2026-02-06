@@ -6,7 +6,7 @@ using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases.ObjectArrayCollection;
-using static Portamical.Assertions.PortamicalAssertBase;
+using static Portamical.Assertions.PortamicalAssert;
 
 namespace Portamical.SampleCodes.UnitTests.xUnit_v3.Native;
 

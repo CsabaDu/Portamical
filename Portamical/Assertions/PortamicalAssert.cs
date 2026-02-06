@@ -3,7 +3,7 @@
 
 namespace Portamical.Assertions;
 
-public abstract class PortamicalAssertBase
+public abstract class PortamicalAssert
 {
     #region Assert Methods
     public static void DoesNotThrow(Action attempt, Action<string> assertFail)

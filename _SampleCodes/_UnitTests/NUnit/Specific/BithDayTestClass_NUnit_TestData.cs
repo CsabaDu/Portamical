@@ -8,7 +8,7 @@ using Portamical.NUnit.Attributes;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases.TestDataCollection;
-using static Portamical.Assertions.PortamicalAssertBase;
+using static Portamical.Assertions.PortamicalAssert;
 
 namespace Portamical.SampleCodes.UnitTests.NUnit.Specific;
 

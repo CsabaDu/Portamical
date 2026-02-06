@@ -1,13 +1,12 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
-using Portamical.TestBases.TestDataCollection;
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using static Portamical.Assertions.PortamicalAssertBase;
+using Portamical.TestBases.TestDataCollection;
+using static Portamical.Assertions.PortamicalAssert;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
 

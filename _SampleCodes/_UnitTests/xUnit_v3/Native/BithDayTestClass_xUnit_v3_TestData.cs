@@ -49,14 +49,13 @@ public sealed class BithDayTestClass_xUnit_v3_TestData : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        PortamicalAssertBase.ThrowsDetails(
+        PortamicalAssert.ThrowsDetails(
             attempt,
             expected,
             catchException: Record.Exception,
             assertIsType: Assert.IsType,
             assertEquality: Assert.Equal,
             assertFail: Assert.Fail);
-
     }
 
     public static TheoryData<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
