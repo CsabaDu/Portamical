@@ -55,7 +55,6 @@ public sealed class BithDayTestClass_xUnit_TestData : TestBase
             assertIsType: Assert.IsType,
             assertEquality: Assert.Equal,
             assertFail: Assert.Fail);
-
     }
 
     public static TheoryData<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs

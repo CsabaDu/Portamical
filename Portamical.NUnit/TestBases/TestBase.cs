@@ -18,5 +18,5 @@ public abstract class TestBase : Portamical.TestBases.TestBase
         IEnumerable<TTestData> testDataCollection,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToTestCaseTestDataCollection(ArgsCode, testMethodName);
+    => Convert(testDataCollection, ArgsCode, testMethodName);
 }

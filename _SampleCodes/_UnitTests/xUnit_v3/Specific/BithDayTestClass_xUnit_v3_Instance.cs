@@ -17,7 +17,7 @@ public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
     private static readonly BirthDayDataSource _dataSource = new();
 
     public static TheoryTestData<TestData<DateOnly>> BirthDayConstructorValidArgs
-    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs());
 
     [Theory, MemberTestData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
@@ -36,7 +36,7 @@ public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
     }
 
     public static TheoryTestData<TestDataThrows<ArgumentException, string>> BirthDayConstructorInvalidArgs
-    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
     [Theory, MemberTestData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
@@ -54,7 +54,7 @@ public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
     }
 
     public static TheoryTestData<TestDataReturns<int, DateOnly, BirthDay>> CompareToArgs
-    => Convert(_dataSource.GetCompareToArgs(), AsInstance);
+    => Convert(_dataSource.GetCompareToArgs());
 
     [Theory, MemberTestData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)

@@ -15,4 +15,10 @@ public abstract class TestBase : Portamical.TestBases.TestDataCollection.TestBas
     => testDataCollection.ToTheoryDataRowCollection(
         argsCode,
         testMethodName);
+
+    protected static IEnumerable<ITheoryDataRow> Convert<TTestData>(
+        IEnumerable<TTestData> testDataCollection,
+        string? testMethodName = null)
+    where TTestData : notnull, ITestData
+    => Convert(testDataCollection, ArgsCode, testMethodName);
 }

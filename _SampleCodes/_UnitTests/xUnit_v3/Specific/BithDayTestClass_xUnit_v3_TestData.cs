@@ -7,7 +7,7 @@ using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.xUnit_v3.Assertions;
 using Portamical.xUnit_v3.Attributes;
-using Portamical.xUnit_v3.TestBases;
+using Portamical.TestBases.TestDataCollection;
 
 namespace Portamical.SampleCodes.UnitTests.xUnit_v3.Specific;
 
