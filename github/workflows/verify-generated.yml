@@ -1,0 +1,17 @@
+name: Verify generated sources
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  verify-generated:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify generated files against MaxArity
+        run: bash ./scripts/verify-generated.sh

@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using System.Diagnostics;
+
 namespace Portamical.Core.Strategy;
 
 /// <summary>
@@ -44,9 +46,18 @@ public static class Validator
     public static string FallbackIfNullOrEmpty(
         this string label,
         string? value)
-    => string.IsNullOrEmpty(value) ?
-        label
-        : value;
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            Trace.WriteLine(
+                $"{label} is null or empty. " +
+                $"Substituted with the fallback label in the test report.");
+
+            return label;
+        }
+
+        return value;
+    }
 
     /// <summary>
     /// Returns an array containing the elements of the specified sequence, ensuring that the sequence is not null or

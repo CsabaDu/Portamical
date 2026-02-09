@@ -1,3 +1,8 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="github/workflows/verify-generated.yml" />
+    <File Path="scripts/verify-generated.ps1" />
+    <File Path="scripts/verify-generated.sh" />
+  </Folder>
   <Project Path="Portamical.Core/Portamical.Core.csproj" />
 </Solution>
