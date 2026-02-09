@@ -2,7 +2,7 @@
 <#@ output extension=".generated.cs" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="System.Linq" #>
-<#
+<#@ include file="..\T4\SharedHelpers.ttinclude" #><#
     // Pre-build all the output as a single string to avoid
     // T4 parser conflicts between XML doc tags and T4 tags.
     var sb = new System.Text.StringBuilder();
@@ -131,21 +131,3 @@
     sb.AppendLine("}");
 #>
 <#= sb.ToString() #>
-<#+
-const int MaxArity = 9;
-
-static readonly string[] Ordinals =
-{
-    "", "first", "second", "third", "fourth",
-    "fifth", "sixth", "seventh", "eighth", "ninth"
-};
-
-static string TypeParams(int n)
-    => string.Join(", ", Enumerable.Range(1, n).Select(i => $"T{i}"));
-
-static string CtorParams(int n)
-    => string.Join(", ", Enumerable.Range(1, n).Select(i => $"T{i}? arg{i}"));
-
-static string ArgsList(int n)
-    => string.Join(", ", Enumerable.Range(1, n).Select(i => $"arg{i}"));
-#>

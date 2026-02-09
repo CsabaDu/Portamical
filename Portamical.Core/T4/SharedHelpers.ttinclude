@@ -1,0 +1,26 @@
+<#+
+// ═══════════════════════════════════════════════════════════════
+// Single source of truth for all T4 templates in Portamical.Core
+// Change MaxArity here → regenerate all 4 templates.
+// ══════════════════════════════��════════════════════════════════
+
+const int MaxArity = 9;
+
+static readonly string[] Ordinals =
+{
+    "", "first", "second", "third", "fourth",
+    "fifth", "sixth", "seventh", "eighth", "ninth",
+};
+
+static string TypeParams(int n)
+    => string.Join(", ", Enumerable.Range(1, n).Select(i => $"T{i}"));
+
+static string CtorParams(int n)
+    => string.Join(", ", Enumerable.Range(1, n).Select(i => $"T{i}? arg{i}"));
+
+static string ArgsList(int n)
+    => string.Join(", ", Enumerable.Range(1, n).Select(i => $"arg{i}"));
+
+static string BaseArgsList(int n)
+    => n <= 1 ? "" : string.Join(", ", Enumerable.Range(1, n - 1).Select(i => $"arg{i}"));
+#>
