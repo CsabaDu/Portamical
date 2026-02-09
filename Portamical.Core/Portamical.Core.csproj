@@ -6,4 +6,53 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- T4 tooling support -->
+
+  <!-- Tell VS which .tt files to transform and where to put output -->
+  <ItemGroup>
+    <None Update="Factories\TestDataFactory.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TestDataFactory.generated.cs</LastGenOutput>
+    </None>
+    <None Update="TestDataTypes\Models\General\TestData.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TestData.generated.cs</LastGenOutput>
+    </None>
+    <None Update="TestDataTypes\Models\Specialized\TestDataReturns.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TestDataReturns.generated.cs</LastGenOutput>
+    </None>
+    <None Update="TestDataTypes\Models\Specialized\TestDataThrows.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TestDataThrows.generated.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <!-- Include generated files in compilation -->
+  <ItemGroup>
+    <Compile Update="Factories\TestDataFactory.generated.cs">
+      <DependentUpon>TestDataFactory.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="TestDataTypes\Models\General\TestData.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TestData.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TestDataTypes\Models\Specialized\TestDataReturns.generated.cs">
+      <DependentUpon>TestDataReturns.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="TestDataTypes\Models\Specialized\TestDataThrows.generated.cs">
+      <DependentUpon>TestDataThrows.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
 </Project>
