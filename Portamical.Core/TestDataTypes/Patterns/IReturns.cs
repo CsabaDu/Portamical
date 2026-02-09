@@ -13,6 +13,12 @@ namespace Portamical.Core.TestDataTypes.Patterns;
 public interface IReturns
 : IExpected;
 
+/// <summary>
+/// Defines a contract for objects that provide a result value of a specified type.
+/// </summary>
+/// <remarks>This interface is typically used to represent operations or expectations that yield a result. It
+/// supports covariance, allowing assignment to compatible result types.</remarks>
+/// <typeparam name="TResult">The type of the result value returned by the implementation. Must not be null.</typeparam>
 public interface IReturns<out TResult>
 : IExpected<TResult>,
 IReturns

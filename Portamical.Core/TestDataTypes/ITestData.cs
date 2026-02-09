@@ -29,6 +29,12 @@ public interface ITestData : INamedCase
     /// </summary>
     string GetResult();
 
+    /// <summary>
+    /// Converts the specified argument code into an array of argument values.
+    /// </summary>
+    /// <param name="argsCode">The argument code that specifies how to generate the array of argument values.</param>
+    /// <returns>An array of objects representing the arguments derived from the provided code. The array may contain null values
+    /// if the argument code specifies them.</returns>
     object?[] ToArgs(ArgsCode argsCode);
 
     /// <summary>

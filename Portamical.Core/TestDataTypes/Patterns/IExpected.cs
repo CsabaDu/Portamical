@@ -13,9 +13,18 @@ public interface IExpected
     /// </summary>
     string GetResultPrefix();
 
+    /// <summary>
+    /// Gets the expected value for the current context or operation.
+    /// </summary>
+    /// <returns>An object representing the expected value. The specific type and meaning depend on the implementation and usage
+    /// context.</returns>
     object GetExpected();
 }
 
+/// <summary>
+/// Defines a contract for accessing the expected result of a test case in a strongly typed manner.
+/// </summary>
+/// <typeparam name="TResult">The type of the expected result. Must be a non-nullable type.</typeparam>
 public interface IExpected<out TResult>
 : IExpected
 where TResult : notnull

@@ -34,30 +34,14 @@ public interface INamedCase : IEquatable<INamedCase>
     bool ContainedBy(IEnumerable<INamedCase>? namedCases);
 
     /// <summary>
-    /// 
+    /// Returns a user-friendly display name for the specified test method.
     /// </summary>
-    /// <param name="testMethodName"></param>
-    /// <returns></returns>
+    /// <param name="testMethodName">The name of the test method for which to retrieve a display name. Can be null to indicate an unspecified method.</param>
+    /// <returns>A string containing the display name for the test method, or null if no display name is available.</returns>
     string? GetDisplayName(string? testMethodName);
 
     /// <summary>
-    /// Generates a complete, descriptive name for the test case suitable for display in test runners.
+    /// Gets the name of the test case.
     /// </summary>
-    /// <returns>
-    /// A formatted TEnum that clearly describes:
-    /// <list type="bullet">
-    ///   <item>The test scenario (from definition)</item>
-    ///   <item>The TrimTestCaseName outcome (actual result/exception)</item>
-    /// </list>
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// The display name should follow the pattern: "{Scenario} => {ExpectedResult}".
-    /// </para>
-    /// <para>
-    /// While this name is used for comparison, its primary purpose is to create
-    /// clear, self-documenting test names in test reports and runners.
-    /// </para>
-    /// </remarks>
     string TestCaseName { get; init; }
 }

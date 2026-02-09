@@ -13,12 +13,24 @@ public abstract class NamedCase : INamedCase
     /// </summary>
     public abstract string TestCaseName { get; init; }
 
+    /// <summary>
+    /// Gets an equality comparer that determines whether two INamedCase instances are equal.
+    /// </summary>
     public static IEqualityComparer<INamedCase> Comparer { get; } =
         new NamedCaseEqualityComparer();
 
     private sealed class NamedCaseEqualityComparer
     : IEqualityComparer<INamedCase>
     {
+        /// <summary>
+        /// Determines whether two INamedCase instances have the same test case name using an ordinal string comparison.
+        /// </summary>
+        /// <remarks>This method performs a case-sensitive, ordinal comparison of the TestCaseName
+        /// properties. If both parameters refer to the same object or are both null, the method returns true.</remarks>
+        /// <param name="x">The first INamedCase instance to compare, or null.</param>
+        /// <param name="y">The second INamedCase instance to compare, or null.</param>
+        /// <returns>true if both instances are non-null and their TestCaseName properties are equal using ordinal comparison, or
+        /// if both are null; otherwise, false.</returns>
         public bool Equals(INamedCase? x, INamedCase? y)
         {
             if (ReferenceEquals(x, y)) return true;
@@ -30,6 +42,13 @@ public abstract class NamedCase : INamedCase
                 y.TestCaseName);
         }
 
+        /// <summary>
+        /// Returns a hash code for the specified <see cref="INamedCase"/> instance based on its test case name.
+        /// </summary>
+        /// <remarks>The hash code is computed using an ordinal string comparison of the test case name.
+        /// If the test case name is null, an empty string is used instead.</remarks>
+        /// <param name="obj">The <see cref="INamedCase"/> instance for which to compute the hash code. Cannot be null.</param>
+        /// <returns>A 32-bit signed integer hash code for the test case name of the specified object.</returns>
         public int GetHashCode(INamedCase obj)
         {
             var testCaseName =
@@ -51,6 +70,13 @@ public abstract class NamedCase : INamedCase
     public bool ContainedBy(IEnumerable<INamedCase>? namedCases)
     => Contains(this, namedCases);
 
+    /// <summary>
+    /// Generates a display-friendly name for a test method, combining the specified method name with the test case
+    /// name.
+    /// </summary>
+    /// <param name="testMethodName">The name of the test method to include in the display name. Can be null to indicate an unnamed method.</param>
+    /// <returns>A string containing the display name for the test method and test case; or null if a display name cannot be
+    /// generated.</returns>
     public string? GetDisplayName(string? testMethodName)
     => CreateDisplayName(testMethodName, TestCaseName);
 
@@ -64,6 +90,12 @@ public abstract class NamedCase : INamedCase
     public bool Equals(INamedCase? other)
     => Comparer.Equals(this, other);
 
+    /// <summary>
+    /// Determines whether the specified object is equal to the current instance.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current instance. Can be null.</param>
+    /// <returns>true if the specified object is an instance of INamedCase and is equal to the current instance; otherwise,
+    /// false.</returns>
     public override sealed bool Equals(object? obj)
     => Equals(obj as INamedCase);
 
@@ -76,19 +108,13 @@ public abstract class NamedCase : INamedCase
 
     #region Static Methods
     /// <summary>
-    /// Generates a display name for test cases combining method name and test data.
+    /// Creates a display name for a test method using the method name and the first argument as test data.
     /// </summary>
-    /// <param name="testMethodName">TestCaseName of the test method.</param>
-    /// <param name="args">Test arguments (first argument should be the test case name).</param>
-    /// <returns>
-    /// Formatted TEnum in pattern: "{testMethodName}(testData: {testCaseName})",
-    /// or null if inputs are invalid.
-    /// </returns>
-    /// <example>
-    /// <code>
-    /// CreateDisplayName("LoginTest", testData) // "LoginTest(testData: Invalid login)"
-    /// </code>
-    /// </example>
+    /// <param name="testMethodName">The name of the test method for which to create a display name. Can be null or empty.</param>
+    /// <param name="args">An array of arguments passed to the test method. The first argument is used as the test data in the display name.
+    /// Can be null.</param>
+    /// <returns>A formatted display name in the form "{testMethodName}(testData: {firstArgument})" if both the method name and the
+    /// first argument are not null or empty; otherwise, null.</returns>
     public static string? CreateDisplayName(string? testMethodName, params object?[]? args)
     {
         if (string.IsNullOrEmpty(testMethodName)) return null;
@@ -101,9 +127,22 @@ public abstract class NamedCase : INamedCase
         return $"{testMethodName}(testData: {testCaseName})";
     }
 
+    /// <summary>
+    /// Creates a display name for a test method using the specified method information and arguments.
+    /// </summary>
+    /// <param name="testMethod">The method information for the test method. Can be null if only the arguments are used to generate the display
+    /// name.</param>
+    /// <param name="args">An array of arguments to include in the display name. Can be null or empty if no arguments are provided.</param>
+    /// <returns>A string representing the display name for the test method, or null if a display name cannot be generated.</returns>
     public static string? CreateDisplayName(MethodInfo? testMethod, params object?[]? args)
     => CreateDisplayName(testMethod?.Name, args);
 
+    /// <summary>
+    /// Determines whether the specified collection contains the given named case using a predefined comparer.
+    /// </summary>
+    /// <param name="namedCase">The named case to locate in the collection. Can be null if the comparer supports null values.</param>
+    /// <param name="namedCases">The collection of named cases to search. If null, the method returns <see langword="false"/>.</param>
+    /// <returns>true if the collection contains the specified named case; otherwise, false.</returns>
     public static bool Contains(
         INamedCase namedCase,
         IEnumerable<INamedCase>? namedCases)

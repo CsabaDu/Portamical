@@ -13,6 +13,10 @@ namespace Portamical.Core.TestDataTypes.Patterns;
 public interface IThrows
 : IExpected;
 
+/// <summary>
+/// Represents an object that specifies an expected exception of a particular type that may be thrown during execution.
+/// </summary>
+/// <typeparam name="TException">The type of exception that is expected to be thrown. Must derive from <see cref="Exception"/>.</typeparam>
 public interface IThrows<out TException>
 : IExpected<TException>,
 IThrows

@@ -35,10 +35,17 @@ public abstract class TestDataBase
     #endregion
 
     #region Properties
+    /// <summary>
+    /// Gets the unique name of the test case associated with this instance.
+    /// </summary>
     public override sealed string TestCaseName {   get; init; }
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Gets the definition string for the current instance.
+    /// </summary>
+    /// <returns>A string containing the definition. If no definition is set, a fallback value is returned.</returns>
     public string GetDefinition()
     => DefinitionString.FallbackIfNullOrEmpty(_definition);
 
@@ -78,7 +85,11 @@ public abstract class TestDataBase
     public override sealed string ToString()
     => TestCaseName;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// When implemented in a derived class, returns the result of the operation as a string.
+    /// </summary>
+    /// <returns>A string that represents the result of the operation. The meaning and format of the result are defined by the
+    /// derived class implementation.</returns>
     public abstract string GetResult();
     #endregion
 
