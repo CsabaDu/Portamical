@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -36,9 +36,9 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Update="TestDataTypes\Models\General\TestData.generated.cs">
-      <DependentUpon>TestData.tt</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+      <DependentUpon>TestData.tt</DependentUpon>
     </Compile>
     <Compile Update="TestDataTypes\Models\Specialized\TestDataReturns.generated.cs">
       <DependentUpon>TestDataReturns.tt</DependentUpon>
