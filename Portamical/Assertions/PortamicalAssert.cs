@@ -42,10 +42,9 @@ public abstract class PortamicalAssert
         Action<string> assertFail)
     where TException : notnull, Exception
     {
-        var actual = NotNull(
-            catchException(attempt),
-            nameof(catchException));
+        _ = NotNull(catchException, nameof(catchException));
 
+        var actual = catchException(attempt);
         var typedActual = ThrowsActualType(
             expected,
             actual,

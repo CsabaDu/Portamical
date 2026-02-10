@@ -39,7 +39,11 @@ public static class CollectionConverter
             convertRow,
             argsCode,
             testMethodName);
-        var rows = rowCollection.ToArray();
+
+        if (rowCollection is not TRow[] rows)
+        {
+            rows = [.. rowCollection];
+        }
 
         if (rows.Length == 0)
         {
