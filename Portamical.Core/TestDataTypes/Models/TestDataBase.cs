@@ -47,7 +47,7 @@ public abstract class TestDataBase
     /// </summary>
     /// <returns>A string containing the definition. If no definition is set, a fallback value is returned.</returns>
     public string GetDefinition()
-    => DefinitionString.FallbackIfNullOrEmpty(_definition);
+    => DefinitionString.FallbackIfNullOrWhiteSpace(_definition, nameof(GetDefinition));
 
     /// <summary>
     /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:

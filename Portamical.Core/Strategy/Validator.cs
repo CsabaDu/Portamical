@@ -13,6 +13,47 @@ namespace Portamical.Core.Strategy;
 /// validation logic and promote consistent error reporting when working with strongly typed enums.</remarks>
 public static class Validator
 {
+    private static long LogCounter;
+
+    /// <summary>
+    /// Creates a standardized invalid enumeration exception for 'TEnum'-type <see cref="enum"/> values.
+    /// Used to maintain consistent error handling across the test data framework.
+    /// </summary>
+    /// <param name="enumValue">The invalid 'TEnum'-type <see cref="enum"/> value.</param>
+    /// <param name="paramName">The name of the newArg that contained the invalid value.</param>
+    /// <returns>A new <see cref="InvalidEnumArgumentException"/> instance.</returns>
+    public static InvalidEnumArgumentException GetInvalidEnumArgumentException<TEnum>(
+        this TEnum enumValue,
+        string? paramName)
+    where TEnum : struct, Enum
+    => new(paramName, (int)(object)enumValue, typeof(TEnum));
+
+    public static string FallbackIfNullOrWhiteSpace(
+        this string fallbackLabel,
+        string? preferredValue,
+        string methodName)
+    {
+        _ = NotNull(fallbackLabel, nameof(fallbackLabel));
+        _ = NotNull(methodName, nameof(methodName));
+
+        if (string.IsNullOrWhiteSpace(preferredValue))
+        {
+            var logIndex = Interlocked.Increment(ref LogCounter);
+            var indexedFallback = $"{fallbackLabel} {logIndex}";
+
+            Trace.TraceWarning(
+                $"Portamical log {logIndex}: The '{methodName}' method of the ITestData object " +
+                $"returned a null, empty, or whitespace value. " +
+                $"Using indexed fallback label '{indexedFallback}' in the test report.");
+
+            return indexedFallback;
+        }
+
+        return preferredValue;
+    }
+
+    internal static void ResetLogCounter() => Interlocked.Exchange(ref LogCounter, 0);
+
     /// <summary>
     /// Validates that the <see cref="enum"/> value is defined in the 'TEnum'-type enumeration.
     /// </summary>
@@ -29,35 +70,6 @@ public static class Validator
     => Enum.IsDefined(enumValue) ?
         enumValue
         : throw enumValue.GetInvalidEnumArgumentException(paramName);
-
-    /// <summary>
-    /// Creates a standardized invalid enumeration exception for 'TEnum'-type <see cref="enum"/> values.
-    /// Used to maintain consistent error handling across the test data framework.
-    /// </summary>
-    /// <param name="enumValue">The invalid 'TEnum'-type <see cref="enum"/> value.</param>
-    /// <param name="paramName">The name of the newArg that contained the invalid value.</param>
-    /// <returns>A new <see cref="InvalidEnumArgumentException"/> instance.</returns>
-    public static InvalidEnumArgumentException GetInvalidEnumArgumentException<TEnum>(
-        this TEnum enumValue,
-        string? paramName)
-    where TEnum : struct, Enum
-    => new(paramName, (int)(object)enumValue, typeof(TEnum));
-
-    public static string FallbackIfNullOrEmpty(
-        this string label,
-        string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            Trace.WriteLine(
-                $"{label} is null or empty. " +
-                $"Substituted with the fallback label in the test report.");
-
-            return label;
-        }
-
-        return value;
-    }
 
     /// <summary>
     /// Returns an array containing the elements of the specified sequence, ensuring that the sequence is not null or

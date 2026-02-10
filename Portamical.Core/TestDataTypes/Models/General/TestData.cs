@@ -30,7 +30,7 @@ public abstract class TestData
     /// </summary>
     /// <returns>A string containing the result. If the result is null or empty, a fallback value is returned instead.</returns>
     public override sealed string GetResult()
-    => ResultString.FallbackIfNullOrEmpty(_result);
+    => ResultString.FallbackIfNullOrWhiteSpace(_result, nameof(GetResult));
 
     /// <summary>
     /// Returns an array of argument values based on the specified argument and property codes.

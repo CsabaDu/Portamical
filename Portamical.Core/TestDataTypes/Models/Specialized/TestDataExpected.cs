@@ -29,13 +29,13 @@ where TResult : notnull
     protected string GetExpectedResult(string? expectedString)
     {
         var resultPrefix = GetResultPrefix();
-        var expected = ExpectedString.FallbackIfNullOrEmpty(expectedString);
+        var expected = ExpectedString.FallbackIfNullOrWhiteSpace(expectedString, nameof(GetExpected));
 
         return $"{resultPrefix} {expected}";
     }
 
     protected string GetResultPrefix(string resultPrefix)
-    => ResultsString.FallbackIfNullOrEmpty(resultPrefix);
+    => ResultsString.FallbackIfNullOrWhiteSpace(resultPrefix, nameof(GetResultPrefix));
 
     public override object?[] ToArgs(
         ArgsCode argsCode,
