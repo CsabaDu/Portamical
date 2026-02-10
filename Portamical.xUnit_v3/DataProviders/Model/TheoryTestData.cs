@@ -52,7 +52,7 @@ where TTestData : notnull, ITestData
         }
     }
 
-    public ITheoryTestDataRow Convert(
+    public ITheoryTestDataRow ConvertRow(
         TTestData testData,
         ArgsCode argsCode,
         string? testMethodName)
@@ -62,7 +62,7 @@ where TTestData : notnull, ITestData
         testMethodName);
 
     protected override ITheoryTestDataRow Convert(TTestData row)
-    => Convert(testData: row, ArgsCode, TestMethodName);
+    => ConvertRow(testData: row, ArgsCode, TestMethodName);
 
     internal static void AddRow(
         TheoryTestData<TTestData> theoryTestData,

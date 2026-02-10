@@ -6,7 +6,7 @@ namespace Portamical.Converters;
 public interface ITestDataConverter<TTestData, TRow>
 where TTestData : notnull, ITestData
 {
-    TRow Convert(
+    TRow ConvertRow(
         TTestData testData,
         ArgsCode argsCode,
         string? testMethodName);
