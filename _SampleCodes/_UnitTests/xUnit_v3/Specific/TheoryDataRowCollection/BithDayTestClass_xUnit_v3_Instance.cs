@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: MIT
-// Copyright (c) 2025. Csaba Dudas (CsabaDu)
+// Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;

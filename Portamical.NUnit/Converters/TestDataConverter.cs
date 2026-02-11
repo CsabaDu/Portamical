@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: MIT
-// Copyright (c) 2025. Csaba Dudas (CsabaDu)
+// Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.NUnit.TestDataTypes;
 using static Portamical.NUnit.TestDataTypes.TestCaseTestData;

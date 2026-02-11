@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: MIT
-// Copyright (c) 2025. Csaba Dudas (CsabaDu)using System;
+// Copyright (c) 2026. Csaba Dudas (CsabaDu)using System;
 
 using Portamical.Core.Identity;
 using Portamical.Core.Identity.Model;

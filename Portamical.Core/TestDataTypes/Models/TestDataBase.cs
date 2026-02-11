@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: MIT
-// Copyright (c) 2025. Csaba Dudas (CsabaDu)
+// Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Identity.Model;
 using Portamical.Core.Strategy;
@@ -47,7 +47,9 @@ public abstract class TestDataBase
     /// </summary>
     /// <returns>A string containing the definition. If no definition is set, a fallback value is returned.</returns>
     public string GetDefinition()
-    => DefinitionString.FallbackIfNullOrWhiteSpace(_definition, nameof(GetDefinition));
+    => DefinitionString.FallbackIfNullOrWhiteSpace(
+        _definition,
+        nameof(GetDefinition));
 
     /// <summary>
     /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:
@@ -76,7 +78,15 @@ public abstract class TestDataBase
             _ = propsCode.Defined(nameof(propsCode));
         }
 
-        return ToObjectArray(argsCode);
+        var args = ToObjectArray(argsCode);
+
+        return args.Length == 0 ?
+            throw new ArgumentOutOfRangeException(
+                nameof(propsCode),
+                $"Invalid 'TestDataBase' implementation: 'PropsCode.{propsCode}' produced no arguments. " +
+                $"Custom TestData types must override 'ToObjectArray()' to include additional properties beyond 'TestCaseName'. " +
+                "Use 'PropsCode.All' to include 'TestCaseName', or ensure your implementation adds at least one property.")
+            : args;
     }
 
     /// <summary>
