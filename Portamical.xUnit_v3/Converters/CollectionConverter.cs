@@ -14,7 +14,9 @@ public static class CollectionConverter
         string? testMethodName = null)
     where TTestData : notnull, ITestData
     => testDataCollection.Convert<TheoryTestData<TTestData>, TTestData, ITheoryTestDataRow>(
-        new(argsCode, testMethodName));
+        initDataProvider: TestDataConverter.ToTheoryTestData,
+        argsCode,
+        testMethodName);
 
     public static IReadOnlyCollection<ITheoryTestDataRow> ToTheoryTestDataRowCollection<TTestData>(
         this IEnumerable<TTestData> testDataCollection,

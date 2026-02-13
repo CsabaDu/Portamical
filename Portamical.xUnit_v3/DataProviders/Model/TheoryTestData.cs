@@ -13,16 +13,19 @@ where TTestData : notnull, ITestData
 {
     #region Constructors
     internal TheoryTestData(
+        TTestData testData,
         ArgsCode argsCode,
         string? testMethodName)
     {
         ArgsCode = argsCode.Defined(nameof(argsCode));
         TestMethodName = testMethodName;
+
+        AddRow(testData);
     }
     #endregion
 
     #region Fields
-    private readonly HashSet<INamedCase> _namedCase =
+    private readonly HashSet<INamedCase> _namedCases =
         new(NamedCase.Comparer);
     #endregion
 
@@ -42,7 +45,7 @@ where TTestData : notnull, ITestData
                 nameof(row));
         }
 
-        if (_namedCase.Add(row))
+        if (_namedCases.Add(row))
         {
             base.Add(row);
         }

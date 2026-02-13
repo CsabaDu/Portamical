@@ -8,6 +8,13 @@ namespace Portamical.xUnit_v3.Converters;
 
 public static class TestDataConverter
 {
+    internal static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
+        this TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => new(testData, argsCode, testMethodName);
+
     internal static TheoryTestDataRow<TTestData> ToTheoryTestDataRow<TTestData>(
         this TTestData testData,
         ArgsCode argsCode,

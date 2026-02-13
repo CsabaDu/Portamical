@@ -104,6 +104,10 @@ public abstract class TestDataBase
     #endregion
 
     #region Helper methods
+    /// <summary>
+    /// Creates a test case name by combining the definition, a separator, and the result.
+    /// </summary>
+    /// <returns>A string representing the test case name, composed of the definition, separator, and result values.</returns>
     private string CreateTestCaseName()
     {
         var definition = GetDefinition();
@@ -147,7 +151,7 @@ public abstract class TestDataBase
     /// <item>The test case properties when <see cref="ArgsCode.Properties"/></item>
     /// </list>
     /// </returns>
-    /// <exception cref="InvalidEnumargumentException">
+    /// <exception cref="InvalidEnumArgumentException">
     /// Thrown when an undefined <paramref name="ArgsCode"/> value is provided.
     /// </exception>
     protected virtual object?[] ToObjectArray(ArgsCode argsCode)
@@ -158,6 +162,19 @@ public abstract class TestDataBase
         _ => throw argsCode.GetInvalidEnumArgumentException(nameof(argsCode)),
     };
 
+    /// <summary>
+    /// Creates a new object array by extending the result of a base conversion with an additional argument, depending
+    /// on the specified argument code.
+    /// </summary>
+    /// <typeparam name="T">The type of the additional argument to append to the array.</typeparam>
+    /// <param name="baseToObjectArray">A function that converts the specified <paramref name="argsCode"/> to an array of objects representing the base
+    /// arguments.</param>
+    /// <param name="argsCode">A value that determines how the arguments are processed and whether the additional argument is appended.</param>
+    /// <param name="newArg">The additional argument to append to the array when the argument code indicates properties. This value can be
+    /// null.</param>
+    /// <returns>An array of objects representing the combined arguments. If <paramref name="argsCode"/> is <see
+    /// cref="ArgsCode.Instance"/>, returns the base array; if <see cref="ArgsCode.Properties"/>, returns the base array
+    /// with <paramref name="newArg"/> appended.</returns>
     protected static object?[] Extend<T>(
     Func<ArgsCode, object?[]> baseToObjectArray,
     ArgsCode argsCode,
@@ -173,6 +190,15 @@ public abstract class TestDataBase
         };
     }
 
+    /// <summary>
+    /// Returns a trimmed array of arguments based on the specified argument and property codes.
+    /// </summary>
+    /// <param name="baseToArgs">A function that generates an array of arguments from the provided argument and property codes.</param>
+    /// <param name="argsCode">The code representing the argument selection strategy.</param>
+    /// <param name="propsCode">The code representing the property selection strategy.</param>
+    /// <param name="propsCodeMatches">true if the property code matches the expected criteria; otherwise, false.</param>
+    /// <returns>An array of objects representing the arguments. If the argument code is set to use properties and the property
+    /// code matches, the returned array excludes the first element; otherwise, the full array is returned.</returns>
     protected static object?[] Trim(
         Func<ArgsCode, PropsCode, object?[]> baseToArgs,
         ArgsCode argsCode,
