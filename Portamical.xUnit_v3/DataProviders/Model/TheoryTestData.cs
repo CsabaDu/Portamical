@@ -13,15 +13,11 @@ where TTestData : notnull, ITestData
 {
     #region Constructors
     internal TheoryTestData(
-        TheoryTestDataRow<TTestData> theoryTestDataRow,
         ArgsCode argsCode,
         string? testMethodName)
     {
-        Guard.ArgumentNotNull(theoryTestDataRow, nameof(theoryTestDataRow));
         ArgsCode = argsCode.Defined(nameof(argsCode));
         TestMethodName = testMethodName;
-
-        Add(theoryTestDataRow);
     }
     #endregion
 
@@ -64,9 +60,7 @@ where TTestData : notnull, ITestData
     protected override ITheoryTestDataRow Convert(TTestData row)
     => ConvertRow(testData: row, ArgsCode, TestMethodName);
 
-    internal static void AddRow(
-        TheoryTestData<TTestData> theoryTestData,
-        TheoryTestDataRow<TTestData> theoryTestDataRow)
-    => theoryTestData.Add(theoryTestDataRow);
+    public void AddRow(TTestData testData)
+    => Add(Convert(testData));
     #endregion
 }

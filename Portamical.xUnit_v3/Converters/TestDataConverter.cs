@@ -37,11 +37,4 @@ public static class TestDataConverter
                 testData.GetDisplayName(testMethodName)
         };
     }
-
-    internal static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
-        this TheoryTestDataRow<TTestData> ttdr,
-        ArgsCode argsCode,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    => new(ttdr, argsCode, testMethodName);
 }

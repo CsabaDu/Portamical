@@ -13,7 +13,7 @@ public static class CollectionConverter
     public static TheoryData<TTestData> ToTheoryData<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly().Convert(
+    => testDataCollection.Convert(
         initDataProvider: testData => new TheoryData<TTestData>(testData),
         convertRow: (testData, _, _) => testData,
         addRow: (theoryData, testData) => theoryData.Add(testData),

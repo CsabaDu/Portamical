@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.DataProviders;
+
 namespace Portamical.Converters;
 
 public static class CollectionConverter
@@ -28,6 +30,26 @@ public static class CollectionConverter
 
     public static TDataProvider Convert<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
+        TDataProvider dataProvider)
+    where TTestData : notnull, ITestData
+    where TDataProvider : IDataProvider<TTestData, TRow>, ITestDataConverter<TTestData, TRow>
+
+    {
+        var testDataArray = ToDistinctReadOnly(
+            testDataCollection,
+            testData => testData);
+        _ = NotNull(dataProvider, nameof(dataProvider));
+
+        foreach (var testData in testDataArray)
+        {
+            dataProvider.AddRow(testData);
+        }
+
+        return dataProvider;
+    }
+
+    public static TDataProvider Convert<TDataProvider, TTestData, TRow>(
+        this IEnumerable<TTestData> testDataCollection,
         Func<TRow, TDataProvider> initDataProvider,
         Func<TTestData, ArgsCode, string?, TRow> convertRow,
         Action<TDataProvider, TRow> addRow,
@@ -45,16 +67,14 @@ public static class CollectionConverter
             rows = [.. rowCollection];
         }
 
-        if (rows.Length == 0)
-        {
-            throw new InvalidOperationException("No test rows provided.");
-        }
-
         var dataProvider = initDataProvider(rows[0]);
 
-        for (int i = 1; i < rows.Length; i++)
+        if (rows.Length > 0)
         {
-            addRow(dataProvider, rows[i]);
+            for (int i = 1; i < rows.Length; i++)
+            {
+                addRow(dataProvider, rows[i]);
+            }
         }
 
         return dataProvider;
@@ -70,7 +90,7 @@ public static class CollectionConverter
         testData => convertRow(
             testData,
             argsCode.Defined(nameof(argsCode)),
-            testMethodName));
+        testMethodName));
 
     private static TRow[] ToDistinctReadOnly<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,

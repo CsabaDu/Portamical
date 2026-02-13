@@ -8,6 +8,14 @@ namespace Portamical.xUnit_v3.Converters;
 
 public static class CollectionConverter
 {
+    public static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        string? testMethodName = null)
+    where TTestData : notnull, ITestData
+    => testDataCollection.Convert<TheoryTestData<TTestData>, TTestData, ITheoryTestDataRow>(
+        new(argsCode, testMethodName));
+
     public static IReadOnlyCollection<ITheoryTestDataRow> ToTheoryTestDataRowCollection<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
@@ -15,18 +23,6 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     => testDataCollection.Convert(
         convertRow: TestDataConverter.ToTheoryTestDataRow,
-        argsCode,
-        testMethodName);
-
-    public static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode,
-        string? testMethodName = null)
-    where TTestData : notnull, ITestData
-    => testDataCollection.Convert(
-        initDataProvider: ttdr => ttdr.ToTheoryTestData(argsCode, testMethodName),
-        convertRow: TestDataConverter.ToTheoryTestDataRow,
-        addRow: TheoryTestData<TTestData>.AddRow,
         argsCode,
         testMethodName);
 
