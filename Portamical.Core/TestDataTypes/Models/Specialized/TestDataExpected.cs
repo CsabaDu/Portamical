@@ -6,17 +6,31 @@ using Portamical.Core.TestDataTypes.Patterns;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
-public abstract class TestDataExpected<TResult>(
-    string definition,
-    TResult expected)
-: TestDataBase(definition),
+public abstract class TestDataExpected<TResult>
+: TestDataBase,
 IExpected<TResult>
 where TResult : notnull
 {
+    protected TestDataExpected(
+        string definition,
+        TResult expected)
+    : base(definition)
+    {
+        Expected = expected;
+        TestCaseName = CreateTestCaseName();
+    }
+
     private const string ExpectedString = "expected";
     private const string ResultsString = "results";
 
-    public TResult Expected { get; init; } = expected;
+    public TResult Expected { get; init; }
+
+    #region Properties
+    /// <summary>
+    /// Gets the unique name of the test case associated with this instance.
+    /// </summary>
+    public override sealed string TestCaseName { get; init; }
+    #endregion
 
     public abstract string GetResultPrefix();
 

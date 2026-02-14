@@ -20,10 +20,18 @@ public abstract class TestData
     : base(definition)
     {
         _result = result;
+        TestCaseName = CreateTestCaseName();
     }
 
     private readonly string _result;
     private const string ResultString = "result";
+
+    #region Properties
+    /// <summary>
+    /// Gets the unique name of the test case associated with this instance.
+    /// </summary>
+    public override sealed string TestCaseName { get; init; }
+    #endregion
 
     /// <summary>
     /// Returns the result string, or a fallback value if the result is null or empty.

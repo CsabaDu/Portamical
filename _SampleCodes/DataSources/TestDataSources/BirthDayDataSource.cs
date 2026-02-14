@@ -21,7 +21,7 @@ public class BirthDayDataSource()
     // within the test method.
     public IEnumerable<TestData<DateOnly>> GetBirthDayConstructorValidArgs()
     {
-        string expected = "creates BirthDay instance";
+        string result = "creates BirthDay instance";
         string paramName = "dateOfBirth";
 
         // Valid name and dateOfBirth is equal with the current day => creates BirthDay instance
@@ -38,7 +38,7 @@ public class BirthDayDataSource()
         TestData<DateOnly> createTestData()
         => CreateTestData(
             definition,
-            expected,
+            result,
             dateOfBirth);
         #endregion
     }

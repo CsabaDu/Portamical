@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Portamical\Portamical.csproj" />
+    <ProjectReference Include="..\..\Portamical.Core\Portamical.Core.csproj" />
     <ProjectReference Include="..\Testables\Portamical.SampleCodes.Testables.csproj" />
   </ItemGroup>
 

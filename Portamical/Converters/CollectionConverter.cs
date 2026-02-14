@@ -25,7 +25,7 @@ public static class CollectionConverter
     public static IReadOnlyCollection<TTestData> ToDistinctReadOnly<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToRowArray(
         testData => testData);
 
     /// <summary>
@@ -44,7 +44,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToRowArray(
         testData => testData.ToArgs(argsCode));
 
     /// <summary>
@@ -65,7 +65,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         PropsCode propsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToRowArray(
         testData => testData.ToArgs(argsCode, propsCode));
 
     /// <summary>
@@ -82,16 +82,15 @@ public static class CollectionConverter
     /// <param name="testDataCollection">The collection of test data items to add to the data provider. Only distinct items are added. Cannot be null.</param>
     /// <param name="dataProvider">The data provider instance to which the test data items are added. Cannot be null.</param>
     /// <returns>The data provider instance after the test data items have been added.</returns>
-    public static TDataProvider Convert<TDataProvider, TTestData, TRow>(
+    public static TDataProvider Convert<TDataProvider, TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    where TDataProvider : IDataProvider<TTestData, TRow>, ITestDataConverter<TTestData, TRow>
+    where TDataProvider : ITestDataProvider<TTestData>
     {
-        var testDataArray = ToDistinctReadOnly(
-            testDataCollection,
+        var testDataArray = testDataCollection.ToRowArray(
             testData => testData);
         var dataProvider = NotNull(
             initDataProvider, nameof(initDataProvider))(
@@ -104,56 +103,6 @@ public static class CollectionConverter
             for (int i = 1; i < testDataArray.Length; i++)
             {
                 dataProvider.AddRow(testDataArray[i]);
-            }
-        }
-
-        return dataProvider;
-    }
-
-    /// <summary>
-    /// Converts a collection of test data into a data provider by transforming each test data item into a row and
-    /// aggregating the rows using the specified initialization and addition functions.
-    /// </summary>
-    /// <remarks>The first row in the collection is used to initialize the data provider. Subsequent rows are
-    /// added using the provided addRow function. The method requires that the test data collection contains at least
-    /// one item.</remarks>
-    /// <typeparam name="TDataProvider">The type of the data provider to be created and returned.</typeparam>
-    /// <typeparam name="TTestData">The type of the input test data items. Must implement ITestData and cannot be null.</typeparam>
-    /// <typeparam name="TRow">The type representing a single row derived from the test data.</typeparam>
-    /// <param name="testDataCollection">The collection of test data items to convert. Cannot be null.</param>
-    /// <param name="initDataProvider">A function that initializes the data provider using the first row.</param>
-    /// <param name="convertRow">A function that converts a test data item, along with the specified arguments code and optional test method
-    /// name, into a row.</param>
-    /// <param name="addRow">A function that adds a row to the data provider.</param>
-    /// <param name="argsCode">The arguments code to use when converting test data items to rows.</param>
-    /// <param name="testMethodName">The name of the test method, or null if not specified. Used during row conversion.</param>
-    /// <returns>A data provider instance containing all rows converted from the input test data collection.</returns>
-    public static TDataProvider Convert<TDataProvider, TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TRow, TDataProvider> initDataProvider,
-        Func<TTestData, ArgsCode, string?, TRow> convertRow,
-        Action<TDataProvider, TRow> addRow,
-        ArgsCode argsCode,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    {
-        var rowCollection = testDataCollection.Convert(
-            convertRow,
-            argsCode,
-            testMethodName);
-
-        if (rowCollection is not TRow[] rows)
-        {
-            rows = [.. rowCollection];
-        }
-
-        var dataProvider = initDataProvider(rows[0]);
-
-        if (rows.Length > 0)
-        {
-            for (int i = 1; i < rows.Length; i++)
-            {
-                addRow(dataProvider, rows[i]);
             }
         }
 
@@ -175,19 +124,19 @@ public static class CollectionConverter
     /// <param name="testMethodName">An optional name of the test method to provide to the conversion function. May be null.</param>
     /// <returns>A read-only collection containing the distinct rows produced by applying the conversion function to each test
     /// data item.</returns>
-    public static IReadOnlyCollection<TRow> Convert<TTestData, TRow>(
+    public static IReadOnlyCollection<TRow> ToDistinctReadOnly<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TRow> convertRow,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToRowArray(
         testData => convertRow(
             testData,
             argsCode.Defined(nameof(argsCode)),
         testMethodName));
 
-    private static TRow[] ToDistinctReadOnly<TTestData, TRow>(
+    private static TRow[] ToRowArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData

@@ -22,7 +22,7 @@ ITheoryTestDataRow
         _data = getData();
     }
 
-    internal TheoryTestDataRow(
+    private protected TheoryTestDataRow(
         ITestData testData,
         ArgsCode argsCode,
         string? testMethodName)

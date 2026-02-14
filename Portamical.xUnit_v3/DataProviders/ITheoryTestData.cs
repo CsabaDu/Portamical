@@ -7,6 +7,6 @@ using Portamical.xUnit_v3.TestDataTypes;
 namespace Portamical.xUnit_v3.DataProviders;
 
 public interface ITheoryTestData<TTestData>
-: IDataProvider<TTestData, ITheoryTestDataRow>,
+: ITestDataProvider<TTestData>,
 ITestDataConverter<TTestData, ITheoryTestDataRow>
 where TTestData : notnull, ITestData;

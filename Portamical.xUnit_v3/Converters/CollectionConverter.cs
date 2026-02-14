@@ -13,7 +13,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.Convert<TheoryTestData<TTestData>, TTestData, ITheoryTestDataRow>(
+    => testDataCollection.Convert(
         initDataProvider: TestDataConverter.ToTheoryTestData,
         argsCode,
         testMethodName);
@@ -23,7 +23,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.Convert(
+    => testDataCollection.ToDistinctReadOnly(
         convertRow: TestDataConverter.ToTheoryTestDataRow,
         argsCode,
         testMethodName);
@@ -33,7 +33,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.Convert(
+    => testDataCollection.ToDistinctReadOnly(
         convertRow: TestDataConverter.ToTheoryDataRow,
         argsCode,
         testMethodName);

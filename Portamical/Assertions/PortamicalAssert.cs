@@ -17,6 +17,14 @@ public abstract class PortamicalAssert
         }
     }
 
+    public static void IsTypeOf(
+        Type expected,
+        object actual,
+        Action<Type, Type> assertEquality)
+    => NotNull(assertEquality, nameof(assertEquality))(
+        NotNull(expected, nameof(expected)),
+        NotNull(actual, nameof(actual)).GetType());
+
     public static Exception? CatchException(Action attempt)
     {
         _ = NotNull(attempt, nameof(attempt));
@@ -42,9 +50,9 @@ public abstract class PortamicalAssert
         Action<string> assertFail)
     where TException : notnull, Exception
     {
-        _ = NotNull(catchException, nameof(catchException));
-
-        var actual = catchException(attempt);
+        var actual =
+            NotNull(catchException, nameof(catchException))(
+                attempt);
         var typedActual = ThrowsActualType(
             expected,
             actual,

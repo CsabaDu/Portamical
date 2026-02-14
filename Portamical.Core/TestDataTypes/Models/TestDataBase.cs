@@ -25,20 +25,12 @@ public abstract class TestDataBase
     protected TestDataBase(string definition)
     {
         _definition = definition;
-        TestCaseName = CreateTestCaseName();
     }
 
     #region Fields
     private readonly string _definition;
     private const string DefinitionString = "definition";
     private const string Separator = " => ";
-    #endregion
-
-    #region Properties
-    /// <summary>
-    /// Gets the unique name of the test case associated with this instance.
-    /// </summary>
-    public override sealed string TestCaseName {   get; init; }
     #endregion
 
     #region Methods
@@ -108,7 +100,7 @@ public abstract class TestDataBase
     /// Creates a test case name by combining the definition, a separator, and the result.
     /// </summary>
     /// <returns>A string representing the test case name, composed of the definition, separator, and result values.</returns>
-    private string CreateTestCaseName()
+    protected string CreateTestCaseName()
     {
         var definition = GetDefinition();
         var result = GetResult();

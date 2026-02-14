@@ -13,7 +13,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.Convert(
+    => testDataCollection.ToDistinctReadOnly(
         TestDataConverter.ToTestCaseData,
         argsCode,
         testMethodName);
@@ -23,7 +23,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.Convert(
+    => testDataCollection.ToDistinctReadOnly(
         TestDataConverter.ToTestCaseTestData,
         argsCode,
         testMethodName);
