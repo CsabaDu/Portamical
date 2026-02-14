@@ -15,9 +15,6 @@ public sealed class BithDayTestClass_NUnit_PropertiesArray : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static string? GetDisplayName(MethodInfo testMethod, object?[]? args)
-    => NamedCase.CreateDisplayName(testMethod, args);
-
     public static IEnumerable<object?[]> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsProperties);
 

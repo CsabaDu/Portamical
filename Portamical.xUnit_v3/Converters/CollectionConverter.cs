@@ -13,7 +13,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.Convert(
+    => testDataCollection.ToDataProvider(
         initDataProvider: TestDataConverter.ToTheoryTestData,
         argsCode,
         testMethodName);

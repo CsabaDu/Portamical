@@ -1,15 +1,13 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using static Portamical.Core.Strategy.Validator;
-
 namespace Portamical.MSTest.Assertions;
 
 public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
 {
     public static void DoesNotThrow(Action attempt)
     => DoesNotThrow(
-        NotNull(attempt, nameof(attempt)),
+        attempt,
         assertFail: Assert.Fail);
 
     public static void IsTypeOf(Type expected, object actual)

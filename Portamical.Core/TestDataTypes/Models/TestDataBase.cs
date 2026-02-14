@@ -19,16 +19,10 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// <item>Conversion to parameter arrays for test execution</item>
 /// </list>
 /// </remarks>
-public abstract class TestDataBase
+public abstract class TestDataBase(string definition)
 : NamedCase, ITestData
 {
-    protected TestDataBase(string definition)
-    {
-        _definition = definition;
-    }
-
     #region Fields
-    private readonly string _definition;
     private const string DefinitionString = "definition";
     private const string Separator = " => ";
     #endregion
@@ -40,7 +34,7 @@ public abstract class TestDataBase
     /// <returns>A string containing the definition. If no definition is set, a fallback value is returned.</returns>
     public string GetDefinition()
     => DefinitionString.FallbackIfNullOrWhiteSpace(
-        _definition,
+        definition,
         nameof(GetDefinition));
 
     /// <summary>
