@@ -13,5 +13,5 @@ public static class CollectionConverter
     public static TheoryData<TTestData> ToTheoryData<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => [.. testDataCollection.ToDistinctReadOnly()];
+    => [.. testDataCollection.ToDistinctArray()];
 }

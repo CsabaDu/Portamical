@@ -4,10 +4,10 @@
 namespace Portamical.DataProviders;
 
 /// <summary>
-/// Defines a contract for providing test data and managing test data rows for parameterized tests.
+/// Defines a contract for providing and managing test data rows, along with associated command-line arguments and test
+/// method metadata.
 /// </summary>
-/// <typeparam name="TTestData">The type of test data to be added. Must implement the ITestData interface and cannot be null.</typeparam>
-/// <typeparam name="TRow">The type representing a single row of test data.</typeparam>
+/// <typeparam name="TTestData">The type of test data row managed by the provider. Must implement ITestData and cannot be null.</typeparam>
 public interface ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {

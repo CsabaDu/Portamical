@@ -22,10 +22,10 @@ public static class CollectionConverter
     /// <param name="testDataCollection">The collection of test data elements from which to create a distinct, read-only collection. Cannot be null.</param>
     /// <returns>A read-only collection containing the distinct elements from the input collection. The order of elements is
     /// preserved from the original collection.</returns>
-    public static IReadOnlyCollection<TTestData> ToDistinctReadOnly<TTestData>(
+    public static TTestData[] ToDistinctArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(
+    => testDataCollection.ToDistinctArray(
         testData => testData);
 
     /// <summary>
@@ -44,7 +44,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(
+    => testDataCollection.ToDistinctArray(
         testData => testData.ToArgs(argsCode));
 
     /// <summary>
@@ -65,7 +65,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         PropsCode propsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(
+    => testDataCollection.ToDistinctArray(
         testData => testData.ToArgs(argsCode, propsCode));
 
     /// <summary>
@@ -89,7 +89,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(
+    => testDataCollection.ToDistinctArray(
         testData => convertRow(
             testData,
             argsCode.Defined(nameof(argsCode)),
@@ -119,8 +119,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : ITestDataProvider<TTestData>
     {
-        var testDatas = testDataCollection.ToDistinctRowArray(
-            testData => testData);
+        var testDatas = testDataCollection.ToDistinctArray();
         var dataProvider = NotNull(
             initDataProvider, nameof(initDataProvider))(
                 testDatas[0],
@@ -139,7 +138,7 @@ public static class CollectionConverter
         return dataProvider;
     }
 
-    private static TRow[] ToDistinctRowArray<TTestData, TRow>(
+    private static TRow[] ToDistinctArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
