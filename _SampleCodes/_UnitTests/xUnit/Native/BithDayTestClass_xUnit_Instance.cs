@@ -5,8 +5,8 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestBases.ObjectArrayCollection;
-using static Portamical.Assertions.PortamicalAssert;
+using Portamical.xUnit.Assertions;
+using Portamical.xUnit.TestBases;
 
 namespace Portamical.SampleCodes.UnitTests.xUnit.Native;
 
@@ -14,7 +14,7 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static IEnumerable<object?[]> BirthDayConstructorValidArgs
+    public static TheoryData<TestData<DateOnly>> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs());
 
     [Theory, MemberData(nameof(BirthDayConstructorValidArgs))]
@@ -33,7 +33,7 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
         Assert.Equal(dateOfBirth, actual.DateOfBirth);
     }
 
-    public static IEnumerable<object?[]> BirthDayConstructorInvalidArgs
+    public static TheoryData<TestDataThrows<ArgumentException, string>> BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
     [Theory, MemberData(nameof(BirthDayConstructorInvalidArgs))]
@@ -48,16 +48,10 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        ThrowsDetails(
-            attempt,
-            expected,
-            catchException: Record.Exception,
-            assertIsType: Assert.IsType,
-            assertEquality: Assert.Equal,
-            assertFail: Assert.Fail);
+        PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
     }
 
-    public static IEnumerable<object?[]> CompareToArgs
+    public static TheoryData<TestDataReturns<int, DateOnly, BirthDay>> CompareToArgs
     => Convert(_dataSource.GetCompareToArgs());
 
     [Theory, MemberData(nameof(CompareToArgs))]

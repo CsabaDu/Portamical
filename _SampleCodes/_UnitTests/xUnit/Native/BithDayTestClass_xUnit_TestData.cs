@@ -1,12 +1,12 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Assertions;
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases;
+using Portamical.xUnit.Assertions;
 
 namespace Portamical.SampleCodes.UnitTests.xUnit.Native;
 
@@ -42,19 +42,12 @@ public sealed class BithDayTestClass_xUnit_TestData : TestBase
         // Arrange
         string? name = testData.Arg1;
         DateOnly dateOfBirth = DateOnly.FromDateTime(DateTime.Now).AddDays(1);
-        ArgumentException expected = testData.Expected;
 
         // Act
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        PortamicalAssert.ThrowsDetails(
-            attempt,
-            expected,
-            catchException: Record.Exception,
-            assertIsType: Assert.IsType,
-            assertEquality: Assert.Equal,
-            assertFail: Assert.Fail);
+        PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
     }
 
     public static TheoryData<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs

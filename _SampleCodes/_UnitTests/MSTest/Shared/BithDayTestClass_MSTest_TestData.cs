@@ -5,20 +5,20 @@ using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.xUnit_v3.Assertions;
-using Portamical.xUnit_v3.Attributes;
 using Portamical.TestBases.TestDataCollection;
+using static Portamical.Assertions.PortamicalAssert;
 
-namespace Portamical.SampleCodes.UnitTests.xUnit_v3.Specific;
+namespace Portamical.SampleCodes.UnitTests.MSTest.Shared;
 
-public sealed class BithDayTestClass_xUnit_v3_TestData : TestBase
+[TestClass]
+public sealed class BithDayTestClass_MSTest_TestData : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static TheoryData<TestData<DateOnly>> BirthDayConstructorValidArgs
-    => [.. Convert(_dataSource.GetBirthDayConstructorValidArgs())];
+    private static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs());
 
-    [Theory, MemberTestData(nameof(BirthDayConstructorValidArgs))]
+    [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -29,32 +29,39 @@ public sealed class BithDayTestClass_xUnit_v3_TestData : TestBase
         var actual = new BirthDay(name, dateOfBirth);
 
         // Assert
-        Assert.NotNull(actual);
-        Assert.Equal(name, actual.Name);
-        Assert.Equal(dateOfBirth, actual.DateOfBirth);
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(name, actual.Name);
+        Assert.AreEqual(dateOfBirth, actual.DateOfBirth);
     }
 
-    public static TheoryData<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
-    => [.. Convert(_dataSource.GetBirthDayConstructorInvalidArgs())];
+    private static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
-    [Theory, MemberTestData(nameof(BirthDayConstructorInvalidArgs))]
+    [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
         string? name = testData.Arg1;
         DateOnly dateOfBirth = DateOnly.FromDateTime(DateTime.Now).AddDays(1);
+        ArgumentException expected = testData.Expected;
 
         // Act
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
+        ThrowsDetails(
+            attempt,
+            expected,
+            catchException: CatchException,
+            assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
+            assertEquality: (e, a) => Assert.AreEqual(e, a),
+            assertFail: Assert.Fail);
     }
 
-    public static TheoryData<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
-    => [.. Convert(_dataSource.GetCompareToArgs())];
+    private static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
+    => Convert(_dataSource.GetCompareToArgs());
 
-    [Theory, MemberTestData(nameof(CompareToArgs))]
+    [TestMethod, DynamicData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange
@@ -67,6 +74,6 @@ public sealed class BithDayTestClass_xUnit_v3_TestData : TestBase
         var actual = sut.CompareTo(other);
 
         // Assert
-        Assert.Equal(testData.Expected, actual);
+        Assert.AreEqual(testData.Expected, actual);
     }
 }

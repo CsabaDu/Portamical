@@ -37,7 +37,7 @@ public static class Resolver
             var indexedFallback = $"{fallbackLabel} ({logIndex})";
 
             Trace.WriteLine(
-                $"{logPrefix}: The '{methodName}' method of the test data object " +
+                $"{logPrefix}The '{methodName}' method of the test data object " +
                 $"returned a null, empty, or whitespace value. " +
                 $"Using indexed fallback label '{indexedFallback}' in the test report.");
 

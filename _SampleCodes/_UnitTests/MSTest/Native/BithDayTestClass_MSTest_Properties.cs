@@ -1,13 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
-using Portamical.Core.Identity.Model;
+using Portamical.MSTest.TestBases;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestBases;
-using System.Reflection;
-using static Portamical.Assertions.PortamicalAssert;
+using static Portamical.MSTest.Assertions.PortamicalAssert;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
 
@@ -16,15 +13,10 @@ public sealed class BithDayTestClass_MSTest_Properties : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static string? GetDisplayName(MethodInfo testMethod, object?[]? args)
-    => NamedCase.CreateDisplayName(testMethod, args);
-
-    private const string DisplayName = nameof(GetDisplayName);
-
     private static IEnumerable<object?[]> BirthDayConstructorValidArgs
-    => _dataSource.GetBirthDayConstructorValidArgs().ToDistinctReadOnly(AsProperties, WithTestCaseName);
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsProperties);
 
-    [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs), DynamicDataDisplayName = DisplayName)]
+    [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(string ignore, DateOnly dateOfBirth)
     {
         // Arrange
@@ -40,9 +32,9 @@ public sealed class BithDayTestClass_MSTest_Properties : TestBase
     }
 
     private static IEnumerable<object?[]> BirthDayConstructorInvalidArgs
-    => _dataSource.GetBirthDayConstructorInvalidArgs().ToDistinctReadOnly(AsProperties, WithTestCaseName);
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsProperties);
 
-    [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs), DynamicDataDisplayName = DisplayName)]
+    [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(string ignore, ArgumentException expected, string name)
     {
         // Arrange
@@ -52,19 +44,13 @@ public sealed class BithDayTestClass_MSTest_Properties : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        ThrowsDetails(
-            attempt,
-            expected,
-            catchException: CatchException,
-            assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
-            assertEquality: (e, a) => Assert.AreEqual(e, a),
-            assertFail: Assert.Fail);
+        ThrowsDetails(attempt, expected);
     }
 
     private static IEnumerable<object?[]> CompareToArgs
-    => _dataSource.GetCompareToArgs().ToDistinctReadOnly(AsProperties, WithTestCaseName);
+    => Convert(_dataSource.GetCompareToArgs(), AsProperties);
 
-    [TestMethod, DynamicData(nameof(CompareToArgs), DynamicDataDisplayName = DisplayName)]
+    [TestMethod, DynamicData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(string ignore, int expected, DateOnly dateOfBirth, BirthDay other)
     {
         // Arrange

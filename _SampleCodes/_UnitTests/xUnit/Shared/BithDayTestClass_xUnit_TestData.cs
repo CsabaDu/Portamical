@@ -1,25 +1,23 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Assertions;
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.xUnit_v3.Assertions;
-using Portamical.xUnit_v3.Attributes;
-using Portamical.xUnit_v3.DataProviders.Model;
-using Portamical.xUnit_v3.TestBases;
+using Portamical.TestBases;
 
-namespace Portamical.SampleCodes.UnitTests.xUnit.Specific;
+namespace Portamical.SampleCodes.UnitTests.xUnit.Shared;
 
-public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
+public sealed class BithDayTestClass_xUnit_TestData : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static TheoryTestData<TestData<DateOnly>> BirthDayConstructorValidArgs
-    => Convert(_dataSource.GetBirthDayConstructorValidArgs());
+    public static TheoryData<TestData<DateOnly>> BirthDayConstructorValidArgs
+    => [.. _dataSource.GetBirthDayConstructorValidArgs()];
 
-    [Theory, MemberTestData(nameof(BirthDayConstructorValidArgs))]
+    [Theory, MemberData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -35,10 +33,10 @@ public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
         Assert.Equal(dateOfBirth, actual.DateOfBirth);
     }
 
-    public static TheoryTestData<TestDataThrows<ArgumentException, string>> BirthDayConstructorInvalidArgs
-    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
+    public static TheoryData<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
+    => [.. _dataSource.GetBirthDayConstructorInvalidArgs()];
 
-    [Theory, MemberTestData(nameof(BirthDayConstructorInvalidArgs))]
+    [Theory, MemberData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
@@ -50,13 +48,19 @@ public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
+        PortamicalAssert.ThrowsDetails(
+            attempt,
+            expected,
+            catchException: Record.Exception,
+            assertIsType: Assert.IsType,
+            assertEquality: Assert.Equal,
+            assertFail: Assert.Fail);
     }
 
-    public static TheoryTestData<TestDataReturns<int, DateOnly, BirthDay>> CompareToArgs
-    => Convert(_dataSource.GetCompareToArgs());
+    public static TheoryData<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
+    => [.. _dataSource.GetCompareToArgs()];
 
-    [Theory, MemberTestData(nameof(CompareToArgs))]
+    [Theory, MemberData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange

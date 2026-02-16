@@ -3,10 +3,11 @@
 
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
+using Portamical.MSTest.Assertions;
+using Portamical.MSTest.Attributes;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases.TestDataCollection;
-using static Portamical.Assertions.PortamicalAssert;
 
 namespace Portamical.SampleCodes.UnitTests.MSTest.Native;
 
@@ -18,7 +19,7 @@ public sealed class BithDayTestClass_MSTest_TestData : TestBase
     private static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs());
 
-    [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs))]
+    [TestMethod, DynamicTestData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -37,31 +38,24 @@ public sealed class BithDayTestClass_MSTest_TestData : TestBase
     private static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
-    [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs))]
+    [TestMethod, DynamicTestData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
         string? name = testData.Arg1;
         DateOnly dateOfBirth = DateOnly.FromDateTime(DateTime.Now).AddDays(1);
-        ArgumentException expected = testData.Expected;
 
         // Act
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        ThrowsDetails(
-            attempt,
-            expected,
-            catchException: CatchException,
-            assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
-            assertEquality: (e, a) => Assert.AreEqual(e, a),
-            assertFail: Assert.Fail);
+        PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
     }
 
     private static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
     => Convert(_dataSource.GetCompareToArgs());
 
-    [TestMethod, DynamicData(nameof(CompareToArgs))]
+    [TestMethod, DynamicTestData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange

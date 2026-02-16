@@ -9,7 +9,7 @@ using Portamical.NUnit.TestBases.TestCaseDataCollection;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 
-namespace Portamical.SampleCodes.UnitTests.NUnit.Specific.TestCaseDataCollection;
+namespace Portamical.SampleCodes.UnitTests.NUnit.Native.TestCaseDataCollection;
 
 [TestFixture]
 public sealed class BithDayTestClass_NUnit_InstanceArray : TestBase

@@ -3,24 +3,22 @@
 
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
-using Portamical.NUnit.Assertions;
-using Portamical.NUnit.Attributes;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
-using Portamical.TestBases.TestDataCollection;
+using Portamical.TestBases.ObjectArrayCollection;
 using static Portamical.Assertions.PortamicalAssert;
 
-namespace Portamical.SampleCodes.UnitTests.NUnit.Specific;
+namespace Portamical.SampleCodes.UnitTests.MSTest.Shared;
 
-[TestFixture]
-public sealed class BithDayTestClass_NUnit_TestData : TestBase
+[TestClass]
+public sealed class BithDayTestClass_MSTest_Instance : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
-    => Convert( _dataSource.GetBirthDayConstructorValidArgs());
+    private static IEnumerable<object?[]> BirthDayConstructorValidArgs
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs());
 
-    [Test, TestCaseDataSource(nameof(BirthDayConstructorValidArgs))]
+    [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -31,44 +29,39 @@ public sealed class BithDayTestClass_NUnit_TestData : TestBase
         var actual = new BirthDay(name, dateOfBirth);
 
         // Assert
-        PortamicalAssert.AssertMultiple(() =>
-        {
-            Assert.That(actual, Is.Not.Null);
-            Assert.That(actual.Name, Is.EqualTo(name));
-            Assert.That(actual.DateOfBirth, Is.EqualTo(dateOfBirth));
-        });
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(name, actual.Name);
+        Assert.AreEqual(dateOfBirth, actual.DateOfBirth);
     }
 
-    public static IEnumerable<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
+    private static IEnumerable<object?[]> BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
-    [Test, TestCaseDataSource(nameof(BirthDayConstructorInvalidArgs))]
+    [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
         string? name = testData.Arg1;
         DateOnly dateOfBirth = DateOnly.FromDateTime(DateTime.Now).AddDays(1);
+        ArgumentException expected = testData.Expected;
 
         // Act
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            ThrowsDetails(
-                attempt,
-                testData.Expected,
-                assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
-                assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
-                assertFail: Assert.Fail,
-                catchException: att => Assert.Catch(() => att()));
-        }
+        ThrowsDetails(
+            attempt,
+            expected,
+            catchException: CatchException,
+            assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
+            assertEquality: (e, a) => Assert.AreEqual(e, a),
+            assertFail: Assert.Fail);
     }
 
-    public static IEnumerable<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
+    private static IEnumerable<object?[]> CompareToArgs
     => Convert(_dataSource.GetCompareToArgs());
 
-    [Test, TestCaseDataSource(nameof(CompareToArgs))]
+    [TestMethod, DynamicData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange
@@ -81,6 +74,6 @@ public sealed class BithDayTestClass_NUnit_TestData : TestBase
         var actual = sut.CompareTo(other);
 
         // Assert
-        Assert.That(actual, Is.EqualTo(testData.Expected));
+        Assert.AreEqual(testData.Expected, actual);
     }
 }

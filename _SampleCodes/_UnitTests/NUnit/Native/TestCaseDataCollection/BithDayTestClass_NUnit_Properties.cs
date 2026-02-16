@@ -1,30 +1,27 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.TestDataTypes.Models.General;
-using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.NUnit.Assertions;
 using Portamical.NUnit.Attributes;
-using Portamical.NUnit.TestBases;
+using Portamical.NUnit.TestBases.TestCaseDataCollection;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 
-namespace Portamical.SampleCodes.UnitTests.NUnit.Specific;
+namespace Portamical.SampleCodes.UnitTests.NUnit.Native.TestCaseDataCollection;
 
 [TestFixture]
-public sealed class BithDayTestClass_NUnit_Instance : TestBase
+public sealed class BithDayTestClass_NUnit_PropertiesArray : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
     public static IEnumerable<TestCaseData> BirthDayConstructorValidArgs
-    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsProperties);
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorValidArgs))]
-    public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
+    public void Ctor_validArgs_createInstance(DateOnly dateOfBirth)
     {
         // Arrange
         string name = "valid name";
-        DateOnly dateOfBirth = testData.Arg1;
 
         // Act
         var actual = new BirthDay(name, dateOfBirth);
@@ -39,34 +36,33 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
     }
 
     public static IEnumerable<TestCaseData> BirthDayConstructorInvalidArgs
-    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance);
+    => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsProperties);
 
     [Test, TestCaseDataSource(nameof(BirthDayConstructorInvalidArgs))]
-    public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
+    public void Ctor_invalidArgs_throwsArgumentException(ArgumentException expected, string name)
     {
         // Arrange
-        string? name = testData.Arg1;
         DateOnly dateOfBirth = DateOnly.FromDateTime(DateTime.Now).AddDays(1);
-        ArgumentException expected = testData.Expected;
 
         // Act
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
+        PortamicalAssert.ThrowsDetails(attempt, expected);
     }
 
     public static IEnumerable<TestCaseData> CompareToArgs
-    => Convert(_dataSource.GetCompareToArgs(), AsInstance);
+    => Convert(_dataSource.GetCompareToArgs(), AsProperties);
 
     [Test, TestCaseDataSource(nameof(CompareToArgs))]
-    public int CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
+    public int CompareTo_validArgs_returnsExpected(DateOnly dateOfBirth, BirthDay other)
     {
         // Arrange
         const string name = "valid name";
-        DateOnly dateOfBirth = testData.Arg1;
-        BirthDay? other = testData.Arg2;
         BirthDay sut = new(name, dateOfBirth);
+
+        // Act
+        var actual = sut.CompareTo(other);
 
         // Act & Assert
         return sut.CompareTo(other);

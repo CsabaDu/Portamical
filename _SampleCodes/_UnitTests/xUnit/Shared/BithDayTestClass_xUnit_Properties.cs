@@ -4,9 +4,9 @@
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases.ObjectArrayCollection;
-using static Portamical.xUnit.Assertions.PortamicalAssert;
+using static Portamical.Assertions.PortamicalAssert;
 
-namespace Portamical.SampleCodes.UnitTests.xUnit.Native;
+namespace Portamical.SampleCodes.UnitTests.xUnit.Shared;
 
 public sealed class BithDayTestClass_xUnit_Properties : TestBase
 {
@@ -43,7 +43,13 @@ public sealed class BithDayTestClass_xUnit_Properties : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        ThrowsDetails(attempt, expected);
+        ThrowsDetails(
+            attempt,
+            expected,
+            catchException: Record.Exception,
+            assertIsType: Assert.IsType,
+            assertEquality: Assert.Equal,
+            assertFail: Assert.Fail);
     }
 
     public static IEnumerable<object?[]> CompareToArgs
