@@ -14,6 +14,7 @@ public abstract class TestBase : IDisposable
     public virtual void Dispose()
     {
         ArgsCode = AsInstance;
+        ResetLogCounter();
 
         GC.SuppressFinalize(this);
     }

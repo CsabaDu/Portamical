@@ -2,9 +2,9 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using System.Diagnostics;
-using static Portamical.Core.Validators.Validator;
+using static Portamical.Core.Safety.Validator;
 
-namespace Portamical.Core.Validators;
+namespace Portamical.Core.Safety;
 
 public static class Resolver
 {
@@ -33,11 +33,11 @@ public static class Resolver
 
         if (string.IsNullOrWhiteSpace(preferredValue))
         {
-            var logIndex = Interlocked.Increment(ref LogCounter);
+            var logIndex = IncrementLogIndex(out string logPrefix);
             var indexedFallback = $"{fallbackLabel} ({logIndex})";
 
             Trace.WriteLine(
-                $"Portamical log {logIndex}: The '{methodName}' method of the test data object " +
+                $"{logPrefix}: The '{methodName}' method of the test data object " +
                 $"returned a null, empty, or whitespace value. " +
                 $"Using indexed fallback label '{indexedFallback}' in the test report.");
 
@@ -45,5 +45,22 @@ public static class Resolver
         }
 
         return preferredValue;
+    }
+
+    /// <summary>
+    /// Resets the log counter to zero and returns the previous value of the log counter.
+    /// </summary>
+    /// <remarks>This method is thread-safe and can be called concurrently from multiple threads. It uses
+    /// atomic operations to ensure that the log counter is reset without race conditions.</remarks>
+    /// <returns>The previous value of the log counter before it was reset.</returns>
+    public static long ResetLogCounter()
+    => Interlocked.Exchange(ref LogCounter, 0L);
+
+    private static long IncrementLogIndex(out string logPrefix)
+    {
+        var logIndex = Interlocked.Increment(ref LogCounter);
+        logPrefix = $"Portamical log {logIndex}: ";
+
+        return logIndex;
     }
 }

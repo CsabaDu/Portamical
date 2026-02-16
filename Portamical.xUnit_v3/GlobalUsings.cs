@@ -4,9 +4,9 @@
 global using Portamical.Converters;
 global using Portamical.Core.Identity;
 global using Portamical.Core.Identity.Model;
+global using Portamical.Core.Safety;
 global using Portamical.Core.Strategy;
 global using Portamical.Core.TestDataTypes;
-global using Portamical.Core.Validators;
 global using System.Reflection;
 global using Xunit;
 global using Xunit.Internal;

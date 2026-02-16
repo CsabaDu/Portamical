@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Core.Validators;
+namespace Portamical.Core.Safety;
 
 public static class Validator
 {
