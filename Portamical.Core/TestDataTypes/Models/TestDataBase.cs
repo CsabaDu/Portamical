@@ -3,6 +3,7 @@
 
 using Portamical.Core.Identity.Model;
 using Portamical.Core.Strategy;
+using Portamical.Core.Validators;
 
 namespace Portamical.Core.TestDataTypes.Models;
 

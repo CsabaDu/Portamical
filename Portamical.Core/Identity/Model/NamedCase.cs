@@ -2,7 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using System.Reflection;
-using static Portamical.Core.Strategy.Validator;
+using static Portamical.Core.Validators.Validator;
 
 namespace Portamical.Core.Identity.Model;
 

@@ -3,6 +3,7 @@
 
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
+using Portamical.Core.Validators;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 

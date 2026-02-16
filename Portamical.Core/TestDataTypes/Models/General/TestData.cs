@@ -2,6 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Strategy;
+using Portamical.Core.Validators;
 
 namespace Portamical.Core.TestDataTypes.Models.General;
 
