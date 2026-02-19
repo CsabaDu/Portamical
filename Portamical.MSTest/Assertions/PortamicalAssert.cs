@@ -5,6 +5,9 @@ namespace Portamical.MSTest.Assertions;
 
 public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
 {
+    private static Action<T, T?> AssertEquality<T>()
+    => (e, a) => Assert.AreEqual(e, a);
+
     public static void DoesNotThrow(Action attempt)
     => DoesNotThrow(
         attempt,
@@ -14,7 +17,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     => IsTypeOf(
         expected,
         actual,
-        assertEquality: (e, a) => Assert.AreEqual(e, a));
+        assertEquality: AssertEquality<object>());
 
     public static TException ThrowsDetails<TException>(
         Action attempt,
@@ -25,6 +28,6 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         expected,
         catchException: CatchException,
         assertIsType: IsTypeOf,
-        assertEquality: (e, a) => Assert.AreEqual(e, a),
+        assertEquality: AssertEquality<string>(),
         assertFail: Assert.Fail);
 }

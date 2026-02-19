@@ -33,7 +33,7 @@ public class BirthDay : IComparable<BirthDay>
     // name is null => throws ArgumentNullException
     // name is empty => throws ArgumentException
     // name is white space => throws ArgumentException
-    // dateOfBirth is less than the current day => throws ArgumentOutOfRangeException
+    // dateOfBirth is greater than the current day => throws ArgumentOutOfRangeException
     public BirthDay(string name, DateOnly dateOfBirth)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(
