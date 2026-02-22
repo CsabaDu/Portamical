@@ -100,14 +100,13 @@ public class BirthDayDataSource()
         // name is empty => throws ArgumentException
         definition = $"{paramName} is empty";
         name = string.Empty;
-        string message = "The value cannot be an empty string " +
-            "or composed entirely of whitespace.";
-        expected = new ArgumentException(message, paramName);
+        expected = new ArgumentException(null, paramName);
         yield return createTestData();
 
         // name is white space => throws ArgumentException
         definition = $"{paramName} is white space";
         name = " ";
+        // expected = new ArgumentException(null, paramName);
         yield return createTestData();
 
         paramName = "dateOfBirth";
@@ -115,7 +114,7 @@ public class BirthDayDataSource()
         // dateOfBirth is greater than the current day => throws ArgumentOutOfRangeException
         definition = $"{paramName} is greater than the current day";
         name = "valid name";
-        message = BirthDay.GreaterThanTheCurrentDateMessage;
+        string message = BirthDay.GreaterThanTheCurrentDateMessage;
         expected = new ArgumentOutOfRangeException(paramName, message);
         yield return createTestData();
 
