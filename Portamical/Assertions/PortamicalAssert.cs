@@ -178,7 +178,6 @@ public abstract class PortamicalAssert
         bool shouldAssertMessage;
 
         if (expected is ArgumentException argExpected &&
-            argExpected.ParamName is string expectedParamName &&
             actual is ArgumentException argActual)
         {
             var actualParamName = argActual.ParamName;
@@ -187,7 +186,11 @@ public abstract class PortamicalAssert
                 actualMessageDoesNotStartWith($"'{actualParamName}' ('");
 
             assertMessage();
-            assertEquality(expectedParamName, actualParamName);
+
+            if (argExpected.ParamName is string expectedParamName)
+            {
+                assertEquality(expectedParamName, actualParamName);
+            }
 
             return actual;
         }
