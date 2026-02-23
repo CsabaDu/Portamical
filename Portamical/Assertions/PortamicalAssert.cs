@@ -183,8 +183,8 @@ public abstract class PortamicalAssert
         {
             var actualParamName = argActual.ParamName;
             shouldAssertMessage =
-                !actualMessage.StartsWith("The value cannot be an empty string") ||
-                !actualMessage.StartsWith($"'{actualParamName}' ('");
+                actualMessageDoesNotStartWith("The value cannot be an empty string") ||
+                actualMessageDoesNotStartWith($"'{actualParamName}' ('");
 
             assertMessage();
             assertEquality(expectedParamName, actualParamName);
@@ -196,7 +196,8 @@ public abstract class PortamicalAssert
         {
             shouldAssertMessage =
                 expected is not ObjectDisposedException ||
-                !actualMessage.StartsWith("Cannot access a disposed object");
+                actualMessageDoesNotStartWith(
+                    "Cannot access a disposed object.\nObject name: '");
 
             assertMessage();
         }
@@ -211,6 +212,9 @@ public abstract class PortamicalAssert
                 assertEquality(expectedMessage, actualMessage);
             }
         }
+
+        bool actualMessageDoesNotStartWith(string start)
+        => !actualMessage.StartsWith(start);
         #endregion
     }
     #endregion
