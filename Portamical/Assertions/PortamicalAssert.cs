@@ -96,8 +96,7 @@ public abstract class PortamicalAssert
     where TException : notnull, Exception
     {
         var actual =
-            NotNull(catchException, nameof(catchException))(
-                attempt);
+            NotNull(catchException, nameof(catchException))(attempt);
         var typedActual = ThrowsActualType(
             expected,
             actual,
@@ -174,19 +173,45 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertEquality, nameof(assertEquality));
 
-        if (expected.Message is string expectedMessage)
-        {
-            assertEquality(expectedMessage, actual.Message);
-        }
+        var expectedMessage = expected.Message;
+        var actualMessage = actual.Message;
+        bool shouldAssertMessage;
 
         if (expected is ArgumentException argExpected &&
-            argExpected.ParamName is string argExpectedParamName &&
+            argExpected.ParamName is string expectedParamName &&
             actual is ArgumentException argActual)
         {
-            assertEquality(argExpectedParamName, argActual.ParamName);
+            var actualParamName = argActual.ParamName;
+            shouldAssertMessage =
+                !actualMessage.StartsWith("The value cannot be an empty string") ||
+                !actualMessage.StartsWith($"'{actualParamName}' ('");
+
+            assertMessage();
+            assertEquality(expectedParamName, actualParamName);
+
+            return actual;
+        }
+
+        if (expectedMessage is not null)
+        {
+            shouldAssertMessage =
+                expected is not ObjectDisposedException ||
+                !actualMessage.StartsWith("Cannot access a disposed object");
+
+            assertMessage();
         }
 
         return actual;
+
+        #region Local methods
+        void assertMessage()
+        {
+            if (shouldAssertMessage)
+            {
+                assertEquality(expectedMessage, actualMessage);
+            }
+        }
+        #endregion
     }
     #endregion
 
