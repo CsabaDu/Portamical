@@ -96,7 +96,8 @@ public abstract class PortamicalAssert
     where TException : notnull, Exception
     {
         var actual =
-            NotNull(catchException, nameof(catchException))(attempt);
+            NotNull(catchException, nameof(catchException))(
+                attempt);
         var typedActual = ThrowsActualType(
             expected,
             actual,
@@ -182,7 +183,7 @@ public abstract class PortamicalAssert
         {
             var actualParamName = argActual.ParamName;
             shouldAssertMessage =
-                actualMessageDoesNotStartWith("The value cannot be an empty string") ||
+                actualMessageDoesNotStartWith("The value cannot be an empty string") &&
                 actualMessageDoesNotStartWith($"'{actualParamName}' ('");
 
             assertMessage();
@@ -191,11 +192,8 @@ public abstract class PortamicalAssert
             {
                 assertEquality(expectedParamName, actualParamName);
             }
-
-            return actual;
         }
-
-        if (expectedMessage is not null)
+        else if (expectedMessage is not null)
         {
             shouldAssertMessage =
                 expected is not ObjectDisposedException ||
