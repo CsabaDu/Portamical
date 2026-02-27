@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using System.Runtime.InteropServices;
+
 namespace Portamical.Assertions;
 
 public abstract class PortamicalAssert
@@ -59,7 +61,7 @@ public abstract class PortamicalAssert
         {
             attempt();
         }
-        catch (Exception exception)
+        catch (Exception exception) when (IsNotFatal(exception))
         {
             return exception;
         }
@@ -221,6 +223,11 @@ public abstract class PortamicalAssert
     #endregion
 
     #region Helpers
+    private static bool IsNotFatal(Exception exception)
+    => exception is not
+        (OutOfMemoryException or
+            AccessViolationException);
+
     #region Message Getters
     private static string? GetFullName(Exception exception)
     => exception.GetType().FullName;
