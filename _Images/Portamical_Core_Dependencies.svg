@@ -1,0 +1,317 @@
+<svg version="1.1" baseProfile="full" width="677.0" height="536.0" viewBox="0 0 677 536" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_Core_Dependencies</title>
+	<desc >#title: Portamical_Core_Dependencies
+	#direction: down
+	
+	#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+	#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+	#.package: title=bold,left visual=package
+	#.concrete: fill=#C9DEEF title=center,bold body=left
+	#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+	
+	[&lt;package&gt; Portamical.Core
+	|
+	[&lt;static&gt;Strategy]
+	[&lt;contract&gt;Identity]
+	[&lt;static&gt;Safety]
+	[&lt;contract&gt;TestDataTypes]
+	[&lt;static&gt;Factories]
+	[&lt;abstract&gt;Identity.Model]
+	[&lt;contract&gt;TestDataTypes.Patterns]
+	[&lt;abstract&gt;TestDataTypes.Models]
+	[&lt;concrete&gt;TestDataTypes.Models.General]
+	[&lt;concrete&gt;TestDataTypes.Models.Specialized]
+	[T4]
+	
+	// diagram
+	
+	
+	[
+	Identity
+	] &lt;-- [
+	TestDataTypes
+	]
+	
+	[
+	Identity
+	] &lt;-- [
+	Identity.Model
+	]
+	
+	[
+	Safety
+	] &lt;-- [
+	Identity.Model
+	]
+	[
+	Strategy
+	] &lt;-- [
+	TestDataTypes.Models
+	]
+	
+	[
+	TestDataTypes
+	] &lt;-- [
+	TestDataTypes.Models
+	]
+	
+	[
+	Identity.Model
+	] &lt;-- [
+	TestDataTypes.Models
+	]
+	
+	[
+	TestDataTypes.Models
+	] &lt;-- [
+	TestDataTypes.Models.General
+	] --&gt; [
+	T4
+	]
+	
+	[
+	TestDataTypes.Models.General
+	] &lt;-- [
+	Factories
+	]
+	
+	[
+	T4
+	] &lt;-- [
+	Factories
+	]
+	
+	[
+	TestDataTypes.Models	
+	] &lt;-- [
+	TestDataTypes.Models.Specialized
+	]
+	
+	[
+	TestDataTypes.Models.Specialized
+	] &lt;-- [
+	Factories
+	]
+	
+	[
+	TestDataTypes.Patterns
+	] &lt;-- [
+	TestDataTypes.Models.Specialized
+	] --&gt; [
+	T4
+	]
+	
+	]
+	
+	</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="bold" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="536.0" width="677.0" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)">
+					<g data-name="Portamical.Core">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical.Core">
+							<rect x="0.0" y="32.0" height="448.0" width="621.0" data-name="Portamical.Core"></rect>
+							<path d="M0.0 32.0 L0.0 0.0 L137.7 0.0 L137.7 32.0 Z" data-name="Portamical.Core"></path>
+							<path d="M0.0 32.0 L621.0 32.0" fill="none" data-name="Portamical.Core"></path>
+						</g>
+						<g transform="translate(0, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.Core" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical.Core" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical.Core" data-compartment="0">Portamical.Core</text>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.Core" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical.Core" data-compartment="1">
+								<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.Core" data-compartment="1">
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M197.5 38.7 L197.5 52 L197.5 72 L197.5 72.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M202.8 45.3 L197.5 38.7 L192.2 45.3 L197.5 32.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M239.8 30.9 L299.5 52 L333.94444444444446 72 L333.9 72.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M247.8 28.1 L239.8 30.9 L244.3 38.2 L233.5 28.7 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M381.5 38.7 L381.5 52 L370.3888888888889 72 L370.4 72.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M386.8 45.3 L381.5 38.7 L376.2 45.3 L381.5 32.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M54.5 110.7 L54.5 124 L133.94444444444446 144 L133.9 144.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M59.8 117.3 L54.5 110.7 L49.2 117.3 L54.5 104.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M197.5 110.7 L197.5 124 L197.5 144 L197.5 144.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M202.8 117.3 L197.5 110.7 L192.2 117.3 L197.5 104.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M361.5 110.7 L361.5 124 L270.3888888888889 144 L270.4 144.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M366.8 117.3 L361.5 110.7 L356.2 117.3 L361.5 104.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M159.1 178.9 L124.5 196 L124.5 216 L124.5 216.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M155.5 186.7 L159.1 178.9 L150.7 177.1 L165.1 176.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M167.3 248.0 L220.75 268 L228.62349156992025 282.1722848258564 L228.6 282.2 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M220.7 278.9 L228.6 282.2 L230.0 273.8 L231.9 288.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M101.8 252.5 L84.5 268 L84.5 304 L84.5 304 L84.5 340 L84.5 340 L252.25 368.5869822485207 L252.3 368.6 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M100.4 260.9 L101.8 252.5 L93.2 253.0 L106.7 248.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M240.8 326.7 L240.75 340 L271.30555555555554 360 L271.3 360.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M246.1 333.3 L240.8 326.7 L235.4 333.3 L240.8 320.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M239.0 178.7 L277.25 196 L360.44444444444446 216 L360.4 216.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M247.3 176.6 L239.0 178.7 L242.9 186.3 L232.9 176.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M427.0 254.7 L427 268 L427 304 L427 304 L427 340 L427 340 L339.25 364.06857142857143 L339.3 364.1 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M432.3 261.3 L427.0 254.7 L421.7 261.3 L427.0 248.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M427.0 182.7 L427 196 L427 216 L427.0 216.0 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M432.3 189.3 L427.0 182.7 L421.7 189.3 L427.0 176.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.Core" data-compartment="1">
+										<path d="M353.1 248.0 L260.75 268 L252.87650843007975 282.1722848258564 L252.9 282.2 " fill="none" data-name="Portamical.Core" data-compartment="1"></path>
+									</g>
+									<path d="M251.5 273.8 L252.9 282.2 L260.8 278.9 L249.6 288.0 Z" data-name="Portamical.Core" data-compartment="1"></path>
+									<g data-name="Strategy">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Strategy">
+											<rect x="14.5" y="72.0" height="32.0" width="80.0" data-name="Strategy"></rect>
+										</g>
+										<g transform="translate(14.5, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Strategy" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Strategy" data-compartment="0">
+												<text x="32.0" y="14.1" stroke="none" text-anchor="middle" data-name="Strategy" data-compartment="0">Strategy</text>
+												<path d="M0.3 16.6 L63.8 16.6" fill="none" data-name="Strategy" data-compartment="0"></path>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Identity">
+										<g fill="#DCE8CF" stroke="#33322E" data-name="Identity">
+											<rect x="161.5" y="0.0" height="32.0" width="72.0" data-name="Identity"></rect>
+										</g>
+										<g transform="translate(161.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Identity" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Identity" data-compartment="0">
+												<text x="28.0" y="14.1" stroke="none" text-anchor="middle" data-name="Identity" data-compartment="0">Identity</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Safety">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Safety">
+											<rect x="349.5" y="0.0" height="32.0" width="64.0" data-name="Safety"></rect>
+										</g>
+										<g transform="translate(349.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Safety" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Safety" data-compartment="0">
+												<text x="24.0" y="14.1" stroke="none" text-anchor="middle" data-name="Safety" data-compartment="0">Safety</text>
+												<path d="M0.2 16.6 L47.8 16.6" fill="none" data-name="Safety" data-compartment="0"></path>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="TestDataTypes">
+										<g fill="#DCE8CF" stroke="#33322E" data-name="TestDataTypes">
+											<rect x="134.5" y="72.0" height="32.0" width="126.0" data-name="TestDataTypes"></rect>
+										</g>
+										<g transform="translate(134.5, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="TestDataTypes" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestDataTypes" data-compartment="0">
+												<text x="55.0" y="14.1" stroke="none" text-anchor="middle" data-name="TestDataTypes" data-compartment="0">TestDataTypes</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Factories">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Factories">
+											<rect x="252.3" y="360.0" height="32.0" width="87.0" data-name="Factories"></rect>
+										</g>
+										<g transform="translate(252.25, 360)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Factories" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Factories" data-compartment="0">
+												<text x="35.5" y="14.1" stroke="none" text-anchor="middle" data-name="Factories" data-compartment="0">Factories</text>
+												<path d="M0.3 16.6 L70.8 16.6" fill="none" data-name="Factories" data-compartment="0"></path>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Identity.Model">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Identity.Model">
+											<rect x="300.5" y="72.0" height="32.0" width="122.0" data-name="Identity.Model"></rect>
+										</g>
+										<g transform="translate(300.5, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Identity.Model" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Identity.Model" data-compartment="0">
+												<text x="53.0" y="14.1" stroke="none" text-anchor="middle" data-name="Identity.Model" data-compartment="0">Identity.Model</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="TestDataTypes.Patterns">
+										<g fill="#DCE8CF" stroke="#33322E" data-name="TestDataTypes.Patterns">
+											<rect x="330.0" y="144.0" height="32.0" width="194.0" data-name="TestDataTypes.Patterns"></rect>
+										</g>
+										<g transform="translate(330, 144)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="TestDataTypes.Patterns" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestDataTypes.Patterns" data-compartment="0">
+												<text x="89.0" y="14.1" stroke="none" text-anchor="middle" data-name="TestDataTypes.Patterns" data-compartment="0">TestDataTypes.Patterns</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="TestDataTypes.Models">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="TestDataTypes.Models">
+											<rect x="105.0" y="144.0" height="32.0" width="185.0" data-name="TestDataTypes.Models"></rect>
+										</g>
+										<g transform="translate(105, 144)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="TestDataTypes.Models" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestDataTypes.Models" data-compartment="0">
+												<text x="84.5" y="14.1" stroke="none" text-anchor="middle" data-name="TestDataTypes.Models" data-compartment="0">TestDataTypes.Models</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="TestDataTypes.Models.General">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="TestDataTypes.Models.General">
+											<rect x="0.0" y="216.0" height="32.0" width="249.0" data-name="TestDataTypes.Models.General"></rect>
+										</g>
+										<g transform="translate(0, 216)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="TestDataTypes.Models.General" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestDataTypes.Models.General" data-compartment="0">
+												<text x="116.5" y="14.1" stroke="none" text-anchor="middle" data-name="TestDataTypes.Models.General" data-compartment="0">TestDataTypes.Models.General</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="TestDataTypes.Models.Specialized">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="TestDataTypes.Models.Specialized">
+											<rect x="289.0" y="216.0" height="32.0" width="276.0" data-name="TestDataTypes.Models.Specialized"></rect>
+										</g>
+										<g transform="translate(289, 216)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="TestDataTypes.Models.Specialized" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestDataTypes.Models.Specialized" data-compartment="0">
+												<text x="130.0" y="14.1" stroke="none" text-anchor="middle" data-name="TestDataTypes.Models.Specialized" data-compartment="0">TestDataTypes.Models.Specialized</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="T4">
+										<g fill="#fdf6e3" stroke="#33322E" data-name="T4">
+											<rect x="223.3" y="288.0" height="32.0" width="35.0" data-name="T4"></rect>
+										</g>
+										<g transform="translate(223.25, 288)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="T4" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="T4" data-compartment="0">
+												<text x="9.5" y="14.1" stroke="none" text-anchor="middle" data-name="T4" data-compartment="0">T4</text>
+												
+											</g>
+										</g>
+									</g>
+								</g>
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

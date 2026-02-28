@@ -1,0 +1,32 @@
+#title: Portamical_Dependencies
+#direction: down
+
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+#.package: title=bold,left visual=package
+#.concrete: fill=#C9DEEF title=center,bold body=left
+#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+
+[<package>Portamical.Core |] <-- 
+[<package> Portamical
+|
+[<abstract>TestBases]
+[<abstract>TestBases.TestDataCollection]
+[<abstract>TestBases.ObjectArrayCollection]
+[<contract>DataProviders]
+[<static>Converters]
+[<abstract>Assertions]
+
+[
+TestBases
+] <-- [
+TestBases.TestDataCollection
+]
+
+[
+TestBases
+] <-- [
+TestBases.ObjectArrayCollection
+]
+
+]
