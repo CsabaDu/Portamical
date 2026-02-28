@@ -150,7 +150,8 @@ public abstract class PortamicalAssert
 
         if (actual is null)
         {
-            assertFail(getExpectedTypeExceptionNotThrownMessage(expected));
+            //assertFail(getExpectedTypeExceptionNotThrownMessage(expected));
+            assertFail(getExpectedExceptionOfTypeMessage(expected, string.Empty));
 
             const string expectedExceptionNotThrownMessage =
                 "Expected exception was not thrown.";
@@ -166,7 +167,10 @@ public abstract class PortamicalAssert
             return typedActual;
         }
 
-        assertFail(getNotExpectedTypeExceptionThrownMessage(expected, actual));
+        //assertFail(getNotExpectedTypeExceptionThrownMessage(expected, actual));
+        assertFail(getExpectedExceptionOfTypeMessage(
+            expected,
+            getNotExpectedEceptionOfTypeMessageInsert(actual)));
 
         const string unexpectedExceptionThrownMessage =
             "Unexpected exception type thrown.";
@@ -174,12 +178,18 @@ public abstract class PortamicalAssert
         throw GetAssertionFailedException(unexpectedExceptionThrownMessage);
 
         #region Local methods
-        static string getExpectedTypeExceptionNotThrownMessage(TException expected)
-        => $"Expected exception of type {GetTypeFullName(expected)} was not thrown.";
+        static string getExpectedExceptionOfTypeMessage(TException expected, string insert)
+        => $"Expected exception of type {GetTypeFullName(expected)}{insert} was thrown.";
 
-        static string getNotExpectedTypeExceptionThrownMessage(TException expected, Exception actual)
-        => $"Expected exception of type {GetTypeFullName(expected)}, " +
-            $"but exception of type {GetTypeFullName(actual)} was thrown.";
+        static string getNotExpectedEceptionOfTypeMessageInsert(Exception actual)
+        => $", but exception of type {GetTypeFullName(actual)}";
+
+        //static string getExpectedTypeExceptionNotThrownMessage(TException expected)
+        //=> $"Expected exception of type {GetTypeFullName(expected)} was not thrown.";
+
+        //static string getNotExpectedTypeExceptionThrownMessage(TException expected, Exception actual)
+        //=> $"Expected exception of type {GetTypeFullName(expected)}, " +
+        //    $"but exception of type {GetTypeFullName(actual)} was thrown.";
         #endregion
     }
 
