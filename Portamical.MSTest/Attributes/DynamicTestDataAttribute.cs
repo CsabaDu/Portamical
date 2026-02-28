@@ -49,15 +49,8 @@ public abstract class DynamicTestDataAttributeBase(
                 NamedCase.CreateDisplayName(testMethod, data)
                 : null;
 
-        return string.IsNullOrEmpty(displayName) ?
-             getDefaultDisplayName()
-            : displayName;
-
-        #region Local function
-        string getDefaultDisplayName()
-        => _innerAttribute.GetDisplayName(testMethod!, data)
-            ?? string.Empty;
-        #endregion
+        return displayName
+            ?? _innerAttribute.GetDisplayName(testMethod!, data);
     }
 }
 

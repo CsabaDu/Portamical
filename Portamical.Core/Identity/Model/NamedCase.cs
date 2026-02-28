@@ -106,7 +106,16 @@ public abstract class NamedCase : INamedCase
     public override sealed int GetHashCode()
     => Comparer.GetHashCode(this);
 
+    /// <summary>
+    /// Overrides and seals the `ToString()` method to return the value of <see cref=TestCaseName"/> property.
+    /// </summary>
+    public sealed override string ToString()
+    => TestCaseName;
+
     #region Static Methods
+    public static implicit operator string?(NamedCase? namedCase)
+    => namedCase?.TestCaseName;
+
     /// <summary>
     /// Creates a display name for a test method using the method name and the first argument as test data.
     /// </summary>
@@ -118,13 +127,22 @@ public abstract class NamedCase : INamedCase
     public static string? CreateDisplayName(string? testMethodName, params object?[]? args)
     {
         if (string.IsNullOrEmpty(testMethodName)) return null;
+        if (args is not { Length: > 0 }) return null;
 
-        var testCaseName = args?.FirstOrDefault();
-        var argToString = testCaseName?.ToString();
+        var testCaseName = args[0]?.ToString();
 
-        if (string.IsNullOrEmpty(argToString)) return null;
+        if (string.IsNullOrEmpty(testCaseName)) return null;
 
         return $"{testMethodName}(testData: {testCaseName})";
+
+        //if (string.IsNullOrEmpty(testMethodName)) return null;
+
+        //var testCaseName = args?.FirstOrDefault();
+        //var argToString = testCaseName?.ToString();
+
+        //if (string.IsNullOrEmpty(argToString)) return null;
+
+        //return $"{testMethodName}(testData: {testCaseName})";
     }
 
     /// <summary>

@@ -77,12 +77,6 @@ public abstract class TestDataBase(string definition)
     }
 
     /// <summary>
-    /// Overrides and seals the `ToString()` method to return the value of <see cref=TestCaseName"/> property.
-    /// </summary>
-    public override sealed string ToString()
-    => TestCaseName;
-
-    /// <summary>
     /// When implemented in a derived class, returns the result of the operation as a string.
     /// </summary>
     /// <returns>A string that represents the result of the operation. The meaning and format of the result are defined by the
