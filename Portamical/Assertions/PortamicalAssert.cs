@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using System.Runtime.InteropServices;
-
 namespace Portamical.Assertions;
 
 public abstract class PortamicalAssert
@@ -23,8 +21,15 @@ public abstract class PortamicalAssert
 
         if (exception is not null)
         {
-            assertFail(GetNotExpectedExceptionMessage(exception));
+            assertFail(getNotExpectedExceptionMessage(exception));
         }
+
+        #region Local methods
+        static string getNotExpectedExceptionMessage(Exception exception)
+        => $"Did not expect exception to be thrown, " +
+            $"but exception of type {GetTypeFullName(exception)} was thrown. " +
+            $"Message: '{exception.Message}'";
+        #endregion
     }
 
     /// <summary>
@@ -61,12 +66,19 @@ public abstract class PortamicalAssert
         {
             attempt();
         }
-        catch (Exception exception) when (IsNotFatal(exception))
+        catch (Exception exception) when (isNotFatal(exception))
         {
             return exception;
         }
 
         return null;
+
+        #region Local methods
+        static bool isNotFatal(Exception exception)
+        => exception is not (
+            OutOfMemoryException or
+            AccessViolationException);
+        #endregion
     }
 
     /// <summary>
@@ -138,8 +150,12 @@ public abstract class PortamicalAssert
 
         if (actual is null)
         {
-            assertFail(GetExpectedTypeExceptionNotThrownMessage(expected));
-            throw GetAssertionFailedException(ExpectedExceptionNotThrownMessage);
+            assertFail(getExpectedTypeExceptionNotThrownMessage(expected));
+
+            const string expectedExceptionNotThrownMessage =
+                "Expected exception was not thrown.";
+
+            throw GetAssertionFailedException(expectedExceptionNotThrownMessage);
         }
 
         var expectedType = expected.GetType();
@@ -150,8 +166,21 @@ public abstract class PortamicalAssert
             return typedActual;
         }
 
-        assertFail(GetNotExpectedTypeExceptionThrownMessage(expected, actual));
-        throw GetAssertionFailedException(UnexpectedExceptionMessage);
+        assertFail(getNotExpectedTypeExceptionThrownMessage(expected, actual));
+
+        const string unexpectedExceptionThrownMessage =
+            "Unexpected exception type thrown.";
+
+        throw GetAssertionFailedException(unexpectedExceptionThrownMessage);
+
+        #region Local methods
+        static string getExpectedTypeExceptionNotThrownMessage(TException expected)
+        => $"Expected exception of type {GetTypeFullName(expected)} was not thrown.";
+
+        static string getNotExpectedTypeExceptionThrownMessage(TException expected, Exception actual)
+        => $"Expected exception of type {GetTypeFullName(expected)}, " +
+            $"but exception of type {GetTypeFullName(actual)} was thrown.";
+        #endregion
     }
 
     /// <summary>
@@ -183,10 +212,15 @@ public abstract class PortamicalAssert
         if (expected is ArgumentException argExpected &&
             actual is ArgumentException argActual)
         {
-            var actualParamName = argActual.ParamName;
+
+        const string argumentExceptionGuardMessageStart =
+            "The value cannot be an empty string";
+
+        var actualParamName = argActual.ParamName;
             shouldAssertMessage =
-                actualMessageDoesNotStartWith("The value cannot be an empty string") &&
-                actualMessageDoesNotStartWith($"'{actualParamName}' ('");
+                actualMessageDoesNotStartWith(argumentExceptionGuardMessageStart) &&
+                actualMessageDoesNotStartWith(
+                    getArgumentOutOfRangeExceptionGuardMessageStart(actualParamName));
 
             assertMessage();
 
@@ -197,10 +231,12 @@ public abstract class PortamicalAssert
         }
         else if (expectedMessage is not null)
         {
+            const string objectDisposedExceptionGuardMessageStart =
+                "Cannot access a disposed object.\nObject name: '";
+
             shouldAssertMessage =
                 expected is not ObjectDisposedException ||
-                actualMessageDoesNotStartWith(
-                    "Cannot access a disposed object.\nObject name: '");
+                actualMessageDoesNotStartWith(objectDisposedExceptionGuardMessageStart);
 
             assertMessage();
         }
@@ -218,47 +254,18 @@ public abstract class PortamicalAssert
 
         bool actualMessageDoesNotStartWith(string start)
         => !actualMessage.StartsWith(start);
+
+        static string getArgumentOutOfRangeExceptionGuardMessageStart(string? actualParamName)
+        => $"'{actualParamName}' ('";
         #endregion
     }
     #endregion
 
     #region Helpers
-    private static bool IsNotFatal(Exception exception)
-    => exception is not
-        (OutOfMemoryException or
-            AccessViolationException);
-
-    #region Message Getters
-    private static string? GetFullName(Exception exception)
-    => exception.GetType().FullName;
-
-    protected const string ExpectedExceptionNotThrownMessage =
-        "Expected exception was not thrown.";
-
-    private const string UnexpectedExceptionMessage =
-        "Unexpected exception type thrown.";
-
-    public static string GetExpectedTypeExceptionNotThrownMessage<TException>(TException expected)
-    where TException : notnull, Exception
-    => $"Expected exception of type {GetFullName(expected)} was not thrown.";
-
-    public static string GetNotExpectedTypeExceptionThrownMessage<TException>(TException expected, Exception actual)
-    where TException : notnull, Exception
-    => $"Expected exception of type {GetFullName(expected)}, " +
-        $"but exception of type {GetFullName(actual)} was thrown.";
-
-    private static string GetNotExpectedExceptionMessage(Exception exception)
-    => $"Did not expect exception to be thrown, " +
-        $"but exception of type {GetFullName(exception)} was thrown. " +
-        $"Message: '{exception.Message}'";
-    #endregion
-
-    #region Exceptions
-    protected static InvalidOperationException UnreachableCodePathException
-    => new("Unreachable code path.");
+    protected static string? GetTypeFullName(object? obj)
+    => obj?.GetType().FullName;
 
     protected static InvalidOperationException GetAssertionFailedException(string message)
     => new($"Assertion failed: {message}");
-    #endregion
     #endregion
 }
