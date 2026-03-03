@@ -32,10 +32,10 @@ public abstract class TestCaseDataSourceAttributeBase(
 
         return (sourceType, methodParams) switch
         {
-            (null, null) => new(sourceName),
+            (null, null)     => new(sourceName),
             (null, not null) => new(sourceName, methodParams),
             (not null, null) => new(sourceType, sourceName),
-            _ => new(sourceType, sourceName, methodParams),
+            _                => new(sourceType, sourceName, methodParams),
         };
 
         #region Local Methods
@@ -142,7 +142,8 @@ public abstract class TestCaseDataSourceAttributeBase(
             var hasFullNameProperty =
                 properties.Get(HasFullNameProperty);
 
-            return hasFullNameProperty is bool hasFullName && !hasFullName;
+            return hasFullNameProperty is bool hasFullName &&
+                !hasFullName;
         }
         #endregion
     }

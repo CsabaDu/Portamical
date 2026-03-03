@@ -3,6 +3,7 @@
 
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
+using Portamical.MSTest.Attributes;
 using Portamical.MSTest.TestBases;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
@@ -18,7 +19,7 @@ public sealed class BithDayTestClass_MSTest_Instance : TestBase
     private static IEnumerable<object?[]> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs());
 
-    [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs))]
+    [TestMethod, DynamicTestData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -37,7 +38,7 @@ public sealed class BithDayTestClass_MSTest_Instance : TestBase
     private static IEnumerable<object?[]> BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
-    [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs))]
+    [TestMethod, DynamicTestData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
@@ -55,7 +56,7 @@ public sealed class BithDayTestClass_MSTest_Instance : TestBase
     private static IEnumerable<object?[]> CompareToArgs
     => Convert(_dataSource.GetCompareToArgs());
 
-    [TestMethod, DynamicData(nameof(CompareToArgs))]
+    [TestMethod, DynamicTestData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange

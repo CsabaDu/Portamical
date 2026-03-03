@@ -129,20 +129,11 @@ public abstract class NamedCase : INamedCase
         if (string.IsNullOrEmpty(testMethodName)) return null;
         if (args is not { Length: > 0 }) return null;
 
-        var testCaseName = args[0]?.ToString();
+        var testCaseName = args[0];
 
-        if (string.IsNullOrEmpty(testCaseName)) return null;
+        if (string.IsNullOrEmpty(testCaseName?.ToString())) return null;
 
         return $"{testMethodName}(testData: {testCaseName})";
-
-        //if (string.IsNullOrEmpty(testMethodName)) return null;
-
-        //var testCaseName = args?.FirstOrDefault();
-        //var argToString = testCaseName?.ToString();
-
-        //if (string.IsNullOrEmpty(argToString)) return null;
-
-        //return $"{testMethodName}(testData: {testCaseName})";
     }
 
     /// <summary>

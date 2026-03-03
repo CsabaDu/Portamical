@@ -27,12 +27,15 @@ public abstract class DynamicTestDataAttributeBase(
 
         return (declaringType, sourceType, sourceArgs) switch
         {
+            (_, not null, not null) => throw new ArgumentException(
+                "Cannot specify both sourceType and sourceArgs"),
+
             (not null, not null, null) => new(sourceName, declaringType, sourceType.Value),
             (not null, null, not null) => new(sourceName, declaringType, sourceArgs),
-            (not null, null, null) => new(sourceName, declaringType),
-            (null, not null, null) => new(sourceName, sourceType.Value),
-            (null, null, not null) => new(sourceName, sourceArgs),
-            _ => new(sourceName),
+            (not null, null, null)     => new(sourceName, declaringType),
+            (null, not null, null)     => new(sourceName, sourceType.Value),
+            (null, null, not null)     => new(sourceName, sourceArgs),
+            _                          => new(sourceName),
         };
     }
 
@@ -50,7 +53,7 @@ public abstract class DynamicTestDataAttributeBase(
                 : null;
 
         return displayName
-            ?? _innerAttribute.GetDisplayName(testMethod!, data);
+            ?? _innerAttribute.GetDisplayName(testMethod, data);
     }
 }
 

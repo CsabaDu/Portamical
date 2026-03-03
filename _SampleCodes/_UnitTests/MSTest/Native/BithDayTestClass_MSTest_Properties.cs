@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.MSTest.Attributes;
 using Portamical.MSTest.TestBases;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
@@ -16,7 +17,7 @@ public sealed class BithDayTestClass_MSTest_Properties : TestBase
     private static IEnumerable<object?[]> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsProperties);
 
-    [TestMethod, DynamicData(nameof(BirthDayConstructorValidArgs))]
+    [TestMethod, DynamicTestData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(string ignore, DateOnly dateOfBirth)
     {
         // Arrange
@@ -34,7 +35,7 @@ public sealed class BithDayTestClass_MSTest_Properties : TestBase
     private static IEnumerable<object?[]> BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsProperties);
 
-    [TestMethod, DynamicData(nameof(BirthDayConstructorInvalidArgs))]
+    [TestMethod, DynamicTestData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(string ignore, ArgumentException expected, string name)
     {
         // Arrange
@@ -50,7 +51,7 @@ public sealed class BithDayTestClass_MSTest_Properties : TestBase
     private static IEnumerable<object?[]> CompareToArgs
     => Convert(_dataSource.GetCompareToArgs(), AsProperties);
 
-    [TestMethod, DynamicData(nameof(CompareToArgs))]
+    [TestMethod, DynamicTestData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(string ignore, int expected, DateOnly dateOfBirth, BirthDay other)
     {
         // Arrange

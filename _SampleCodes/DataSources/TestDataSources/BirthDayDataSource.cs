@@ -91,7 +91,7 @@ public class BirthDayDataSource()
     {
         string paramName = "name";
 
-        // name is null => throws ArguemntNullException
+        // name is null => throws ArgumentNullException
         string definition = $"{paramName} is null";
         string name = null!;
         ArgumentException expected = new ArgumentNullException(paramName);
