@@ -56,22 +56,28 @@ using static Portamical.Core.Factories.TestDataFactory;
 
 public class MyDataSource
 {
-    public IEnumerable<TestData<string>> GetValidArgs()
+
+public static class EmailValidationCases
+{
+    public static IEnumerable<TestData<string>> ValidEmails()
     {
-        // Local function to decrease visual noise 
-        // and to ensure parameter sequence consistency
-        object?[] createTestData()
-            => CreateTestData(definition, result, arg1);
+        // Local helper:
+        // - Ensures the argument *sequence* stays consistent across all yields
+        // - Reduces visual noise by keeping the factory call shape in one place
+        // - Makes later edits safer (change the factory call once, keep call sites unchanged)
+        TestData<string> createTestData()
+            => CreateTestData(definition: definition, result: result, arg1: arg1);
 
         // Identity-driven test cases with deterministic naming
         string definition = "input is a valid email";
-        string result = "validates successfully";
+        string result = "returns true";
         string arg1 = "user@example.com";
         yield return createTestData();
 
-        definition = "input is a valid name";
-        result = "validates successfully";
-        arg1 = "John Doe";
+        // Reassign the same variables so the local helper keeps the call consistent.
+        definition = "input is a valid email with subdomain";
+        result = "returns true";
+        arg1 = "john.doe@mail.example.com";
         yield return createTestData();
     }
 }
