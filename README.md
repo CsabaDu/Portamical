@@ -58,16 +58,21 @@ public class MyDataSource
 {
     public IEnumerable<TestData<string>> GetValidArgs()
     {
+        // Local function to decrease visual noise 
+        // and to ensure parameter sequence consistency
+        object?[] createTestData()
+          => CreateTestData(definition, result, arg1);
+
         // Identity-driven test cases with deterministic naming
         yield return CreateTestData(
-            definition: "input is a valid email",
-            result: "validates successfully",
-            arg1: "user@example.com");
+            string definition = "input is a valid email",
+            string result = "validates successfully",
+            string arg1 = "user@example.com");
 
         yield return CreateTestData(
-            definition: "input is a valid name",
-            result: "validates successfully",
-            arg1: "John Doe");
+            definition = "input is a valid name",
+            result = "validates successfully",
+            arg1 = "John Doe");
     }
 }
 ```
@@ -114,16 +119,16 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
                         │ depends on
 ┌───────────────────────▼────────────────────────┐
 │  Portamical.xUnit | xUnit_v3 | MSTest | NUnit  │  ← Framework adapters
-│          (Thin adapter layer)                   │
+│          (Thin adapter layer)                  │
 └───────────────────────┬────────────────────────┘
                         │ depends on
 ┌───────────────────────▼────────────────────────┐
-│              Portamical                         │  ← Shared utilities
+│              Portamical                        │  ← Shared utilities
 │  (Converters, Assertions, TestBases)           │
 └───────────────────────┬────────────────────────┘
                         │ depends on
 ┌───────────────────────▼────────────────────────┐
-│          Portamical.Core                        │  ← Pure abstractions
+│          Portamical.Core                       │  ← Pure abstractions
 │  (Interfaces, Models, Factory — ZERO DEPS)     │
 └────────────────────────────────────────────────┘
 ```
