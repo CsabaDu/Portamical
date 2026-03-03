@@ -7,27 +7,27 @@
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 [![Stars](https://img.shields.io/github/stars/CsabaDu/Portamical?style=social)](https://github.com/CsabaDu/Portamical/stargazers)
 
-> **Write test data once. Run it on xUnit v2, xUnit v3, MSTest 4, and NUnit 4�without rewriting tests or losing strong typing.**
+> **Write test data once. Run it on xUnit v2, xUnit v3, MSTest 4, and NUnit 4—without rewriting tests or losing strong typing.**
 
 Portamical is the **test data abstraction layer** missing from the .NET testing ecosystem. It treats test data as **first-class domain objects** with deterministic identity, enabling automatic deduplication, cross-framework portability, and self-documenting test output.
 
 ---
 
-## ?? The Problem It Solves
+## 🎯 The Problem It Solves
 
 | Traditional Approach | Portamical Approach |
 |---------------------|---------------------|
-| ?? Duplicate test data per framework | ? Write once, consume everywhere |
-| ?? Fragile `object[]` arrays | ? Strongly typed generics (up to 9 args) |
-| ?? Cryptic test names in runners | ? Human-readable "definition => result" |
-| ?? Duplicate test cases slip through | ? Built-in identity-based deduplication |
-| ?? Exception assertions differ by framework | ? Unified `PortamicalAssert` with delegate injection |
-| ?? Boilerplate test data setup | ? `TestDataFactory` with fluent creation |
-| ?? Mutable test state | ? `init`-only properties throughout |
+| 🔴 Duplicate test data per framework | ✅ Write once, consume everywhere |
+| 🔴 Fragile `object[]` arrays | ✅ Strongly typed generics (up to 9 args) |
+| 🔴 Cryptic test names in runners | ✅ Human-readable "definition => result" |
+| 🔴 Duplicate test cases slip through | ✅ Built-in identity-based deduplication |
+| 🔴 Exception assertions differ by framework | ✅ Unified `PortamicalAssert` with delegate injection |
+| 🔴 Boilerplate test data setup | ✅ `TestDataFactory` with fluent creation |
+| 🔴 Mutable test state | ✅ `init`-only properties throughout |
 
 ---
 
-## ?? Quick Start
+## 🚀 Quick Start
 
 ### 1. Clone and Build
 
@@ -107,51 +107,51 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 
 ---
 
-## ??? Architecture
+## 🏗️ Architecture
 
 ### Layered Design (Zero-Dependency Core)
 
 ```
-??????????????????????????????????????????????????
-?            _SampleCodes                        ?  ? Reference implementations
-?  (Testables, DataSources, UnitTests)           ?
-??????????????????????????????????????????????????
-                        ? depends on
-??????????????????????????????????????????????????
-?  Portamical.xUnit | xUnit_v3 | MSTest | NUnit  ?  ? Framework adapters
-?          (Thin adapter layer)                  ?
-??????????????????????????????????????????????????
-                        ? depends on
-??????????????????????????????????????????????????
-?              Portamical                        ?  ? Shared utilities
-?  (Converters, Assertions, TestBases)           ?
-??????????????????????????????????????????????????
-                        ? depends on
-??????????????????????????????????????????????????
-?          Portamical.Core                       ?  ? Pure abstractions
-?  (Interfaces, Models, Factory � ZERO DEPS)     ?
-??????????????????????????????????????????????????
+┌────────────────────────────────────────────────┐
+│            _SampleCodes                        │  ← Reference implementations
+│  (Testables, DataSources, UnitTests)           │
+└───────────────────────┬────────────────────────┘
+                        │ depends on
+┌───────────────────────▼────────────────────────┐
+│  Portamical.xUnit | xUnit_v3 | MSTest | NUnit  │  ← Framework adapters
+│          (Thin adapter layer)                  │
+└───────────────────────┬────────────────────────┘
+                        │ depends on
+┌───────────────────────▼────────────────────────┐
+│              Portamical                        │  ← Shared utilities
+│  (Converters, Assertions, TestBases)           │
+└───────────────────────┬────────────────────────┘
+                        │ depends on
+┌───────────────────────▼────────────────────────┐
+│          Portamical.Core                       │  ← Pure abstractions
+│  (Interfaces, Models, Factory — ZERO DEPS)     │
+└────────────────────────────────────────────────┘
 ```
 
 ### Class Hierarchy (Template Method + Composite)
 
 ```
 NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
- ??? TestDataBase (abstract) : ITestData
-      ??? TestData<T1..T9> (abstract)
-      ?    ??? [T4-generated: TestData<T1> ? ... ? TestData<T1,...,T9>]
-      ??? TestDataExpected<TResult> (abstract) : IExpected<TResult>
-           ??? TestDataReturns<TStruct> : IReturns<TStruct>
-           ?    ??? [T4-generated: TestDataReturns<TStruct,T1> ? ... ? <TStruct,T1,...,T9>]
-           ??? TestDataThrows<TException> : IThrows<TException>
-                ??? [T4-generated: TestDataThrows<TException,T1> ? ... ? <TException,T1,...,T9>]
+ └── TestDataBase (abstract) : ITestData
+      ├── TestData<T1..T9> (abstract)
+      │    └── [T4-generated: TestData<T1> → ... → TestData<T1,...,T9>]
+      └── TestDataExpected<TResult> (abstract) : IExpected<TResult>
+           ├── TestDataReturns<TStruct> : IReturns<TStruct>
+           │    └── [T4-generated: TestDataReturns<TStruct,T1> → ... → <TStruct,T1,...,T9>]
+           └── TestDataThrows<TException> : IThrows<TException>
+                └── [T4-generated: TestDataThrows<TException,T1> → ... → <TException,T1,...,T9>]
 ```
 
 **Key:** T4 code generation eliminates 27 classes worth of boilerplate while maintaining type safety.
 
 ---
 
-## ?? Core Innovation: Identity-Driven Test Cases
+## 🔑 Core Innovation: Identity-Driven Test Cases
 
 Every test case is an **immutable value object** with deterministic identity:
 
@@ -176,7 +176,7 @@ Every test case is an **immutable value object** with deterministic identity:
    
    public override void Add(ITheoryTestDataRow row)
    {
-       if (_namedCases.Add(row))  // ? Identity-based add
+       if (_namedCases.Add(row))  // ← Identity-based add
        {
            base.Add(row);
        }
@@ -189,7 +189,7 @@ Every test case is an **immutable value object** with deterministic identity:
 
 3. **Cross-Framework Consistency**
    - Same identity regardless of xUnit, MSTest, or NUnit
-   - Enables traceability from requirement ? test data ? execution
+   - Enables traceability from requirement → test data → execution
 
 4. **Value-Based Equality**
    ```csharp
@@ -202,7 +202,7 @@ Every test case is an **immutable value object** with deterministic identity:
 
 ---
 
-## ?? Test Data Types
+## 📦 Test Data Types
 
 ### Universal Test Data Model
 
@@ -227,7 +227,7 @@ yield return CreateTestData(
 // Return-value test data
 yield return CreateTestDataReturns(
     definition: "other is null",
-    expected: -1,  // ? TStruct (value type)
+    expected: -1,  // ← TStruct (value type)
     arg1: dateOfBirth,
     arg2: (BirthDay?)null);
 
@@ -242,13 +242,13 @@ yield return CreateTestDataThrows(
 
 ---
 
-## ?? Data Strategy Pattern
+## ⚙️ Data Strategy Pattern
 
 The **Strategy Pattern** (`ArgsCode` + `PropsCode`) controls how test data materializes into framework-consumable rows.
 
 ### Strategy Modes
 
-#### 1?? **TestData Mode** (Direct Instance Flow)
+#### 1️⃣ **TestData Mode** (Direct Instance Flow)
 
 ```csharp
 // Data source
@@ -258,7 +258,7 @@ public static IEnumerable<TTestData> Data => Convert(dataSource.GetArgs());
 void Test(TestData<DateOnly> testData) { ... }
 ```
 
-#### 2?? **Instance Mode** (`ArgsCode.Instance`)
+#### 2️⃣ **Instance Mode** (`ArgsCode.Instance`)
 
 ```csharp
 // Data source
@@ -268,7 +268,7 @@ public static IEnumerable<object?[]> Data => Convert(dataSource.GetArgs());
 void Test(TestData<DateOnly> testData) { ... }
 ```
 
-#### 3?? **Properties Mode** (`ArgsCode.Properties`)
+#### 3️⃣ **Properties Mode** (`ArgsCode.Properties`)
 
 ```csharp
 // Data source
@@ -284,13 +284,13 @@ void Test(DateOnly dateOfBirth) { ... }
 | `PropsCode` | Includes | Use Case |
 |-------------|----------|----------|
 | `All` | `TestCaseName` + all properties | MSTest with `DynamicDataDisplayName` |
-| `TrimTestCaseName` | All properties except `TestCaseName` | **Default** � test runner provides naming |
+| `TrimTestCaseName` | All properties except `TestCaseName` | **Default** — test runner provides naming |
 | `TrimReturnsExpected` | Also excludes `Expected` if `IReturns` | NUnit return-value tests |
 | `TrimThrowsExpected` | Also excludes `Expected` if `IThrows` | Exception tests where assertion extracts exception |
 
 ---
 
-## ?? Design Patterns Catalog
+## 🧬 Design Patterns Catalog
 
 Portamical implements **15 GoF and architectural patterns** to achieve portability and maintainability.
 
@@ -310,13 +310,13 @@ Portamical implements **15 GoF and architectural patterns** to achieve portabili
 | **Repository** | Data sources | Centralized test data storage |
 | **Code Generation** | T4 templates | Single source of truth (MaxArity) |
 | **Local Method Pattern** | `static` local functions | Encapsulated helpers, zero closure cost |
-| **Bridge** | Core ? Adapters | Decouple abstraction from implementation |
+| **Bridge** | Core ↔ Adapters | Decouple abstraction from implementation |
 
-[?? **Full Pattern Analysis**](https://github.com/CsabaDu/Portamical/discussions)
+[📖 **Full Pattern Analysis**](https://github.com/CsabaDu/Portamical/discussions)
 
 ---
 
-## ?? T4 Code Generation
+## 🎨 T4 Code Generation
 
 ### How It Works
 
@@ -324,20 +324,20 @@ All generic test data classes and the factory are **generated at design time** b
 
 ```
 Portamical.Core/
-??? T4/
-?   ??? SharedHelpers.ttinclude        ? Single source of truth (MaxArity = 9)
-??? Factories/
-?   ??? TestDataFactory.tt             ? Template
-?   ??? TestDataFactory.generated.cs   ? Auto-generated output (736 lines)
-??? TestDataTypes/Models/
-    ??? General/
-    ?   ??? TestData.tt                ? Template
-    ?   ??? TestData.generated.cs      ? Auto-generated output
-    ??? Specialized/
-        ??? TestDataReturns.tt         ? Template
-        ??? TestDataReturns.generated.cs
-        ??? TestDataThrows.tt          ? Template
-        ??? TestDataThrows.generated.cs
+├── T4/
+│   └── SharedHelpers.ttinclude        ← Single source of truth (MaxArity = 9)
+├── Factories/
+│   ├── TestDataFactory.tt             ← Template
+│   └── TestDataFactory.generated.cs   ← Auto-generated output (736 lines)
+└── TestDataTypes/Models/
+    ├── General/
+    │   ├── TestData.tt                ← Template
+    │   └── TestData.generated.cs      ← Auto-generated output
+    └── Specialized/
+        ├── TestDataReturns.tt         ← Template
+        ├── TestDataReturns.generated.cs
+        ├── TestDataThrows.tt          ← Template
+        └── TestDataThrows.generated.cs
 ```
 
 ### Centralized Configuration
@@ -346,17 +346,17 @@ Portamical.Core/
 
 ```csharp
 // Portamical.Core/T4/SharedHelpers.ttinclude
-const int MaxArity = 9;  // ? Change once, regenerate all
+const int MaxArity = 9;  // ← Change once, regenerate all
 ```
 
 ### Regeneration Process
 
 ```bash
-# 1. Edit SharedHelpers.ttinclude ? change MaxArity
+# 1. Edit SharedHelpers.ttinclude → change MaxArity
 vim Portamical.Core/T4/SharedHelpers.ttinclude
 
 # 2. In Visual Studio: select all 4 .tt files
-# 3. Right-click ? Run Custom Tool
+# 3. Right-click → Run Custom Tool
 
 # 4. Build
 dotnet build
@@ -375,7 +375,7 @@ dotnet build
 
 ---
 
-## ?? Framework Adapters
+## 🔌 Framework Adapters
 
 Thin, optional adapters bridge Portamical to each test runner:
 
@@ -389,7 +389,7 @@ Thin, optional adapters bridge Portamical to each test runner:
 ### Same Data Source, Four Frameworks
 
 ```csharp
-// Shared � works everywhere
+// Shared — works everywhere
 private static readonly BirthDayDataSource _dataSource = new();
 
 // xUnit v2 / v3
@@ -407,7 +407,7 @@ public static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorV
 
 ---
 
-## ? Unified Exception Assertions
+## ✅ Unified Exception Assertions
 
 `PortamicalAssert.ThrowsDetails` validates exception **type**, **message**, and **parameter name** using **delegate injection** (Command Pattern):
 
@@ -438,7 +438,7 @@ ThrowsDetails(attempt, expected,
 
 ---
 
-## ?? Sample Code Walkthrough
+## 📚 Sample Code Walkthrough
 
 The `_SampleCodes` folder contains a complete **BirthDay** class example:
 
@@ -462,14 +462,14 @@ public class BirthDay : IComparable<BirthDay>
 // _SampleCodes/DataSources/TestDataSources/BirthDayDataSource.cs
 public class BirthDayDataSource
 {
-    // TestData<DateOnly> � general constructor scenarios
+    // TestData<DateOnly> — general constructor scenarios
     public IEnumerable<TestData<DateOnly>> GetBirthDayConstructorValidArgs()
     {
         const string result = "creates BirthDay instance";
         
         string definition = "Valid name and dateOfBirth is equal with the current day";
         DateOnly dateOfBirth = Today;
-        yield return createTestData();  // ? Local method pattern
+        yield return createTestData();  // ← Local method pattern
 
         #region Local Methods
         TestData<DateOnly> createTestData()
@@ -477,15 +477,15 @@ public class BirthDayDataSource
         #endregion
     }
 
-    // TestDataThrows<ArgumentException, string> � exception scenarios
+    // TestDataThrows<ArgumentException, string> — exception scenarios
     public IEnumerable<TestDataThrows<ArgumentException, string>> GetBirthDayConstructorInvalidArgs() { ... }
 
-    // TestDataReturns<int, DateOnly, BirthDay> � return-value scenarios
+    // TestDataReturns<int, DateOnly, BirthDay> — return-value scenarios
     public IEnumerable<TestDataReturns<int, DateOnly, BirthDay>> GetCompareToArgs() { ... }
 }
 ```
 
-### Test Classes (One Data Source ? Four Frameworks)
+### Test Classes (One Data Source → Four Frameworks)
 
 | Framework | Instance Mode | Properties Mode |
 |-----------|--------------|-----------------|
@@ -507,7 +507,7 @@ dotnet test _SampleCodes/_UnitTests/xUnit_v3/
 
 ---
 
-## ??? Prerequisites
+## 🛠️ Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (Preview or later)
 - [Visual Studio 2022 17.14+](https://visualstudio.microsoft.com/) with **Text Template Transformation** component (for T4 regeneration)
@@ -519,7 +519,7 @@ dotnet test _SampleCodes/_UnitTests/xUnit_v3/
 
 ---
 
-## ?? Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Here's how to get started:
 
@@ -543,7 +543,7 @@ If you modified any `.tt` or `.ttinclude` files:
 
 ```bash
 # In Visual Studio:
-# Right-click the .tt files ? Run Custom Tool
+# Right-click the .tt files → Run Custom Tool
 # Commit the updated .generated.cs files
 ```
 
@@ -575,12 +575,12 @@ Use [GitHub Issues](https://github.com/CsabaDu/Portamical/issues) with:
 
 ---
 
-## ?? Repository Statistics
+## 📈 Repository Statistics
 
 - **Created:** January 16, 2026 (46 days ago)
 - **Language:** C#
 - **Size:** ~7,223 KB
-- **Stars:** ? 1
+- **Stars:** ⭐ 1
 - **Forks:** 0
 - **Open Issues:** 1 (draft PR from Copilot)
 - **License:** MIT
@@ -590,17 +590,17 @@ Use [GitHub Issues](https://github.com/CsabaDu/Portamical/issues) with:
 
 ---
 
-## ?? Why Portamical?
+## 🌟 Why Portamical?
 
 Portamical **elevates test data from a framework concern to a domain concern**. It treats test cases as **immutable, identity-driven value objects**, enabling:
 
-- ? **Portability:** Write once, run on xUnit, MSTest, and NUnit
-- ? **Strong Typing:** Generics up to 9 arguments (T4-generated)
-- ? **Deduplication:** Automatic via identity-based `HashSet<INamedCase>`
-- ? **Self-Documentation:** Test names read like specifications
-- ? **Immutability:** `init`-only properties throughout
-- ? **Zero Boilerplate:** Factory pattern + T4 code generation
-- ? **Unified Assertions:** `PortamicalAssert` with delegate injection
+- ✅ **Portability:** Write once, run on xUnit, MSTest, and NUnit
+- ✅ **Strong Typing:** Generics up to 9 arguments (T4-generated)
+- ✅ **Deduplication:** Automatic via identity-based `HashSet<INamedCase>`
+- ✅ **Self-Documentation:** Test names read like specifications
+- ✅ **Immutability:** `init`-only properties throughout
+- ✅ **Zero Boilerplate:** Factory pattern + T4 code generation
+- ✅ **Unified Assertions:** `PortamicalAssert` with delegate injection
 
 ### Ideal For
 
@@ -611,13 +611,13 @@ Portamical **elevates test data from a framework concern to a domain concern**. 
 
 ---
 
-## ?? License
+## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-## ?? Links
+## 🔗 Links
 
 - [GitHub Repository](https://github.com/CsabaDu/Portamical)
 - [Discussions](https://github.com/CsabaDu/Portamical/discussions)
@@ -626,6 +626,6 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-**Made with ?? by [CsabaDu](https://github.com/CsabaDu)**
+**Made with 💙 by [CsabaDu](https://github.com/CsabaDu)**
 
 *Portamical: Test data as a domain, not an afterthought.*
