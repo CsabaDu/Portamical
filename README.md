@@ -13,7 +13,7 @@ Portamical is the **test data abstraction layer** missing from the .NET testing 
 
 ---
 
-## 🎯 The Problem It Solves
+## The Problem It Solves
 
 | Traditional Approach | Portamical Approach |
 |---------------------|---------------------|
@@ -27,7 +27,7 @@ Portamical is the **test data abstraction layer** missing from the .NET testing 
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone and Build
 
@@ -64,15 +64,15 @@ public class MyDataSource
             => CreateTestData(definition, result, arg1);
 
         // Identity-driven test cases with deterministic naming
-            string definition = "input is a valid email";
-            string result = "validates successfully";
-            string arg1 = "user@example.com";
-            yield return createTestData();
+        string definition = "input is a valid email";
+        string result = "validates successfully";
+        string arg1 = "user@example.com";
+        yield return createTestData();
 
-            definition = "input is a valid name";
-            result = "validates successfully";
-            arg1 = "John Doe";
-            yield return createTestData();
+        definition = "input is a valid name";
+        result = "validates successfully";
+        arg1 = "John Doe";
+        yield return createTestData();
     }
 }
 ```
@@ -107,7 +107,7 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### Layered Design (Zero-Dependency Core)
 
@@ -151,7 +151,7 @@ NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
 
 ---
 
-## 🔑 Core Innovation: Identity-Driven Test Cases
+## Core Innovation: Identity-Driven Test Cases
 
 Every test case is an **immutable value object** with deterministic identity:
 
@@ -202,7 +202,7 @@ Every test case is an **immutable value object** with deterministic identity:
 
 ---
 
-## 📦 Test Data Types
+## Test Data Types
 
 ### Universal Test Data Model
 
@@ -242,13 +242,13 @@ yield return CreateTestDataThrows(
 
 ---
 
-## ⚙️ Data Strategy Pattern
+## Data Strategy Pattern
 
 The **Strategy Pattern** (`ArgsCode` + `PropsCode`) controls how test data materializes into framework-consumable rows.
 
 ### Strategy Modes
 
-#### 1️⃣ **TestData Mode** (Direct Instance Flow)
+#### 1. **TestData Mode** (Direct Instance Flow)
 
 ```csharp
 // Data source
@@ -258,7 +258,7 @@ public static IEnumerable<TTestData> Data => Convert(dataSource.GetArgs());
 void Test(TestData<DateOnly> testData) { ... }
 ```
 
-#### 2️⃣ **Instance Mode** (`ArgsCode.Instance`)
+#### 2. **Instance Mode** (`ArgsCode.Instance`)
 
 ```csharp
 // Data source
@@ -268,7 +268,7 @@ public static IEnumerable<object?[]> Data => Convert(dataSource.GetArgs());
 void Test(TestData<DateOnly> testData) { ... }
 ```
 
-#### 3️⃣ **Properties Mode** (`ArgsCode.Properties`)
+#### 3. **Properties Mode** (`ArgsCode.Properties`)
 
 ```csharp
 // Data source
@@ -290,7 +290,7 @@ void Test(DateOnly dateOfBirth) { ... }
 
 ---
 
-## 🧬 Design Patterns Catalog
+## Design Patterns Catalog
 
 Portamical implements **15 GoF and architectural patterns** to achieve portability and maintainability.
 
@@ -312,11 +312,11 @@ Portamical implements **15 GoF and architectural patterns** to achieve portabili
 | **Local Method Pattern** | `static` local functions | Encapsulated helpers, zero closure cost |
 | **Bridge** | Core ↔ Adapters | Decouple abstraction from implementation |
 
-[📖 **Full Pattern Analysis**](https://github.com/CsabaDu/Portamical/discussions)
+[**Full Pattern Analysis**](https://github.com/CsabaDu/Portamical/discussions)
 
 ---
 
-## 🎨 T4 Code Generation
+## T4 Code Generation
 
 ### How It Works
 
@@ -375,7 +375,7 @@ dotnet build
 
 ---
 
-## 🔌 Framework Adapters
+## Framework Adapters
 
 Thin, optional adapters bridge Portamical to each test runner:
 
@@ -407,7 +407,7 @@ public static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorV
 
 ---
 
-## ✅ Unified Exception Assertions
+## Unified Exception Assertions
 
 `PortamicalAssert.ThrowsDetails` validates exception **type**, **message**, and **parameter name** using **delegate injection** (Command Pattern):
 
@@ -438,7 +438,7 @@ ThrowsDetails(attempt, expected,
 
 ---
 
-## 📚 Sample Code Walkthrough
+## Sample Code Walkthrough
 
 The `_SampleCodes` folder contains a complete **BirthDay** class example:
 
@@ -507,7 +507,7 @@ dotnet test _SampleCodes/_UnitTests/xUnit_v3/
 
 ---
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (Preview or later)
 - [Visual Studio 2022 17.14+](https://visualstudio.microsoft.com/) with **Text Template Transformation** component (for T4 regeneration)
@@ -519,7 +519,7 @@ dotnet test _SampleCodes/_UnitTests/xUnit_v3/
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Here's how to get started:
 
@@ -575,7 +575,7 @@ Use [GitHub Issues](https://github.com/CsabaDu/Portamical/issues) with:
 
 ---
 
-## 📈 Repository Statistics
+## Repository Statistics
 
 - **Created:** January 16, 2026 (46 days ago)
 - **Language:** C#
@@ -590,7 +590,7 @@ Use [GitHub Issues](https://github.com/CsabaDu/Portamical/issues) with:
 
 ---
 
-## 🌟 Why Portamical?
+## Why Portamical?
 
 Portamical **elevates test data from a framework concern to a domain concern**. It treats test cases as **immutable, identity-driven value objects**, enabling:
 
@@ -611,13 +611,13 @@ Portamical **elevates test data from a framework concern to a domain concern**. 
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/LICENSE.txt).
 
 ---
 
-## 🔗 Links
+## Links
 
 - [GitHub Repository](https://github.com/CsabaDu/Portamical)
 - [Discussions](https://github.com/CsabaDu/Portamical/discussions)
@@ -626,6 +626,6 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
-**Made with 💙 by [CsabaDu](https://github.com/CsabaDu)**
+**Made by [CsabaDu](https://github.com/CsabaDu)**
 
 *Portamical: Test data as a domain, not an afterthought.*
