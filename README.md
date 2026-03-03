@@ -582,7 +582,7 @@ Use [GitHub Issues](https://github.com/CsabaDu/Portamical/issues) with:
 - **Size:** ~7,223 KB
 - **Stars:** ⭐ 1
 - **Forks:** 0
-- **Open Issues:** 1 (draft PR from Copilot)
+- **Open Issues:** 0
 - **License:** MIT
 - **Visibility:** Public
 
@@ -613,7 +613,7 @@ Portamical **elevates test data from a framework concern to a domain concern**. 
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/LICENSE.txt).
 
 ---
 
