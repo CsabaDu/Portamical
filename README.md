@@ -164,6 +164,10 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 └────────────────────────────────────────────────┘
 ```
 
+---
+
+*Namespace Dependency Diagram:*
+
 ![Portamical_Namespaces_Hierarchy](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Namespaces_Hierarchy.svg)
 
 ### Class Hierarchy (Template Method + Composite)
