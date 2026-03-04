@@ -452,7 +452,7 @@ PortamicalAssert.ThrowsDetails(attempt, expected,
 
 // NUnit
 PortamicalAssert.ThrowsDetails(attempt, expected,
-    catchException: att => Assert.Catch(() => att()),
+    catchException: CatchException,
     assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
     assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
     assertFail: Assert.Fail);
