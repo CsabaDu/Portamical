@@ -54,30 +54,55 @@ dotnet test
 ```csharp
 using static Portamical.Core.Factories.TestDataFactory;
 
-public class MyDataSource
+// Identity‑driven test cases with deterministic naming
+public class EmailValidationCases
 {
+    public IEnumerable<TestData<string>> GetValidArgs()
+    {
+        // Each test case defines:
+        // - a human‑readable identity ("definition")
+        // - the expected outcome ("result")
+        // - the argument sequence (arg1, arg2, ...)
+        yield return CreateTestData(
+            definition: "input is a valid email",
+            result: "validates successfully",
+            arg1: "user@example.com");
 
-public static class EmailValidationCases
+        yield return CreateTestData(
+            definition = "input is a valid name",
+            result = "validates successfully",
+            arg1 = "John Doe");
+    }
+}
+```
+
+**Power users can combine specialized test‑data types with local helper functions to keep factory calls consistent, expressive, and invariant‑safe.**
+
+```csharp
+public class AdvancedEmailValidationCases
 {
     public static IEnumerable<TestData<string>> ValidEmails()
     {
         // Local helper:
-        // - Ensures the argument *sequence* stays consistent across all yields
-        // - Reduces visual noise by keeping the factory call shape in one place
-        // - Makes later edits safer (change the factory call once, keep call sites unchanged)
-        TestData<string> createTestData()
-            => CreateTestData(definition: definition, result: result, arg1: arg1);
+        // - Centralizes the factory call shape
+        // - Ensures argument ordering stays invariant across all yields
+        // - Makes edits safer: update the variables once, keep call sites unchanged
+        TestDataReturns<bool, string> createTestData()
+            => CreateTestDataReturns(
+                definition: definition,
+                expected: expected,
+                arg1: email);
 
-        // Identity-driven test cases with deterministic naming
+        // First case
         string definition = "input is a valid email";
-        string result = "returns true";
-        string arg1 = "user@example.com";
+        bool expected = true;
+        string email = "user@example.com";
         yield return createTestData();
 
-        // Reassign the same variables so the local helper keeps the call consistent.
+        // Reassign the same variables for the next identity
         definition = "input is a valid email with subdomain";
-        result = "returns true";
-        arg1 = "john.doe@mail.example.com";
+        expected = true;
+        email = "john.doe@mail.example.com";
         yield return createTestData();
     }
 }
@@ -389,8 +414,8 @@ Thin, optional adapters bridge Portamical to each test runner:
 |---------|-----------|-----------------|
 | `Portamical.xUnit` | xUnit v2 | `TheoryData<T>` via `ToTheoryData()` |
 | `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | `MemberTestDataAttribute`, `ITheoryTestDataRow` |
-| `Portamical.MSTest` | MSTest 4 (4.0.2+) | `DynamicData` + `PortamicalAssert.CatchException` |
-| `Portamical.NUnit` | NUnit 4 (4.4.0+) | `TestCaseSource` + `Assert.Catch` |
+| `Portamical.MSTest` | MSTest 4 (4.0.2+) | `DynamicTestDataAttribute` |
+| `Portamical.NUnit` | NUnit 4 (4.4.0+) | `TestCaseDataSourceAttribute` + `TestCaseTestData` |
 
 ### Same Data Source, Four Frameworks
 
@@ -419,21 +444,21 @@ public static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorV
 
 ```csharp
 // xUnit
-ThrowsDetails(attempt, expected,
+PortamicalAssert.ThrowsDetails(attempt, expected,
     catchException: Record.Exception,
     assertIsType: Assert.IsType,
     assertEquality: Assert.Equal,
     assertFail: Assert.Fail);
 
 // NUnit
-ThrowsDetails(attempt, expected,
+PortamicalAssert.ThrowsDetails(attempt, expected,
     catchException: att => Assert.Catch(() => att()),
     assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
     assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
     assertFail: Assert.Fail);
 
 // MSTest
-ThrowsDetails(attempt, expected,
+PortamicalAssert.ThrowsDetails(attempt, expected,
     catchException: CatchException,
     assertIsType: (e, a) => Assert.AreEqual(e, a.GetType()),
     assertEquality: (e, a) => Assert.AreEqual(e, a),
@@ -613,13 +638,38 @@ Portamical **elevates test data from a framework concern to a domain concern**. 
 - Large test suites (500+ parameterized tests)
 - Multi-framework environments
 - Domain-heavy logic with many edge cases
+- Projects needing human-readable test reports
 - Teams needing clarity, consistency, and maintainability
 
 ---
 
-## License
+## License and project lineage
 
 This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/LICENSE.txt).
+
+`Portamical.Core` is the **continuation and successor** of `CsabaDu.DynamicTestData.Core` (also MIT-licensed).  
+`CsabaDu.DynamicTestData.Core` is considered **legacy** and is **no longer supported**; new development happens in Portamical.
+
+### What changed compared to CsabaDu.DynamicTestData.Core?
+
+Portamical continues the original ideas, with important corrections and refinements:
+
+- **Data model**: moved away from a record-based model (which proved to be a wrong fit) to **immutable classes**.
+- **Identity**: improved test case name construction and identity handling:
+  - more effective name construction (Span-based)
+  - deduplication via a comparer
+- **Naming/clarity**: several concepts were renamed for readability and long-term maintainability (e.g., `PropsCode` values and related terms).
+
+### Migration guidance (high level)
+
+If you are using `CsabaDu.DynamicTestData.Core`:
+- Prefer migrating to `Portamical.Core` for continued support and improvements.
+- Expect mostly mechanical renames, restructured namespaces, plus updates where the API surface changed due to the move from records to immutable classes.
+
+If you want, we can add a dedicated `MIGRATION.md` with:
+- package replacement mapping
+- namespace/type rename table
+- common before/after snippets
 
 ---
 
