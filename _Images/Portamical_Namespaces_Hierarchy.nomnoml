@@ -1,0 +1,295 @@
+#title: Portamical_Namespaces_Hierarchy
+#direction: right
+
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+#.package: title=bold,left visual=package
+#.concrete: fill=#C9DEEF title=center,bold body=left
+#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+
+[<package> Portamical.Core
+|
+[<static>Strategy]
+[<contract>Identity]
+[<static>Safety]
+[<contract>TestDataTypes]
+[<static>Factories]
+[<abstract>Identity.Model]
+[<contract>TestDataTypes.Patterns]
+[<abstract>TestDataTypes.Models]
+[<concrete>TestDataTypes.Models.General]
+[<concrete>TestDataTypes.Models.Specialized]
+[T4]
+
+// diagram
+
+
+[
+Identity
+] <-- [
+TestDataTypes
+]
+
+[
+Identity
+] <-- [
+Identity.Model
+]
+
+[
+Safety
+] <-- [
+Identity.Model
+]
+[
+Strategy
+] <-- [
+TestDataTypes.Models
+]
+
+[
+TestDataTypes
+] <-- [
+TestDataTypes.Models
+]
+
+[
+Identity.Model
+] <-- [
+TestDataTypes.Models
+]
+
+[
+TestDataTypes.Models
+] <-- [
+TestDataTypes.Models.General
+] --> [
+T4
+]
+
+[
+TestDataTypes.Models.General
+] <-- [
+Factories
+]
+
+[
+T4
+] <-- [
+Factories
+]
+
+[
+TestDataTypes.Models	
+] <-- [
+TestDataTypes.Models.Specialized
+]
+
+[
+TestDataTypes.Models.Specialized
+] <-- [
+Factories
+]
+
+[
+TestDataTypes.Patterns
+] <-- [
+TestDataTypes.Models.Specialized
+] --> [
+T4
+]
+
+]
+
+
+[Portamical.Core] <-- 
+[<package> Portamical
+|
+[<abstract>TestBases]
+[<abstract>TestBases.TestDataCollection]
+[<abstract>TestBases.ObjectArrayCollection]
+[<contract>DataProviders]
+[<static>Converters]
+[<abstract>Assertions]
+
+[
+TestBases
+] <-- [
+TestBases.TestDataCollection
+]
+
+[
+TestBases
+] <-- [
+TestBases.ObjectArrayCollection
+]
+
+]
+
+[Portamical] <--
+[<package> Portamical.MSTest
+|
+[<static>Converters]
+[<concrete>Attributes]
+[<abstract>TestBases]
+[<abstract>Assertions]
+
+[
+Converters
+] <--[
+TestBases
+]
+]
+
+[Portamical] <--
+[<package> Portamical.NUnit
+|
+[<concrete>TestDataTypes]
+[<concrete>Attributes]
+[<static>Converters]
+[<abstract>TestBases.TestCaseDataCollection]
+[<abstract>TestBases.TestCaseTestDataCollection]
+[<abstract>Assertions]
+
+[
+TestDataTypes
+] <-- [
+Converters
+]
+
+[
+TestDataTypes
+] <-- [
+Attributes
+]
+
+[
+Converters
+] <-- [
+TestBases.TestCaseDataCollection
+]
+
+[
+Converters
+] <-- [
+TestBases.TestCaseTestDataCollection
+]
+]
+
+[Portamical] <--
+[<package> Portamical.xUnit
+|
+[<static>Converters]
+[<abstract>TestBases]
+[<abstract>Assertions]
+
+[
+Converters
+] <-- [
+TestBases
+]
+
+]
+
+[Portamical] <--
+[<package> Portamical.xUnit_v3
+|
+[<contract>TestDataTypes]
+[<concrete>TestDataTypes.Model]
+[<contract>DataProviders]
+[<concrete>DataProviders.Model]
+[<static>Converters]
+[<abstract>TestBases]
+[<concrete>Attributes]
+[<abstract>TestBases.TheoryTestData]
+[<abstract>TestBases.TheoryTestDataRowCollection]
+[<abstract>TestBases.TheoryDataRowCollection]
+[<abstract>Assertions]
+[
+TestDataTypes
+] <-- [
+DataProviders
+]
+
+[
+TestDataTypes
+] <-- [
+TestDataTypes.Model
+]
+
+[
+DataProviders
+] <-- [
+DataProviders.Model
+]
+
+[
+TestDataTypes.Model
+] <-- [
+DataProviders.Model
+]
+
+[
+Converters
+] <-- [
+Attributes
+]
+
+[
+DataProviders.Model
+] <-- [
+Converters
+]
+
+[
+Converters
+] <-- [
+TestBases
+]
+
+[
+TestBases
+] <-- [
+TestBases.TheoryTestData
+]
+
+[
+TestBases
+] <-- [
+TestBases.TheoryDataRowCollection
+]
+
+[
+TestBases
+] <-- [
+TestBases.TheoryTestDataRowCollection
+]
+]
+
+
+[Portamical.MSTest] -->
+[<package>MSTest.TestFramework | ]
+
+[Portamical.NUnit] -->
+[<package>NUnitLite | ]
+
+[Portamical.xUnit] -->
+[<package>xunit.core | ]
+
+[Portamical.xUnit] -->
+[<package>xunit.runner.visualstudio | ]
+
+[Portamical.xUnit] -->
+[<package>xunit.assert | ]
+
+[Portamical.xUnit_v3] -->
+[<package>xunit.v3.extensibility.core | ]
+
+[Portamical.xUnit_v3] -->
+[<package>xunit.v3.assert | ]
+
+
+
+
+
+
