@@ -149,16 +149,17 @@ public static class CollectionConverter
 
         // Deduplicate based on 'NamedCase' identity/equality semantics
         var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-        var rows = new List<TRow>();
+        var rowList = new List<TRow>();
 
         foreach (var testData in testDataCollection)
         {
             if (namedCases.Add(testData))
             {
-                rows.Add(convertRow(testData));
+                var row = convertRow(testData);
+                rowList.Add(row);
             }
         }
 
-        return [.. rows];
+        return [.. rowList];
     }
 }
