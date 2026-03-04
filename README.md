@@ -76,12 +76,12 @@ public class EmailValidationCases
 }
 ```
 
-**Power users can combine specialized test‑data types with local helper functions to keep factory calls consistent, expressive, and invariant‑safe.**
+*Power users can combine specialized test‑data types with local helper functions to keep factory calls consistent, expressive, and invariant‑safe:*
 
 ```csharp
 public class AdvancedEmailValidationCases
 {
-    public static IEnumerable<TestData<string>> ValidEmails()
+    public IEnumerable<TestData<string>> ValidEmails()
     {
         // Local helper:
         // - Centralizes the factory call shape
