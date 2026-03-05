@@ -6,6 +6,8 @@ using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.xUnit.Assertions;
+using Portamical.xUnit.Attributes;
+using Portamical.xUnit.DataProviders;
 using Portamical.xUnit.TestBases;
 
 namespace Portamical.SampleCodes.UnitTests.xUnit.Native;
@@ -14,10 +16,11 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static TheoryData<TestData<DateOnly>> BirthDayConstructorValidArgs
+    public static TestDataProvider<TestData<DateOnly>> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs());
 
-    [Theory, MemberData(nameof(BirthDayConstructorValidArgs))]
+    // TheoryTestData<T> inherits from TheoryData and works correctly
+    [Theory, MemberTestData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -33,10 +36,10 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
         Assert.Equal(dateOfBirth, actual.DateOfBirth);
     }
 
-    public static TheoryData<TestDataThrows<ArgumentException, string>> BirthDayConstructorInvalidArgs
+    public static TestDataProvider<TestDataThrows<ArgumentException, string>> BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs());
 
-    [Theory, MemberData(nameof(BirthDayConstructorInvalidArgs))]
+    [Theory, MemberTestData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
@@ -51,10 +54,10 @@ public sealed class BithDayTestClass_xUnit_Instance : TestBase
         PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
     }
 
-    public static TheoryData<TestDataReturns<int, DateOnly, BirthDay>> CompareToArgs
+    public static TestDataProvider<TestDataReturns<int, DateOnly, BirthDay>> CompareToArgs
     => Convert(_dataSource.GetCompareToArgs());
 
-    [Theory, MemberData(nameof(CompareToArgs))]
+    [Theory, MemberTestData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange

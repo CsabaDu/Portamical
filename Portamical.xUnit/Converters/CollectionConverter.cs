@@ -17,12 +17,21 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     => [.. testDataCollection.ToDistinctArray()];
 
-    public static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
+    //public static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
+    //    this IEnumerable<TTestData> testDataCollection,
+    //    ArgsCode argsCode)
+    //where TTestData : notnull, ITestData
+    //=> testDataCollection.ToDataProvider(
+    //    TheoryTestData.InitTheoryTestData,
+    //    argsCode,
+    //    null);
+
+    public static TestDataProvider<TTestData> ToTestDataProvider<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider(
-        TheoryTestData.InitTheoryTestData,
+        TestDataProvider.InitTestDataProvider,
         argsCode,
         null);
 }

@@ -7,6 +7,7 @@ using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 using Portamical.TestBases;
 using Portamical.xUnit.Assertions;
+using Portamical.xUnit.Attributes;
 
 namespace Portamical.SampleCodes.UnitTests.xUnit.Native;
 
@@ -14,10 +15,10 @@ public sealed class BithDayTestClass_xUnit_TestData : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static TheoryData<TestData<DateOnly>> BirthDayConstructorValidArgs
+    public static IEnumerable<TestData<DateOnly>> BirthDayConstructorValidArgs
     => [.. _dataSource.GetBirthDayConstructorValidArgs()];
 
-    [Theory, MemberData(nameof(BirthDayConstructorValidArgs))]
+    [Theory, MemberTestData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -36,7 +37,7 @@ public sealed class BithDayTestClass_xUnit_TestData : TestBase
     public static TheoryData<TestDataThrows<ArgumentException, string>>? BirthDayConstructorInvalidArgs
     => [.. _dataSource.GetBirthDayConstructorInvalidArgs()];
 
-    [Theory, MemberData(nameof(BirthDayConstructorInvalidArgs))]
+    [Theory, MemberTestData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
@@ -53,7 +54,7 @@ public sealed class BithDayTestClass_xUnit_TestData : TestBase
     public static TheoryData<TestDataReturns<int, DateOnly, BirthDay>>? CompareToArgs
     => [.. _dataSource.GetCompareToArgs()];
 
-    [Theory, MemberData(nameof(CompareToArgs))]
+    [Theory, MemberTestData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange
