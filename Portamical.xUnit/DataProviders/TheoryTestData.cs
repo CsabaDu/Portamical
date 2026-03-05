@@ -13,10 +13,9 @@ public abstract class TheoryTestData
         TTestData testData,
         ArgsCode argsCode,
         string? testMethodName = null)
-        where TTestData : notnull, ITestData
+    where TTestData : notnull, ITestData
     => new(testData, argsCode);
 }
-
 
 public sealed class TheoryTestData<TTestData>
 : TheoryTestData,
