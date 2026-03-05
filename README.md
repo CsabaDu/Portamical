@@ -420,7 +420,7 @@ Thin, optional adapters bridge Portamical to each test runner:
 
 | Project | Framework | Key Integration |
 |---------|-----------|-----------------|
-| `Portamical.xUnit` | xUnit v2 | `TheoryData<T>` via `ToTheoryData()` |
+| `Portamical.xUnit` | xUnit v2 | `MemberTestDataAttribute`, `TestDataProvider` |
 | `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | `MemberTestDataAttribute`, `ITheoryTestDataRow` |
 | `Portamical.MSTest` | MSTest 4 (4.0.2+) | `DynamicTestDataAttribute` |
 | `Portamical.NUnit` | NUnit 4 (4.4.0+) | `TestCaseDataSourceAttribute`, `TestCaseTestData` |
@@ -440,7 +440,7 @@ private static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructor
 [TestMethod, DynamicData(nameof(Args))]
 
 // NUnit
-public static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorValidArgs(), AsInstance);
+public static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorValidArgs());
 [Test, TestCaseSource(nameof(Args))]
 ```
 

@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.xUnit.DataProviders;
+
 namespace Portamical.xUnit.Converters;
 
 /// <summary>
@@ -14,4 +16,22 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => [.. testDataCollection.ToDistinctArray()];
+
+    //public static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
+    //    this IEnumerable<TTestData> testDataCollection,
+    //    ArgsCode argsCode)
+    //where TTestData : notnull, ITestData
+    //=> testDataCollection.ToDataProvider(
+    //    TheoryTestData.InitTheoryTestData,
+    //    argsCode,
+    //    null);
+
+    public static TestDataProvider<TTestData> ToTestDataProvider<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDataProvider(
+        TestDataProvider.InitTestDataProvider,
+        argsCode,
+        null);
 }
