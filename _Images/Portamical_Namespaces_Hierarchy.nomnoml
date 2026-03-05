@@ -1,5 +1,5 @@
 #title: Portamical_Namespaces_Hierarchy
-#direction: down
+#direction: right
 
 #.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
 #.static: fill=#C9DEEF title=center,bold,underline body=left,italic
@@ -70,14 +70,23 @@ TestBases.TestCaseDataCollection
 [<package>xunit.core | ] <--
 [<package> Portamical.xUnit
 |
+[<concrete>DataProviders]
 [<static>Converters]
 [<abstract>TestBases]
+[<abstract>TestBases.TheoryData]
+[<concrete>Attributes]
 [<abstract>Assertions]
 
 [
 Converters
 ] <-- [
 TestBases
+]
+
+[
+Converters
+] <--[
+TestBases.TheoryData
 ]
 ]
 

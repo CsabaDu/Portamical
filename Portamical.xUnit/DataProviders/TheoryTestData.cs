@@ -46,36 +46,3 @@ where TTestData : notnull, ITestData
         return _dataList.GetEnumerator();
     }
 }
-
-//public abstract class TheoryTestData(ArgsCode argsCode)
-//: TheoryData, ITestDataProvider
-//{
-//    public ArgsCode ArgsCode { get; init; } =
-//        argsCode.Defined(nameof(argsCode));
-//    public string? TestMethodName { get; init; } =
-//        null;
-
-//    internal static TheoryTestData<TTestData> InitTheoryTestData<TTestData>(
-//        TTestData testData,
-//        ArgsCode argsCode,
-//        string? testMethodName = null)
-//    where TTestData : notnull, ITestData
-//    => new(testData, argsCode);
-//}
-
-//public sealed class TheoryTestData<TTestData>
-//: TheoryTestData,
-//ITestDataProvider<TTestData>
-//where TTestData : notnull, ITestData
-//{
-//    internal TheoryTestData(TTestData testData, ArgsCode argsCode)
-//    : base(argsCode)
-//    {
-//        AddRow(testData);
-//    }
-
-//    public void AddRow(TTestData testData)
-//    {
-//        AddRow(testData.ToArgs(ArgsCode));
-//    }
-//}
