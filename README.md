@@ -29,8 +29,21 @@ Portamical is the **test data abstraction layer** missing from the .NET testing 
 
 ## Quick Start
 
-### 1. Clone and Build
+### 1. Installation
 
+**For new projects (NuGet package - coming soon):**
+```bash
+# Install the core library
+dotnet add package Portamical.Core
+
+# Install your framework adapter
+dotnet add package Portamical.xUnit     # for xUnit v2
+dotnet add package Portamical.MSTest    # for MSTest 4
+dotnet add package Portamical.NUnit     # for NUnit 4
+dotnet add package Portamical.xUnit.v3  # for xUnit v3
+```
+
+**For contributors (clone and build):**
 ```bash
 git clone https://github.com/CsabaDu/Portamical.git
 cd Portamical
@@ -40,14 +53,14 @@ dotnet test
 
 ### 2. Choose Your Framework Solution
 
-| Framework | Solution File |
-|-----------|---------------|
-| **Core Library** | `Portamical.Core.slnx` |
-| **Shared Layer** | `Portamical.slnx` |
-| **xUnit v2** | `Portamical.xUnit.slnx` |
-| **xUnit v3** | `Portamical.xUnit_v3.slnx` |
-| **MSTest 4** | `Portamical.MSTest.slnx` |
-| **NUnit 4** | `Portamical.NUnit.slnx` |
+| Framework | Solution File | Use Case |
+|-----------|---------------|----------|
+| **Core Library** | `Portamical.Core.slnx` | Framework-agnostic development |
+| **Shared Layer** | `Portamical.slnx` | Converters, assertions, base classes |
+| **xUnit v2** | `Portamical.xUnit.slnx` | xUnit 2.x integration |
+| **xUnit v3** | `Portamical.xUnit_v3.slnx` | xUnit 3.2.2+ integration |
+| **MSTest 4** | `Portamical.MSTest.slnx` | MSTest 4.0.2+ integration |
+| **NUnit 4** | `Portamical.NUnit.slnx` | NUnit 4.4.0+ integration |
 
 ### 3. Create Your First Data Source
 
@@ -69,24 +82,23 @@ public class EmailValidationCases
             arg1: "user@example.com");
 
         yield return CreateTestData(
-            definition = "input is a valid name",
-            result = "validates successfully",
-            arg1 = "John Doe");
+            definition: "input is a valid name",
+            result: "validates successfully",
+            arg1: "John Doe");
     }
 }
 ```
 
-*Power users can combine specialized test‑data types with local helper functions to keep factory calls consistent, expressive, and invariant‑safe:*
+**Power Pattern:** Use local helper methods to maintain consistency and safety:
 
 ```csharp
 public class AdvancedEmailValidationCases
 {
-    public IEnumerable<TestData<string>> ValidEmails()
+    public IEnumerable<TestDataReturns<bool, string>> ValidEmails()
     {
-        // Local helper:
-        // - Centralizes the factory call shape
+        // Local helper centralizes factory call shape
         // - Ensures argument ordering stays invariant across all yields
-        // - Makes edits safer: update the variables once, keep call sites unchanged
+        // - Makes edits safer: update variables once, keep call sites unchanged
         TestDataReturns<bool, string> createTestData()
             => CreateTestDataReturns(
                 definition: definition,
@@ -109,6 +121,8 @@ public class AdvancedEmailValidationCases
 ```
 
 ### 4. Consume Across All Frameworks
+
+**The same data source works everywhere:**
 
 ```csharp
 // xUnit v2/v3
@@ -164,9 +178,11 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 └────────────────────────────────────────────────┘
 ```
 
+**Key Principle:** Portamical.Core has **zero external dependencies**, ensuring maximum portability and future-proofing.
+
 ---
 
-*Namespace Dependency Diagram:*
+### Namespace Dependency Diagram
 
 ![Portamical_Namespaces_Hierarchy](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Namespaces_Hierarchy.svg)
 
@@ -210,7 +226,7 @@ Every test case is an **immutable value object** with deterministic identity:
 
 1. **Automatic Deduplication**
    ```csharp
-   // Built into TheoryTestData<TTestData>
+   // Built into test data providers
    private readonly HashSet<INamedCase> _namedCases = new(NamedCase.Comparer);
    
    public override void Add(ITheoryTestDataRow row)
@@ -236,7 +252,7 @@ Every test case is an **immutable value object** with deterministic identity:
        new NamedCaseEqualityComparer();
    
    public bool Equals(INamedCase? x, INamedCase? y)
-   => StringComparer.Ordinal.Equals(x.TestCaseName, y.TestCaseName);
+   => StringComparer.Ordinal.Equals(x?.TestCaseName, y?.TestCaseName);
    ```
 
 ---
@@ -297,6 +313,8 @@ public static IEnumerable<TTestData> Data => Convert(dataSource.GetArgs());
 void Test(TestData<DateOnly> testData) { ... }
 ```
 
+**Best for:** Test methods that need access to the `TestCaseName` property or prefer working with the complete test data object.
+
 #### 2. **Instance Mode** (`ArgsCode.Instance`)
 
 ```csharp
@@ -306,6 +324,8 @@ public static IEnumerable<object?[]> Data => Convert(dataSource.GetArgs());
 // Test signature (same as TestData mode)
 void Test(TestData<DateOnly> testData) { ... }
 ```
+
+**Best for:** Frameworks requiring `object?[]` collections (MSTest, NUnit).
 
 #### 3. **Properties Mode** (`ArgsCode.Properties`)
 
@@ -317,6 +337,8 @@ public static IEnumerable<object?[]> Data
 // Test signature (flattened parameters)
 void Test(DateOnly dateOfBirth) { ... }
 ```
+
+**Best for:** Test methods that prefer flattened parameter signatures.
 
 ### PropsCode Options
 
@@ -418,12 +440,12 @@ dotnet build
 
 Thin, optional adapters bridge Portamical to each test runner:
 
-| Project | Framework | Key Integration |
-|---------|-----------|-----------------|
-| `Portamical.xUnit` | xUnit v2 | `MemberTestDataAttribute`, `TestDataProvider` |
-| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | `MemberTestDataAttribute`, `ITheoryTestDataRow` |
-| `Portamical.MSTest` | MSTest 4 (4.0.2+) | `DynamicTestDataAttribute` |
-| `Portamical.NUnit` | NUnit 4 (4.4.0+) | `TestCaseDataSourceAttribute`, `TestCaseTestData` |
+| Project | Framework | Key Integration | Package Reference |
+|---------|-----------|-----------------|-------------------|
+| `Portamical.xUnit` | xUnit v2 | `MemberTestDataAttribute`, `TestDataProvider` | `xunit` 2.9.3 |
+| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | `MemberTestDataAttribute`, `TheoryTestData`, `ITheoryTestDataRow` | `xunit.v3` 3.2.2 |
+| `Portamical.MSTest` | MSTest 4 (4.0.2+) | `DynamicTestDataAttribute` | `MSTest.TestFramework` 4.0.2 |
+| `Portamical.NUnit` | NUnit 4 (4.4.0+) | `TestCaseDataSourceAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
 
 ### Same Data Source, Four Frameworks
 
@@ -526,12 +548,12 @@ public class BirthDayDataSource
 
 ### Test Classes (One Data Source → Four Frameworks)
 
-| Framework | Instance Mode | Properties Mode |
+| Framework | Shared Mode | Native Mode |
 |-----------|--------------|-----------------|
-| xUnit v2 | `_UnitTests/xUnit/` | `_UnitTests/xUnit/` |
-| xUnit v3 | `_UnitTests/xUnit_v3/` | `_UnitTests/xUnit_v3/Specific/` |
-| MSTest 4 | `_UnitTests/MSTest/Native/..._Instance.cs` | `_UnitTests/MSTest/Native/..._Properties.cs` |
-| NUnit 4 | `_UnitTests/NUnit/Native/..._Instance.cs` | `_UnitTests/NUnit/Native/..._Properties.cs` |
+| xUnit v2 | `_UnitTests/xUnit/Shared` | `_UnitTests/xUnit/Native` |
+| xUnit v3 | `_UnitTests/xUnit_v3/Shared` | `_UnitTests/xUnit_v3/Native` |
+| MSTest 4 | `_UnitTests/MSTestShared` | `_UnitTests/MSTest/Native/Native` |
+| NUnit 4 | `_UnitTests/NUnit/Shared` | `_UnitTests/NUnit/Native/Native` |
 
 ```bash
 # Run the MSTest sample
@@ -549,12 +571,15 @@ dotnet test _SampleCodes/_UnitTests/xUnit_v3/
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (Preview or later)
-- [Visual Studio 2022 17.14+](https://visualstudio.microsoft.com/) with **Text Template Transformation** component (for T4 regeneration)
-- One or more test frameworks:
+- **For T4 regeneration only:**
+  - [Visual Studio 2022 17.14+](https://visualstudio.microsoft.com/) with **Text Template Transformation** component
+- **Framework requirements (pick one or more):**
   - xUnit v2 (`xunit` 2.x)
   - xUnit v3 (`xunit.v3` 3.2.2+)
   - MSTest 4 (`MSTest.TestFramework` 4.0.2+)
   - NUnit 4 (`NUnit` 4.4.0+)
+
+**Note:** .NET 10 is currently in preview. The framework will support .NET 8+ in future releases.
 
 ---
 
@@ -617,7 +642,7 @@ Use [GitHub Issues](https://github.com/CsabaDu/Portamical/issues) with:
 ## Repository Statistics
 
 - **Created:** January 16, 2026 (46 days ago)
-- **Language:** C#
+- **Language:** C# (98.5%)
 - **Size:** ~7,223 KB
 - **Stars:** ⭐ 1
 - **Forks:** 0
@@ -643,41 +668,48 @@ Portamical **elevates test data from a framework concern to a domain concern**. 
 
 ### Ideal For
 
-- Large test suites (500+ parameterized tests)
-- Multi-framework environments
-- Domain-heavy logic with many edge cases
-- Projects needing human-readable test reports
-- Teams needing clarity, consistency, and maintainability
+- ✅ Large test suites (500+ parameterized tests)
+- ✅ Multi-framework environments
+- ✅ Domain-heavy logic with many edge cases
+- ✅ Projects needing human-readable test reports
+- ✅ Teams prioritizing consistency and maintainability
+
+### Not Ideal For
+
+- ⚠️ Simple test suites (<100 tests)
+- ⚠️ Projects restricted to .NET 8 or earlier
+- ⚠️ Teams unfamiliar with design patterns
+- ⚠️ Projects requiring framework-specific features (e.g., xUnit's `IClassFixture`)
 
 ---
 
-## License and project lineage
+## License and Project Lineage
 
-This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/LICENSE.txt).
+This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt).
 
 `Portamical.Core` is the **continuation and successor** of `CsabaDu.DynamicTestData.Core` (also MIT-licensed).  
 `CsabaDu.DynamicTestData.Core` is considered **legacy** and is **no longer supported**; new development happens in Portamical.
 
-### What changed compared to CsabaDu.DynamicTestData.Core?
+### What Changed Compared to CsabaDu.DynamicTestData.Core?
 
 Portamical continues the original ideas, with important corrections and refinements:
 
 - **Data model**: moved away from a record-based model (which proved to be a wrong fit) to **immutable classes**.
 - **Identity**: improved test case name construction and identity handling:
-  - more effective name construction (Span-based)
-  - deduplication via a comparer
+  - More effective name construction (Span-based for performance)
+  - Deduplication via a comparer
 - **Naming/clarity**: several concepts were renamed for readability and long-term maintainability (e.g., `PropsCode` values and related terms).
 
-### Migration guidance (high level)
+### Migration Guidance (High Level)
 
 If you are using `CsabaDu.DynamicTestData.Core`:
 - Prefer migrating to `Portamical.Core` for continued support and improvements.
 - Expect mostly mechanical renames, restructured namespaces, plus updates where the API surface changed due to the move from records to immutable classes.
 
-If you want, we can add a dedicated `MIGRATION.md` with:
-- package replacement mapping
-- namespace/type rename table
-- common before/after snippets
+If you need detailed migration guidance, please open an issue requesting a `MIGRATION.md` with:
+- Package replacement mapping
+- Namespace/type rename table
+- Common before/after snippets
 
 ---
 
