@@ -552,7 +552,7 @@ public class BirthDayDataSource
 |-----------|--------------|-----------------|
 | xUnit v2 | `_UnitTests/xUnit/Shared` | `_UnitTests/xUnit/Native` |
 | xUnit v3 | `_UnitTests/xUnit_v3/Shared` | `_UnitTests/xUnit_v3/Native` |
-| MSTest 4 | `_UnitTests/MSTestShared` | `_UnitTests/MSTest/Native/Native` |
+| MSTest 4 | `_UnitTests/MSTest/Shared` | `_UnitTests/MSTest/Native/Native` |
 | NUnit 4 | `_UnitTests/NUnit/Shared` | `_UnitTests/NUnit/Native/Native` |
 
 ```bash
