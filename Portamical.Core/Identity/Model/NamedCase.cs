@@ -113,6 +113,12 @@ public abstract class NamedCase : INamedCase
     => TestCaseName;
 
     #region Static Methods
+    /// <summary>
+    /// Converts a nullable NamedCase instance to its associated test case name string, or null if the instance is null.
+    /// </summary>
+    /// <remarks>This implicit conversion enables seamless use of NamedCase objects in contexts where a string
+    /// is expected, such as assignment or comparison operations.</remarks>
+    /// <param name="namedCase">The NamedCase instance to convert. If null, the result is also null.</param>
     public static implicit operator string?(NamedCase? namedCase)
     => namedCase?.TestCaseName;
 
