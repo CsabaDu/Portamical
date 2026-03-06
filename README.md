@@ -513,32 +513,40 @@ Thin, optional adapters bridge Portamical to each test runner:
 | `Portamical.NUnit` | NUnit 4 (4.4.0+) | `TestCaseDataSourceAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
 
 ### Same Data Source, Four Frameworks
+### Same Data Source, Four Frameworks
 
 ```csharp
 // Shared — works everywhere
 private static readonly BirthDayDataSource _dataSource = new();
 
-// xUnit v2 / v3
-public static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorValidArgs());
-[Theory, MemberData(nameof(Args))]
+// xUnit v2
+public static TestDataProvider<TestData<DateOnly>> Args 
+    => Convert(_dataSource.GetConstructorValidArgs());
+[Theory, MemberTestData(nameof(Args))]
+
+// xUnit v3
+public static TheoryTestData<TestData<DateOnly>> Args 
+    => Convert(_dataSource.GetConstructorValidArgs());
+[Theory, MemberTestData(nameof(Args))]
 
 // MSTest
-private static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorValidArgs());
+private static IEnumerable<object?[]> Args 
+    => Convert(_dataSource.GetConstructorValidArgs());
 [TestMethod, DynamicData(nameof(Args))]
 
 // NUnit
-public static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorValidArgs(), AsInstance);
+public static IEnumerable<object?[]> Args 
+    => Convert(_dataSource.GetConstructorValidArgs());
 [Test, TestCaseSource(nameof(Args))]
 ```
 
 ---
-
 ## Unified Exception Assertions
 
 `PortamicalAssert.ThrowsDetails` validates exception **type**, **message**, and **parameter name** using **delegate injection** (Command Pattern):
 
 ```csharp
-// xUnit
+// xUnit v2 / v3
 PortamicalAssert.ThrowsDetails(attempt, expected,
     catchException: Record.Exception,
     assertIsType: Assert.IsType,
