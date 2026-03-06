@@ -125,7 +125,7 @@ public class AdvancedEmailValidationCases
 **The same data source works everywhere:**
 
 ```csharp
-// xUnit v2/v3
+// xUnit v2 / v3
 [Theory, PortamicalData(nameof(Args))]
 public void Validate_validInput_returnsTrue(TestData<string> testData) 
 {
@@ -134,7 +134,7 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 }
 
 // MSTest
-[TestMethod, DynamicData(nameof(Args))]
+[TestMethod, PortamicalData(nameof(Args))]
 public void Validate_validInput_returnsTrue(TestData<string> testData) 
 {
     var actual = Validate(testData.Arg1);
