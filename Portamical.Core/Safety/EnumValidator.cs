@@ -14,7 +14,7 @@ public static class EnumValidator
     /// <returns>A new <see cref="InvalidEnumArgumentException"/> instance.</returns>
     public static InvalidEnumArgumentException GetInvalidEnumArgumentException<TEnum>(
         this TEnum enumValue,
-        string? paramName)
+        string paramName)
     where TEnum : struct, Enum
     => new(paramName, (int)(object)enumValue, typeof(TEnum));
 
@@ -29,7 +29,7 @@ public static class EnumValidator
     /// </exception>
     public static TEnum Defined<TEnum>(
         this TEnum enumValue,
-        string? paramName)
+        string paramName)
     where TEnum : struct, Enum
     => Enum.IsDefined(enumValue) ?
         enumValue

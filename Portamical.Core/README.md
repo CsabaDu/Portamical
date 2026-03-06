@@ -4,6 +4,8 @@
 
 Define test data **once** and consume it across test frameworks using adapter packages—without rewriting the data or sacrificing strong typing.
 
+---
+
 ## Install
 
 ```bash
@@ -11,6 +13,8 @@ dotnet add package Portamical.Core
 ```
 
 > You will typically also install a Portamical adapter package for your test framework (xUnit / MSTest / NUnit).
+
+---
 
 ## Example
 
@@ -40,6 +44,8 @@ public sealed class CalculatorCases
 
 Then consume via your test framework’s adapter (usage varies by framework).
 
+---
+
 ## Links
 
 - GitHub: https://github.com/CsabaDu/Portamical
@@ -49,3 +55,17 @@ Then consume via your test framework’s adapter (usage varies by framework).
 ## License
 
 MIT
+
+---
+
+## Changelog
+
+### Version 1.0.0 (2026-03-04)
+
+##### Version 1.0.1 (2026-03-06)
+
+- **Changed:**
+  - `Portamical.Core.Safety.EnumValidator.Defined`: `string paramName` changed to not nullable type.
+  - README.md replaced.
+
+  ---

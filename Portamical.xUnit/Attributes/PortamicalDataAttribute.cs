@@ -18,7 +18,7 @@ public sealed class PortamicalDataAttribute(string memberName, params object?[]?
     {
         null => null,
         object?[] => (object?[])item,
-        ITestData => (item as ITestData)?.ToArgs(ArgsCode.Instance),
+        ITestData => (item as ITestData)!.ToArgs(ArgsCode.Instance),
         _ => throw new ArgumentException(string.Format(
                 CultureInfo.CurrentCulture,
                 "Property {0} on {1} yielded an item that is not an object[]",
