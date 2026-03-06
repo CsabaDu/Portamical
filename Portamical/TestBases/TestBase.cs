@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Safety;
-
 namespace Portamical.TestBases;
 
 public abstract class TestBase : IDisposable
