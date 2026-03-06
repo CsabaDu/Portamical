@@ -23,10 +23,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

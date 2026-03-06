@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="C:\Users\csd66\.nuget\packages\portamical\1.0.0\contentFiles\any\net10.0\xunit.runner.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NUnitLite" Version="4.4.0" />
     <PackageReference Include="Portamical" Version="1.0.0" />
   </ItemGroup>

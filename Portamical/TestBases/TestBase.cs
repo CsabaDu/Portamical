@@ -3,6 +3,13 @@
 
 namespace Portamical.TestBases;
 
+/// <summary>
+/// Provides a base class for test implementations, offering common functionality for managing test case arguments and
+/// log counters.
+/// </summary>
+/// <remarks>This class implements <see cref="IDisposable"/>, ensuring proper resource management. Derived classes
+/// should call <see cref="Dispose"/> to reset the log counter and restore the default argument state. The static
+/// properties provide access to various argument configurations relevant to tests.</remarks>
 public abstract class TestBase : IDisposable
 {
     protected static ArgsCode ArgsCode { get; set; } = AsInstance;
