@@ -271,8 +271,8 @@ NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
 
 ### Data Model Class Diagram
 
-| Color | Type | Purpose | Examples |
-|--------------|------------|--------------------|--------------------|
+| Element Color | Type | Purpose | Examples |
+|---------------|------------|--------------------|--------------------|
 | 🟢 ***Green*** | [contract] | Interface definitions | `INamedCase`, `ITestData`, `IExpected` |
 | 🔵 ***Blue*** | [abstract] | Abstract base classes | `NamedCase`, `TestDataBase`, `TestData`, `TestDataReturns<TStruct>` |
 | 🔵 **Blue** | [concrete] | Concrete implementations (T4-generated) | `TestData<T1>`, `TestDataReturns<TStruct, T1, T2>`
