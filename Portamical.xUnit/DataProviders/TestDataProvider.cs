@@ -7,13 +7,8 @@ using System.Collections;
 
 namespace Portamical.xUnit.DataProviders;
 
-public abstract class TestDataProvider
-{
-}
-
 public sealed class TestDataProvider<TTestData>
-: TestDataProvider,
-ITestDataProvider<TTestData>,
+: ITestDataProvider<TTestData>,
 IEnumerable
 where TTestData : notnull, ITestData
 {
