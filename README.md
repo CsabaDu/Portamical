@@ -271,7 +271,7 @@ NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
 
 ---
 
-### Data Model Class Diagram
+### Core Data Model Class Diagram
 
 ![Portamical_Core_Datamodel_ClassDiagram_Simplified](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Core_Datamodel_ClassDiagram_Simplified.svg)
 
