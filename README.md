@@ -126,7 +126,7 @@ public class AdvancedEmailValidationCases
 
 ```csharp
 // xUnit v2/v3
-[Theory, MemberData(nameof(Args))]
+[Theory, PortamicalData(nameof(Args))]
 public void Validate_validInput_returnsTrue(TestData<string> testData) 
 {
     var actual = Validate(testData.Arg1);
@@ -142,7 +142,7 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 }
 
 // NUnit
-[Test, TestCaseSource(nameof(Args))]
+[Test, PortamicalData(nameof(Args))]
 public void Validate_validInput_returnsTrue(TestData<string> testData) 
 {
     var actual = Validate(testData.Arg1);
@@ -167,7 +167,7 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 │          (Thin adapter layer)                  │
 └───────────────────────┬────────────────────────┘
                         │ depends on
-┌───────────────────────▼────────────────────────┐
+┌───���───────────────────▼────────────────────────┐
 │              Portamical                        │  ← Shared utilities
 │  (Converters, Assertions, TestBases)           │
 └───────────────────────┬────────────────────────┘
@@ -194,12 +194,12 @@ The following diagram shows the **complete namespace structure** and **dependenc
 - 🟢 ***Green (contract)*** — Interfaces defining contracts (`INamedCase`, `ITestData`, `IExpected`)
 - 🔵 ***Blue (abstract)*** — Abstract base classes (`NamedCase`, `TestDataBase`, `PortamicalAssert`)
 - 🔵 **Blue (concrete)** — Concrete implementations (`TestDataThrows<T>`, attributes)
-- 🔵 **<u>Blue (static)</u>** — Static utility classes (`TestDataFactory`, `Converters`, `Strategy`)
+- 🔵 <u>**Blue (static)**</u> — Static utility classes (`TestDataFactory`, `Converters`, `Strategy`)
 - 📦 **Package** — External framework dependencies (`xunit.core`, `MSTest.TestFramework`, `NUnitLite`)
 
 **Dependency Flow Rules:**
 1. **All arrows point inward** toward `Portamical.Core` (Dependency Inversion Principle)
-2. **No backward dependencies** - Framework adapters never influence the core
+2. **No backward dependencies** — Framework adapters never influence the core
 3. **T4 appears as a namespace** because generated code depends on `SharedHelpers.ttinclude`
 
 #### Key Architectural Insights
@@ -209,7 +209,7 @@ The following diagram shows the **complete namespace structure** and **dependenc
 | Adapter | Namespaces | Complexity | Reason |
 |---------|------------|------------|--------|
 | **MSTest** | 4 | Simple | Direct converter → test base pattern |
-| **xUnit v2** | 6 | Moderate | Adds `DataProviders` + `TheoryData` |
+| **xUnit v2** | 6 | Moderate | Adds `DataProviders` + `TheoryData` support |
 | **NUnit** | 6 | Moderate | Adds `TestDataTypes` + `TestCaseDataCollection` |
 | **xUnit v3** | 9 | Complex | Full contract/model separation for extensibility |
 
@@ -438,8 +438,6 @@ Portamical implements **15 GoF and architectural patterns** to achieve portabili
 | **Local Method Pattern** | `static` local functions | Encapsulated helpers, zero closure cost |
 | **Bridge** | Core ↔ Adapters | Decouple abstraction from implementation |
 
-[**Full Pattern Analysis**](https://github.com/CsabaDu/Portamical/discussions)
-
 ---
 
 ## T4 Code Generation
@@ -507,40 +505,42 @@ Thin, optional adapters bridge Portamical to each test runner:
 
 | Project | Framework | Key Integration | Package Reference |
 |---------|-----------|-----------------|-------------------|
-| `Portamical.xUnit` | xUnit v2 | `MemberTestDataAttribute`, `TestDataProvider` | `xunit` 2.9.3 |
-| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | `MemberTestDataAttribute`, `ITheoryTestDataRow` | `xunit.v3` 3.2.2 |
-| `Portamical.MSTest` | MSTest 4 (4.0.2+) | `DynamicTestDataAttribute` | `MSTest.TestFramework` 4.0.2 |
-| `Portamical.NUnit` | NUnit 4 (4.4.0+) | `TestCaseDataSourceAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
+| `Portamical.xUnit` | xUnit v2 | `PortamicalDataAttribute`, `TestDataProvider<T>`, `TheoryData<T>` support | `xunit.core` 2.9.3 |
+| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | `PortamicalDataAttribute`, `TheoryTestData<T>`, `ITheoryTestDataRow` | `xunit.v3` 3.2.2 |
+| `Portamical.MSTest` | MSTest 4 (4.0.2+) | `DynamicDataAttribute` | `MSTest.TestFramework` 4.0.2 |
+| `Portamical.NUnit` | NUnit 4 (4.4.0+) | `PortamicalDataAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
 
-### Same Data Source, Four Frameworks
 ### Same Data Source, Four Frameworks
 
 ```csharp
 // Shared — works everywhere
 private static readonly BirthDayDataSource _dataSource = new();
 
+// MSTest
+private static IEnumerable<TestData<DateOnly> Args 
+    => Convert(_dataSource.GetConstructorValidArgs());
+[TestMethod, PortamicalData(nameof(Args))]
+
+// NUnit
+public static IEnumerable<TestData<DateOnly> Args 
+    => Convert(_dataSource.GetConstructorValidArgs(), AsInstance);
+[Test, PortamicalData(nameof(Args))]
+
 // xUnit v2
 public static TestDataProvider<TestData<DateOnly>> Args 
     => Convert(_dataSource.GetConstructorValidArgs());
-[Theory, MemberTestData(nameof(Args))]
+[Theory, PortamicalData(nameof(Args))]
 
 // xUnit v3
 public static TheoryTestData<TestData<DateOnly>> Args 
     => Convert(_dataSource.GetConstructorValidArgs());
-[Theory, MemberTestData(nameof(Args))]
-
-// MSTest
-private static IEnumerable<object?[]> Args 
-    => Convert(_dataSource.GetConstructorValidArgs());
-[TestMethod, DynamicData(nameof(Args))]
-
-// NUnit
-public static IEnumerable<object?[]> Args 
-    => Convert(_dataSource.GetConstructorValidArgs());
-[Test, TestCaseSource(nameof(Args))]
+[Theory, PortamicalData(nameof(Args))]
 ```
 
+**Key:** All Portamical-specific `TestBase` classes use the `[PortamicalData]` attribute, while framework-agnostic patterns use standard attributes (`[MemberData]`, `[DynamicData]`, `[TestCaseSource]`).
+
 ---
+
 ## Unified Exception Assertions
 
 `PortamicalAssert.ThrowsDetails` validates exception **type**, **message**, and **parameter name** using **delegate injection** (Command Pattern):
@@ -634,6 +634,9 @@ dotnet test _SampleCodes/_UnitTests/MSTest/
 
 # Run the NUnit sample
 dotnet test _SampleCodes/_UnitTests/NUnit/
+
+# Run the xUnit v2 sample
+dotnet test _SampleCodes/_UnitTests/xUnit/
 
 # Run the xUnit v3 sample
 dotnet test _SampleCodes/_UnitTests/xUnit_v3/
