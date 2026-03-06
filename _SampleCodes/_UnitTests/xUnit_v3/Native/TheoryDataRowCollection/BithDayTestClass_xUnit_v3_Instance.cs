@@ -18,7 +18,7 @@ public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
     public static IEnumerable<ITheoryDataRow> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance);
 
-    [Theory, MemberTestData(nameof(BirthDayConstructorValidArgs))]
+    [Theory, PortamicalData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(TestData<DateOnly> testData)
     {
         // Arrange
@@ -37,7 +37,7 @@ public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
     public static IEnumerable<ITheoryDataRow> BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance);
 
-    [Theory, MemberTestData(nameof(BirthDayConstructorInvalidArgs))]
+    [Theory, PortamicalData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(TestDataThrows<ArgumentException, string> testData)
     {
         // Arrange
@@ -55,7 +55,7 @@ public sealed class BithDayTestClass_xUnit_v3_Instance : TestBase
     public static IEnumerable<ITheoryDataRow> CompareToArgs
     => Convert(_dataSource.GetCompareToArgs(), AsInstance);
 
-    [Theory, MemberTestData(nameof(CompareToArgs))]
+    [Theory, PortamicalData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(TestDataReturns<int, DateOnly, BirthDay> testData)
     {
         // Arrange

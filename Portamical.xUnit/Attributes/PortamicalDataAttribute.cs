@@ -9,7 +9,7 @@ namespace Portamical.xUnit.Attributes;
 
 [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-public sealed class MemberTestDataAttribute(string memberName, params object?[]? parameters)
+public sealed class PortamicalDataAttribute(string memberName, params object?[]? parameters)
 : MemberDataAttributeBase(memberName, parameters)
 {
     /// <inheritdoc/>

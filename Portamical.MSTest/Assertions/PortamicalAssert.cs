@@ -29,3 +29,4 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         assertIsType: IsTypeOf,
         assertEquality: AssertEquality<string>(),
         assertFail: Assert.Fail);
+}

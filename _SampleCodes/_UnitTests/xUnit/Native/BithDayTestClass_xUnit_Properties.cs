@@ -19,7 +19,7 @@ public sealed class BithDayTestClass_xUnit_Properties : TestBase
     public static TestDataProvider<TestData<DateOnly>> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsProperties);
 
-    [Theory, MemberTestData(nameof(BirthDayConstructorValidArgs))]
+    [Theory, PortamicalData(nameof(BirthDayConstructorValidArgs))]
     public void Ctor_validArgs_createInstance(DateOnly dateOfBirth)
     {
         // Arrange
@@ -37,7 +37,7 @@ public sealed class BithDayTestClass_xUnit_Properties : TestBase
     public static TestDataProvider<TestDataThrows<ArgumentException, string>> BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsProperties);
 
-    [Theory, MemberTestData(nameof(BirthDayConstructorInvalidArgs))]
+    [Theory, PortamicalData(nameof(BirthDayConstructorInvalidArgs))]
     public void Ctor_invalidArgs_throwsArgumentException(ArgumentException expected, string name)
     {
         // Arrange
@@ -53,7 +53,7 @@ public sealed class BithDayTestClass_xUnit_Properties : TestBase
     public static TestDataProvider<TestDataReturns<int, DateOnly, BirthDay>> CompareToArgs
     => Convert(_dataSource.GetCompareToArgs(), AsProperties);
 
-    [Theory, MemberTestData(nameof(CompareToArgs))]
+    [Theory, PortamicalData(nameof(CompareToArgs))]
     public void CompareTo_validArgs_returnsExpected(int expected, DateOnly dateOfBirth, BirthDay other)
     {
         // Arrange

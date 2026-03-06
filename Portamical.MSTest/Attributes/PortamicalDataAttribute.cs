@@ -7,7 +7,7 @@ using Portamical.Core.Identity.Model;
 namespace Portamical.MSTest.Attributes;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public abstract class DynamicTestDataAttributeBase(
+public abstract class PortamicalDataAttributeBase(
     string sourceName,
     Type? declaringType = null,
     DynamicDataSourceType? sourceType = null,
@@ -57,23 +57,23 @@ public abstract class DynamicTestDataAttributeBase(
     }
 }
 
-public sealed class DynamicTestDataAttribute : DynamicTestDataAttributeBase
+public sealed class PortamicalDataAttribute : PortamicalDataAttributeBase
 {
-    public DynamicTestDataAttribute(string sourceName)
+    public PortamicalDataAttribute(string sourceName)
     : base(sourceName) { }
 
-    public DynamicTestDataAttribute(string sourceName, DynamicDataSourceType sourceType)
+    public PortamicalDataAttribute(string sourceName, DynamicDataSourceType sourceType)
     : base(sourceName, sourceType: sourceType) { }
 
-    public DynamicTestDataAttribute(string sourceName, params object?[] sourceArgs)
+    public PortamicalDataAttribute(string sourceName, params object?[] sourceArgs)
     : base(sourceName, sourceArgs: sourceArgs) { }
 
-    public DynamicTestDataAttribute(string sourceName, Type declaringType)
+    public PortamicalDataAttribute(string sourceName, Type declaringType)
     : base(sourceName, declaringType: declaringType) { }
 
-    public DynamicTestDataAttribute(string sourceName, Type declaringType, DynamicDataSourceType sourceType)
+    public PortamicalDataAttribute(string sourceName, Type declaringType, DynamicDataSourceType sourceType)
     : base(sourceName, declaringType: declaringType, sourceType: sourceType) { }
 
-    public DynamicTestDataAttribute(string sourceName, Type declaringType, params object?[] sourceArgs)
+    public PortamicalDataAttribute(string sourceName, Type declaringType, params object?[] sourceArgs)
     : base(sourceName, declaringType: declaringType, sourceArgs: sourceArgs) { }
 }

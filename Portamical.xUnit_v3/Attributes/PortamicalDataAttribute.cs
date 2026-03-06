@@ -11,16 +11,16 @@ namespace Portamical.xUnit_v3.Attributes;
 /// Provides a data source for a theory test, with the data coming from a member of the test class.
 /// Extends <see cref="MemberDataAttributeBase"/> with additional functionality.
 /// </summary>
-public abstract class MemberTestDataAttributeBase
+public abstract class PortamicalDataAttributeBase
 : MemberDataAttributeBase
 {
     #region Constructors
     /// <summary>
-    /// Initializes a new instance of the <see cref="MemberTestDataAttributeBase"/> class.
+    /// Initializes a new instance of the <see cref="PortamicalDataAttributeBase"/> class.
     /// </summary>
     /// <param name="memberName">The name of the public member that will provide the test data.</param>
     /// <param name="arguments">The arguments to be passed to the member (only supported for static members).</param>
-    private protected MemberTestDataAttributeBase(
+    private protected PortamicalDataAttributeBase(
         string memberName,
         params object[] arguments)
     : base(memberName, arguments)
@@ -122,9 +122,9 @@ public abstract class MemberTestDataAttributeBase
     #endregion
 }
 
-public sealed class MemberTestDataAttribute(
+public sealed class PortamicalDataAttribute(
     string memberName,
     params object[] arguments)
-: MemberTestDataAttributeBase(
+: PortamicalDataAttributeBase(
     memberName,
     arguments);

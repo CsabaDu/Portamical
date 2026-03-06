@@ -9,7 +9,7 @@ using static Portamical.NUnit.TestDataTypes.TestCaseTestData;
 namespace Portamical.NUnit.Attributes;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public abstract class TestCaseDataSourceAttributeBase(
+public abstract class PortamicalDataAttributeBase(
     string sourceName,
     Type? sourceType = null,
     object?[]? methodParams = null)
@@ -149,24 +149,24 @@ public abstract class TestCaseDataSourceAttributeBase(
     }
 }
 
-public sealed class TestCaseDataSourceAttribute : TestCaseDataSourceAttributeBase
+public sealed class PortamicalDataAttribute : PortamicalDataAttributeBase
 {
-    public TestCaseDataSourceAttribute(string sourceName)
+    public PortamicalDataAttribute(string sourceName)
     : base(sourceName)
     {
     }
 
-    public TestCaseDataSourceAttribute(string sourceName, object?[] methodParams)
+    public PortamicalDataAttribute(string sourceName, object?[] methodParams)
     : base(sourceName, methodParams: methodParams)
     {
     }
 
-    public TestCaseDataSourceAttribute(Type sourceType, string sourceName)
+    public PortamicalDataAttribute(Type sourceType, string sourceName)
     : base(sourceName, sourceType: sourceType)
     {
     }
 
-    public TestCaseDataSourceAttribute(Type sourceType, string sourceName, object?[] methodParams)
+    public PortamicalDataAttribute(Type sourceType, string sourceName, object?[] methodParams)
     : base(sourceName, sourceType: sourceType, methodParams: methodParams)
     {
     }
