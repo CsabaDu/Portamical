@@ -1,4 +1,4 @@
-#title: Portamical_Core_Datamodel_ClassDiagram
+#title: Portamical_Core_Datamodel_ClassDiagram_Simplified
 #direction: down
 #.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
 #.abstract: fill=#C9DEEF title=center,italic,bold body=left,italic
@@ -144,7 +144,7 @@ IReturns
 
 [
 IReturns<out TStruct>
-] --:>
+] -:>
 [
 IExpected<out TResult>
 ]
@@ -157,7 +157,7 @@ IExpected
 
 [
 IThrows<out TException>
-] --:>
+] -:>
 [
 IExpected<out TResult>
 ]

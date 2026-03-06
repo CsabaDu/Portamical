@@ -271,13 +271,13 @@ NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
 
 ### Data Model Class Diagram
 
+![c:\Users\csd66\source\repos\Portamical\_Images\Portamical_Core_Datamodel_ClassDiagram_Simplified.png](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/c:\Users\csd66\source\repos\Portamical\_Images\Portamical_Core_Datamodel_ClassDiagram_Simplified.png.svg)
+
 | Element Color | Type | Purpose | Examples |
 |---------------|------------|--------------------|--------------------|
 | 🟢 ***Green*** | [contract] | Interface definitions | `INamedCase`, `ITestData`, `IExpected` |
 | 🔵 ***Blue*** | [abstract] | Abstract base classes | `NamedCase`, `TestDataBase`, `TestData`, `TestDataReturns<TStruct>` |
 | 🔵 **Blue** | [concrete] | Concrete implementations (T4-generated) | `TestData<T1>`, `TestDataReturns<TStruct, T1, T2>`
-
-![Portamical_Core_Datamodel_ClassDiagram](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Core_Datamodel_ClassDiagram.svg)
 
 ---
 
