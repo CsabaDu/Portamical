@@ -432,23 +432,55 @@ void Test(DateOnly dateOfBirth) { ... }
 
 Portamical implements **15 GoF and architectural patterns** to achieve portability and maintainability.
 
-| Pattern | Implementation | Purpose |
-|---------|----------------|---------|
-| **Factory** | `TestDataFactory` (T4-generated) | Centralized test data creation |
-| **Builder** | Named parameters in factory methods | Fluent, self-documenting API |
-| **Adapter** | Framework-specific adapters | Translate `ITestData` to framework types |
-| **Strategy** | `ArgsCode` + `PropsCode` enums | Configurable data serialization |
-| **Template Method** | `TestDataBase.ToArgs()` | Skeleton algorithm with hooks |
-| **Composite** | Test data hierarchy | Uniform treatment of test data |
-| **Command** | Delegate injection in `PortamicalAssert` | Framework-agnostic assertions |
-| **Iterator** | `IEnumerable<TTestData>` | Lazy test data evaluation |
-| **Null Object** | Optional `testMethodName` | Eliminate null checks |
-| **Identity** | `NamedCase.Comparer` | Value object with deterministic identity |
-| **Dependency Inversion** | Layered architecture | Core has zero dependencies |
-| **Repository** | Data sources | Centralized test data storage |
-| **Code Generation** | T4 templates | Single source of truth (MaxArity) |
-| **Local Method Pattern** | `static` local functions | Encapsulated helpers, zero closure cost |
-| **Bridge** | Core ↔ Adapters | Decouple abstraction from implementation |
+| Pattern | Implementation | Purpose | Evidence |
+|---------|----------------|---------|----------|
+| **Factory** | `TestDataFactory` (T4-generated) | Centralized test data creation | Static `CreateTestData<T>()`, `CreateTestDataReturns<T>()`, `CreateTestDataThrows<T>()` methods |
+| **Builder** | Named parameters in factory methods | Fluent, self-documenting API | All factory methods use named params: `definition:`, `result:`, `expected:`, `arg1:` |
+| **Adapter** | Framework-specific adapters (xUnit, MSTest, NUnit, xUnit v3) | Translate `ITestData` to framework types | Each adapter converts via `Convert()` methods to framework-native types |
+| **Strategy** | `ArgsCode` + `PropsCode` enums | Configurable data serialization | `ToArgs(ArgsCode, PropsCode)` switches behavior: Instance vs Properties |
+| **Template Method** | `TestDataBase.ToArgs()` | Skeleton algorithm with hooks | Public `ToArgs()` calls protected `ToObjectArray(ArgsCode)` (hook method) |
+| **Composite** | Test data hierarchy via `ITestData` | Uniform treatment of all test data | All types implement `ITestData`, enabling polymorphic processing |
+| **Command** | Delegate injection in `PortamicalAssert` | Framework-agnostic assertions | `ThrowsDetails()` accepts `catchException`, `assertIsType`, `assertEquality`, `assertFail` delegates |
+| **Iterator** | `IEnumerable<TTestData>` | Lazy test data evaluation | All data sources return `IEnumerable<TTestData>`, enabling `yield return` |
+| **Null Object** | Optional `testMethodName` parameter | Eliminate null checks | Defaults to `null`, allows safe operation without explicit null handling |
+| **Value Object** | `NamedCase.Comparer` | Deterministic identity via `TestCaseName` | `IEquatable<INamedCase>`, identity-based `Equals()`, `HashSet<INamedCase>` deduplication |
+| **Snapshot** | Array materialization before operations | Prevent multiple enumeration and ensure consistency | `NamedCase.Contains()`: `var snapshot = namedCases as INamedCase[] ?? [.. namedCases];` — immutable point-in-time view |
+| **Dependency Inversion** | Layered architecture | Core has zero dependencies | `Portamical.Core` (abstractions) ← `Portamical` (utilities) ← Framework adapters |
+| **Repository** | Data sources | Centralized test data storage | `BirthDayDataSource` with `Get*Args()` methods returns test data collections |
+| **Code Generation** | T4 templates (`MaxArity = 9`) | Single source of truth | `TestDataFactory.tt`, `TestData.tt`, `TestDataReturns.tt`, `TestDataThrows.tt` |
+| **Local Function Pattern** | `static` local functions in methods | Encapsulated helpers, zero closure cost | Used throughout: `static string createIdentity()`, `static bool isNotFatal()` |
+| **Bridge** | Core ↔ Adapters separation | Decouple abstraction from implementation | `ITestData` (abstraction) implemented by concrete types, adapted by framework layers |
+
+
+### Pattern Categories
+
+**Creational Patterns (2)**
+
+    ✅ Factory — Centralized test data object creation
+    ✅ Builder — Fluent API via named parameters
+
+**Structural Patterns (3)**
+
+    ✅ Adapter — Framework integration layer
+    ✅ Composite — Uniform test data treatment
+    ✅ Bridge — Abstraction/implementation separation
+
+**Behavioral Patterns (5)**
+
+    ✅ Strategy — Configurable serialization
+    ✅ Template Method — Algorithm skeleton with hooks
+    ✅ Command — Encapsulated assertion operations
+    ✅ Iterator — Lazy test data evaluation
+    ✅ Null Object — Default behavior without null checks
+
+**Architectural Patterns (6)**
+
+    ✅ Value Object — Identity via immutable value
+    ✅ Snapshot — Immutable point-in-time collection view
+    ✅ Dependency Inversion — Depend on abstractions
+    ✅ Repository — Centralized data access
+    ✅ Code Generation — Metaprogramming via T4
+    ✅ Local Function — Modern C# optimization pattern
 
 ---
 
