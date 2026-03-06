@@ -60,12 +60,18 @@ MIT
 
 ## Changelog
 
-### Version 1.0.0 (2026-03-04)
+### **Version 1.0.0 (2026-03-04)**
 
-##### Version 1.0.1 (2026-03-06)
+- **Initial release**
+
+##### **Version 1.0.1 (2026-03-06)**
 
 - **Changed:**
   - `Portamical.Core.Safety.EnumValidator.Defined`: `string paramName` changed to not nullable type.
   - README.md replaced.
 
-  ---
+---
+
+**Made by [CsabaDu](https://github.com/CsabaDu)**
+
+*Portamical: Test data as a domain, not an afterthought.*
