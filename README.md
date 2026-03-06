@@ -269,6 +269,8 @@ NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
 
 **Key:** T4 code generation eliminates 27 classes worth of boilerplate while maintaining type safety.
 
+![Portamical_Core_Datamodel_ClassDiagram](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Core_Datamodel_ClassDiagram.svg)
+
 ---
 
 ## Core Innovation: Identity-Driven Test Cases

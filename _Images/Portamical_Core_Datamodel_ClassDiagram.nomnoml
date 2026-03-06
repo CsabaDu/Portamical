@@ -1,0 +1,217 @@
+#title: Portamical_Core_Datamodel_ClassDiagram
+#direction: down
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+#.abstract: fill=#C9DEEF title=center,italic,bold body=left,italic
+#.group: title=center,bold body=left dashed
+#.concrete: fill=#C9DEEF title=center,bold body=left
+
+
+[<contract>IEquatable<INamedCase>]
+[<contract>INamedCase]
+[<contract> ITestData]
+[<abstract>NamedCase]
+[<abstract>TestDataBase]
+[<abstract>TestData]
+[<concrete>TestData<T1>]
+[<concrete>TestData<T1, T2>]
+[<concrete>TestData<T1, T2, ..., T9>]
+[<abstract>TestDataReturns<TStruct>]
+
+[<contract> IReturns<out TStruct>
+where TStruct: struct]
+
+[<contract> IReturns]
+
+[<contract> IExpected<out TResult>
+where TResult: notnull]
+
+[<abstract>TestDataThrows<TException>]
+[<abstract>TestDataExpected<TResult> ]
+
+[<contract> IThrows<out TException>
+where TException: Exception]
+
+[<contract>IThrows]
+
+[<concrete>TestDataReturns<TStruct, T1>]
+[<concrete>TestDataThrows<TException, T1>]
+[<concrete>TestDataReturns<TStruct, T1, T2>]
+
+[<contract> IExpected]
+
+[<concrete>TestDataThrows<TException, T1, T2>]
+[<concrete>TestDataReturns<TStruct, T1, T2, ..., T9>]
+[<concrete>TestDataThrows<TException, T1, T2, ..., T9>]
+
+// diagram
+
+
+[
+TestData<T1, T2, ..., T9>
+] -:> [
+TestData<T1, T2>
+]
+
+[
+IEquatable<INamedCase>
+] <:- [
+INamedCase
+]
+
+[
+TestData<T1, T2>
+] -:> [
+TestData<T1>
+]
+
+[
+TestData<T1>
+] -:> [
+TestData
+]
+
+[
+TestData
+] -:> [
+TestDataBase
+]
+
+[
+INamedCase
+] <:-- [
+NamedCase
+]
+
+[
+INamedCase
+] <:- [
+ITestData
+]
+
+[
+ITestData
+] <:-- [
+TestDataBase
+]
+
+[
+NamedCase
+] <:- [
+TestDataBase
+]
+
+[
+TestDataBase
+] <:- [
+TestDataExpected<TResult>
+]
+
+[
+TestDataExpected<TResult>
+] <:- [
+TestDataReturns<TStruct>
+]
+
+[
+TestDataExpected<TResult>
+] --:> [
+IExpected<out TResult>
+]
+
+[
+TestDataExpected<TResult>
+] <:- [
+TestDataThrows<TException>
+]
+
+[
+TestDataReturns<TStruct>
+] <:- [
+TestDataReturns<TStruct, T1>
+]
+
+[
+TestDataReturns<TStruct>
+] --:> [
+IReturns<out TStruct>
+]
+
+[
+IReturns<out TStruct>
+] -:> [
+IReturns
+]
+
+[
+IReturns<out TStruct>
+] --:>
+[
+IExpected<out TResult>
+]
+
+[
+IExpected<out TResult>
+] -:> [
+IExpected
+]
+
+[
+IThrows<out TException>
+] --:>
+[
+IExpected<out TResult>
+]
+
+[
+TestDataThrows<TException>
+] --:> [
+IThrows<out TException>
+]
+
+[
+TestDataThrows<TException>
+] <:- [
+TestDataThrows<TException, T1>
+]
+
+[
+TestDataReturns<TStruct, T1>
+] <:- [
+TestDataReturns<TStruct, T1, T2>
+]
+
+[
+IReturns
+] -:> [
+IExpected
+]
+
+[
+IThrows
+] -:> [
+IExpected
+]
+
+[
+IThrows<out TException>
+] -:> [
+IThrows
+]
+
+[
+TestDataThrows<TException, T1>
+] <:- [
+TestDataThrows<TException, T1, T2>
+]
+
+[
+TestDataReturns<TStruct, T1, T2>
+] <:- [
+TestDataReturns<TStruct, T1, T2, ..., T9>
+]
+
+[
+TestDataThrows<TException, T1, T2>
+] <:- [
+TestDataThrows<TException, T1, T2, ..., T9>
+]
