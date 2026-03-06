@@ -79,6 +79,8 @@ For typical testing scenarios, use a framework adapter instead.
 - Documentation: https://github.com/CsabaDu/Portamical/blob/master/README.md
 - Issues: https://github.com/CsabaDu/Portamical/issues
 
+---
+
 ## License
 
 MIT
@@ -90,6 +92,16 @@ MIT
 ### **Version 1.0.0 (2026-03-06)**
 
 - **Initial release**
+
+#### **Version 1.0.1 (2026-03-07)**
+
+- **xunit.runner.json relocation**
+  - Moved from Portamical package to xUnit adapter packages
+  - Improves package separation and reduces unnecessary files
+
+- **Global usings consolidation**
+  - Improved GlobalUsings.cs organization
+  - Better namespace management across the solution
 
 ---
 
