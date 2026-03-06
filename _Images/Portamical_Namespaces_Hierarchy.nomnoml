@@ -78,6 +78,12 @@ TestBases.TestCaseDataCollection
 [<abstract>Assertions]
 
 [
+DataProviders
+] <-- [
+Converters
+]
+
+[
 Converters
 ] <-- [
 TestBases

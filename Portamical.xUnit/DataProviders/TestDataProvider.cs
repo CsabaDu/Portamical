@@ -7,21 +7,14 @@ using System.Collections;
 
 namespace Portamical.xUnit.DataProviders;
 
-public abstract class TestDataProvider : IEnumerable
+public abstract class TestDataProvider
 {
-    internal static TestDataProvider<TTestData> InitTestDataProvider<TTestData>(
-        TTestData testData,
-        ArgsCode argsCode,
-        string? testMethodName = null)
-    where TTestData : notnull, ITestData
-    => new(testData, argsCode);
-
-    public abstract IEnumerator GetEnumerator();
 }
 
 public sealed class TestDataProvider<TTestData>
 : TestDataProvider,
-ITestDataProvider<TTestData>
+ITestDataProvider<TTestData>,
+IEnumerable
 where TTestData : notnull, ITestData
 {
     private readonly List<object?[]> _dataList = [];
@@ -41,7 +34,7 @@ where TTestData : notnull, ITestData
         _dataList.Add(testData.ToArgs(ArgsCode));
     }
 
-    public override IEnumerator GetEnumerator()
+    public IEnumerator GetEnumerator()
     {
         return _dataList.GetEnumerator();
     }
