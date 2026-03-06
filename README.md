@@ -184,7 +184,72 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 
 ### Namespace Dependency Diagram
 
+The following diagram shows the **complete namespace structure** and **dependency flow** across all 6 packages. Understanding this architecture is key to grasping how Portamical achieves cross-framework portability.
+
 ![Portamical_Namespaces_Hierarchy](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Namespaces_Hierarchy.svg)
+
+#### Reading the Diagram
+
+**Color Coding:**
+- 🟢 ***Green (contract)*** — Interfaces defining contracts (`INamedCase`, `ITestData`, `IExpected`)
+- 🔵 ***Blue (abstract)*** — Abstract base classes (`NamedCase`, `TestDataBase`, `PortamicalAssert`)
+- 🔵 **Blue (concrete)** — Concrete implementations (`TestDataThrows<T>`, attributes)
+- 🔵 **<u>Blue (static)</u>** — Static utility classes (`TestDataFactory`, `Converters`, `Strategy`)
+- 📦 **Package** — External framework dependencies (`xunit.core`, `MSTest.TestFramework`, `NUnitLite`)
+
+**Dependency Flow Rules:**
+1. **All arrows point inward** toward `Portamical.Core` (Dependency Inversion Principle)
+2. **No backward dependencies** - Framework adapters never influence the core
+3. **T4 appears as a namespace** because generated code depends on `SharedHelpers.ttinclude`
+
+#### Key Architectural Insights
+
+**1. Framework Adapter Complexity:**
+
+| Adapter | Namespaces | Complexity | Reason |
+|---------|------------|------------|--------|
+| **MSTest** | 4 | Simple | Direct converter → test base pattern |
+| **xUnit v2** | 6 | Moderate | Adds `DataProviders` + `TheoryData` |
+| **NUnit** | 6 | Moderate | Adds `TestDataTypes` + `TestCaseDataCollection` |
+| **xUnit v3** | 9 | Complex | Full contract/model separation for extensibility |
+
+**2. Core Namespace Structure:**
+
+```
+Portamical.Core:
+├── Strategy → ArgsCode & PropsCode enums (controls serialization)
+├── Identity → INamedCase interface (enables deduplication)
+├── Safety → Validator utilities (parameter validation)
+├── TestDataTypes → ITestData interface (core abstraction)
+├── Factories → TestDataFactory (T4-generated)
+└── T4 → SharedHelpers.ttinclude (MaxArity = 9)
+```
+
+**3. Adapter Pattern Consistency:**
+
+All 4 framework adapters follow the same template:
+
+```
+Converters (static) → TestBases (abstract) → Assertions (abstract)
+```
+
+This standardization makes adding new framework adapters straightforward.
+
+**4. Identity-Driven Type Hierarchy:**
+
+The diagram reveals how identity flows through the type system:
+
+```
+Identity.INamedCase
+    ↓ implemented by
+Identity.Model.NamedCase (abstract)
+    ↓ inherited by
+TestDataTypes.Models.TestDataBase
+    ↓ inherited by
+TestDataTypes.Models.General.TestData<T1..T9>
+```
+
+This is why **every test data object** has a `TestCaseName` property and identity-based equality.
 
 ---
 
@@ -443,7 +508,7 @@ Thin, optional adapters bridge Portamical to each test runner:
 | Project | Framework | Key Integration | Package Reference |
 |---------|-----------|-----------------|-------------------|
 | `Portamical.xUnit` | xUnit v2 | `MemberTestDataAttribute`, `TestDataProvider` | `xunit` 2.9.3 |
-| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | `MemberTestDataAttribute`, `TheoryTestData`, `ITheoryTestDataRow` | `xunit.v3` 3.2.2 |
+| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | `MemberTestDataAttribute`, `ITheoryTestDataRow` | `xunit.v3` 3.2.2 |
 | `Portamical.MSTest` | MSTest 4 (4.0.2+) | `DynamicTestDataAttribute` | `MSTest.TestFramework` 4.0.2 |
 | `Portamical.NUnit` | NUnit 4 (4.4.0+) | `TestCaseDataSourceAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
 
@@ -462,7 +527,7 @@ private static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructor
 [TestMethod, DynamicData(nameof(Args))]
 
 // NUnit
-public static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorValidArgs());
+public static IEnumerable<object?[]> Args => Convert(_dataSource.GetConstructorValidArgs(), AsInstance);
 [Test, TestCaseSource(nameof(Args))]
 ```
 
