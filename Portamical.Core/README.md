@@ -75,3 +75,5 @@ MIT
 **Made by [CsabaDu](https://github.com/CsabaDu)**
 
 *Portamical: Test data as a domain, not an afterthought.*
+
+---

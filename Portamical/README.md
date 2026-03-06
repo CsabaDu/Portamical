@@ -14,7 +14,7 @@ dotnet add package Portamical
 
 > **Note:** Most users should install a framework adapter instead:
 > - `Portamical.xUnit` for xUnit v2
-> - `Portamical.xUnit.v3` for xUnit v3
+> - `Portamical.xUnit_v3` for xUnit v3
 > - `Portamical.MSTest` for MSTest 4
 > - `Portamical.NUnit` for NUnit 4
 
@@ -96,3 +96,5 @@ MIT
 **Made by [CsabaDu](https://github.com/CsabaDu)**
 
 *Portamical: Test data as a domain, not an afterthought.*
+
+---
