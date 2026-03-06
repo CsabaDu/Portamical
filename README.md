@@ -167,7 +167,7 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 │          (Thin adapter layer)                  │
 └───────────────────────┬────────────────────────┘
                         │ depends on
-┌───���───────────────────▼────────────────────────┐
+┌───────────────────────▼────────────────────────┐
 │              Portamical                        │  ← Shared utilities
 │  (Converters, Assertions, TestBases)           │
 └───────────────────────┬────────────────────────┘
