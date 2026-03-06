@@ -519,7 +519,7 @@ Thin, optional adapters bridge Portamical to each test runner:
 |---------|-----------|-----------------|-------------------|
 | `Portamical.xUnit` | xUnit v2 | `PortamicalDataAttribute`, `TestDataProvider<T>`, `TheoryData<T>` support | `xunit.core` 2.9.3 |
 | `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | `PortamicalDataAttribute`, `TheoryTestData<T>`, `ITheoryTestDataRow` | `xunit.v3` 3.2.2 |
-| `Portamical.MSTest` | MSTest 4 (4.0.2+) | `DynamicDataAttribute` | `MSTest.TestFramework` 4.0.2 |
+| `Portamical.MSTest` | MSTest 4 (4.0.2+) | `PortamicalDataAttribute` | `MSTest.TestFramework` 4.0.2 |
 | `Portamical.NUnit` | NUnit 4 (4.4.0+) | `PortamicalDataAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
 
 ### Same Data Source, Four Frameworks
