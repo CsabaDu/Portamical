@@ -51,11 +51,14 @@ Then consume via your test framework’s adapter (usage varies by framework).
 - GitHub: https://github.com/CsabaDu/Portamical
 - Documentation: https://github.com/CsabaDu/Portamical/blob/master/README.md
 - Issues: https://github.com/CsabaDu/Portamical/issues
-- Migration Guide: https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md
+- Migration Guide from *CsabaDu.DynamicTestData.Core* to *Portamical.Core*: https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core/MIGRATION.md
 
-## License
+## License and Project Lineage
 
-MIT
+This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt).
+
+`Portamical.Core` is the **continuation and successor** of `CsabaDu.DynamicTestData.Core` (also MIT-licensed).  
+`CsabaDu.DynamicTestData.Core` is considered **legacy** and is **no longer supported**; new development happens in Portamical.
 
 ---
 
@@ -67,9 +70,12 @@ MIT
 
 ##### **Version 1.0.1 (2026-03-06)**
 
-- **Changed:**
-  - `Portamical.Core.Safety.EnumValidator.Defined`: `string paramName` changed to not nullable type.
-  - README.md replaced.
+- `Portamical.Core.Safety.EnumValidator.Defined`: `string paramName` changed to not nullable type.
+- README.md replaced.
+
+##### **Version 1.0.2 (2026-03-07)**
+
+- Link of migration guide (MIGRATION.md) added to README.md.
 
 ---
 

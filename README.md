@@ -430,7 +430,7 @@ void Test(DateOnly dateOfBirth) { ... }
 
 ## Design Patterns Catalog
 
-Portamical implements **15 GoF and architectural patterns** to achieve portability and maintainability.
+Portamical implements **16 GoF and architectural patterns** to achieve portability and maintainability.
 
 | Pattern | Implementation | Purpose | Evidence |
 |---------|----------------|---------|----------|
