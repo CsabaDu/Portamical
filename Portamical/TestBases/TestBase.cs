@@ -21,11 +21,18 @@ public abstract class TestBase : IDisposable
     protected static long ResetLogCounter()
     => Resolver.ResetLogCounter();
 
-    public virtual void Dispose()
+    public void Dispose()
     {
-        ArgsCode = AsInstance;
-        ResetLogCounter();
-
+        Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ArgsCode = AsInstance;
+            ResetLogCounter();
+        }
     }
 }
