@@ -5,6 +5,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+#nullable enable
+
 using Portamical.Core.Strategy;
 
 namespace Portamical.Core.TestDataTypes.Models.General;
