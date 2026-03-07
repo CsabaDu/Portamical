@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.TestDataTypes;
 using Portamical.MSTest.Converters;
 
 namespace Portamical.MSTest.TestBases;

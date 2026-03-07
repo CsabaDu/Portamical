@@ -826,11 +826,6 @@ If you are using `CsabaDu.DynamicTestData.Core`:
 - Prefer migrating to `Portamical.Core` for continued support and improvements.
 - Expect mostly mechanical renames, restructured namespaces, plus updates where the API surface changed due to the move from records to immutable classes.
 
-If you need detailed migration guidance, please open an issue requesting a `MIGRATION.md` with:
-- Package replacement mapping
-- Namespace/type rename table
-- Common before/after snippets
-
 ---
 
 ## Links
@@ -838,7 +833,7 @@ If you need detailed migration guidance, please open an issue requesting a `MIGR
 - [GitHub Repository](https://github.com/CsabaDu/Portamical)
 - [Discussions](https://github.com/CsabaDu/Portamical/discussions)
 - [Issues](https://github.com/CsabaDu/Portamical/issues)
-- [Pull Requests](https://github.com/CsabaDu/Portamical/pulls)
+- [Migration Guide](https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md)
 
 ---
 

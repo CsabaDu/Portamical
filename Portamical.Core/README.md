@@ -51,6 +51,7 @@ Then consume via your test framework’s adapter (usage varies by framework).
 - GitHub: https://github.com/CsabaDu/Portamical
 - Documentation: https://github.com/CsabaDu/Portamical/blob/master/README.md
 - Issues: https://github.com/CsabaDu/Portamical/issues
+- Migration Guide: https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md
 
 ## License
 

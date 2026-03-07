@@ -1,9 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)using System;
 
-using Portamical.Core.Identity;
-using Portamical.Core.Identity.Model;
-
 namespace Portamical.MSTest.Attributes;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
