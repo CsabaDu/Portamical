@@ -23,6 +23,6 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider(
         initDataProvider: TestDataConverter.InitTestDataProvider,
-        argsCode,
-        null);
+        argsCode: argsCode,
+        testMethodName: null);
 }
