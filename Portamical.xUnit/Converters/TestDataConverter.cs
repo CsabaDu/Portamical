@@ -11,9 +11,10 @@ public static class TestDataConverter
         TTestData testData,
         ArgsCode argsCode,
 #pragma warning disable IDE0060
-// testMethodName is used here only for having the same signature
-// as the one in 'TestDataProviderFactory'.
-        string? testMethodName = null)
+    // 'testMethodName' exists only to satisfy the signature required by the
+    // 'ToDataProvider' method of the Portamical CollectionConverter class
+    // as the 'initDataProvider' delegate parameter.
+    string? testMethodName = null)
 #pragma warning restore IDE0060
     where TTestData : notnull, ITestData
     => new(testData, argsCode);

@@ -22,7 +22,7 @@ public static class CollectionConverter
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider(
-        TestDataConverter.InitTestDataProvider,
+        initDataProvider: TestDataConverter.InitTestDataProvider,
         argsCode,
         null);
 }

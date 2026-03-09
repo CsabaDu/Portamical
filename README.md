@@ -156,6 +156,8 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 
 ### Layered Design (Zero-Dependency Core)
 
+Portamical implements **Onion Architecture / Hexagonal Architecture** with
+
 ```
 ┌────────────────────────────────────────────────┐
 │            _SampleCodes                        │  ← Reference implementations
