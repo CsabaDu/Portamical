@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: MIT
-// Copyright (c) 2026. Csaba Dudas (CsabaDu)using System;
+// Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 namespace Portamical.MSTest.Attributes;
 
@@ -20,7 +20,7 @@ public abstract class PortamicalDataAttributeBase(
         DynamicDataSourceType? sourceType,
         object?[]? sourceArgs)
     {
-        ArgumentException.ThrowIfNullOrEmpty(sourceName, nameof(sourceName));
+        ArgumentException.ThrowIfNullOrEmpty(sourceName);
 
         return (declaringType, sourceType, sourceArgs) switch
         {
@@ -36,24 +36,25 @@ public abstract class PortamicalDataAttributeBase(
         };
     }
 
-    public IEnumerable<object?[]> GetData(MethodInfo testMethod)
-    => _innerAttribute.GetData(testMethod);
+    public IEnumerable<object?[]> GetData(MethodInfo methodInfo)
+    => _innerAttribute.GetData(methodInfo);
 
-    public string? GetDisplayName(MethodInfo testMethod, params object?[]? data)
+    public string? GetDisplayName(MethodInfo methodInfo, params object?[]? data)
     {
-        ArgumentNullException.ThrowIfNull(testMethod);
+        ArgumentNullException.ThrowIfNull(methodInfo);
 
         string? displayName =
             data is { Length: > 0 } &&
             data[0] is string or INamedCase ?
-                NamedCase.CreateDisplayName(testMethod, data)
+                NamedCase.CreateDisplayName(methodInfo, data)
                 : null;
 
         return displayName
-            ?? _innerAttribute.GetDisplayName(testMethod, data);
+            ?? _innerAttribute.GetDisplayName(methodInfo, data);
     }
 }
 
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public sealed class PortamicalDataAttribute : PortamicalDataAttributeBase
 {
     public PortamicalDataAttribute(string sourceName)

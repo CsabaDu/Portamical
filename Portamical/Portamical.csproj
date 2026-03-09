@@ -8,7 +8,7 @@
     <Version>1.0.2</Version>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
-    <Description>Shared utilities and base classes for cross-framework test data solutions in .NET.</Description>
+    <Description>Shared utilities and base classes for cross‑framework test data solutions in .NET, built on the Portamical.Core data model.</Description>
     <Copyright>(c) 2026. Csaba Dudas (CsabaDu)</Copyright>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
