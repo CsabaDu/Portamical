@@ -81,9 +81,13 @@ For typical testing scenarios, use a framework adapter instead.
 
 ---
 
-## License
 
-MIT
+## License and Project Lineage
+
+This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt).
+
+`Portamical` is the **continuation and successor** of `CsabaDu.DynamicTestData.Light` and `CsabaDu.DynamicTestData` (also MIT-licensed).  
+`CsabaDu.DynamicTestData.Light` and `CsabaDu.DynamicTestData` are considered **legacy** and is **no longer supported**; new development happens in Portamical.
 
 ---
 
@@ -102,6 +106,11 @@ MIT
 - **Global usings consolidation**
   - Improved GlobalUsings.cs organization
   - Better namespace management across the solution
+
+#### **Version 1.0.2 (2026-03-08)**
+
+- **`Portamical.TestBases.TestBase`**: Implemented standard `IDisposable` pattern with `Dispose(bool disposing)` method that resets `ArgsCode` to default (`AsInstance`) and clears log counter, enabling proper cleanup in test fixture teardown scenarios.
+- License and Project Lineage added to README.md.
 
 ---
 

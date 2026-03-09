@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Portamical</Title>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
     <Description>Shared utilities and base classes for cross-framework test data solutions in .NET.</Description>
@@ -14,8 +14,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical</RepositoryUrl>
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3;</PackageTags>
-    <PackageReleaseNotes>- xunit.runner.json relocation  
-- Global usings consolidation</PackageReleaseNotes>
+    <PackageReleaseNotes>- `Portamical.TestBases.TestBase`: Implemented standard `IDisposable` pattern with `Dispose(bool disposing)` method that resets `ArgsCode` to default (`AsInstance`) and clears log counter, enabling proper cleanup in test fixture teardown scenarios.
+- License and Project Lineage added to README.md.</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical.Core" Version="1.0.1" />
+    <PackageReference Include="Portamical.Core" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>

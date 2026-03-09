@@ -77,6 +77,10 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 - Link of migration guide (MIGRATION.md) added to README.md.
 
+##### **Version 1.0.3 (2026-03-08)**
+
+- T4 Generated Code: All generated files (`TestDataFactory.generated.cs`, `TestData.generated.cs`, `TestDataReturns.generated.cs`, `TestDataThrows.generated.cs`) include explicit `#nullable enable` directive for enhanced null-safety compliance with C# nullable reference types.
+
 ---
 
 **Made by [CsabaDu](https://github.com/CsabaDu)**
