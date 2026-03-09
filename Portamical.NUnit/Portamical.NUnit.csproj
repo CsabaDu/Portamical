@@ -4,6 +4,24 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Portamical.NUnit</Title>
+    <Authors>CsabaDu</Authors>
+    <Company>CsabaDu</Company>
+    <Description>NUnit 4 adapter for Portamical: Universal, identity-driven test data modeling for .NET.</Description>
+    <Copyright>(c) 2026. Csaba Dudas (CsabaDu)</Copyright>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>test; unittest; testdata; portable; dynamicdata; datadriven; nunit;</PackageTags>
+    <PackageReleaseNotes>- Initial release
+- NUnit 4.4.0+ integration
+- `PortamicalDataAttribute` for test data
+- `TestBase` with `Convert()` methods
+- NUnit-specific `PortamicalAssert`</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,8 +29,26 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NUnitLite" Version="4.5.1" />
     <PackageReference Include="Portamical" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

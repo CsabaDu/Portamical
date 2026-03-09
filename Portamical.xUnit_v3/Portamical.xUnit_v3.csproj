@@ -4,12 +4,51 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Porttamical.xUnit (v3)</Title>
+    <Authors>CsabaDu</Authors>
+    <Company>CsabaDu</Company>
+    <Description>xUnit v3 adapter for Portamical: Universal, identity-driven test data modeling for .NET.</Description>
+    <Copyright>(c) 2026. Csaba Dudas (CsabaDu)</Copyright>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>test; unittest; testdata; portable; dynamicdata; datadriven; xunit; xunitv3</PackageTags>
+    <PackageReleaseNotes>- Initial release  
+- xUnit v3 (3.2.2+) integration  
+- `TheoryTestData&lt;T&gt;` extending xUnit v3's `TheoryData&lt;T&gt;  `
+- `ITheoryTestDataRow` with identity-based equality  
+- `PortamicalDataAttribute` with automatic deduplication  
+- `TestBase` with `Convert()` methods  
+- xUnit v3-specific `PortamicalAssert`  
+- Contract/model separation (9 namespaces)  </PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Portamical" Version="1.0.2" />
     <PackageReference Include="xunit.v3.assert" Version="3.2.2" />
     <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

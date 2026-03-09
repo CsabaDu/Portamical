@@ -5,6 +5,26 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>92336b77-c400-443e-9ab2-8294d7dbf9af</UserSecretsId>
+    <Title>Portamical.MSTest</Title>
+    <Authors>CsabaDu</Authors>
+    <Company>CsabaDu</Company>
+    <Description>MSTest 4 adapter for Portamical: Universal, identity-driven test data modeling for .NET.</Description>
+    <Copyright>(c) 2026. Csaba Dudas (CsabaDu)</Copyright>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>test; unittest; testdata; portable; dynamicdata; datadriven; mstest;</PackageTags>
+    <PackageReleaseNotes>- Initial release  
+- MSTest 4.0.2+ integration  
+- `PortamicalDataAttribute` with `DynamicDataDisplayName`  
+- `TestBase` with `Convert()` methods  
+- MSTest-specific `PortamicalAssert`  
+- `ToArgsWithTestCaseName()` converter
+</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,9 +32,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.3" />
     <PackageReference Include="MSTest.TestFramework" Version="4.1.0" />
     <PackageReference Include="Portamical" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

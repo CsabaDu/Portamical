@@ -767,12 +767,6 @@ MIT
 - `TestBase` with `Convert()` methods
 - xUnit-specific `PortamicalAssert`
 
-### **Version 1.0.1 (2026-03-07)**
-
-- **xunit.runner.json relocation**
-  - Moved from `Portamical` package to `Portamical.xUnit`
-  - Improves package separation and reduces unnecessary files
-
 ---
 
 **Made by [CsabaDu](https://github.com/CsabaDu)**
