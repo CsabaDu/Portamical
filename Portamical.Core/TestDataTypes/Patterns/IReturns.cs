@@ -93,7 +93,7 @@ public interface IReturns
 ///     
 ///     public object GetExpected() =&gt; Expected;
 ///     
-///     public string GetResultPrefix() =&gt; "returns";
+///     public string GetValidResultPrefix() =&gt; "returns";
 /// }
 /// 
 /// // Usage

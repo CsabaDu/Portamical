@@ -7,14 +7,128 @@ using Portamical.Core.Strategy;
 namespace Portamical.Core.TestDataTypes.Models.General;
 
 /// <summary>
-/// Provides an abstract base class for representing test data with a definition and an associated result.
+/// Abstract base class for general-purpose test data with custom result formatting.
 /// </summary>
-/// <remarks>This class is intended to be inherited by types that encapsulate test data scenarios, supplying both
-/// the test definition and its expected result. It extends TestDataBase and enforces a consistent contract for
-/// retrieving result values and argument representations.</remarks>
+/// <remarks>
+/// <para>
+/// This class extends <see cref="TestDataBase"/> to provide a general-purpose test data foundation
+/// without the constraints of <see cref="TestDataReturns{TStruct}"/> or <see cref="TestDataThrows{TException}"/>.
+/// It allows fully custom result formatting specified as a string parameter in the constructor.
+/// </para>
+/// <para>
+/// <strong>When to Use TestData:</strong>
+/// <list type="bullet">
+///   <item>Custom result formats beyond "returns {value}" or "throws {exception}"</item>
+///   <item>Complex scenarios with descriptive outcomes (e.g., "succeeds with warnings", "partially completes")</item>
+///   <item>Reference type testing without the constraints of TestDataReturns</item>
+///   <item>Test cases where result formatting is determined at construction time</item>
+/// </list>
+/// </para>
+/// <para>
+/// <strong>Comparison with Specialized Classes:</strong>
+/// <list type="bullet">
+///   <item><see cref="TestDataReturns{TStruct}"/> - For value type returns with automatic "returns {value}" formatting</item>
+///   <item><see cref="TestDataThrows{TException}"/> - For exception testing with automatic "throws {type}" formatting</item>
+///   <item><see cref="TestData"/> - For custom result formatting with no type constraints</item>
+/// </list>
+/// </para>
+/// <para>
+/// <strong>Design Pattern:</strong> This class uses a <c>readonly</c> field for the result string
+/// to enforce immutability, ensuring the result cannot be changed after construction.
+/// </para>
+/// <para>
+/// <strong>Derived Types:</strong> Further derived classes add argument properties (e.g.,
+/// <c>TestData&lt;TArg1&gt;</c>, <c>TestData&lt;TArg1, TArg2&gt;</c>) and override
+/// <see cref="TestDataBase.ToObjectArray(ArgsCode)"/> to include those arguments.
+/// </para>
+/// </remarks>
+/// <example>
+/// <code>
+/// // Custom result format
+/// public class MyTestData : TestData
+/// {
+///     public MyTestData(string definition, string result, string arg)
+///         : base(definition, result)
+///     {
+///         Arg1 = arg;
+///     }
+///     
+///     public string Arg1 { get; }
+///     
+///     protected override object?[] ToObjectArray(ArgsCode argsCode)
+///         =&gt; Extend(base.ToObjectArray, argsCode, Arg1);
+/// }
+/// 
+/// // Usage with custom result
+/// var test = new MyTestData(
+///     "Process complex data",
+///     "succeeds with warnings",  // ✅ Custom format
+///     "input.json");
+/// // Test case name: "Process complex data => succeeds with warnings"
+/// 
+/// // Compare with TestDataReturns (constrained):
+/// var returnsTest = new TestDataReturns&lt;int&gt;("Add(2,3)", 5);
+/// // Test case name: "Add(2,3) => returns 5"  ✅ Fixed format
+/// 
+/// // Compare with TestDataThrows (constrained):
+/// var throwsTest = new TestDataThrows&lt;ArgumentException&gt;("Validate(null)", new ArgumentException());
+/// // Test case name: "Validate(null) => throws ArgumentException"  ✅ Fixed format
+/// </code>
+/// </example>
 public abstract class TestData
 : TestDataBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestData"/> class.
+    /// </summary>
+    /// <param name="definition">
+    /// The descriptive definition of the test case scenario (left side of "=&gt;").
+    /// </param>
+    /// <param name="result">
+    /// The pre-formatted result string for the test case (right side of "=&gt;").
+    /// Unlike <see cref="TestDataReturns{TStruct}"/> or <see cref="TestDataThrows{TException}"/>,
+    /// this is the exact string that will appear in the test case name without additional formatting.
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// <strong>Accessibility:</strong> This constructor is <c>private protected</c> to prevent
+    /// derivation outside the Portamical assembly. Users should use the provided concrete
+    /// implementations (e.g., <c>TestData&lt;TArg1&gt;</c>) or create custom derived classes
+    /// within the assembly.
+    /// </para>
+    /// <para>
+    /// <strong>Result Immutability:</strong> The <paramref name="result"/> parameter is stored
+    /// in a <c>readonly</c> field, ensuring the result cannot be changed after construction.
+    /// This provides stronger immutability than an <c>init</c> property.
+    /// </para>
+    /// <para>
+    /// <strong>Result Formatting:</strong> Unlike specialized classes that format results automatically
+    /// (e.g., "returns {value}"), this class uses the result exactly as provided. This allows
+    /// complete control over test case name formatting.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Derived class constructor:
+    /// public class MyTestData : TestData
+    /// {
+    ///     public MyTestData(string definition, string result, string arg)
+    ///         : base(definition, result)
+    ///     {
+    ///         Arg1 = arg;
+    ///     }
+    ///     
+    ///     public string Arg1 { get; }
+    /// }
+    /// 
+    /// // Usage:
+    /// var test = new MyTestData(
+    ///     definition: "Complex operation",
+    ///     result: "succeeds with warnings",  // ✅ Used exactly as-is
+    ///     arg: "data.json");
+    /// // Test case name: "Complex operation => succeeds with warnings"
+    /// </code>
+    /// </example>
     private protected TestData(
         string definition,
         string result)

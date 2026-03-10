@@ -29,7 +29,7 @@ namespace Portamical.Core.TestDataTypes.Patterns;
 /// // Polymorphic usage
 /// void ProcessExpectation(IExpected expectation)
 /// {
-///     string prefix = expectation.GetResultPrefix();
+///     string prefix = expectation.GetValidResultPrefix();
 ///     object expected = expectation.GetExpected();
 ///     Console.WriteLine($"{prefix}: {expected}");
 /// }
@@ -69,7 +69,7 @@ public interface IExpected
     /// {
     ///     public TResult Expected { get; init; }
     ///     
-    ///     public string GetResultPrefix() =&gt; "returns";
+    ///     public string GetValidResultPrefix() =&gt; "returns";
     ///     
     ///     // Test case name: "scenario =&gt; returns {Expected}"
     /// }
@@ -79,7 +79,7 @@ public interface IExpected
     /// {
     ///     public TException Expected { get; init; }
     ///     
-    ///     public string GetResultPrefix() =&gt; "throws";
+    ///     public string GetValidResultPrefix() =&gt; "throws";
     ///     
     ///     // Test case name: "scenario =&gt; throws {Expected}"
     /// }
@@ -155,9 +155,9 @@ public interface IExpected
 ///     
 ///     public object GetExpected() =&gt; Expected;
 ///     
-///     public string GetResultPrefix() =&gt; "returns";
+///     public string GetValidResultPrefix() =&gt; "returns";
 ///     
-///     public override string GetResult() =&gt; $"{GetResultPrefix()} {Expected}";
+///     public override string GetResult() =&gt; $"{GetValidResultPrefix()} {Expected}";
 /// }
 /// 
 /// // Usage

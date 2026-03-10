@@ -98,7 +98,7 @@ public interface IThrows
 ///     
 ///     public object GetExpected() =&gt; Expected;
 ///     
-///     public string GetResultPrefix() =&gt; "throws";
+///     public string GetValidResultPrefix() =&gt; "throws";
 /// }
 /// 
 /// // Usage
