@@ -14,7 +14,7 @@ namespace Portamical.TestBases.TestDataCollection;
 /// duplicate test data and supports more reliable and isolated testing.</remarks>
 public abstract class TestBase : TestBases.TestBase
 {
-    protected static IEnumerable<TTestData> Convert<TTestData>(
+    protected static IReadOnlyCollection<TTestData> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctArray();

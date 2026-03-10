@@ -7,7 +7,7 @@ namespace Portamical.xUnit_v3.TestBases.TheoryDataRowCollection;
 
 public abstract class TestBase : Portamical.TestBases.TestDataCollection.TestBase
 {
-    protected static IEnumerable<ITheoryDataRow> Convert<TTestData>(
+    protected static IReadOnlyCollection<ITheoryDataRow> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         string? testMethodName = null)
@@ -16,7 +16,7 @@ public abstract class TestBase : Portamical.TestBases.TestDataCollection.TestBas
         argsCode,
         testMethodName);
 
-    protected static IEnumerable<ITheoryDataRow> Convert<TTestData>(
+    protected static IReadOnlyCollection<ITheoryDataRow> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,
         string? testMethodName = null)
     where TTestData : notnull, ITestData

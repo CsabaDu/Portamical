@@ -143,22 +143,13 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        _ = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
-        _ = NotNull(convertRow, nameof(convertRow));
-
         // Deduplicate based on 'NamedCase' identity/equality semantics
         var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-        var rowList = new List<TRow>();
+        var rows = NotNullOrEmpty(
+            testDataCollection, nameof(testDataCollection))
+            .Where(testData => namedCases.Add(testData))
+            .Select(NotNull(convertRow, nameof(convertRow)));
 
-        foreach (var testData in testDataCollection)
-        {
-            if (namedCases.Add(testData))
-            {
-                var row = convertRow(testData);
-                rowList.Add(row);
-            }
-        }
-
-        return [.. rowList];
+        return [.. rows];
     }
 }
