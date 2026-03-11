@@ -3,9 +3,130 @@
 
 namespace Portamical.Assertions;
 
+/// <summary>
+/// Provides framework-agnostic assertion helper methods for unit testing.
+/// </summary>
+/// <remarks>
+/// <para>
+/// This abstract base class defines reusable assertion logic that can be adapted to any testing
+/// framework (MSTest, NUnit, xUnit, etc.) by passing framework-specific assertion delegates as parameters.
+/// </para>
+/// <para>
+/// <strong>Design Pattern: Dependency Injection for Assertions</strong>
+/// </para>
+/// <para>
+/// Rather than directly coupling to a specific testing framework, this class accepts assertion
+/// delegates (e.g., <c>Action&lt;string&gt; assertFail</c>, <c>Action&lt;Type, Type&gt; assertEquality</c>)
+/// that encapsulate framework-specific assertion behavior. This enables:
+/// </para>
+/// <list type="bullet">
+///   <item>
+///     <strong>Framework Independence:</strong> Core assertion logic works with MSTest, NUnit, xUnit,
+///     or custom test frameworks without modification.
+///   </item>
+///   <item>
+///     <strong>Extension Projects:</strong> Framework-specific projects (e.g., Portamical.MSTest)
+///     derive from this class to provide convenience methods that pre-configure the assertion delegates.
+///   </item>
+///   <item>
+///     <strong>Testability:</strong> Assertion behavior itself can be tested by providing mock delegates.
+///   </item>
+/// </list>
+/// <para>
+/// <strong>Usage Patterns:</strong>
+/// </para>
+/// <list type="number">
+///   <item>
+///     <strong>Direct Usage:</strong> Call static methods directly, passing framework-specific
+///     delegates explicitly.
+///   </item>
+///   <item>
+///     <strong>Via Extension Projects:</strong> Use framework-specific derived classes that
+///     provide simplified APIs (e.g., <c>Portamical.MSTest.Assertions.PortamicalAssert.DoesNotThrow(Action)</c>).
+///   </item>
+/// </list>
+/// <para>
+/// <strong>Inheritance:</strong> This class is abstract with a protected constructor to prevent
+/// direct instantiation while enabling inheritance in framework-specific extension projects.
+/// </para>
+/// </remarks>
+/// <example>
+/// <para><strong>Direct Usage (Framework-Agnostic):</strong></para>
+/// <code>
+/// // With MSTest
+/// PortamicalAssert.DoesNotThrow(
+///     () => myService.DoWork(),
+///     Assert.Fail);  // MSTest's Assert.Fail
+/// 
+/// // With NUnit
+/// PortamicalAssert.DoesNotThrow(
+///     () => myService.DoWork(),
+///     Assert.Fail);  // NUnit's Assert.Fail
+/// 
+/// // With xUnit
+/// PortamicalAssert.DoesNotThrow(
+///     () => myService.DoWork(),
+///     msg => Assert.True(false, msg));  // xUnit doesn't have Assert.Fail
+/// 
+/// // Custom handler
+/// PortamicalAssert.DoesNotThrow(
+///     () => myService.DoWork(),
+///     msg => throw new CustomAssertionException(msg));
+/// </code>
+/// 
+/// <para><strong>Via Extension Project (Simplified API):</strong></para>
+/// <code>
+/// // Portamical.MSTest extension project provides:
+/// using Portamical.MSTest.Assertions;
+/// 
+/// // Simplified - no need to pass Assert.Fail
+/// PortamicalAssert.DoesNotThrow(() => myService.DoWork());
+/// 
+/// // The extension class does:
+/// // public static void DoesNotThrow(Action attempt)
+/// //     => Portamical.Assertions.PortamicalAssert.DoesNotThrow(attempt, Assert.Fail);
+/// </code>
+/// 
+/// <para><strong>Creating Framework-Specific Extensions:</strong></para>
+/// <code>
+/// namespace Portamical.MSTest.Assertions;
+/// 
+/// /// &lt;summary&gt;
+/// /// MSTest-specific assertion helpers.
+/// /// &lt;/summary&gt;
+/// public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
+/// {
+///     // Simplify DoesNotThrow for MSTest users
+///     public static void DoesNotThrow(Action attempt)
+///         => DoesNotThrow(attempt, assertFail: Assert.Fail);
+///     
+///     // Simplify ThrowsDetails for MSTest users
+///     public static TException ThrowsDetails&lt;TException&gt;(Action attempt, TException expected)
+///     where TException : notnull, Exception
+///         => ThrowsDetails(attempt, expected,
+///             catchException: CatchException,
+///             assertIsType: (e, a) => Assert.IsInstanceOfType(a, e),
+///             assertEquality: (e, a) => Assert.AreEqual(e, a),
+///             assertFail: Assert.Fail);
+/// }
+/// </code>
+/// </example>
+/// <seealso cref="DoesNotThrow(Action, Action{string})"/>
+/// <seealso cref="CatchException(Action)"/>
+/// <seealso cref="ThrowsDetails{TException}(Action, TException, Func{Action, Exception}, Action{Type, Exception}, Action{string, string}, Action{string})"/>
+/// <seealso cref="ThrowsActualType{TException}(TException, Exception, Action{Type, Exception}, Action{string})"/>
+/// <seealso cref="ThrowsMetadataEquality{TException}(TException, TException, Action{string, string})"/>
 public abstract class PortamicalAssert
 {
-    private PortamicalAssert()
+    /// <summary>
+    /// Prevents external instantiation while allowing derived classes in extension projects.
+    /// </summary>
+    /// <remarks>
+    /// This constructor is protected to enable inheritance in framework-specific extension projects
+    /// (e.g., Portamical.MSTest, Portamical.NUnit, Portamical.xUnit) while preventing direct
+    /// instantiation of this abstract base class.
+    /// </remarks>
+    protected PortamicalAssert()
     {
     }
 
@@ -253,11 +374,11 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertEquality, nameof(assertEquality));
 
-        var expectedMessage = expected.Message;
-        var actualMessage = actual.Message;
         // initialized for better readability
         // and to ensure it's assigned before use
         bool shouldAssertMessage = false;
+        var expectedMessage = expected.Message;
+        var actualMessage = actual.Message;
 
         if (expected is ArgumentException argExpected &&
             actual is ArgumentException argActual)
