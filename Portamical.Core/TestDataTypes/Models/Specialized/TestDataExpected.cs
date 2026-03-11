@@ -95,15 +95,31 @@ where TResult : notnull
     private const string ExpectedString = "expected";
     private const string ResultsString = "results";
 
+    /// <summary>
+    /// Gets the expected outcome of the test case.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This property stores the expected result that will be compared against the actual
+    /// result when executing the test. The value is set during construction via the
+    /// <c>init</c> accessor and cannot be modified afterward, ensuring test data immutability.
+    /// </para>
+    /// <para>
+    /// The <typeparamref name="TResult"/> constraint ensures the expected value is never null,
+    /// providing type safety for test assertions.
+    /// </para>
+    /// </remarks>
+    /// <value>
+    /// The expected result value of type <typeparamref name="TResult"/>.
+    /// </value>
     public TResult Expected { get; init; }
 
-    #region Properties
     /// <summary>
     /// Gets the unique name of the test case associated with this instance.
     /// </summary>
     public override sealed string TestCaseName { get; init; }
-    #endregion
 
+    /// <inheritdoc/>
     public abstract string GetResultPrefix();
 
     /// <summary>
@@ -117,7 +133,7 @@ where TResult : notnull
     /// strongly-typed <see cref="Expected"/> property as an object.
     /// </remarks>
     public object GetExpected()
-        => Expected;
+    => Expected;
 
     /// <summary>
     /// Converts the test data to an argument array by extending the base arguments with the expected value.
@@ -136,7 +152,7 @@ where TResult : notnull
     /// <see cref="TestDataBase.Extend{T}(Func{ArgsCode, object?[]}, ArgsCode, T?)"/> helper.
     /// </remarks>
     protected override object?[] ToObjectArray(ArgsCode argsCode)
-        => Extend(base.ToObjectArray, argsCode, Expected);
+    => Extend(base.ToObjectArray, argsCode, Expected);
 
     /// <summary>
     /// Formats the expected result with the result prefix for display in test case names.
@@ -173,7 +189,9 @@ where TResult : notnull
     protected string GetExpectedResult(string? expectedString)
     {
         var resultPrefix = GetResultPrefix();
-        var expected = ExpectedString.FallbackIfNullOrWhiteSpace(expectedString, nameof(GetExpected));
+        var expected = ExpectedString.FallbackIfNullOrWhiteSpace(
+            expectedString,
+            nameof(GetExpected));
 
         return $"{resultPrefix} {expected}";
     }
@@ -199,7 +217,7 @@ where TResult : notnull
     /// </para>
     /// </remarks>
     protected static string GetValidResultPrefix(string resultPrefix)
-        => ResultsString.FallbackIfNullOrWhiteSpace(resultPrefix, nameof(GetResultPrefix));
+    => ResultsString.FallbackIfNullOrWhiteSpace(resultPrefix, nameof(GetResultPrefix));
 
     /// <summary>
     /// Converts the test data to a parameter array with optional trimming of the expected value.
@@ -224,6 +242,6 @@ where TResult : notnull
     public override object?[] ToArgs(
         ArgsCode argsCode,
         PropsCode propsCode)
-        => Trim(base.ToArgs, argsCode, propsCode,
-            propsCode != PropsCode.All);
+    => Trim(base.ToArgs, argsCode, propsCode,
+        propsCode != PropsCode.All);
 }
