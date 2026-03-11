@@ -5,6 +5,10 @@ namespace Portamical.Assertions;
 
 public abstract class PortamicalAssert
 {
+    private PortamicalAssert()
+    {
+    }
+
     #region Assert Methods
     /// <summary>
     /// Verifies that the specified action does not throw an exception, and invokes a failure callback if an exception
@@ -14,6 +18,19 @@ public abstract class PortamicalAssert
     /// If an exception is thrown, the provided failure callback is called with a descriptive message.</remarks>
     /// <param name="attempt">The action to execute and verify for the absence of exceptions. Cannot be null.</param>
     /// <param name="assertFail">A callback to invoke with an error message if the action throws an exception. Cannot be null.</param>
+    /// <example>
+    /// <code>
+    /// // xUnit usage:
+    /// PortamicalAssert.DoesNotThrow(
+    ///     () => myService.DoWork(),
+    ///     Assert.Fail);
+    /// 
+    /// // Custom handler:
+    /// PortamicalAssert.DoesNotThrow(
+    ///     () => myService.DoWork(),
+    ///     msg => _logger.Error(msg));
+    /// </code>
+    /// </example>
     public static void DoesNotThrow(Action attempt, Action<string> assertFail)
     {
         var exception = CatchException(attempt);
@@ -77,7 +94,9 @@ public abstract class PortamicalAssert
         static bool isNotFatal(Exception exception)
         => exception is not (
             OutOfMemoryException or
-            AccessViolationException);
+            AccessViolationException or
+            StackOverflowException or
+            ThreadAbortException);
         #endregion
     }
 
@@ -109,8 +128,9 @@ public abstract class PortamicalAssert
         Action<string> assertFail)
     where TException : notnull, Exception
     {
-        var actual =
-            NotNull(catchException, nameof(catchException))(
+        var actual = NotNull(
+            catchException,
+            nameof(catchException))(
                 attempt);
         var typedActual = ThrowsActualType(
             expected,
@@ -149,8 +169,8 @@ public abstract class PortamicalAssert
         _ = NotNull(assertFail, nameof(assertFail));
 
         const string expectedExceptionMessageStart = "Expected exception";
-        const string wasNotThrownMessageEnd = " was not thown.";
-        const string wasThrownMessageEnd = " was thown.";
+        const string wasNotThrownMessageEnd = " was not thrown.";
+        const string wasThrownMessageEnd = " was thrown.";
 
         if (actual is null)
         {
@@ -161,13 +181,17 @@ public abstract class PortamicalAssert
             const string expectedExceptionNotThrownMessage =
                 $"{expectedExceptionMessageStart}{wasNotThrownMessageEnd}";
 
+            // throws when custom assertFail does not throw,
+            // or to ensure method exits after framework-specific assertFail
             throw GetAssertionFailedException(expectedExceptionNotThrownMessage);
         }
 
         var expectedType = expected.GetType();
+        var actualType = actual.GetType();
 
-        if (actual.GetType() == expectedType && actual is TException typedActual)
+        if (actualType == expectedType)
         {
+            var typedActual = (TException)actual;
             assertIsType(expectedType, typedActual);
             return typedActual;
         }
@@ -191,19 +215,36 @@ public abstract class PortamicalAssert
     }
 
     /// <summary>
-    /// Asserts that the metadata of two exceptions is equal using a provided assertion delegate, and returns the actual
-    /// exception.
+    /// Asserts exception metadata equality with selective assertion control.
     /// </summary>
-    /// <remarks>This method is typically used in unit tests to verify that two exceptions have equivalent
-    /// messages and, for argument exceptions, equivalent parameter names. The provided assertion delegate is
-    /// responsible for performing the actual comparison and throwing an assertion failure if the values do not
-    /// match.</remarks>
-    /// <typeparam name="TException">The type of exception to compare. Must be a non-null exception type.</typeparam>
-    /// <param name="expected">The expected exception whose metadata will be used as the reference for comparison.</param>
-    /// <param name="actual">The actual exception whose metadata will be compared to the expected exception.</param>
-    /// <param name="assertEquality">A delegate that asserts the equality of two string values, typically used to compare exception messages and
-    /// parameter names. Cannot be null.</param>
-    /// <returns>The actual exception instance after performing the metadata equality assertions.</returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Selective Assertion Pattern:</strong> Uses null as a sentinel value to indicate
+    /// which exception properties should be asserted:
+    /// </para>
+    /// <list type="bullet">
+    ///   <item>
+    ///     <strong>ParamName (ArgumentException):</strong>
+    ///     - Set (non-null): Asserts parameter name equality
+    ///     - null: Skips parameter name assertion (test doesn't care about param name)
+    ///   </item>
+    ///   <item>
+    ///     <strong>Message:</strong>
+    ///     - Set (non-null): Asserts message equality
+    ///     - null: Skips message assertion (test only validates exception type)
+    ///   </item>
+    /// </list>
+    /// <para>
+    /// This pattern enables focused, less brittle tests by allowing developers to specify
+    /// exactly which exception properties matter for their test scenario.
+    /// </para>
+    /// </remarks>
+    /// <remarks>
+    /// <para>
+    /// <strong>Selective Assertion:</strong> Properties are only asserted if set (non-null).
+    /// Use null to skip assertions for properties that are implementation details.
+    /// </para>
+    /// </remarks>
     public static TException ThrowsMetadataEquality<TException>(
         TException expected,
         TException actual,
@@ -214,7 +255,7 @@ public abstract class PortamicalAssert
 
         var expectedMessage = expected.Message;
         var actualMessage = actual.Message;
-        bool shouldAssertMessage;
+        bool shouldAssertMessage = false;
 
         if (expected is ArgumentException argExpected &&
             actual is ArgumentException argActual)
