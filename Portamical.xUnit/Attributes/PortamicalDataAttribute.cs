@@ -9,7 +9,7 @@ namespace Portamical.xUnit.Attributes;
 
 [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-public abstract class PortamicalDataAttributeBase(string memberName, object?[]? parameters)
+public abstract class PortamicalBaseDataAttribute(string memberName, object?[]? parameters)
 : MemberDataAttributeBase(memberName, parameters)
 {
     /// <inheritdoc/>
@@ -30,6 +30,6 @@ public abstract class PortamicalDataAttributeBase(string memberName, object?[]? 
 [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public sealed class PortamicalDataAttribute(string memberName, params object?[]? parameters)
-    : PortamicalDataAttributeBase(memberName, parameters)
+    : PortamicalBaseDataAttribute(memberName, parameters)
 {
 }

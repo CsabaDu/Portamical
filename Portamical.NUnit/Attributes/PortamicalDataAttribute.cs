@@ -9,7 +9,7 @@ using static Portamical.NUnit.TestDataTypes.TestCaseTestData;
 namespace Portamical.NUnit.Attributes;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public abstract class PortamicalDataAttributeBase(
+public abstract class PortamicalBaseDataAttribute(
     string sourceName,
     Type? sourceType = null,
     object?[]? methodParams = null)
@@ -23,7 +23,7 @@ public abstract class PortamicalDataAttributeBase(
         Type? sourceType,
         object?[]? methodParams)
     {
-        ArgumentException.ThrowIfNullOrEmpty(sourceName, nameof(sourceName));
+        ArgumentException.ThrowIfNullOrEmpty(sourceName);
 
         if (sourceType is not null)
         {
@@ -63,7 +63,7 @@ public abstract class PortamicalDataAttributeBase(
                 $"Source type cannot be a struct: {sourceTypeFullName}. " +
                 $"Use a class or interface instead."
                 : $"Source type must be a class or interface: {sourceTypeFullName}. " +
-                    $"Actual type: {sourceType.GetType().Name}";
+                    $"Actual type: {sourceType.Name}";
 
             throw new ArgumentException(message, nameof(sourceType));
         }
@@ -149,7 +149,8 @@ public abstract class PortamicalDataAttributeBase(
     }
 }
 
-public sealed class PortamicalDataAttribute : PortamicalDataAttributeBase
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
 {
     public PortamicalDataAttribute(string sourceName)
     : base(sourceName)

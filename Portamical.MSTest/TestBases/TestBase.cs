@@ -16,5 +16,5 @@ public abstract class TestBase : Portamical.TestBases.TestBase
     protected static IReadOnlyCollection<object?[]> Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => Convert(testDataCollection, ArgsCode);
+    => ConvertAsInstance(Convert, testDataCollection);
 }

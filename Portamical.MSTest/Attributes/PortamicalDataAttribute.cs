@@ -4,7 +4,7 @@
 namespace Portamical.MSTest.Attributes;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public abstract class PortamicalDataAttributeBase(
+public abstract class PortamicalBaseDataAttribute(
     string sourceName,
     Type? declaringType = null,
     DynamicDataSourceType? sourceType = null,
@@ -55,7 +55,7 @@ public abstract class PortamicalDataAttributeBase(
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public sealed class PortamicalDataAttribute : PortamicalDataAttributeBase
+public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
 {
     public PortamicalDataAttribute(string sourceName)
     : base(sourceName) { }

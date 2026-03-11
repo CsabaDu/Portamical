@@ -11,21 +11,22 @@ namespace Portamical.xUnit_v3.Attributes;
 /// Provides a data source for a theory test, with the data coming from a member of the test class.
 /// Extends <see cref="MemberDataAttributeBase"/> with additional functionality.
 /// </summary>
-public abstract class PortamicalDataAttributeBase
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+public abstract class PortamicalBaseDataAttribute
 : MemberDataAttributeBase
 {
     #region Constructors
     /// <summary>
-    /// Initializes a new instance of the <see cref="PortamicalDataAttributeBase"/> class.
+    /// Initializes a new instance of the <see cref="PortamicalBaseDataAttribute"/> class.
     /// </summary>
     /// <param name="memberName">The name of the public member that will provide the test data.</param>
     /// <param name="arguments">The arguments to be passed to the member (only supported for static members).</param>
-    private protected PortamicalDataAttributeBase(
+    private protected PortamicalBaseDataAttribute(
         string memberName,
         params object[] arguments)
     : base(memberName, arguments)
     {
-        ArgumentException.ThrowIfNullOrEmpty(memberName, nameof(memberName));
+        ArgumentException.ThrowIfNullOrEmpty(memberName);
 
         DisableDiscoveryEnumeration = true;
     }
@@ -122,9 +123,10 @@ public abstract class PortamicalDataAttributeBase
     #endregion
 }
 
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public sealed class PortamicalDataAttribute(
     string memberName,
     params object[] arguments)
-: PortamicalDataAttributeBase(
+: PortamicalBaseDataAttribute(
     memberName,
     arguments);

@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical.Core" Version="1.0.3" />
+    <ProjectReference Include="..\Portamical.Core\Portamical.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
