@@ -255,6 +255,8 @@ public abstract class PortamicalAssert
 
         var expectedMessage = expected.Message;
         var actualMessage = actual.Message;
+        // initialized for better readability
+        // and to ensure it's assigned before use
         bool shouldAssertMessage = false;
 
         if (expected is ArgumentException argExpected &&
