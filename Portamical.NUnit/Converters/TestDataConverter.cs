@@ -11,7 +11,7 @@ namespace Portamical.NUnit.Converters;
 /// </summary>
 /// <remarks>
 /// <para>
-/// This static class offers two conversion strategies:
+/// This static class offers two conversion strategies that differ in their return types:
 /// <list type="bullet">
 ///   <item><description>
 ///     <see cref="ToTestCaseTestData{TTestData}"/> - Returns the rich
@@ -21,6 +21,26 @@ namespace Portamical.NUnit.Converters;
 ///     <see cref="ToTestCaseData{TTestData}"/> - Returns the base <see cref="TestCaseData"/> type
 ///     for external API compatibility (implicit upcast from <see cref="TestCaseTestData{TTestData}"/>)
 ///   </description></item>
+/// </list>
+/// </para>
+/// <para>
+/// Both methods support two test data representation strategies via <see cref="ArgsCode"/>:
+/// <list type="table">
+///   <listheader>
+///     <term>Strategy</term>
+///     <description>Test Method Signature</description>
+///     <description>Description</description>
+///   </listheader>
+///   <item>
+///     <term><see cref="ArgsCode.Instance"/></term>
+///     <description><c>void Test(ITestData testData)</c></description>
+///     <description>Shared Style - Framework-agnostic</description>
+///   </item>
+///   <item>
+///     <term><see cref="ArgsCode.Properties"/></term>
+///     <description><c>void Test(T1 arg1, T2 arg2, ...)</c></description>
+///     <description>Native Style - Idiomatic NUnit</description>
+///   </item>
 /// </list>
 /// </para>
 /// <para>
@@ -38,7 +58,17 @@ public static class TestDataConverter
     /// </typeparam>
     /// <param name="testData">The Portamical test data to convert.</param>
     /// <param name="argsCode">
-    /// Specifies which components of the test data to include as test method arguments.
+    /// Specifies the test data representation strategy:
+    /// <list type="bullet">
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Instance"/> - Pass entire <see cref="ITestData"/> object as single argument
+    ///     (Shared Style: framework-agnostic test methods)
+    ///   </description></item>
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
+    ///     (Native Style: idiomatic NUnit test methods)
+    ///   </description></item>
+    /// </list>
     /// </param>
     /// <param name="testMethodName">
     /// Optional test method name to prepend to the test case name in the display name.
@@ -55,15 +85,40 @@ public static class TestDataConverter
     /// This extension method provides fluent syntax for calling <see cref="TestCaseTestData.From{TTestData}"/>:
     /// </para>
     /// <code>
-    /// // Fluent style (extension method):
-    /// var testCase = testData.ToTestCaseTestData(ArgsCode.InOut, "TestAdd");
+    /// // Native Style (ArgsCode.Properties):
+    /// var testCase = testData.ToTestCaseTestData(ArgsCode.Properties, "TestAdd");
+    /// 
+    /// // Shared Style (ArgsCode.Instance):
+    /// var testCase = testData.ToTestCaseTestData(ArgsCode.Instance, "TestAdd");
     /// 
     /// // Equivalent factory method style:
-    /// var testCase = TestCaseTestData.From(testData, ArgsCode.InOut, "TestAdd");
+    /// var testCase = TestCaseTestData.From(testData, ArgsCode.Properties, "TestAdd");
     /// </code>
     /// </remarks>
+    /// <example>
+    /// <para><strong>Native Style (ArgsCode.Properties):</strong></para>
+    /// <code>
+    /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
+    /// var testCase = testData.ToTestCaseTestData(ArgsCode.Properties, "TestAdd");
+    /// 
+    /// // testCase.Arguments = [2, 3]
+    /// // testCase.ExpectedResult = 5
+    /// // testCase.TestName = "TestAdd - Add(2,3)"
+    /// </code>
+    /// 
+    /// <para><strong>Shared Style (ArgsCode.Instance):</strong></para>
+    /// <code>
+    /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
+    /// var testCase = testData.ToTestCaseTestData(ArgsCode.Instance, "TestAdd");
+    /// 
+    /// // testCase.Arguments = [testData]  ← Entire ITestData object
+    /// // testCase.ExpectedResult = 5
+    /// // testCase.TestName = "TestAdd - Add(2,3)"
+    /// </code>
+    /// </example>
     /// <seealso cref="TestCaseTestData.From{TTestData}"/>
     /// <seealso cref="ToTestCaseData{TTestData}"/>
+    /// <seealso cref="ArgsCode"/>
     internal static TestCaseTestData<TTestData> ToTestCaseTestData<TTestData>(
         this TTestData testData,
         ArgsCode argsCode,
@@ -79,7 +134,17 @@ public static class TestDataConverter
     /// </typeparam>
     /// <param name="testData">The Portamical test data to convert.</param>
     /// <param name="argsCode">
-    /// Specifies which components of the test data to include as test method arguments.
+    /// Specifies the test data representation strategy:
+    /// <list type="bullet">
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Instance"/> - Pass entire <see cref="ITestData"/> object as single argument
+    ///     (Shared Style: framework-agnostic test methods)
+    ///   </description></item>
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
+    ///     (Native Style: idiomatic NUnit test methods)
+    ///   </description></item>
+    /// </list>
     /// </param>
     /// <param name="testMethodName">
     /// Optional test method name to prepend to the test case name in the display name.
@@ -126,6 +191,7 @@ public static class TestDataConverter
     /// </para>
     /// </remarks>
     /// <example>
+    /// <para><strong>Native Style (ArgsCode.Properties):</strong></para>
     /// <code>
     /// public static IEnumerable&lt;TestCaseData&gt; AddTestCases()
     /// {
@@ -136,12 +202,45 @@ public static class TestDataConverter
     ///     };
     ///     
     ///     return testData.Select(td => 
-    ///         td.ToTestCaseData(ArgsCode.InOut, nameof(TestAdd)));
+    ///         td.ToTestCaseData(ArgsCode.Properties, nameof(TestAdd)));
+    /// }
+    /// 
+    /// [TestCaseSource(nameof(AddTestCases))]
+    /// public void TestAdd(int x, int y)
+    /// {
+    ///     int result = Calculator.Add(x, y);
+    ///     // NUnit compares result with ExpectedResult
+    /// }
+    /// </code>
+    /// 
+    /// <para><strong>Shared Style (ArgsCode.Instance):</strong></para>
+    /// <code>
+    /// public static IEnumerable&lt;TestCaseData&gt; AddTestCases()
+    /// {
+    ///     var testData = new[]
+    ///     {
+    ///         new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
+    ///         new TestDataReturns&lt;int&gt;("Add(0,0)", [0, 0], 0)
+    ///     };
+    ///     
+    ///     return testData.Select(td => 
+    ///         td.ToTestCaseData(ArgsCode.Instance, nameof(TestAdd)));
+    /// }
+    /// 
+    /// [TestCaseSource(nameof(AddTestCases))]
+    /// public void TestAdd(TestDataReturns&lt;int&gt; testData)
+    /// {
+    ///     var args = testData.Args;
+    ///     var expected = testData.Expected;
+    ///     
+    ///     int result = Calculator.Add((int)args[0], (int)args[1]);
+    ///     Assert.That(result, Is.EqualTo(expected));
     /// }
     /// </code>
     /// </example>
     /// <seealso cref="ToTestCaseTestData{TTestData}"/>
     /// <seealso cref="TestCaseTestData.From{TTestData}"/>
+    /// <seealso cref="ArgsCode"/>
     internal static TestCaseData ToTestCaseData<TTestData>(
         this TTestData testData,
         ArgsCode argsCode,

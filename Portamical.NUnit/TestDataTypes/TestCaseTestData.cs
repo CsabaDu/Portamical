@@ -47,10 +47,10 @@ namespace Portamical.NUnit.TestDataTypes;
 /// </para>
 /// </remarks>
 /// <example>
-/// <para><strong>Basic Usage with Factory Method:</strong></para>
+/// <para><strong>Example 1: Native Style (ArgsCode.Properties):</strong></para>
 /// <code>
 /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
-/// var testCase = TestCaseTestData.From(testData, ArgsCode.InOut, "TestAdd");
+/// var testCase = TestCaseTestData.From(testData, ArgsCode.Properties, "TestAdd");
 /// 
 /// // Configured properties:
 /// // testCase.Arguments = [2, 3]
@@ -60,7 +60,18 @@ namespace Portamical.NUnit.TestDataTypes;
 /// // testCase.TestCaseName = "Add(2,3)"
 /// </code>
 /// 
-/// <para><strong>Integration with NUnit Test:</strong></para>
+/// <para><strong>Example 2: Shared Style (ArgsCode.Instance):</strong></para>
+/// <code>
+/// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
+/// var testCase = TestCaseTestData.From(testData, ArgsCode.Instance, "TestAdd");
+/// 
+/// // Configured properties:
+/// // testCase.Arguments = [testData]  ← Entire ITestData object
+/// // testCase.ExpectedResult = 5
+/// // testCase.TestName = "TestAdd - Add(2,3)"
+/// </code>
+/// 
+/// <para><strong>Example 3: Integration with NUnit Test (Native Style):</strong></para>
 /// <code>
 /// public static IEnumerable&lt;TestCaseData&gt; AddTestCases()
 /// {
@@ -71,23 +82,50 @@ namespace Portamical.NUnit.TestDataTypes;
 ///     };
 ///     
 ///     return testData.Select(td => 
-///         TestCaseTestData.From(td, ArgsCode.InOut, nameof(TestAdd)));
+///         TestCaseTestData.From(td, ArgsCode.Properties, nameof(TestAdd)));
 /// }
 /// 
 /// [TestCaseSource(nameof(AddTestCases))]
-/// public void TestAdd(int x, int y, int expected)
+/// public void TestAdd(int x, int y)
 /// {
-///     Assert.That(Calculator.Add(x, y), Is.EqualTo(expected));
+///     int result = Calculator.Add(x, y);
+///     // NUnit automatically compares result with ExpectedResult
 /// }
 /// 
 /// // NUnit Test Explorer displays:
 /// // ✓ TestAdd - Add(2,3)
 /// // ✓ TestAdd - Add(0,0)
 /// </code>
+/// 
+/// <para><strong>Example 4: Integration with NUnit Test (Shared Style):</strong></para>
+/// <code>
+/// public static IEnumerable&lt;TestCaseData&gt; AddTestCases()
+/// {
+///     var testData = new[]
+///     {
+///         new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
+///         new TestDataReturns&lt;int&gt;("Add(0,0)", [0, 0], 0)
+///     };
+///     
+///     return testData.Select(td => 
+///         TestCaseTestData.From(td, ArgsCode.Instance, nameof(TestAdd)));
+/// }
+/// 
+/// [TestCaseSource(nameof(AddTestCases))]
+/// public void TestAdd(TestDataReturns&lt;int&gt; testData)
+/// {
+///     var args = testData.Args;
+///     var expected = testData.Expected;
+///     
+///     int result = Calculator.Add((int)args[0], (int)args[1]);
+///     Assert.That(result, Is.EqualTo(expected));
+/// }
+/// </code>
 /// </example>
 /// <seealso cref="TestCaseTestData{TTestData}"/>
 /// <seealso cref="INamedCase"/>
 /// <seealso cref="ITestData"/>
+/// <seealso cref="ArgsCode"/>
 [SuppressMessage("SonarLint", "S4035:Classes implementing 'IEqualityComparer<T>' should be sealed",
     Justification = "This abstract base class implements IEquatable<T>, not IEqualityComparer<T>. " +
                     "The nested NamedCaseEqualityComparer that implements IEqualityComparer<T> is properly sealed.")]
@@ -174,7 +212,7 @@ public abstract class TestCaseTestData
     /// </remarks>
     /// <example>
     /// <code>
-    /// var testCase = TestCaseTestData.From(testData, ArgsCode.InOut);
+    /// var testCase = TestCaseTestData.From(testData, ArgsCode.Properties);
     /// var collection = new[] { testCase, anotherTestCase };
     /// 
     /// bool exists = testCase.ContainedBy(collection);  // true
@@ -224,9 +262,9 @@ public abstract class TestCaseTestData
     /// </remarks>
     /// <example>
     /// <code>
-    /// var testCase1 = TestCaseTestData.From(testData1, ArgsCode.InOut);  // TestCaseName: "Add(2,3)"
-    /// var testCase2 = TestCaseTestData.From(testData2, ArgsCode.InOut);  // TestCaseName: "Add(2,3)"
-    /// var testCase3 = TestCaseTestData.From(testData3, ArgsCode.InOut);  // TestCaseName: "Add(5,7)"
+    /// var testCase1 = TestCaseTestData.From(testData1, ArgsCode.Properties);  // TestCaseName: "Add(2,3)"
+    /// var testCase2 = TestCaseTestData.From(testData2, ArgsCode.Properties);  // TestCaseName: "Add(2,3)"
+    /// var testCase3 = TestCaseTestData.From(testData3, ArgsCode.Properties);  // TestCaseName: "Add(5,7)"
     /// 
     /// testCase1.Equals(testCase2);  // true (same TestCaseName)
     /// testCase1.Equals(testCase3);  // false (different TestCaseName)
@@ -256,7 +294,7 @@ public abstract class TestCaseTestData
     /// </remarks>
     /// <example>
     /// <code>
-    /// var testCase = TestCaseTestData.From(testData, ArgsCode.InOut);
+    /// var testCase = TestCaseTestData.From(testData, ArgsCode.Properties);
     /// testCase.TestCaseName = "Add(2,3)";
     /// 
     /// testCase.GetDisplayName("TestAdd");  // "TestAdd - Add(2,3)"
@@ -399,12 +437,16 @@ public abstract class TestCaseTestData
     /// and test definition.
     /// </param>
     /// <param name="argsCode">
-    /// Specifies which components of the test data to include as test method arguments:
+    /// Specifies the test data representation strategy:
     /// <list type="bullet">
-    ///   <item><term><see cref="ArgsCode.In"/></term><description>Only input arguments</description></item>
-    ///   <item><term><see cref="ArgsCode.Out"/></term><description>Only expected output (if <see cref="IReturns"/>)</description></item>
-    ///   <item><term><see cref="ArgsCode.InOut"/></term><description>Input arguments + expected output</description></item>
-    ///   <item><term><see cref="ArgsCode.Properties"/></term><description>Flattened properties (for generic tests)</description></item>
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Instance"/> - Pass entire <see cref="ITestData"/> object as single argument
+    ///     (Shared Style: framework-agnostic test methods)
+    ///   </description></item>
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
+    ///     (Native Style: idiomatic NUnit test methods)
+    ///   </description></item>
     /// </list>
     /// </param>
     /// <param name="testMethodName">
@@ -426,12 +468,32 @@ public abstract class TestCaseTestData
     /// This is the primary factory method for creating NUnit test cases from Portamical test data.
     /// It encapsulates all the complexity of configuring <see cref="TestCaseData"/> properties.
     /// </para>
+    /// <para>
+    /// <strong>ArgsCode Strategy:</strong>
+    /// <list type="table">
+    ///   <listheader>
+    ///     <term>Strategy</term>
+    ///     <description>Test Method Signature</description>
+    ///     <description>Description</description>
+    ///   </listheader>
+    ///   <item>
+    ///     <term><see cref="ArgsCode.Instance"/></term>
+    ///     <description><c>void Test(ITestData testData)</c></description>
+    ///     <description>Shared Style - Framework-agnostic</description>
+    ///   </item>
+    ///   <item>
+    ///     <term><see cref="ArgsCode.Properties"/></term>
+    ///     <description><c>void Test(T1 arg1, T2 arg2, ...)</c></description>
+    ///     <description>Native Style - Idiomatic NUnit</description>
+    ///   </item>
+    /// </list>
+    /// </para>
     /// </remarks>
     /// <example>
-    /// <para><strong>Basic Usage (Simple Test):</strong></para>
+    /// <para><strong>Example 1: Native Style (ArgsCode.Properties):</strong></para>
     /// <code>
     /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
-    /// var testCase = TestCaseTestData.From(testData, ArgsCode.InOut, "TestAdd");
+    /// var testCase = TestCaseTestData.From(testData, ArgsCode.Properties, "TestAdd");
     /// 
     /// // Configured properties:
     /// // testCase.Arguments = [2, 3]
@@ -440,7 +502,18 @@ public abstract class TestCaseTestData
     /// // testCase.TypeArgs = null (non-generic test)
     /// </code>
     /// 
-    /// <para><strong>Generic Test with Type Arguments:</strong></para>
+    /// <para><strong>Example 2: Shared Style (ArgsCode.Instance):</strong></para>
+    /// <code>
+    /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
+    /// var testCase = TestCaseTestData.From(testData, ArgsCode.Instance, "TestAdd");
+    /// 
+    /// // Configured properties:
+    /// // testCase.Arguments = [testData]  ← Entire ITestData object
+    /// // testCase.ExpectedResult = 5
+    /// // testCase.TestName = "TestAdd - Add(2,3)"
+    /// </code>
+    /// 
+    /// <para><strong>Example 3: Generic Test with Type Arguments (ArgsCode.Properties):</strong></para>
     /// <code>
     /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
     /// var testCase = TestCaseTestData.From(testData, ArgsCode.Properties, "TestGenericAdd");
@@ -452,7 +525,7 @@ public abstract class TestCaseTestData
     /// // testCase.TestName = "TestGenericAdd - Add(2,3)"
     /// </code>
     /// 
-    /// <para><strong>In Test Case Source Method:</strong></para>
+    /// <para><strong>Example 4: In Test Case Source Method (Native Style):</strong></para>
     /// <code>
     /// public static IEnumerable&lt;TestCaseData&gt; GetTestCases()
     /// {
@@ -463,13 +536,39 @@ public abstract class TestCaseTestData
     ///     };
     ///     
     ///     return testData.Select(td => 
-    ///         TestCaseTestData.From(td, ArgsCode.InOut, nameof(TestAdd)));
+    ///         TestCaseTestData.From(td, ArgsCode.Properties, nameof(TestAdd)));
     /// }
     /// 
     /// [TestCaseSource(nameof(GetTestCases))]
-    /// public void TestAdd(int x, int y, int expected)
+    /// public void TestAdd(int x, int y)
     /// {
-    ///     Assert.That(Calculator.Add(x, y), Is.EqualTo(expected));
+    ///     int result = Calculator.Add(x, y);
+    ///     // NUnit automatically compares result with ExpectedResult
+    /// }
+    /// </code>
+    /// 
+    /// <para><strong>Example 5: In Test Case Source Method (Shared Style):</strong></para>
+    /// <code>
+    /// public static IEnumerable&lt;TestCaseData&gt; GetTestCases()
+    /// {
+    ///     var testData = new[]
+    ///     {
+    ///         new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
+    ///         new TestDataReturns&lt;int&gt;("Add(0,0)", [0, 0], 0)
+    ///     };
+    ///     
+    ///     return testData.Select(td => 
+    ///         TestCaseTestData.From(td, ArgsCode.Instance, nameof(TestAdd)));
+    /// }
+    /// 
+    /// [TestCaseSource(nameof(GetTestCases))]
+    /// public void TestAdd(TestDataReturns&lt;int&gt; testData)
+    /// {
+    ///     var args = testData.Args;
+    ///     var expected = testData.Expected;
+    ///     
+    ///     int result = Calculator.Add((int)args[0], (int)args[1]);
+    ///     Assert.That(result, Is.EqualTo(expected));
     /// }
     /// </code>
     /// </example>
@@ -538,9 +637,9 @@ public abstract class TestCaseTestData
     /// <para><strong>Non-Generic Test (Returns null):</strong></para>
     /// <code>
     /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
-    /// var typeArgs = TestCaseTestData.GetTypeArgs(testData, ArgsCode.InOut);
+    /// var typeArgs = TestCaseTestData.GetTypeArgs(testData, ArgsCode.Instance);
     /// 
-    /// // Result: null (non-generic test method)
+    /// // Result: null (ArgsCode.Instance doesn't use TypeArgs)
     /// </code>
     /// 
     /// <para><strong>Generic Test with IReturns (Excludes TExpected):</strong></para>
@@ -617,10 +716,16 @@ public abstract class TestCaseTestData
     /// </summary>
     /// <param name="testData">The test data containing arguments and expected result.</param>
     /// <param name="argsCode">
-    /// Specifies which components to include in the argument array:
+    /// Specifies the test data representation strategy:
     /// <list type="bullet">
-    ///   <item><term><see cref="ArgsCode.Instance"/></term><description>TestData instance</description></item>
-    ///   <item><term><see cref="ArgsCode.Properties"/></term><description>Flattened properties</description></item>
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Instance"/> - Pass entire <see cref="ITestData"/> object as single argument
+    ///     (Shared Style)
+    ///   </description></item>
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
+    ///     (Native Style)
+    ///   </description></item>
     /// </list>
     /// </param>
     /// <returns>
@@ -653,40 +758,41 @@ public abstract class TestCaseTestData
     /// </para>
     /// </remarks>
     /// <example>
-    /// <para><strong>Test with Input and Expected Result:</strong></para>
+    /// <para><strong>Native Style (ArgsCode.Properties):</strong></para>
     /// <code>
     /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
-    /// var args = TestCaseTestData.TestCaseDataArgsFrom(testData, ArgsCode.InOut);
+    /// var args = TestCaseTestData.TestCaseDataArgsFrom(testData, ArgsCode.Properties);
     /// 
     /// // Result: [2, 3]
     /// // Note: Expected result (5) is excluded from args
     /// //       It will be set via: testCase.ExpectedResult = 5
     /// </code>
     /// 
-    /// <para><strong>Test with Only Input:</strong></para>
+    /// <para><strong>Shared Style (ArgsCode.Instance):</strong></para>
     /// <code>
-    /// var testData = new TestData&lt;int&gt;("Print(42)", [42]);
-    /// var args = TestCaseTestData.TestCaseDataArgsFrom(testData, ArgsCode.In);
+    /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
+    /// var args = TestCaseTestData.TestCaseDataArgsFrom(testData, ArgsCode.Instance);
     /// 
-    /// // Result: [42]
+    /// // Result: [testData]  ← Entire ITestData object
     /// </code>
     /// 
-    /// <para><strong>Comparison: With vs Without TrimReturnsExpected:</strong></para>
+    /// <para><strong>Comparison: ArgsCode.Properties vs ArgsCode.Instance:</strong></para>
     /// <code>
     /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
     /// 
-    /// // ✅ CORRECT (with TrimReturnsExpected):
-    /// testData.ToArgs(ArgsCode.InOut, PropsCode.TrimReturnsExpected)
-    /// // Result: [2, 3]
+    /// // Native Style (ArgsCode.Properties):
+    /// testData.ToArgs(ArgsCode.Properties, PropsCode.TrimReturnsExpected)
+    /// // Result: [2, 3]  ← Flattened properties
     /// 
-    /// // ❌ WRONG (without TrimReturnsExpected):
-    /// testData.ToArgs(ArgsCode.InOut, PropsCode.All)
-    /// // Result: ["Add(2,3)", 2, 3, 5]  ← Includes TestCaseName + Expected (breaks NUnit)
+    /// // Shared Style (ArgsCode.Instance):
+    /// testData.ToArgs(ArgsCode.Instance, PropsCode.TrimReturnsExpected)
+    /// // Result: [testData]  ← Entire object
     /// </code>
     /// </example>
     /// <seealso cref="ITestData.ToArgs(ArgsCode, PropsCode)"/>
     /// <seealso cref="PropsCode.TrimReturnsExpected"/>
     /// <seealso cref="TestCaseData.ExpectedResult"/>
+    /// <seealso cref="ArgsCode"/>
     public static object?[] TestCaseDataArgsFrom(
         ITestData testData,
         ArgsCode argsCode)
@@ -743,7 +849,7 @@ public abstract class TestCaseTestData
 /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
 /// var testCase = new TestCaseTestData&lt;TestDataReturns&lt;int&gt;&gt;(
 ///     testData,
-///     ArgsCode.InOut,
+///     ArgsCode.Properties,
 ///     "TestAdd");
 /// 
 /// // Configured properties:
@@ -758,7 +864,7 @@ public abstract class TestCaseTestData
 /// 
 /// <para><strong>Recommended: Use Factory Method:</strong></para>
 /// <code>
-/// var testCase = TestCaseTestData.From(testData, ArgsCode.InOut, "TestAdd");
+/// var testCase = TestCaseTestData.From(testData, ArgsCode.Properties, "TestAdd");
 /// // Same result as direct construction, but cleaner syntax
 /// </code>
 /// 
@@ -777,13 +883,14 @@ public abstract class TestCaseTestData
 ///         };
 ///         
 ///         return testData.Select(td => 
-///             TestCaseTestData.From(td, ArgsCode.InOut, nameof(TestAdd)));
+///             TestCaseTestData.From(td, ArgsCode.Properties, nameof(TestAdd)));
 ///     }
 ///     
 ///     [TestCaseSource(nameof(AddTestCases))]
-///     public void TestAdd(int x, int y, int expected)
+///     public void TestAdd(int x, int y)
 ///     {
-///         Assert.That(Calculator.Add(x, y), Is.EqualTo(expected));
+///         int result = Calculator.Add(x, y);
+///         // NUnit automatically compares result with ExpectedResult
 ///     }
 /// }
 /// 
@@ -814,14 +921,16 @@ where TTestData : notnull, ITestData
     /// </list>
     /// </param>
     /// <param name="argsCode">
-    /// Specifies which components to include in the test method arguments:
+    /// Specifies the test data representation strategy:
     /// <list type="bullet">
-    ///   <item><term><see cref="ArgsCode.In"/></term><description>Only input arguments</description></item>
-    ///   <item><term><see cref="ArgsCode.Out"/></term><description>Only expected output</description></item>
-    ///   <item><term><see cref="ArgsCode.InOut"/></term><description>Both input and expected output</description></item>
-    ///   <item><term><see cref="ArgsCode.Properties"/></term>
-    ///     <description>Flattened properties (sets <see cref="TestCaseData.TypeArgs"/> for generic tests)</description>
-    ///   </item>
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Instance"/> - Pass entire <see cref="ITestData"/> object as single argument
+    ///     (Shared Style: framework-agnostic test methods)
+    ///   </description></item>
+    ///   <item><description>
+    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
+    ///     (Native Style: idiomatic NUnit test methods)
+    ///   </description></item>
     /// </list>
     /// </param>
     /// <param name="testMethodName">
@@ -871,12 +980,12 @@ where TTestData : notnull, ITestData
     /// </para>
     /// </remarks>
     /// <example>
-    /// <para><strong>Test with Expected Result:</strong></para>
+    /// <para><strong>Native Style (ArgsCode.Properties):</strong></para>
     /// <code>
     /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
     /// var testCase = new TestCaseTestData&lt;TestDataReturns&lt;int&gt;&gt;(
     ///     testData,
-    ///     ArgsCode.InOut,
+    ///     ArgsCode.Properties,
     ///     "TestAdd");
     /// 
     /// // Configured properties:
@@ -884,6 +993,21 @@ where TTestData : notnull, ITestData
     /// // testCase.ExpectedResult = 5
     /// // testCase.TestName = "TestAdd - Add(2,3)"
     /// // testCase.TypeArgs = null (non-generic test)
+    /// </code>
+    /// 
+    /// <para><strong>Shared Style (ArgsCode.Instance):</strong></para>
+    /// <code>
+    /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
+    /// var testCase = new TestCaseTestData&lt;TestDataReturns&lt;int&gt;&gt;(
+    ///     testData,
+    ///     ArgsCode.Instance,
+    ///     "TestAdd");
+    /// 
+    /// // Configured properties:
+    /// // testCase.Arguments = [testData]  ← Entire ITestData object
+    /// // testCase.ExpectedResult = 5
+    /// // testCase.TestName = "TestAdd - Add(2,3)"
+    /// // testCase.TypeArgs = null (Instance strategy doesn't use TypeArgs)
     /// </code>
     /// 
     /// <para><strong>Generic Test with Type Arguments:</strong></para>
@@ -910,7 +1034,7 @@ where TTestData : notnull, ITestData
     /// var testData = new TestData&lt;string&gt;("Print('hello')", ["hello"]);
     /// var testCase = new TestCaseTestData&lt;TestData&lt;string&gt;&gt;(
     ///     testData,
-    ///     ArgsCode.In,
+    ///     ArgsCode.Properties,
     ///     null);  // ← No method name prefix
     /// 
     /// // Configured properties:
