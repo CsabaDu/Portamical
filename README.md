@@ -550,9 +550,9 @@ void Test(TestData<DateOnly> testData) { ... }
 #### 2. **Instance Mode** (`ArgsCode.Instance` or `ConvertAsInstance`)
 
 ```csharp
-// v2.0 - New ConvertAsInstance method (recommended)
+// v2.0 - Uses the new ConvertAsInstance method
 public static IEnumerable<object?[]> Data 
-    => ConvertAsInstance(dataSource.GetArgs());
+    => Convert(dataSource.GetArgs());
 
 // Alternative: Explicit ArgsCode
 public static IEnumerable<object?[]> Data 
