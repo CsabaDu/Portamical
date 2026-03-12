@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-2.0.0--beta-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 [![Stars](https://img.shields.io/github/stars/CsabaDu/Portamical?style=social)](https://github.com/CsabaDu/Portamical/stargazers)
 
@@ -417,7 +417,13 @@ NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
 
 ---
 
-### Core Data Model Class Diagram
+### Four-layered Core Data Model
+
+The type system of the core data model forms a coherent four-layer architecture. This layered DTO design enables type-safe test data composition while preserving an intuitive, discoverable hierarchy. Each concrete `TestData` instance can be accessed through one of four progressively specialized entry points:
+- `INamedCase` - the foundational interface used for semantic identification, equality, and deduplication,
+- `ITestData` - the non-generic core interface for reflection-based or dynamically typed handling,
+- `IExpected`, `IReturns`, and `IThrows` - specialization markers that expose the semantic category of the expected outcome,
+- The concrete generic DTO type - the fully typed representation used for compile-time safety and strongly typed operations.  
 
 ![Portamical_Core_Datamodel_ClassDiagram_Simplified](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Core_Datamodel_ClassDiagram_Simplified.svg)
 
