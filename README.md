@@ -709,6 +709,12 @@ dotnet build
 
 Thin, optional adapters bridge Portamical to each test runner:
 
+**Key:** v2.0 introduces thread-safe `Convert()` overloads. Each framework uses its native return type:
+- **MSTest:** `IEnumerable<object?[]>`
+- **NUnit:** `IEnumerable<TestCaseTestData>`
+- **xUnit v2:** `TestDataProvider<T>`
+- **xUnit v3:** `TheoryTestData<T>`
+
 | Project | Framework | Version | Key Integration | Package Reference |
 |---------|-----------|---------|-----------------|-------------------|
 | `Portamical.xUnit` | xUnit v2 | **2.0.0-beta** | `PortamicalDataAttribute`, `TestDataProvider<T>`, `TheoryData<T>` support | `xunit.core` 2.9.3 |
@@ -716,6 +722,11 @@ Thin, optional adapters bridge Portamical to each test runner:
 | `Portamical.MSTest` | MSTest 4 (4.0.2+) | **2.0.0-beta** | `PortamicalDataAttribute` | `MSTest.TestFramework` 4.0.2 |
 | `Portamical.NUnit` | NUnit 4 (4.4.0+) | **2.0.0-beta** | `PortamicalDataAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
 
+---
+
+### Same Data Source, Four Frameworks (v2.0 Syntax)
+
+```csharp
 ### Same Data Source, Four Frameworks (v2.0 Syntax)
 
 ```csharp
@@ -727,9 +738,9 @@ private static IEnumerable<object?[]> Args
     => Convert(_dataSource.GetConstructorValidArgs());
 [TestMethod, PortamicalData(nameof(Args))]
 
-// NUnit (v2.0 - ConvertAsInstance)
-public static IEnumerable<object?[]> Args 
-    => ConvertAsInstance(_dataSource.GetConstructorValidArgs());
+// NUnit (v2.0)
+public static IEnumerable<TestCaseTestData> Args 
+    => Convert(_dataSource.GetConstructorValidArgs());
 [Test, PortamicalData(nameof(Args))]
 
 // xUnit v2 (v2.0)
@@ -743,7 +754,16 @@ public static TheoryTestData<TestData<DateOnly>> Args
 [Theory, PortamicalData(nameof(Args))]
 ```
 
-**Key:** v2.0 introduces `ConvertAsInstance()` for cleaner instance-mode conversion. All Portamical-specific `TestBase` classes use the `[PortamicalData]` attribute, while framework-agnostic patterns use standard attributes (`[MemberData]`, `[DynamicData]`, `[TestCaseSource]`).
+**Key differences across frameworks:**
+
+| Framework | Return Type | Method Visibility | Attribute |
+|-----------|-------------|-------------------|-----------|
+| MSTest | `IEnumerable<object?[]>` | `private static` | `[TestMethod, PortamicalData]` |
+| NUnit | `IEnumerable<TestCaseTestData>` | `public static` | `[Test, PortamicalData]` |
+| xUnit v2 | `TestDataProvider<T>` | `public static` | `[Theory, PortamicalData]` |
+| xUnit v3 | `TheoryTestData<T>` | `public static` | `[Theory, PortamicalData]` |
+
+All Portamical-specific `TestBase` classes use the `[PortamicalData]` attribute, while framework-agnostic patterns use standard attributes (`[MemberData]`, `[DynamicData]`, `[TestCaseSource]`).
 
 ---
 
