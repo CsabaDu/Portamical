@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: MIT
-// Copyright (c) 2025. Csaba Dudas (CsabaDu)
+// Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 namespace Portamical.DataProviders;
 
@@ -7,8 +7,17 @@ namespace Portamical.DataProviders;
 /// Defines a contract for providing and managing test data rows, along with associated command-line arguments and test
 /// method metadata.
 /// </summary>
-/// <typeparam name="TTestData">The type of test data row managed by the provider. Must implement ITestData and cannot be null.</typeparam>
-public interface ITestDataProvider<TTestData>
+/// <typeparam name="TTestData">
+/// The type of test data row managed by the provider. Must implement <see cref="ITestData"/> and cannot be null.
+/// <para>
+/// <strong>Contravariance:</strong> Marked as contravariant (<c>in</c>) to enable using providers that accept
+/// base types for variables typed with derived types. For example, a provider implementing
+/// <c>ITestDataProvider&lt;ITestData&gt;</c> can be assigned to a variable of type
+/// <c>ITestDataProvider&lt;TestDataReturns&lt;int&gt;&gt;</c> because <c>TestDataReturns&lt;int&gt;</c>
+/// is derived from <c>ITestData</c>.
+/// </para>
+/// </typeparam>
+public interface ITestDataProvider<in TTestData>
 where TTestData : notnull, ITestData
 {
     /// <summary>

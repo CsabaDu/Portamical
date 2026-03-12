@@ -5,14 +5,17 @@ using Portamical.DataProviders;
 
 namespace Portamical.Converters;
 
-/// <summary>
-/// Provides extension methods for converting collections of test data to distinct, read-only collections and for
-/// transforming test data collections into data provider formats suitable for parameterized testing.
-/// </summary>
-/// <remarks>The methods in this class help ensure that test data collections are deduplicated based on their
-/// identity and are returned in immutable forms. These utilities are intended for use in test scenarios where unique,
-/// read-only collections or data provider objects are required. All methods are static and are designed to be used as
-/// extension methods on <see cref="IEnumerable{TTestData}" />.</remarks>
+/// <remarks>
+/// <para>
+/// The methods in this class help ensure that test data collections are deduplicated based on test case
+/// identity (via <see cref="INamedCase.TestCaseName"/>) and are returned in immutable forms.
+/// </para>
+/// <para>
+/// <strong>Deduplication Strategy:</strong> Uses <see cref="NamedCase.Comparer"/> for semantic equality
+/// based on test case names, not reference equality. This ensures that test data with identical
+/// <c>TestCaseName</c> values are treated as duplicates, with the first occurrence retained.
+/// </para>
+/// </remarks>
 public static class CollectionConverter
 {
     /// <summary>
@@ -22,6 +25,20 @@ public static class CollectionConverter
     /// <param name="testDataCollection">The collection of test data elements from which to create a distinct, read-only collection. Cannot be null.</param>
     /// <returns>A read-only collection containing the distinct elements from the input collection. The order of elements is
     /// preserved from the original collection.</returns>
+    /// <example>
+    /// <code>
+    /// // Basic deduplication
+    /// var testData = new[]
+    /// {
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate
+    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
+    /// };
+    /// 
+    /// var distinct = testData.ToDistinctArray();
+    /// // Result: 2 elements (duplicate removed based on TestCaseName)
+    /// </code>
+    /// </example>
     public static TTestData[] ToDistinctArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
@@ -143,22 +160,13 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        _ = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
-        _ = NotNull(convertRow, nameof(convertRow));
-
         // Deduplicate based on 'NamedCase' identity/equality semantics
         var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-        var rowList = new List<TRow>();
+        var rows = NotNullOrEmpty(
+            testDataCollection, nameof(testDataCollection))
+            .Where(testData => namedCases.Add(testData))
+            .Select(NotNull(convertRow, nameof(convertRow)));
 
-        foreach (var testData in testDataCollection)
-        {
-            if (namedCases.Add(testData))
-            {
-                var row = convertRow(testData);
-                rowList.Add(row);
-            }
-        }
-
-        return [.. rowList];
+        return [.. rows];
     }
 }

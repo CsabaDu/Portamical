@@ -14,13 +14,14 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical.Core</RepositoryUrl>
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3;</PackageTags>
-    <PackageReleaseNotes>- T4 Generated Code: All generated files (`TestDataFactory.generated.cs`, `TestData.generated.cs`, `TestDataReturns.generated.cs`, `TestDataThrows.generated.cs`) include explicit `#nullable enable` directive for enhanced null-safety compliance with C# nullable reference types.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Version>1.0.3</Version>
+    <Version>2.0.0-beta</Version>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <PackageOutputPath>$(OutputPath)</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
