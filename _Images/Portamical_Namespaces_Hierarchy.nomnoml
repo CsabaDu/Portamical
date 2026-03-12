@@ -174,12 +174,18 @@ Attributes
 // Portamical
 [<package> Portamical
 |
+[<contract>DataProviders]
+[<static>Converters]
 [<abstract>TestBases]
 [<abstract>TestBases.TestDataCollection]
 [<abstract>TestBases.ObjectArrayCollection]
-[<contract>DataProviders]
-[<static>Converters]
 [<abstract>Assertions]
+
+[
+Converters
+] <-- [
+TestBases
+]
 
 [
 TestBases

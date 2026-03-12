@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../Portamical.Core/Portamical.Core.csproj" />
+  <Project Path="Portamical.Core/Tests.Portamical.Core.csproj" />
+</Solution>
