@@ -408,6 +408,8 @@ src/Utilities/
 
 The names tell you **what the system does**, not **how** it's organized technically.
 
+---
+
 **Thin Adapter Layer (Minimal Translation Code)**
 
 Framework adapters are thin wrappers (typically <200 lines per adapter):
