@@ -323,11 +323,13 @@ dotnet test
 
 Portamical applies **two compatible views** of the same design goal: keep the domain stable and push framework details to the edge.
 
+---
+
 #### Onion Architecture (layering view)
 
 Onion architecture describes **where code lives** and **how dependencies flow**: outer layers depend on inner layers.
 
-#### Architectural Diagram
+**Architectural Diagram**
 
 ```
 ┌────────────────────────────────────────────────┐
@@ -351,6 +353,12 @@ Onion architecture describes **where code lives** and **how dependencies flow**:
 └────────────────────────────────────────────────┘
 ```
 
+**Dependency Flow Rules:**
+1. **All arrows point inward** toward `Portamical.Core` (Dependency Inversion Principle)
+2. **No backward dependencies** — Framework adapters never influence the core
+
+---
+
 #### Hexagonal Architecture (ports & adapters view)
 
 Hexagonal architecture describes **integration points**: the domain exposes **ports** (contracts) and outer layers provide **adapters** (implementations) for specific frameworks.
@@ -361,15 +369,15 @@ Hexagonal architecture describes **integration points**: the domain exposes **po
 
 In short: **Onion = layers**, **Hexagonal = ports/adapters**; both ensure `Portamical.Core` stays framework-agnostic.
 
-**Key Principle:** Portamical.Core has zero external dependencies, ensuring maximum portability and future-proofing. This is the essence of **Hexagonal Architecture**: the domain is a closed hexagon with **ports** (interfaces) that **adapters** plug into from the outside.
+The following diagram shows the complete namespace structure and dependency flow across all 6 packages.
 
-**Screaming Architecture (Structure Reveals Intent)**
+**Namespace Hierarchy Diagram**
 
 The following diagram shows the complete namespace structure and dependency flow across all 6 packages.
 
 ![Portamical_Namespaces_Hierarchy](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Namespaces_Hierarchy.svg)
 
-#### Reading the Diagram
+**Reading the Diagram**
 
 **Color Coding:**
 - 🟢 ***Green (contract)*** — Interfaces defining contracts (`INamedCase`, `ITestData`, `IExpected`)
@@ -378,11 +386,9 @@ The following diagram shows the complete namespace structure and dependency flow
 - 🔵 <u>**Blue (static)**</u> — Static utility classes (`TestDataFactory`, `Converters`, `Strategy`)
 - 📦 **Package** — External framework dependencies (`xunit.core`, `MSTest.TestFramework`, `NUnitLite`)
 
-**Dependency Flow Rules:**
-1. **All arrows point inward** toward `Portamical.Core` (Dependency Inversion Principle)
-2. **No backward dependencies** — Framework adapters never influence the core
-3. **T4 appears as a namespace** because generated code depends on `SharedHelpers.ttinclude`
+---
 
+**Screaming Architecture (Structure Reveals Intent)**
 
 The folder/namespace structure reveals the domain concepts:
 
