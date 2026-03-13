@@ -966,7 +966,7 @@ Thin, optional adapters bridge Portamical to each test runner:
 | Project | Framework | Version | Key Integration | Package Reference |
 |---------|-----------|---------|-----------------|-------------------|
 | `Portamical.xUnit` | xUnit v2 | **2.0.0** | `PortamicalDataAttribute`, `TestDataProvider<T>`, `TheoryData<T>` support | `xunit.core` 2.9.3 |
-| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | **2.0.0** | `PortamicalDataAttribute`, `TheoryTestData<T>`, `ITheoryTestDataRow` ✨ **Fully documented (~7K lines)** | `xunit.v3` 3.2.2 |
+| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | **2.0.0** | `PortamicalDataAttribute`, `TheoryTestData<T>`, `ITheoryTestDataRow` | `xunit.v3` 3.2.2 |
 | `Portamical.MSTest` | MSTest 4 (4.0.2+) | **2.0.0** | `PortamicalDataAttribute` | `MSTest.TestFramework` 4.0.2 |
 | `Portamical.NUnit` | NUnit 4 (4.4.0+) | **2.0.0** | `PortamicalDataAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
 
@@ -1319,7 +1319,7 @@ If you are using `CsabaDu.DynamicTestData.Core`:
 - 📦 `Portamical.MSTest` 2.0.0
 - 📦 `Portamical.NUnit` 2.0.0
 - 📦 `Portamical.xUnit` 2.0.0
-- 📦 `Portamical.xUnit_v3` 2.0.0 ✨ **Fully documented**
+- 📦 `Portamical.xUnit_v3` 2.0.0
 
 **Known Issues:**
 - ⚠️ .NET 10 is in preview; production apps should wait for stable release
