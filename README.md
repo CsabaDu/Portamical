@@ -319,9 +319,13 @@ dotnet test
 
 ## Architecture
 
-### Layered Design: Onion Architecture / Hexagonal Architecture
+### Layered Design: Onion Architecture & Hexagonal Architecture
 
-Portamical implements **Onion Architecture** (also known as **Hexagonal Architecture** or **Ports and Adapters**) to achieve maximum portability, testability, and maintainability. This architectural style organizes code into concentric layers with dependencies pointing **inward** toward the core domain.
+Portamical applies **two compatible views** of the same design goal: keep the domain stable and push framework details to the edge.
+
+#### Onion Architecture (layering view)
+
+Onion architecture describes **where code lives** and **how dependencies flow**: outer layers depend on inner layers.
 
 #### Architectural Diagram
 
@@ -347,74 +351,19 @@ Portamical implements **Onion Architecture** (also known as **Hexagonal Architec
 └────────────────────────────────────────────────┘
 ```
 
-#### Onion/Hexagonal Architecture Principles in Portamical
+#### Hexagonal Architecture (ports & adapters view)
 
-**1. Dependency Inversion (All arrows point inward)**
+Hexagonal architecture describes **integration points**: the domain exposes **ports** (contracts) and outer layers provide **adapters** (implementations) for specific frameworks.
 
-The **Dependency Inversion Principle (DIP)** is the cornerstone of Onion Architecture:
+- **Ports (in the domain):** core contracts such as `INamedCase`, `ITestData`, `IExpected`, `IReturns`, `IThrows`.
+- **Adapters (at the edge):** `Portamical.xUnit`, `Portamical.xUnit_v3`, `Portamical.MSTest`, `Portamical.NUnit` translate the domain model into runner-specific concepts (attributes, theory/testcase sources, display names, etc.).
+- **Shared adapter surface:** `Portamical` provides common building blocks (`Converters`, `TestBases`, `Assertions`, `DataProviders`) used by all adapters.
 
-- Inner layers define abstractions (`ITestData`, `INamedCase`) that outer layers implement
-- No backward dependencies: Framework adapters never influence the core domain
-- Pure domain: `Portamical.Core` has zero external package dependencies
+In short: **Onion = layers**, **Hexagonal = ports/adapters**; both ensure `Portamical.Core` stays framework-agnostic.
 
-```csharp
-// Domain Layer (Portamical.Core): DEFINES the contract
-namespace Portamical.Core.TestDataTypes
-{
-    public interface ITestData : INamedCase
-    {
-        object?[] ToArgs(ArgsCode argsCode, PropsCode propsCode = default, string? testMethodName = null);
-    }
-}
+**Key Principle:** Portamical.Core has zero external dependencies, ensuring maximum portability and future-proofing. This is the essence of **Hexagonal Architecture**: the domain is a closed hexagon with **ports** (interfaces) that **adapters** plug into from the outside.
 
-// Adapter Layer (Portamical.xUnit_v3): IMPLEMENTS the contract
-namespace Portamical.xUnit_v3.DataProviders
-{
-    public class TheoryTestData<TTestData> : TheoryData<TTestData>
-        where TTestData : notnull, ITestData  // Depends on domain abstraction
-    {
-        // xUnit v3-specific implementation
-    }
-}
-```
-
-**2. Ports and Adapters (Hexagonal Architecture Terminology)**
-
-- **Port (Interface):** `ITestData`, `INamedCase`, `IExpected`, `IReturns`, `IThrows`
-- **Adapter (Implementation):**
-  - **Driving Adapter (Primary):** `TestDataFactory` (drives domain from outside via factory methods)
-  - **Driven Adapter (Secondary):** Framework-specific converters (`ToTheoryTestData`, `ToTestCaseTestData`)
-
-**3. Domain Isolation (Zero External Dependencies)**
-
-The `Portamical.Core` layer is pure C# with no external NuGet packages:
-
-```xml
-<!-- Portamical.Core/Portamical.Core.csproj -->
-<ItemGroup>
-  <!-- NO <PackageReference> elements — ZERO dependencies -->
-</ItemGroup>
-```
-
-**Why this matters:**
-- **Portability:** Core domain can run anywhere .NET 10+ runs
-- **Stability:** No risk of breaking changes from external packages
-- **Testability:** Domain logic tests have no framework dependencies
-- **Longevity:** Core domain outlives individual test frameworks
-
-**4. Layered Testing (Test the Domain, Not the Adapters)**
-
-```
-Tests for Portamical.Core       ← Domain logic tests (framework-agnostic)
-    ↓ depend on
-Portamical.Core                 ← Pure business logic
-    ↑ depended on by
-Tests for Portamical.xUnit_v3   ← Adapter-specific tests (use xUnit)
-    ↓ depend on
-Portamical.xUnit_v3             ← Adapter implementation
-```
-
-**5. Screaming Architecture (Structure Reveals Intent)**
+**Screaming Architecture (Structure Reveals Intent)**
 
 The folder/namespace structure reveals the domain concepts:
 
@@ -436,7 +385,7 @@ src/Utilities/
 
 The names tell you **what the system does**, not **how** it's organized technically.
 
-**6. Thin Adapter Layer (Minimal Translation Code)**
+**Thin Adapter Layer (Minimal Translation Code)**
 
 Framework adapters are thin wrappers (typically <200 lines per adapter):
 
@@ -446,8 +395,6 @@ Framework adapters are thin wrappers (typically <200 lines per adapter):
 | **xUnit v2** | ~180 | Moderate | Adds `TestDataProvider<T>` wrapper |
 | **NUnit** | ~190 | Moderate | Adds `TestCaseTestData` wrapper with NUnit metadata |
 | **xUnit v3** | ~250 | Complex | Implements `ITheoryTestDataRow` + `TheoryTestData<T>` container |
-
-**Key Insight:** Complexity is not in the adapters—it's encapsulated in the domain (`Portamical.Core`).
 
 ---
 
@@ -463,44 +410,7 @@ Framework adapters are thin wrappers (typically <200 lines per adapter):
 
 ---
 
-#### Contrast: Traditional Layered Architecture vs. Onion Architecture
-
-| Aspect | Traditional Layers | Onion/Hexagonal (Portamical) |
-|--------|-------------------|------------------------------|
-| **Dependency Direction** | Top → Down (UI → Business → Data) | Outside → Inside (Adapters → Domain) |
-| **Core Layer** | Database/ORM (EF Core, Dapper) | Pure domain models (`ITestData`) |
-| **Infrastructure** | Bottom layer (Data Access) | Outermost layer (Framework adapters) |
-| **Testability** | Hard (requires mocking DB) | Easy (domain has zero dependencies) |
-| **Coupling** | High (business logic depends on DB) | Low (adapters depend on domain) |
-
-**Traditional (Bad):**
-```
-UI Layer (depends on)
-    ↓
-Business Layer (depends on)
-    ↓
-Data Access Layer (depends on)
-    ↓
-Database (SQLServer, PostgreSQL, etc.)
-```
-
-**Onion (Good—Portamical):**
-```
-Outer: Framework Adapters (xUnit, MSTest, NUnit)
-    ↓ depend on
-Middle: Shared Utilities (Converters, Assertions)
-    ↓ depend on
-Core: Domain Logic (ITestData, TestDataFactory)
-    (No dependencies—pure C#)
-```
-
----
-
-**Key Principle:** Portamical.Core has zero external dependencies, ensuring maximum portability and future-proofing. This is the essence of **Hexagonal Architecture**: the domain is a closed hexagon with **ports** (interfaces) that **adapters** plug into from the outside.
-
----
-
-### Namespace Dependency Diagram
+#### Namespace Dependency Diagram
 
 The following diagram shows the complete namespace structure and dependency flow across all 6 packages. Understanding this architecture is key to grasping how Portamical achieves cross-framework portability.
 
@@ -575,7 +485,9 @@ This is why every test data object has a `TestCaseName` property and identity-ba
 
 ---
 
-### Class Hierarchy (Template Method + Composite Patterns)
+### **Cor Test Data Model**
+
+#### Class Hierarchy (Template Method + Composite Patterns)
 
 ```
 NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
@@ -599,7 +511,7 @@ NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
 
 ---
 
-### Four-layered Core Data Model
+### Four-layered Data Model
 
 The type system of `Portamical.Core` forms a coherent four-layer architecture that progressively specializes from foundational identity concerns to fully typed, framework-consumable data transfer objects (DTOs). This layered design embodies the Separation of Concerns principle while maintaining a discoverable, intuitive API surface.
 
