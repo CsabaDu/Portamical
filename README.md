@@ -469,7 +469,7 @@ All 4 framework adapters follow the same template:
 ```
 Assertions (abstract)
 Converters (static) → TestBases (abstract)
-Attribute (concrete)
+Attributes (concrete)
 ```
 
 This standardization makes adding new framework adapters straightforward.
