@@ -435,7 +435,7 @@ Framework adapters are thin wrappers (typically <200 lines per adapter):
 
 ---
 
-#### Key Architectural Insights
+### Key Architectural Insights
 
 **1. Framework Adapter Complexity:**
 
@@ -467,7 +467,9 @@ Portamical.Core:
 All 4 framework adapters follow the same template:
 
 ```
-Converters (static) → TestBases (abstract) → Assertions (abstract)
+Assertions (abstract)
+Converters (static) → TestBases (abstract)
+Attribute (concrete)
 ```
 
 This standardization makes adding new framework adapters straightforward.
