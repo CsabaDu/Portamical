@@ -485,31 +485,7 @@ This is why every test data object has a `TestCaseName` property and identity-ba
 
 ---
 
-### **Cor Test Data Model**
-
-#### Class Hierarchy (Template Method + Composite Patterns)
-
-```
-NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
- └── TestDataBase (abstract) : ITestData
-      ├── TestData<T1..T9> (abstract)
-      │    └── [T4-generated: TestData<T1> → ... → TestData<T1,...,T9>]
-      └── TestDataExpected<TResult> (abstract) : IExpected<TResult>
-           ├── TestDataReturns<TStruct> : IReturns<TStruct>
-           │    └── [T4-generated: TestDataReturns<TStruct,T1> → ... → <TStruct,T1,...,T9>]
-           └── TestDataThrows<TException> : IThrows<TException>
-                └── [T4-generated: TestDataThrows<TException,T1> → ... → <TException,T1,...,T9>]
-```
-
-**Pattern Application:**
-
-- **Template Method:** `TestDataBase.ToArgs()` defines the algorithm skeleton; subclasses override `ToObjectArray(ArgsCode)` to customize behavior
-- **Composite:** All test data types implement `ITestData`, enabling uniform treatment across collections
-- **T4 Code Generation:** Eliminates 27 classes worth of boilerplate while maintaining compile-time type safety
-
-**Key:** T4 code generation eliminates 27 classes worth of boilerplate while maintaining type safety.
-
----
+### **Core Test Data Model**
 
 ### Four-layered Data Model
 
@@ -680,6 +656,30 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized
 | **Core Abstraction** | Framework adapter integration | Converters work with `ITestData` without knowing if it's `TestData<int>` or `TestDataReturns<bool, string>` |
 | **Semantic Specialization** | Assertion strategy selection | `if (testData is IReturns<int> returns) Assert.AreEqual(returns.Expected, actual);` |
 | **Concrete DTOs** | Compile-time type safety | `void Test(TestData<DateOnly> testData) => var date = testData.Arg1;  // No casting` |
+
+---
+
+#### Class Hierarchy (Template Method + Composite Patterns)
+
+```
+NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
+ └── TestDataBase (abstract) : ITestData
+      ├── TestData<T1..T9> (abstract)
+      │    └── [T4-generated: TestData<T1> → ... → TestData<T1,...,T9>]
+      └── TestDataExpected<TResult> (abstract) : IExpected<TResult>
+           ├── TestDataReturns<TStruct> : IReturns<TStruct>
+           │    └── [T4-generated: TestDataReturns<TStruct,T1> → ... → <TStruct,T1,...,T9>]
+           └── TestDataThrows<TException> : IThrows<TException>
+                └── [T4-generated: TestDataThrows<TException,T1> → ... → <TException,T1,...,T9>]
+```
+
+**Pattern Application:**
+
+- **Template Method:** `TestDataBase.ToArgs()` defines the algorithm skeleton; subclasses override `ToObjectArray(ArgsCode)` to customize behavior
+- **Composite:** All test data types implement `ITestData`, enabling uniform treatment across collections
+- **T4 Code Generation:** Eliminates 27 classes worth of boilerplate while maintaining compile-time type safety
+
+**Key:** T4 code generation eliminates 27 classes worth of boilerplate while maintaining type safety.
 
 ---
 
