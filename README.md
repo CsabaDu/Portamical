@@ -369,8 +369,6 @@ Hexagonal architecture describes **integration points**: the domain exposes **po
 
 In short: **Onion = layers**, **Hexagonal = ports/adapters**; both ensure `Portamical.Core` stays framework-agnostic.
 
-The following diagram shows the complete namespace structure and dependency flow across all 6 packages.
-
 **Namespace Hierarchy Diagram**
 
 The following diagram shows the complete namespace structure and dependency flow across all 6 packages.
