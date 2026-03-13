@@ -14,12 +14,19 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical.Core</RepositoryUrl>
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3;</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>Note: This version does not introduce breaking changes in Portamical.Core itself. The major version bump to 2.0.0 aligns with the Portamical extension packages, where new versions may introduce rare breaking changes. The version number synchronization ensures consistency across the Portamical ecosystem.  
+
+Major Enhancements:  
+- Comprehensive XML Documentation;  
+- Core Infrastructure Improvements;  
+- T4 Template Improvements;  
+- Build Configuration;  
+- Code Quality Improvements.</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Version>2.0.0-beta</Version>
+    <Version>2.0.0</Version>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <PackageOutputPath>$(OutputPath)</PackageOutputPath>
   </PropertyGroup>
