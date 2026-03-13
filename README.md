@@ -1140,14 +1140,14 @@ dotnet test _SampleCodes/_UnitTests/xUnit_v3/
 
 ### **Package Versions**
 
-| Package | Version | Status | Notes |
+| Package | Version | NoteStatuss |
 |---------|---------|--------|-------|
-| `Portamical.Core` | 2.0.0 | ⚠️ Beta | Core abstractions |
-| `Portamical` | 2.0.0 | ⚠️ Beta | Shared utilities |
-| `Portamical.MSTest` | 2.0.0 | ⚠️ Beta | MSTest adapter |
-| `Portamical.NUnit` | 2.0.0 | ⚠️ Beta | NUnit adapter |
-| `Portamical.xUnit` | 2.0.0 | ⚠️ Beta | xUnit v2 adapter |
-| `Portamical.xUnit_v3` | 2.0.0 | ⚠️ Beta | ✨ **Fully documented (~7K lines)** |
+| `Portamical.Core` | 2.0.0 | Core abstractions |
+| `Portamical` | 2.0.0 | Shared utilities |
+| `Portamical.MSTest` | 2.0.0 | MSTest adapter |
+| `Portamical.NUnit` | 2.0.0 | NUnit adapter |
+| `Portamical.xUnit` | 2.0.0 | xUnit v2 adapter |
+| `Portamical.xUnit_v3` | 2.0.0 |  xUnit v3 adapter |
 
 ---
 
