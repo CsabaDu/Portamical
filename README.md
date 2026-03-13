@@ -14,34 +14,35 @@ Portamical is the **test data abstraction layer** missing from the .NET testing 
 
 ---
 
+
 ## The Problem It Solves
 
 | Traditional Approach | Portamical Approach |
 |---------------------|---------------------|
-| Duplicate test data per framework | Write once, consume everywhere |
-| Fragile `object[]` arrays | Strongly typed generics (up to 9 args) |
-| Cryptic test names in runners | Human-readable "definition => result" |
-| Duplicate test cases slip through | Built-in identity-based deduplication |
-| Exception assertions differ by framework | Unified `PortamicalAssert` with delegate injection |
-| Boilerplate test data setup | `TestDataFactory` with fluent creation |
-| Mutable test state | `init`-only properties throughout |
+| 🔴 Duplicate test data per framework | ✅ Write once, consume everywhere |
+| 🔴 Fragile `object[]` arrays | ✅ Strongly typed generics (up to 9 args) |
+| 🔴 Cryptic test names in runners | ✅ Human-readable "definition => result" |
+| 🔴 Duplicate test cases slip through | ✅ Built-in identity-based deduplication |
+| 🔴 Exception assertions differ by framework | ✅ Unified `PortamicalAssert` with delegate injection |
+| 🔴 Boilerplate test data setup | ✅ `TestDataFactory` with fluent creation |
+| 🔴 Mutable test state | ✅ `init`-only properties throughout |
 
 ---
 
-## Version 2.0 Breaking Changes
+## ⚠️ Version 2.0 Breaking Changes
 
-**Version 2.0.0-beta** introduces architectural improvements for **thread safety** and **API clarity**.
+**Version 2.0.0** introduces architectural improvements for **thread safety** and **API clarity**.
 
-### Thread Safety Enhancement
+### **Thread Safety Enhancement**
 
 | v1.x (DEPRECATED) | v2.0 (CURRENT) |
 |-------------------|----------------|
-| `TestBase.ArgsCode` (static property, not thread-safe) | `Convert()` method overloads (fully thread-safe) |
+| ❌ `TestBase.ArgsCode` (static property, not thread-safe) | ✅ `Convert()` method overloads (fully thread-safe) |
 
 **Why the change?** In v1.x, the static `TestBase.ArgsCode` property created **race conditions** when multiple tests ran in parallel:
 
 ```csharp
-// v1.x RACE CONDITION EXAMPLE
+// v1.x ❌ RACE CONDITION EXAMPLE
 // Thread 1: Set ArgsCode to Properties
 TestBase.ArgsCode = AsProperties;
 
@@ -55,15 +56,15 @@ var args = Convert(dataSource.GetArgs());  // Uses Instance instead of Propertie
 **Migration:**
 
 ```csharp
-// v1.x (DEPRECATED - potential race condition)
+// v1.x ❌ (DEPRECATED - potential race condition)
 TestBase.ArgsCode = AsProperties;
 var args = Convert(dataSource.GetArgs());
 
-// v2.0 (RECOMMENDED - thread-safe)
+// v2.0 ✅ (RECOMMENDED - thread-safe)
 var args = Convert(dataSource.GetArgs(), AsProperties);
 ```
 
-### New ConvertAsInstance Method
+### **New ConvertAsInstance Method**
 
 Convenience method for instance-mode conversion:
 
@@ -77,9 +78,9 @@ var args = Convert(dataSource.GetArgs(), ArgsCode.Instance);
 
 Internally delegates to `Convert(collection, ArgsCode.Instance, PropsCode.TrimTestCaseName)`.
 
-### Enhanced Documentation
+### **Enhanced Documentation**
 
-- ~7,000 lines of comprehensive XML documentation added to Portamical.xUnit_v3
+- Comprehensive, detailed XML documentation added with samples
 - All public APIs now fully documented with examples
 - Namespace dependency diagram updated
 - Design patterns catalog with evidence
@@ -90,18 +91,18 @@ Internally delegates to `Convert(collection, ArgsCode.Instance, PropsCode.TrimTe
 
 ## Quick Start
 
-### 1. Installation
+### **1. Installation**
 
 **For new projects (NuGet package):**
 ```bash
-# Install the core library (v2.0.0-beta)
-dotnet add package Portamical.Core --version 2.0.0-beta
+# Install the core library (v2.0.0)
+dotnet add package Portamical.Core --version 2.0.0
 
 # Install your framework adapter
-dotnet add package Portamical.xUnit --version 2.0.0-beta     # for xUnit v2
-dotnet add package Portamical.MSTest --version 2.0.0-beta    # for MSTest 4
-dotnet add package Portamical.NUnit --version 2.0.0-beta     # for NUnit 4
-dotnet add package Portamical.xUnit.v3 --version 2.0.0-beta  # for xUnit v3
+dotnet add package Portamical.xUnit --version 2.0.0     # for xUnit v2
+dotnet add package Portamical.MSTest --version 2.0.0    # for MSTest 4
+dotnet add package Portamical.NUnit --version 2.0.0     # for NUnit 4
+dotnet add package Portamical.xUnit.v3 --version 2.0.0  # for xUnit v3
 ```
 
 **Note:** Version 2.0.0 is currently in beta. Packages are available on NuGet for early adopters.
@@ -114,7 +115,7 @@ dotnet build
 dotnet test
 ```
 
-### 2. Choose Your Framework Solution
+### **2. Choose Your Framework Solution**
 
 | Framework | Solution File | Use Case |
 |-----------|---------------|----------|
@@ -125,7 +126,7 @@ dotnet test
 | **MSTest 4** | `Portamical.MSTest.slnx` | MSTest 4.0.2+ integration |
 | **NUnit 4** | `Portamical.NUnit.slnx` | NUnit 4.4.0+ integration |
 
-### 3. Create Your First Data Source
+### **3. Create Your First Data Source**
 
 ```csharp
 using static Portamical.Core.Factories.TestDataFactory;
@@ -183,7 +184,7 @@ public class AdvancedEmailValidationCases
 }
 ```
 
-### 4. Consume Across All Frameworks
+### **4. Consume Across All Frameworks**
 
 **The same data source works everywhere:**
 
@@ -217,13 +218,13 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 
 ## What's New in Version 2.0
 
-### Enhanced Thread Safety
+### **Enhanced Thread Safety**
 
-- Removed static `TestBase.ArgsCode` property (potential race condition in parallel tests)
-- All conversions now use method parameters
-- Safe for parallel test execution across all frameworks
+- ❌ Removed static `TestBase.ArgsCode` property (potential race condition in parallel tests)
+- ✅ All conversions now use method parameters
+- ✅ Safe for parallel test execution across all frameworks
 
-### New ConvertAsInstance Method
+### **New ConvertAsInstance Method**
 
 Convenience method for instance-mode conversion:
 
@@ -237,65 +238,65 @@ var args = Convert(dataSource.GetArgs(), ArgsCode.Instance);
 
 Internally delegates to `Convert(collection, ArgsCode.Instance, PropsCode.TrimTestCaseName)`.
 
-### Comprehensive Documentation
+### **Comprehensive Documentation**
 
-- ~7,000 lines of XML documentation added to Portamical.xUnit_v3
-- All public APIs fully documented with:
+- ✅ **~7,000 lines** of XML documentation added to **Portamical.xUnit_v3**
+- ✅ All public APIs fully documented with:
   - Detailed `<summary>` tags
   - Rich `<remarks>` sections explaining design patterns
   - Multiple `<example>` blocks with real-world usage
   - Cross-references using `<see>` and `<seealso>` tags
-- Comparison tables (xUnit v2 vs v3)
-- Architecture diagrams embedded in documentation
+- ✅ Comparison tables (xUnit v2 vs v3)
+- ✅ Architecture diagrams embedded in documentation
 
-### Architecture Refinements
+### **Architecture Refinements**
 
-- Updated namespace dependency diagram
-- Clarified adapter complexity comparison
-- Added evidence-based design patterns catalog (16 patterns)
+- ✅ Updated namespace dependency diagram
+- ✅ Clarified adapter complexity comparison
+- ✅ Added evidence-based design patterns catalog (16 patterns)
 
-### Migration Support
+### **Migration Support**
 
-- Backward-compatible API where possible
-- Clear deprecation warnings for `TestBase.ArgsCode`
-- Detailed migration path from v1.x
-- Comprehensive [MIGRATION.md](https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md) guide
+- ✅ Backward-compatible API where possible
+- ✅ Clear deprecation warnings for `TestBase.ArgsCode`
+- ✅ Detailed migration path from v1.x
+- ✅ Comprehensive [MIGRATION.md](https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md) guide
 
 **Full changelog:** See [Changelog](#changelog) section below
 
 ---
 
-## V2.0 Migration Checklist
+## V2.0 Migration Checklist ✅
 
-### Step 1: Update Package References
+### **Step 1: Update Package References**
 
 ```bash
 dotnet add package Portamical.Core --version 2.0.0-beta
 dotnet add package Portamical.xUnit --version 2.0.0-beta  # or your framework
 ```
 
-### Step 2: Replace TestBase.ArgsCode Usage
+### **Step 2: Replace TestBase.ArgsCode Usage**
 
 ```csharp
-// v1.x (DEPRECATED)
+// v1.x ❌ (DEPRECATED)
 TestBase.ArgsCode = AsProperties;
 var args = Convert(dataSource.GetArgs());
 
-// v2.0 (RECOMMENDED)
+// v2.0 ✅ (RECOMMENDED)
 var args = Convert(dataSource.GetArgs(), AsProperties);
 ```
 
-### Step 3: Adopt ConvertAsInstance (Optional)
+### **Step 3: Adopt ConvertAsInstance (Optional)**
 
 ```csharp
 // v1.x / v2.0 (verbose)
 var args = Convert(dataSource.GetArgs(), ArgsCode.Instance);
 
-// v2.0 (concise)
+// v2.0 ✅ (concise - recommended)
 var args = ConvertAsInstance(dataSource.GetArgs());
 ```
 
-### Step 4: Rebuild and Test
+### **Step 4: Rebuild and Test**
 
 ```bash
 dotnet clean
@@ -303,12 +304,12 @@ dotnet build
 dotnet test
 ```
 
-### Step 5: Review Breaking Changes
+### **Step 5: Review Breaking Changes**
 
-- No more `TestBase.ArgsCode` static property assignments
-- All `Convert()` calls now thread-safe by default
-- Documentation updated with v2.0 examples
-- xUnit_v3 adapter fully documented (~7,000 lines)
+- ✅ No more `TestBase.ArgsCode` static property assignments
+- ✅ All `Convert()` calls now thread-safe by default
+- ✅ Documentation updated with v2.0 examples
+- ✅ xUnit_v3 adapter fully documented (~7,000 lines)
 
 **Full guide:** [MIGRATION.md](https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md)
 
@@ -1050,10 +1051,10 @@ Thin, optional adapters bridge Portamical to each test runner:
 
 | Project | Framework | Version | Key Integration | Package Reference |
 |---------|-----------|---------|-----------------|-------------------|
-| `Portamical.xUnit` | xUnit v2 | **2.0.0-beta** | `PortamicalDataAttribute`, `TestDataProvider<T>`, `TheoryData<T>` support | `xunit.core` 2.9.3 |
-| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | **2.0.0-beta** | `PortamicalDataAttribute`, `TheoryTestData<T>`, `ITheoryTestDataRow` ✨ **Fully documented (~7K lines)** | `xunit.v3` 3.2.2 |
-| `Portamical.MSTest` | MSTest 4 (4.0.2+) | **2.0.0-beta** | `PortamicalDataAttribute` | `MSTest.TestFramework` 4.0.2 |
-| `Portamical.NUnit` | NUnit 4 (4.4.0+) | **2.0.0-beta** | `PortamicalDataAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
+| `Portamical.xUnit` | xUnit v2 | **2.0.0** | `PortamicalDataAttribute`, `TestDataProvider<T>`, `TheoryData<T>` support | `xunit.core` 2.9.3 |
+| `Portamical.xUnit_v3` | xUnit v3 (3.2.2+) | **2.0.0** | `PortamicalDataAttribute`, `TheoryTestData<T>`, `ITheoryTestDataRow` ✨ **Fully documented (~7K lines)** | `xunit.v3` 3.2.2 |
+| `Portamical.MSTest` | MSTest 4 (4.0.2+) | **2.0.0** | `PortamicalDataAttribute` | `MSTest.TestFramework` 4.0.2 |
+| `Portamical.NUnit` | NUnit 4 (4.4.0+) | **2.0.0** | `PortamicalDataAttribute`, `TestCaseTestData` | `NUnit` 4.4.0 |
 
 ---
 
@@ -1227,12 +1228,12 @@ dotnet test _SampleCodes/_UnitTests/xUnit_v3/
 
 | Package | Version | Status | Notes |
 |---------|---------|--------|-------|
-| `Portamical.Core` | 2.0.0-beta | ⚠️ Beta | Core abstractions |
-| `Portamical` | 2.0.0-beta | ⚠️ Beta | Shared utilities |
-| `Portamical.MSTest` | 2.0.0-beta | ⚠️ Beta | MSTest adapter |
-| `Portamical.NUnit` | 2.0.0-beta | ⚠️ Beta | NUnit adapter |
-| `Portamical.xUnit` | 2.0.0-beta | ⚠️ Beta | xUnit v2 adapter |
-| `Portamical.xUnit_v3` | 2.0.0-beta | ⚠️ Beta | ✨ **Fully documented (~7K lines)** |
+| `Portamical.Core` | 2.0.0 | ⚠️ Beta | Core abstractions |
+| `Portamical` | 2.0.0 | ⚠️ Beta | Shared utilities |
+| `Portamical.MSTest` | 2.0.0 | ⚠️ Beta | MSTest adapter |
+| `Portamical.NUnit` | 2.0.0 | ⚠️ Beta | NUnit adapter |
+| `Portamical.xUnit` | 2.0.0 | ⚠️ Beta | xUnit v2 adapter |
+| `Portamical.xUnit_v3` | 2.0.0 | ⚠️ Beta | ✨ **Fully documented (~7K lines)** |
 
 ---
 
@@ -1279,7 +1280,7 @@ Submit against `master` with a clear description.
 
 | Branch | Purpose |
 |--------|---------|
-| `master` | Stable, production-ready code (current: v2.0.0-beta) |
+| `master` | Stable, production-ready code (current: v2.0.0) |
 | `Without_tt` | Pre-T4 baseline (manual generic classes) |
 | `T4` | T4 template development |
 | `v2_LocalDependencies` | v2.0 local dependencies development |
@@ -1290,21 +1291,21 @@ Use [GitHub Issues](https://github.com/CsabaDu/Portamical/issues) with:
 - Steps to reproduce
 - Expected vs. actual behavior
 - .NET SDK version and test framework
-- Portamical version (e.g., 2.0.0-beta)
+- Portamical version (e.g., 2.0.0)
 
 ---
 
 ## Repository Statistics
 
 - **Created:** January 16, 2026 (56 days ago)
-- **Current Version:** 2.0.0-beta (released March 12, 2026)
+- **Current Version:** 2.0.0 (released March 12, 2026)
 - **Language:** C# (99.6%)
 - **Size:** ~8,500 KB (after PR #7 merge: +15,716 additions, -434 deletions)
 - **Stars:** ⭐ 1
 - **Forks:** 0
 - **Commits:** 100+
 - **Contributors:** 1 (CsabaDu)
-- **Latest Release:** v2.0.0-beta (March 12, 2026)
+- **Latest Release:** v2.0.0 (March 12, 2026)
 - **Open Issues:** 0
 - **License:** MIT
 - **Visibility:** Public
@@ -1373,7 +1374,7 @@ If you are using `CsabaDu.DynamicTestData.Core`:
 
 ## Changelog
 
-### **Version 2.0.0-beta (2026-03-12)** 🎉
+### **Version 2.0.0 (2026-03-12)** 🎉
 
 **Breaking Changes:**
 - ❌ **Removed:** `TestBase.ArgsCode` static property (thread safety issue)
@@ -1399,12 +1400,12 @@ If you are using `CsabaDu.DynamicTestData.Core`:
 - 🐛 Enhanced null-safety with explicit `#nullable enable` directives
 
 **Package Updates:**
-- 📦 `Portamical.Core` 2.0.0-beta
-- 📦 `Portamical` 2.0.0-beta
-- 📦 `Portamical.MSTest` 2.0.0-beta
-- 📦 `Portamical.NUnit` 2.0.0-beta
-- 📦 `Portamical.xUnit` 2.0.0-beta
-- 📦 `Portamical.xUnit_v3` 2.0.0-beta ✨ **Fully documented**
+- 📦 `Portamical.Core` 2.0.0
+- 📦 `Portamical` 2.0.0
+- 📦 `Portamical.MSTest` 2.0.0
+- 📦 `Portamical.NUnit` 2.0.0
+- 📦 `Portamical.xUnit` 2.0.0
+- 📦 `Portamical.xUnit_v3` 2.0.0 ✨ **Fully documented**
 
 **Known Issues:**
 - ⚠️ .NET 10 is in preview; production apps should wait for stable release
@@ -1418,7 +1419,7 @@ If you are using `CsabaDu.DynamicTestData.Core`:
 - `bf90a27`: TestBase.ArgsCode cancelled for thread safety; ConvertAsInstance introduced; Documentation enhanced
 - `5716927`: Static GetValidResultPrefix; enhanced documentation
 - `7bb10f5`: V2 local dependencies merged (project references, ConvertAsInstance)
-- `fe883dd`: 2.0.0-beta release
+- `fe883dd`: 2.0.0 release
 
 ---
 
@@ -1453,7 +1454,7 @@ If you are using `CsabaDu.DynamicTestData.Core`:
 - [Issues](https://github.com/CsabaDu/Portamical/issues)
 - [Migration Guide (v1.x → v2.0)](https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md)
 - [Pull Request #7 (V2)](https://github.com/CsabaDu/Portamical/pull/7)
-- [Release v2.0.0-beta](https://github.com/CsabaDu/Portamical/releases/tag/v2.0.0-beta)
+- [Release v2.0.0](https://github.com/CsabaDu/Portamical/releases/tag/v2.0.0)
 
 ---
 
