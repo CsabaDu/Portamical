@@ -18,55 +18,71 @@ Portamical is the **test data abstraction layer** missing from the .NET testing 
 
 | Traditional Approach | Portamical Approach |
 |---------------------|---------------------|
-| 🔴 Duplicate test data per framework | ✅ Write once, consume everywhere |
-| 🔴 Fragile `object[]` arrays | ✅ Strongly typed generics (up to 9 args) |
-| 🔴 Cryptic test names in runners | ✅ Human-readable "definition => result" |
-| 🔴 Duplicate test cases slip through | ✅ Built-in identity-based deduplication |
-| 🔴 Exception assertions differ by framework | ✅ Unified `PortamicalAssert` with delegate injection |
-| 🔴 Boilerplate test data setup | ✅ `TestDataFactory` with fluent creation |
-| 🔴 Mutable test state | ✅ `init`-only properties throughout |
+| Duplicate test data per framework | Write once, consume everywhere |
+| Fragile `object[]` arrays | Strongly typed generics (up to 9 args) |
+| Cryptic test names in runners | Human-readable "definition => result" |
+| Duplicate test cases slip through | Built-in identity-based deduplication |
+| Exception assertions differ by framework | Unified `PortamicalAssert` with delegate injection |
+| Boilerplate test data setup | `TestDataFactory` with fluent creation |
+| Mutable test state | `init`-only properties throughout |
 
 ---
 
-## ⚠️ Version 2.0 Breaking Changes
+## Version 2.0 Breaking Changes
 
-**Version 2.0.0-beta** introduces important architectural improvements for **thread safety** and **API clarity**.
+**Version 2.0.0-beta** introduces architectural improvements for **thread safety** and **API clarity**.
 
-### **Thread Safety Enhancement** 🛡️
+### Thread Safety Enhancement
 
 | v1.x (DEPRECATED) | v2.0 (CURRENT) |
 |-------------------|----------------|
-| ❌ `TestBase.ArgsCode` (static property, not thread-safe) | ✅ `Convert()` method overloads (fully thread-safe) |
+| `TestBase.ArgsCode` (static property, not thread-safe) | `Convert()` method overloads (fully thread-safe) |
+
+**Why the change?** In v1.x, the static `TestBase.ArgsCode` property created **race conditions** when multiple tests ran in parallel:
+
+```csharp
+// v1.x RACE CONDITION EXAMPLE
+// Thread 1: Set ArgsCode to Properties
+TestBase.ArgsCode = AsProperties;
+
+// Thread 2: Simultaneously sets ArgsCode to Instance (OVERWRITES Thread 1)
+TestBase.ArgsCode = AsInstance;
+
+// Thread 1: Convert reads ArgsCode.Instance (WRONG VALUE)
+var args = Convert(dataSource.GetArgs());  // Uses Instance instead of Properties
+```
 
 **Migration:**
 
 ```csharp
-// v1.x ❌ (DEPRECATED - potential race condition)
+// v1.x (DEPRECATED - potential race condition)
 TestBase.ArgsCode = AsProperties;
 var args = Convert(dataSource.GetArgs());
 
-// v2.0 ✅ (RECOMMENDED - thread-safe)
+// v2.0 (RECOMMENDED - thread-safe)
 var args = Convert(dataSource.GetArgs(), AsProperties);
 ```
 
-### **New ConvertAsInstance Method** ✨
+### New ConvertAsInstance Method
 
-Simplifies instance-mode conversion with clearer intent:
+Convenience method for instance-mode conversion:
 
 ```csharp
-// v2.0 - Explicit instance mode (recommended)
+// v2.0
 var args = ConvertAsInstance(dataSource.GetArgs());
 
 // Equivalent to:
 var args = Convert(dataSource.GetArgs(), ArgsCode.Instance);
 ```
 
-### **Enhanced Documentation** 📖
+Internally delegates to `Convert(collection, ArgsCode.Instance, PropsCode.TrimTestCaseName)`.
 
-- ✅ **~7,000 lines** of comprehensive XML documentation added to Portamical.xUnit_v3
-- ✅ All public APIs now fully documented with examples
-- ✅ Namespace dependency diagram updated
-- ✅ Design patterns catalog with evidence
+### Enhanced Documentation
+
+- ~7,000 lines of comprehensive XML documentation added to Portamical.xUnit_v3
+- All public APIs now fully documented with examples
+- Namespace dependency diagram updated
+- Design patterns catalog with evidence
 
 **Full migration guide:** [MIGRATION.md](https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md)
 
@@ -88,7 +104,7 @@ dotnet add package Portamical.NUnit --version 2.0.0-beta     # for NUnit 4
 dotnet add package Portamical.xUnit.v3 --version 2.0.0-beta  # for xUnit v3
 ```
 
-> **Note:** Version 2.0.0 is currently in beta. Packages are available on NuGet for early adopters.
+**Note:** Version 2.0.0 is currently in beta. Packages are available on NuGet for early adopters.
 
 **For contributors (clone and build):**
 ```bash
@@ -105,7 +121,7 @@ dotnet test
 | **Core Library** | `Portamical.Core.slnx` | Framework-agnostic development |
 | **Shared Layer** | `Portamical.slnx` | Converters, assertions, base classes |
 | **xUnit v2** | `Portamical.xUnit.slnx` | xUnit 2.x integration |
-| **xUnit v3** | `Portamical.xUnit_v3.slnx` | xUnit 3.2.2+ integration (✨ **fully documented**) |
+| **xUnit v3** | `Portamical.xUnit_v3.slnx` | xUnit 3.2.2+ integration (fully documented) |
 | **MSTest 4** | `Portamical.MSTest.slnx` | MSTest 4.0.2+ integration |
 | **NUnit 4** | `Portamical.NUnit.slnx` | NUnit 4.4.0+ integration |
 
@@ -114,13 +130,13 @@ dotnet test
 ```csharp
 using static Portamical.Core.Factories.TestDataFactory;
 
-// Identity‑driven test cases with deterministic naming
+// Identity-driven test cases with deterministic naming
 public class EmailValidationCases
 {
     public IEnumerable<TestData<string>> GetValidArgs()
     {
         // Each test case defines:
-        // - a human‑readable identity ("definition")
+        // - a human-readable identity ("definition")
         // - the expected outcome ("result")
         // - the argument sequence (arg1, arg2, ...)
         yield return CreateTestData(
@@ -199,85 +215,87 @@ public void Validate_validInput_returnsTrue(TestData<string> testData)
 
 ---
 
-## What's New in Version 2.0 🎉
+## What's New in Version 2.0
 
-### **🛡️ Enhanced Thread Safety**
+### Enhanced Thread Safety
 
-- ❌ Removed static `TestBase.ArgsCode` property (potential race condition in parallel tests)
-- ✅ All conversions now use method parameters
-- ✅ Safe for parallel test execution across all frameworks
+- Removed static `TestBase.ArgsCode` property (potential race condition in parallel tests)
+- All conversions now use method parameters
+- Safe for parallel test execution across all frameworks
 
-### **🚀 New ConvertAsInstance Method**
+### New ConvertAsInstance Method
 
-Simplifies the common instance-mode conversion pattern:
+Convenience method for instance-mode conversion:
 
 ```csharp
-// v2.0 - Concise and explicit
+// v2.0
 var args = ConvertAsInstance(dataSource.GetArgs());
 
-// Replaces verbose v1.x pattern:
+// Equivalent to:
 var args = Convert(dataSource.GetArgs(), ArgsCode.Instance);
 ```
 
-### **📖 Comprehensive Documentation**
+Internally delegates to `Convert(collection, ArgsCode.Instance, PropsCode.TrimTestCaseName)`.
 
-- ✅ **~7,000 lines** of XML documentation added to **Portamical.xUnit_v3**
-- ✅ All public APIs fully documented with:
+### Comprehensive Documentation
+
+- ~7,000 lines of XML documentation added to Portamical.xUnit_v3
+- All public APIs fully documented with:
   - Detailed `<summary>` tags
   - Rich `<remarks>` sections explaining design patterns
   - Multiple `<example>` blocks with real-world usage
   - Cross-references using `<see>` and `<seealso>` tags
-- ✅ Comparison tables (xUnit v2 vs v3)
-- ✅ Architecture diagrams embedded in documentation
+- Comparison tables (xUnit v2 vs v3)
+- Architecture diagrams embedded in documentation
 
-### **🏗️ Architecture Refinements**
+### Architecture Refinements
 
-- ✅ Updated namespace dependency diagram
-- ✅ Clarified adapter complexity comparison
-- ✅ Added evidence-based design patterns catalog (16 patterns)
+- Updated namespace dependency diagram
+- Clarified adapter complexity comparison
+- Added evidence-based design patterns catalog (16 patterns)
 
-### **🔄 Migration Support**
+### Migration Support
 
-- ✅ Backward-compatible API where possible
-- ✅ Clear deprecation warnings for `TestBase.ArgsCode`
-- ✅ Detailed migration path from v1.x
-- ✅ Comprehensive [MIGRATION.md](https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md) guide
+- Backward-compatible API where possible
+- Clear deprecation warnings for `TestBase.ArgsCode`
+- Detailed migration path from v1.x
+- Comprehensive [MIGRATION.md](https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md) guide
 
 **Full changelog:** See [Changelog](#changelog) section below
 
 ---
 
-## V2.0 Migration Checklist ✅
+## V2.0 Migration Checklist
 
-### **Step 1: Update Package References**
+### Step 1: Update Package References
 
 ```bash
 dotnet add package Portamical.Core --version 2.0.0-beta
 dotnet add package Portamical.xUnit --version 2.0.0-beta  # or your framework
 ```
 
-### **Step 2: Replace TestBase.ArgsCode Usage**
+### Step 2: Replace TestBase.ArgsCode Usage
 
 ```csharp
-// v1.x ❌ (DEPRECATED)
+// v1.x (DEPRECATED)
 TestBase.ArgsCode = AsProperties;
 var args = Convert(dataSource.GetArgs());
 
-// v2.0 ✅ (RECOMMENDED)
+// v2.0 (RECOMMENDED)
 var args = Convert(dataSource.GetArgs(), AsProperties);
 ```
 
-### **Step 3: Adopt ConvertAsInstance (Optional)**
+### Step 3: Adopt ConvertAsInstance (Optional)
 
 ```csharp
 // v1.x / v2.0 (verbose)
 var args = Convert(dataSource.GetArgs(), ArgsCode.Instance);
 
-// v2.0 ✅ (concise - recommended)
+// v2.0 (concise)
 var args = ConvertAsInstance(dataSource.GetArgs());
 ```
 
-### **Step 4: Rebuild and Test**
+### Step 4: Rebuild and Test
 
 ```bash
 dotnet clean
@@ -285,12 +303,12 @@ dotnet build
 dotnet test
 ```
 
-### **Step 5: Review Breaking Changes**
+### Step 5: Review Breaking Changes
 
-- ✅ No more `TestBase.ArgsCode` static property assignments
-- ✅ All `Convert()` calls now thread-safe by default
-- ✅ Documentation updated with v2.0 examples
-- ✅ xUnit_v3 adapter fully documented (~7,000 lines)
+- No more `TestBase.ArgsCode` static property assignments
+- All `Convert()` calls now thread-safe by default
+- Documentation updated with v2.0 examples
+- xUnit_v3 adapter fully documented (~7,000 lines)
 
 **Full guide:** [MIGRATION.md](https://github.com/CsabaDu/Portamical/blob/master/MIGRATION.md)
 
@@ -298,39 +316,190 @@ dotnet test
 
 ## Architecture
 
-### Layered Design (Zero-Dependency Core)
+### Layered Design: Onion Architecture / Hexagonal Architecture
 
-Portamical implements **Onion Architecture / Hexagonal Architecture** with
+Portamical implements **Onion Architecture** (also known as **Hexagonal Architecture** or **Ports and Adapters**) to achieve maximum portability, testability, and maintainability. This architectural style organizes code into concentric layers with dependencies pointing **inward** toward the core domain.
+
+#### Architectural Diagram
 
 ```
 ┌────────────────────────────────────────────────┐
-│            _SampleCodes                        │  ← Reference implementations
-│  (Testables, DataSources, UnitTests)           │
+│            _SampleCodes                        │  ← Outer Layer: Application/Reference implementations
+│  (Testables, DataSources, UnitTests)           │     (Consumers of the framework)
 └───────────────────────┬────────────────────────┘
                         │ depends on
 ┌───────────────────────▼────────────────────────┐
-│  Portamical.xUnit | xUnit_v3 | MSTest | NUnit  │  ← Framework adapters
-│          (Thin adapter layer)                  │
+│  Portamical.xUnit | xUnit_v3 | MSTest | NUnit  │  ← Adapter Layer: Framework-specific ports
+│          (Thin adapter layer)                  │     (Translates domain → framework APIs)
 └───────────────────────┬────────────────────────┘
                         │ depends on
 ┌───────────────────────▼────────────────────────┐
-│              Portamical                        │  ← Shared utilities
-│  (Converters, Assertions, TestBases)           │
+│              Portamical                        │  ← Application Layer: Shared utilities
+│  (Converters, Assertions, TestBases)           │     (Framework-agnostic implementations)
 └───────────────────────┬────────────────────────┘
                         │ depends on
 ┌───────────────────────▼────────────────────────┐
-│          Portamical.Core                       │  ← Pure abstractions
-│  (Interfaces, Models, Factory — ZERO DEPS)     │
+│          Portamical.Core                       │  ← Domain Layer: Pure abstractions (THE CORE)
+│  (Interfaces, Models, Factory — ZERO DEPS)     │     (Business logic, zero external dependencies)
 └────────────────────────────────────────────────┘
 ```
 
-**Key Principle:** Portamical.Core has **zero external dependencies**, ensuring maximum portability and future-proofing.
+#### Onion/Hexagonal Architecture Principles in Portamical
+
+**1. Dependency Inversion (All arrows point inward)**
+
+The **Dependency Inversion Principle (DIP)** is the cornerstone of Onion Architecture:
+
+- Inner layers define abstractions (`ITestData`, `INamedCase`) that outer layers implement
+- No backward dependencies: Framework adapters never influence the core domain
+- Pure domain: `Portamical.Core` has zero external package dependencies
+
+```csharp
+// Domain Layer (Portamical.Core): DEFINES the contract
+namespace Portamical.Core.TestDataTypes
+{
+    public interface ITestData : INamedCase
+    {
+        object?[] ToArgs(ArgsCode argsCode, PropsCode propsCode = default, string? testMethodName = null);
+    }
+}
+
+// Adapter Layer (Portamical.xUnit_v3): IMPLEMENTS the contract
+namespace Portamical.xUnit_v3.DataProviders
+{
+    public class TheoryTestData<TTestData> : TheoryData<TTestData>
+        where TTestData : notnull, ITestData  // Depends on domain abstraction
+    {
+        // xUnit v3-specific implementation
+    }
+}
+```
+
+**2. Ports and Adapters (Hexagonal Architecture Terminology)**
+
+- **Port (Interface):** `ITestData`, `INamedCase`, `IExpected`, `IReturns`, `IThrows`
+- **Adapter (Implementation):**
+  - **Driving Adapter (Primary):** `TestDataFactory` (drives domain from outside via factory methods)
+  - **Driven Adapter (Secondary):** Framework-specific converters (`ToTheoryTestData`, `ToTestCaseTestData`)
+
+**3. Domain Isolation (Zero External Dependencies)**
+
+The `Portamical.Core` layer is pure C# with no external NuGet packages:
+
+```xml
+<!-- Portamical.Core/Portamical.Core.csproj -->
+<ItemGroup>
+  <!-- NO <PackageReference> elements — ZERO dependencies -->
+</ItemGroup>
+```
+
+**Why this matters:**
+- **Portability:** Core domain can run anywhere .NET 10+ runs
+- **Stability:** No risk of breaking changes from external packages
+- **Testability:** Domain logic tests have no framework dependencies
+- **Longevity:** Core domain outlives individual test frameworks
+
+**4. Layered Testing (Test the Domain, Not the Adapters)**
+
+```
+Tests for Portamical.Core       ← Domain logic tests (framework-agnostic)
+    ↓ depend on
+Portamical.Core                 ← Pure business logic
+    ↑ depended on by
+Tests for Portamical.xUnit_v3   ← Adapter-specific tests (use xUnit)
+    ↓ depend on
+Portamical.xUnit_v3             ← Adapter implementation
+```
+
+**5. Screaming Architecture (Structure Reveals Intent)**
+
+The folder/namespace structure reveals the domain concepts:
+
+```
+Portamical.Core/
+├── Identity/           ← Identity concerns (INamedCase, deduplication)
+├── TestDataTypes/      ← Core domain models (ITestData, TestDataBase)
+├── Factories/          ← Creation logic (TestDataFactory)
+├── Strategy/           ← Behavioral strategies (ArgsCode, PropsCode)
+└── Safety/             ← Validation (EnumValidator, parameter checks)
+```
+
+**Not:**
+```
+src/Interfaces/
+src/Models/
+src/Utilities/
+```
+
+The names tell you **what the system does**, not **how** it's organized technically.
+
+**6. Thin Adapter Layer (Minimal Translation Code)**
+
+Framework adapters are thin wrappers (typically <200 lines per adapter):
+
+| Adapter | Lines of Code | Complexity | Reason |
+|---------|---------------|------------|--------|
+| **MSTest** | ~150 | Simple | Direct `IEnumerable<object?[]>` mapping |
+| **xUnit v2** | ~180 | Moderate | Adds `TestDataProvider<T>` wrapper |
+| **NUnit** | ~190 | Moderate | Adds `TestCaseTestData` wrapper with NUnit metadata |
+| **xUnit v3** | ~250 | Complex | Implements `ITheoryTestDataRow` + `TheoryTestData<T>` container |
+
+**Key Insight:** Complexity is not in the adapters—it's encapsulated in the domain (`Portamical.Core`).
+
+---
+
+#### Benefits of Onion/Hexagonal Architecture in Portamical
+
+| Benefit | Example in Portamical |
+|---------|------------------------|
+| **Framework Independence** | Swap xUnit for NUnit by changing 1 adapter—domain untouched |
+| **Testability** | Test `TestDataFactory` without needing xUnit/MSTest/NUnit |
+| **Evolvability** | Add new test framework support without modifying core |
+| **Clarity** | Dependencies flow inward—no circular references possible |
+| **Maintainability** | Changes to xUnit v3 API don't affect MSTest/NUnit adapters |
+
+---
+
+#### Contrast: Traditional Layered Architecture vs. Onion Architecture
+
+| Aspect | Traditional Layers | Onion/Hexagonal (Portamical) |
+|--------|-------------------|------------------------------|
+| **Dependency Direction** | Top → Down (UI → Business → Data) | Outside → Inside (Adapters → Domain) |
+| **Core Layer** | Database/ORM (EF Core, Dapper) | Pure domain models (`ITestData`) |
+| **Infrastructure** | Bottom layer (Data Access) | Outermost layer (Framework adapters) |
+| **Testability** | Hard (requires mocking DB) | Easy (domain has zero dependencies) |
+| **Coupling** | High (business logic depends on DB) | Low (adapters depend on domain) |
+
+**Traditional (Bad):**
+```
+UI Layer (depends on)
+    ↓
+Business Layer (depends on)
+    ↓
+Data Access Layer (depends on)
+    ↓
+Database (SQLServer, PostgreSQL, etc.)
+```
+
+**Onion (Good—Portamical):**
+```
+Outer: Framework Adapters (xUnit, MSTest, NUnit)
+    ↓ depend on
+Middle: Shared Utilities (Converters, Assertions)
+    ↓ depend on
+Core: Domain Logic (ITestData, TestDataFactory)
+    (No dependencies—pure C#)
+```
+
+---
+
+**Key Principle:** Portamical.Core has zero external dependencies, ensuring maximum portability and future-proofing. This is the essence of **Hexagonal Architecture**: the domain is a closed hexagon with **ports** (interfaces) that **adapters** plug into from the outside.
 
 ---
 
 ### Namespace Dependency Diagram
 
-The following diagram shows the **complete namespace structure** and **dependency flow** across all 6 packages. Understanding this architecture is key to grasping how Portamical achieves cross-framework portability.
+The following diagram shows the complete namespace structure and dependency flow across all 6 packages. Understanding this architecture is key to grasping how Portamical achieves cross-framework portability.
 
 ![Portamical_Namespaces_Hierarchy](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Namespaces_Hierarchy.svg)
 
@@ -354,10 +523,14 @@ The following diagram shows the **complete namespace structure** and **dependenc
 
 | Adapter | Namespaces | Complexity | Reason | v2.0 Status |
 |---------|------------|------------|--------|-------------|
-| **MSTest** | 4 | Simple | Direct converter → test base pattern | ✅ Stable |
-| **xUnit v2** | 6 | Moderate | Adds `DataProviders` + `TheoryData` support | ✅ Stable |
-| **NUnit** | 6 | Moderate | Adds `TestDataTypes` + `TestCaseDataCollection` | ✅ Stable |
-| **xUnit v3** | 9 | Complex | Full contract/model separation for extensibility | ✅ **Fully documented** |
+| **MSTest** | 4 | Simple | Direct converter → test base pattern | Stable |
+| **xUnit v2** | 6 | Moderate | Adds `DataProviders` + `TheoryData` support | Stable |
+| **NUnit** | 6 | Moderate | Adds `TestDataTypes` + `TestCaseDataCollection` wrapper | Stable |
+| **xUnit v3** | 9 | Complex | Full contract/model separation + `ITheoryTestDataRow` implementation | Fully documented |
+
+**Note on NUnit:** NUnit returns `IReadOnlyCollection<TestCaseData>` instead of raw `object?[]` arrays. This requires an adapter layer (`TestCaseTestData`) to wrap test data and provide NUnit-specific metadata (test names, categories, etc.).
+
+**Note on xUnit v3:** xUnit v3 requires implementing `ITheoryTestDataRow` interface with explicit `TestDisplayName` property, plus separate `TheoryTestData<T>` container type for strongly-typed theory data provisioning.
 
 **2. Core Namespace Structure:**
 
@@ -395,11 +568,11 @@ TestDataTypes.Models.TestDataBase
 TestDataTypes.Models.General.TestData<T1..T9>
 ```
 
-This is why **every test data object** has a `TestCaseName` property and identity-based equality.
+This is why every test data object has a `TestCaseName` property and identity-based equality.
 
 ---
 
-### Class Hierarchy (Template Method + Composite)
+### Class Hierarchy (Template Method + Composite Patterns)
 
 ```
 NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
@@ -413,17 +586,165 @@ NamedCase (abstract) : INamedCase : IEquatable<INamedCase>
                 └── [T4-generated: TestDataThrows<TException,T1> → ... → <TException,T1,...,T9>]
 ```
 
+**Pattern Application:**
+
+- **Template Method:** `TestDataBase.ToArgs()` defines the algorithm skeleton; subclasses override `ToObjectArray(ArgsCode)` to customize behavior
+- **Composite:** All test data types implement `ITestData`, enabling uniform treatment across collections
+- **T4 Code Generation:** Eliminates 27 classes worth of boilerplate while maintaining compile-time type safety
+
 **Key:** T4 code generation eliminates 27 classes worth of boilerplate while maintaining type safety.
 
 ---
 
 ### Four-layered Core Data Model
 
-The type system of the core data model forms a coherent four-layer architecture. This layered DTO design enables type-safe test data composition while preserving an intuitive, discoverable hierarchy. Each concrete `TestData` instance can be accessed through one of four progressively specialized entry points:
-- `INamedCase` - the foundational interface used for semantic identification, equality, and deduplication,
-- `ITestData` - the non-generic core interface for reflection-based or dynamically typed handling,
-- `IExpected`, `IReturns`, and `IThrows` - specialization markers that expose the semantic category of the expected outcome,
-- The concrete generic DTO type - the fully typed representation used for compile-time safety and strongly typed operations.  
+The type system of `Portamical.Core` forms a coherent four-layer architecture that progressively specializes from foundational identity concerns to fully typed, framework-consumable data transfer objects (DTOs). This layered design embodies the Separation of Concerns principle while maintaining a discoverable, intuitive API surface.
+
+#### Architectural Layers
+
+Each concrete `TestData` instance can be accessed through one of four progressively specialized entry points, each serving a distinct architectural role:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Layer 1: Identity (INamedCase)                              │  ← Semantic identification
+│ Purpose: Equality, deduplication, test case naming          │     & deduplication
+└──────────────────────────┬──────────────────────────────────┘
+                           │ extends
+┌──────────────────────────▼──────────────────────────────────┐
+│ Layer 2: Core Abstraction (ITestData)                       │  ← Non-generic contract
+│ Purpose: Reflection-based, dynamically typed handling       │     for framework adapters
+└──────────────────────────┬──────────────────────────────────┘
+                           │ extends
+┌──────────────────────────▼──────────────────────────────────┐
+│ Layer 3: Semantic Specialization (IExpected<T>)             │  ← Expected outcome
+│ - IReturns<TStruct> → Return-value assertions               │     categorization
+│ - IThrows<TException> → Exception assertions                │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ implemented by
+┌──────────────────────────▼──────────────────────────────────┐
+│ Layer 4: Concrete DTOs (TestData<T1..T9>)                   │  ← Fully typed
+│ - TestData<T1..T9> (general test data)                      │     implementations
+│ - TestDataReturns<TStruct, T1..T9> (return-value tests)     │     with compile-time
+│ - TestDataThrows<TException, T1..T9> (exception tests)      │     type safety
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Layer Responsibilities
+
+**Layer 1: Identity (`INamedCase`)**
+
+- **Purpose:** Provides the foundational identity mechanism for all test data
+- **Key Members:**
+  - `TestCaseName` property: Returns `"<definition> => <result>"`
+  - `Comparer` property: Enables identity-based deduplication via `HashSet<INamedCase>`
+- **Design Pattern:** Value Object pattern—identity is determined by value, not reference
+- **Use Case:** Framework-agnostic deduplication and test case naming
+
+```csharp
+namespace Portamical.Core.Identity
+{
+    public interface INamedCase : IEquatable<INamedCase>
+    {
+        string TestCaseName { get; init; }  // Identity value
+        static abstract IEqualityComparer<INamedCase> Comparer { get; }
+    }
+}
+```
+
+**Layer 2: Core Abstraction (`ITestData`)**
+
+- **Purpose:** Non-generic contract enabling reflection-based and dynamically typed operations
+- **Key Members:**
+  - `ToArgs(ArgsCode, PropsCode, testMethodName)`: Materializes test data into `object?[]` arrays
+  - Extends `INamedCase` to inherit identity behavior
+- **Design Pattern:** Template Method pattern—defines algorithm skeleton, subclasses fill in details
+- **Use Case:** Framework adapters that need to work with test data without knowing concrete generic types
+
+```csharp
+namespace Portamical.Core.TestDataTypes
+{
+    public interface ITestData : INamedCase
+    {
+        object?[] ToArgs(ArgsCode argsCode, PropsCode propsCode = default, string? testMethodName = null);
+        string GetDefinition();
+        string GetResult();
+    }
+}
+```
+
+**Layer 3: Semantic Specialization (`IExpected<TResult>`, `IReturns<TStruct>`, `IThrows<TException>`)**
+
+- **Purpose:** Marker interfaces that expose the semantic category of the expected test outcome
+- **Key Members:**
+  - `Expected` property: Strongly typed expected value or exception
+- **Design Pattern:** Strategy pattern—different assertion strategies based on specialization type
+- **Use Case:** Enables type-safe expected value handling and specialized assertion logic
+
+```csharp
+namespace Portamical.Core.TestDataTypes
+{
+    // Base specialization marker
+    public interface IExpected<out TResult> : ITestData
+    {
+        TResult Expected { get; }
+    }
+
+    // Return-value test data (value type constraint)
+    public interface IReturns<out TStruct> : IExpected<TStruct>
+        where TStruct : struct
+    {
+        // Inherits Expected property from IExpected<TStruct>
+    }
+
+    // Exception test data (exception constraint)
+    public interface IThrows<out TException> : IExpected<TException>
+        where TException : Exception
+    {
+        // Inherits Expected property from IExpected<TException>
+    }
+}
+```
+
+**Layer 4: Concrete DTOs (`TestData<T1..T9>`, `TestDataReturns<TStruct, T1..T9>`, `TestDataThrows<TException, T1..T9>`)**
+
+- **Purpose:** Fully typed, immutable data transfer objects with compile-time safety
+- **Key Members:**
+  - `Arg1..Arg9` properties: Strongly typed test arguments
+  - `Expected` property (for `Returns`/`Throws` variants): Strongly typed expected outcome
+- **Design Pattern:** Factory pattern—created via `TestDataFactory.CreateTestData<T>()`
+- **Use Case:** Test method parameters and strongly typed test data manipulation
+
+```csharp
+// T4-generated concrete implementations
+namespace Portamical.Core.TestDataTypes.Models.General
+{
+    public sealed class TestData<T1> : TestData  // Layer 4 DTO
+    {
+        public T1 Arg1 { get; init; }  // Strongly typed argument
+    }
+}
+
+namespace Portamical.Core.TestDataTypes.Models.Specialized
+{
+    public sealed class TestDataReturns<TStruct, T1> : TestDataReturns<TStruct>  // Layer 4 DTO
+        where TStruct : struct
+    {
+        public T1 Arg1 { get; init; }
+        // Inherits: public TStruct Expected { get; init; }
+    }
+
+    public sealed class TestDataThrows<TException, T1> : TestDataThrows<TException>  // Layer 4 DTO
+        where TException : Exception
+    {
+        public T1 Arg1 { get; init; }
+        // Inherits: public TException Expected { get; init; }
+    }
+}
+```
+
+---
+
+#### Visual Type Diagram
 
 ![Portamical_Core_Datamodel_ClassDiagram_Simplified](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Core_Datamodel_ClassDiagram_Simplified.svg)
 
@@ -431,7 +752,19 @@ The type system of the core data model forms a coherent four-layer architecture.
 |---------------|------------|--------------------|--------------------|
 | 🟢 ***Green*** | [contract] | Interface definitions | `INamedCase`, `ITestData`, `IExpected` |
 | 🔵 ***Blue*** | [abstract] | Abstract base classes | `NamedCase`, `TestDataBase`, `TestData`, `TestDataReturns<TStruct>` |
-| 🔵 **Blue** | [concrete] | Concrete implementations (T4-generated) | `TestData<T1>`, `TestDataReturns<TStruct, T1, T2>`
+| 🔵 **Blue** | [concrete] | Concrete implementations (T4-generated) | `TestData<T1>`, `TestDataReturns<TStruct, T1, T2>` |
+
+---
+
+#### Design Rationale
+
+
+| Layer | Solves | Example |
+|-------|--------|---------|
+| **Identity** | Test case deduplication | `HashSet<INamedCase>.Add(testData)` removes duplicates automatically |
+| **Core Abstraction** | Framework adapter integration | Converters work with `ITestData` without knowing if it's `TestData<int>` or `TestDataReturns<bool, string>` |
+| **Semantic Specialization** | Assertion strategy selection | `if (testData is IReturns<int> returns) Assert.AreEqual(returns.Expected, actual);` |
+| **Concrete DTOs** | Compile-time type safety | `void Test(TestData<DateOnly> testData) => var date = testData.Arg1;  // No casting` |
 
 ---
 
