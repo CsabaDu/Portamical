@@ -412,7 +412,7 @@ Framework adapters are thin wrappers (typically <200 lines per adapter):
 
 #### Namespace Dependency Diagram
 
-The following diagram shows the complete namespace structure and dependency flow across all 6 packages. Understanding this architecture is key to grasping how Portamical achieves cross-framework portability.
+The following diagram shows the complete namespace structure and dependency flow across all 6 packages.
 
 ![Portamical_Namespaces_Hierarchy](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Namespaces_Hierarchy.svg)
 
