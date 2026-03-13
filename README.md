@@ -66,17 +66,19 @@ var args = Convert(dataSource.GetArgs(), AsProperties);
 
 ### **New ConvertAsInstance Method**
 
-Convenience method for instance-mode conversion:
+In v2.0, `ConvertAsInstance` is a convenience helper for **instance-mode** conversion that avoids the v1.x static `ArgsCode` state and keeps conversions **thread-safe**.
 
 ```csharp
 // v2.0
-var args = ConvertAsInstance(dataSource.GetArgs());
-
-// Equivalent to:
-var args = Convert(dataSource.GetArgs(), ArgsCode.Instance);
+var args = ConvertAsInstance(convert, testDataCollection, testMethodName);
 ```
 
-Internally delegates to `Convert(collection, ArgsCode.Instance, PropsCode.TrimTestCaseName)`.
+**Equivalent to:** invoking the adapter-supplied conversion delegate with `ArgsCode.Instance`:
+
+- `convert(testDataCollection, ArgsCode.Instance, testMethodName)` (overload with `testMethodName`), or
+- `convert(testDataCollection, ArgsCode.Instance)` (overload without `testMethodName`).
+
+**GoF note:** This is a small **Template Method–style** helper: it fixes the invariant (`ArgsCode.Instance`) and delegates the framework-specific conversion step to the adapter (a strategy delegate).
 
 ### **Enhanced Documentation**
 
