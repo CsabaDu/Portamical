@@ -83,7 +83,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
   - Enhanced `Equals` and `GetHashCode` implementations with detailed explanations
 - **`EnumValidator`**:
   - Renamed `GetResultPrefix` → `GetValidResultPrefix` for clarity
-- Resolver:
+- **`Resolver`**:
   - Improved `FallbackIfNullOrWhiteSpace` with `string.Create` and `CultureInfo.InvariantCulture`
   - Changed `Trace.WriteLine` → `Trace.TraceWarning` for better diagnostic categorization
   - Added thread-safety documentation for `ResetLogCounter` atomic operations

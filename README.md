@@ -365,6 +365,25 @@ In short: **Onion = layers**, **Hexagonal = ports/adapters**; both ensure `Porta
 
 **Screaming Architecture (Structure Reveals Intent)**
 
+The following diagram shows the complete namespace structure and dependency flow across all 6 packages.
+
+![Portamical_Namespaces_Hierarchy](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Namespaces_Hierarchy.svg)
+
+#### Reading the Diagram
+
+**Color Coding:**
+- 🟢 ***Green (contract)*** — Interfaces defining contracts (`INamedCase`, `ITestData`, `IExpected`)
+- 🔵 ***Blue (abstract)*** — Abstract base classes (`NamedCase`, `TestDataBase`, `PortamicalAssert`)
+- 🔵 **Blue (concrete)** — Concrete implementations (`TestDataThrows<T>`, attributes)
+- 🔵 <u>**Blue (static)**</u> — Static utility classes (`TestDataFactory`, `Converters`, `Strategy`)
+- 📦 **Package** — External framework dependencies (`xunit.core`, `MSTest.TestFramework`, `NUnitLite`)
+
+**Dependency Flow Rules:**
+1. **All arrows point inward** toward `Portamical.Core` (Dependency Inversion Principle)
+2. **No backward dependencies** — Framework adapters never influence the core
+3. **T4 appears as a namespace** because generated code depends on `SharedHelpers.ttinclude`
+
+
 The folder/namespace structure reveals the domain concepts:
 
 ```
@@ -409,26 +428,6 @@ Framework adapters are thin wrappers (typically <200 lines per adapter):
 | **Maintainability** | Changes to xUnit v3 API don't affect MSTest/NUnit adapters |
 
 ---
-
-#### Namespace Dependency Diagram
-
-The following diagram shows the complete namespace structure and dependency flow across all 6 packages.
-
-![Portamical_Namespaces_Hierarchy](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/master/_Images/Portamical_Namespaces_Hierarchy.svg)
-
-#### Reading the Diagram
-
-**Color Coding:**
-- 🟢 ***Green (contract)*** — Interfaces defining contracts (`INamedCase`, `ITestData`, `IExpected`)
-- 🔵 ***Blue (abstract)*** — Abstract base classes (`NamedCase`, `TestDataBase`, `PortamicalAssert`)
-- 🔵 **Blue (concrete)** — Concrete implementations (`TestDataThrows<T>`, attributes)
-- 🔵 <u>**Blue (static)**</u> — Static utility classes (`TestDataFactory`, `Converters`, `Strategy`)
-- 📦 **Package** — External framework dependencies (`xunit.core`, `MSTest.TestFramework`, `NUnitLite`)
-
-**Dependency Flow Rules:**
-1. **All arrows point inward** toward `Portamical.Core` (Dependency Inversion Principle)
-2. **No backward dependencies** — Framework adapters never influence the core
-3. **T4 appears as a namespace** because generated code depends on `SharedHelpers.ttinclude`
 
 #### Key Architectural Insights
 
@@ -1291,9 +1290,8 @@ If you are using `CsabaDu.DynamicTestData.Core`:
 ### **Version 2.0.0 (2026-03-12)** 🎉
 
 **Breaking Changes:**
-- ❌ **Removed:** `TestBase.ArgsCode` static property (thread safety issue)
-- ✅ **Added:** `Convert()` overloads with `ArgsCode` parameter (thread-safe)
-- ✅ **Added:** `ConvertAsInstance()` convenience method
+    - ❌ **Removed:** `TestBase.ArgsCode` static property (thread safety issue)
+    - ✅ **Added:** `ConvertAsInstance()` convenience method
 
 **New Features:**
 - ✨ **Comprehensive XML documentation** (~7,000 lines in Portamical.xUnit_v3)
