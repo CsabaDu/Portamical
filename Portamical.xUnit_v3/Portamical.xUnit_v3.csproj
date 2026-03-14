@@ -13,19 +13,12 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>test; unittest; testdata; portable; dynamicdata; datadriven; xunit; xunitv3</PackageTags>
-    <PackageReleaseNotes>- Initial release  
-- xUnit v3 (3.2.2+) integration  
-- `TheoryTestData&lt;T&gt;` extending xUnit v3's `TheoryData&lt;T&gt;  `
-- `ITheoryTestDataRow` with identity-based equality  
-- `PortamicalDataAttribute` with automatic deduplication  
-- `TestBase` with `Convert()` methods  
-- xUnit v3-specific `PortamicalAssert`  
-- Contract/model separation (9 namespaces)  </PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Version>2.0.0-beta</Version>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical" Version="2.0.0-beta" />
+    <PackageReference Include="Portamical" Version="2.0.0" />
     <PackageReference Include="xunit.v3.assert" Version="3.2.2" />
     <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.2" />
   </ItemGroup>
