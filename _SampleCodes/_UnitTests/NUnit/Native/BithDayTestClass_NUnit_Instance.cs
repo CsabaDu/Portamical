@@ -6,6 +6,7 @@ using Portamical.Core.TestDataTypes.Models.Specialized;
 using Portamical.NUnit.Assertions;
 using Portamical.NUnit.Attributes;
 using Portamical.NUnit.TestBases;
+using Portamical.NUnit.TestDataTypes;
 using Portamical.SampleCodes.DataSources.TestDataSources;
 using Portamical.SampleCodes.Testables.SampleClasses;
 
@@ -16,7 +17,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
 {
     private static readonly BirthDayDataSource _dataSource = new();
 
-    public static IEnumerable<TestCaseData> BirthDayConstructorValidArgs
+    public static IEnumerable<TestCaseTestData> BirthDayConstructorValidArgs
     => Convert(_dataSource.GetBirthDayConstructorValidArgs(), AsInstance);
 
     [Test, PortamicalData(nameof(BirthDayConstructorValidArgs))]
@@ -38,7 +39,7 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
         });
     }
 
-    public static IEnumerable<TestCaseData> BirthDayConstructorInvalidArgs
+    public static IEnumerable<TestCaseTestData> BirthDayConstructorInvalidArgs
     => Convert(_dataSource.GetBirthDayConstructorInvalidArgs(), AsInstance);
 
     [Test, PortamicalData(nameof(BirthDayConstructorInvalidArgs))]
@@ -53,10 +54,10 @@ public sealed class BithDayTestClass_NUnit_Instance : TestBase
         void attempt() => _ = new BirthDay(name!, dateOfBirth);
 
         // Assert
-        PortamicalAssert.ThrowsDetails(attempt, testData.Expected);
+        PortamicalAssert.ThrowsDetails(attempt, expected);
     }
 
-    public static IEnumerable<TestCaseData> CompareToArgs
+    public static IEnumerable<TestCaseTestData> CompareToArgs
     => Convert(_dataSource.GetCompareToArgs(), AsInstance);
 
     [Test, PortamicalData(nameof(CompareToArgs))]

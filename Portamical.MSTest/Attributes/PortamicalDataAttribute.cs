@@ -162,7 +162,7 @@ namespace Portamical.MSTest.Attributes;
 /// </example>
 /// <seealso cref="PortamicalDataAttribute"/>
 /// <seealso cref="DynamicDataAttribute"/>
-/// <seealso cref="CollectionConverter.ToArgsWithTestCaseName{TTestData}(IEnumerable{TTestData}, ArgsCode)"/>
+/// <seealso cref="Portamical.Converters.CollectionConverter.ToArgsWithTestCaseName{TTestData}(IEnumerable{TTestData}, ArgsCode)"/>
 /// <seealso cref="TestBase.Convert{TTestData}(IEnumerable{TTestData}, ArgsCode)"/>
 /// <seealso cref="ITestDataSource"/>
 /// <seealso cref="NamedCase"/>
@@ -287,11 +287,11 @@ public abstract class PortamicalBaseDataAttribute(
                 "Use sourceType to explicitly mark as Method/Property, " +
                 "OR use sourceArgs for parameterized methods (implies Method type)."),
 
-            // Overload 5: new DynamicDataAttribute(sourceName, declaringType, sourceType)
-            (not null, not null, null) => new(sourceName, declaringType, sourceType.Value),
-
             // Overload 6: new DynamicDataAttribute(sourceName, declaringType, sourceArgs)
             (not null, null, not null) => new(sourceName, declaringType, sourceArgs),
+
+            // Overload 5: new DynamicDataAttribute(sourceName, declaringType, sourceType)
+            (not null, not null, null) => new(sourceName, declaringType, sourceType.Value),
 
             // Overload 4: new DynamicDataAttribute(sourceName, declaringType)
             (not null, null, null) => new(sourceName, declaringType),
@@ -570,7 +570,7 @@ public abstract class PortamicalBaseDataAttribute(
 /// </example>
 /// <seealso cref="PortamicalBaseDataAttribute"/>
 /// <seealso cref="DynamicDataAttribute"/>
-/// <seealso cref="CollectionConverter.ToArgsWithTestCaseName{TTestData}(IEnumerable{TTestData}, ArgsCode)"/>
+/// <seealso cref="Portamical.Converters.CollectionConverter.ToArgsWithTestCaseName{TTestData}(IEnumerable{TTestData}, ArgsCode)"/>
 /// <seealso cref="TestBase.Convert{TTestData}(IEnumerable{TTestData}, ArgsCode)"/>
 /// <seealso cref="ArgsCode"/>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]

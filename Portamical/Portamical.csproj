@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Portamical</Title>
-    <Version>2.0.0-beta</Version>
+    <Version>2.0.0</Version>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
     <Description>Shared utilities and base classes for cross‑framework test data solutions in .NET, built on the Portamical.Core data model.</Description>
@@ -14,8 +14,12 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical</RepositoryUrl>
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3;</PackageTags>
-    <PackageReleaseNotes>- `Portamical.TestBases.TestBase`: Implemented standard `IDisposable` pattern with `Dispose(bool disposing)` method that resets `ArgsCode` to default (`AsInstance`) and clears log counter, enabling proper cleanup in test fixture teardown scenarios.
-- License and Project Lineage added to README.md.</PackageReleaseNotes>
+    <PackageReleaseNotes>Breaking Changes:  
+- TestBase.ArgsCode` static property removed (thread safety issue).  
+Major Enhancements:  
+- Comprehensive XML Documentation,  
+- Core Infrastructure Improvements,  
+- Documentation &amp; Code Quality</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
@@ -35,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical.Core" Version="2.0.0-beta" />
+    <PackageReference Include="Portamical.Core" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>

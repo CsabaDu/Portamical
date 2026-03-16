@@ -862,6 +862,12 @@ MIT
 
 ## Changelog
 
+### **Version 2.0.0 (2026-03-13)**
+
+**Note:** This version does not introduce breaking changes in Portamical.Core itself. The major version bump to 2.0.0 aligns with the Portamical extension packages, where new versions may introduce rare breaking changes. The version number synchronization ensures consistency across the Portamical ecosystem.
+
+---
+
 ### **Version 1.0.0 (2026-03-06)**
 
 - **Initial release**
