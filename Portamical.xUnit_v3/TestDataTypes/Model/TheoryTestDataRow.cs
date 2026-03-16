@@ -2,6 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using static Portamical.Core.Identity.Model.NamedCase;
+using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.xUnit_v3.TestDataTypes.Model;
 
@@ -243,7 +244,7 @@ ITheoryTestDataRow
         Func<object?[]> getData,
         string? testMethodName)
     {
-        namedCase = Guard.ArgumentNotNull(namedCase, paramName);
+        namedCase = NotNull(namedCase, paramName);
         TestCaseName = namedCase.TestCaseName;
         TestDisplayName = GetDisplayName(testMethodName);
         _data = getData();
