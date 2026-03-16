@@ -22,13 +22,15 @@ dotnet add package Portamical
 
 ## What's New
 
-## [2.0.0] - 2026-03-16
+## Portamical [2.0.0] - 2026-03-16
 
 ### Breaking Changes
 - **Removed** `TestBase.ResetLogCounter()` - Use `Resolver.ResetLogCounter()` directly
 - **Removed** `IDisposable` implementation from `Portamical.TestBases.TestBase`
 - **Removed** mutable `ArgsCode` property with setter
 - **Changed** `TestBase` to stateless architecture (thread-safe, immutable design)
+- **Changed** `ITestDataProvider<TTestData>` to **contravariant** (`ITestDataProvider<in TTestData>`)
+- **Changed** `ITestDataConverter<TTestData, TRow>` to **variant** (`ITestDataConverter<in TTestData, out TRow>`)
 
 ### Added
 - `ConvertAsInstance<TTestData, T>()` helper methods (2 overloads) for centralized delegation
@@ -36,20 +38,43 @@ dotnet add package Portamical
 - `AsInstance`, `AsProperties`, `WithTestCaseName` read-only properties
 - Design pattern documentation (Template Method, Strategy, Delegation)
 - Framework adapter implementation guidelines
+- **Variance support** for generic interfaces enabling flexible type assignments
 
 ### Changed
 - **TestBase.cs**: Refactored from 38 lines (stateful, disposable) to 195 lines (stateless, documented)
+- **ITestDataProvider.cs**: Made contravariant to support base-to-derived type assignments
+- **ITestDataConverter.cs**: Made contravariant (input) and covariant (output) for flexible conversions
 - All properties now expression-bodied read-only members
 - Enhanced documentation with examples, remarks, and exception handling
 
 ### Documentation
 - Added detailed XML comments for all public APIs
+- Documented variance patterns with practical examples
 - Documented delegation pattern for framework adapters
 - Added usage examples for MSTest, NUnit, xUnit implementations
 - Enhanced parameter descriptions and return value documentation
 - Added thread safety and stateless design notes
 
+### Variance Examples
+
+#### **ITestDataProvider** (Contravariance)
+```csharp
+// BEFORE (v1) - Invariant
+public interface ITestDataProvider<TTestData> { }
+
+// AFTER (v2) - Contravariant
+public interface ITestDataProvider<in TTestData> { }
+
+// Example usage:
+ITestDataProvider<ITestData> generalProvider = new GeneralProvider();
+
+// ✅ Now works: Can use general provider for specific type
+ITestDataProvider<TestDataReturns<int>> specificProvider = generalProvider;
+// Works because TestDataReturns<int> IS AN ITestData (contravariance)
+```
+
 ### Architecture
+
 ```csharp
 // BEFORE (v1)
 public abstract class TestBase : IDisposable
@@ -58,6 +83,9 @@ public abstract class TestBase : IDisposable
     protected static long ResetLogCounter() => Resolver.ResetLogCounter();
     public void Dispose() { ... }
 }
+
+public interface ITestDataProvider<TTestData> { }      // Invariant
+public interface ITestDataConverter<TTestData, TRow> { } // Invariant
 
 // AFTER (v2)
 public abstract class TestBase // Stateless
@@ -72,18 +100,22 @@ public abstract class TestBase // Stateless
         string? testMethodName)
     where TTestData : notnull, ITestData;
 }
+
+public interface ITestDataProvider<in TTestData> { }        // Contravariant
+public interface ITestDataConverter<in TTestData, out TRow> { } // Variant
 ```
 
 **Migration:**
 // v1 → v2 Migration
-- Remove all `ArgsCode` static field assignments
 - Remove: IDisposable inheritance
 - Remove: Dispose() methods
 - Remove: ResetLogCounter() calls
+- Remove all `ArgsCode` static field assignments
+- Default behavior unchanged (uses `ArgsCode.Instance`)
 + Add: using Portamical.Core.Safety;
 + Add: Direct Resolver.ResetLogCounter() calls
 + Update: Use AsInstance/AsProperties instead of ArgsCode property
-- Default behavior unchanged (uses `ArgsCode.Instance`)
++ Benefit: Leverage variance for flexible type assignments
 
 ---
 
@@ -214,26 +246,48 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 - Removed `TestBase.ResetLogCounter()` → use `Resolver.ResetLogCounter()`
 - Removed `IDisposable` from `TestBase` (now stateless)
 - Removed mutable `ArgsCode` property
+- **Made `ITestDataProvider<TTestData>` contravariant** (`<in TTestData>`)
+- **Made `ITestDataConverter<TTestData, TRow>` variant** (`<in TTestData, out TRow>`)
 
 **Added**
 - `ConvertAsInstance<TTestData, T>()` delegation helpers (2 overloads)
 - 3,000+ lines XML documentation
 - Read-only properties: `AsInstance`, `AsProperties`, `WithTestCaseName`
+- **Variance support** for flexible type assignments
 
 **Changed**
-- `TestBase`: 38 → 195 lines (stateful → stateless architecture)
-- All properties now expression-bodied read-only members
+- `TestBase`: 38 → 195 lines (stateful → stateless)
+- `ITestDataProvider`: invariant → contravariant (enables base-to-derived assignment)
+- `ITestDataConverter`: invariant → variant (contravariant input + covariant output)
+- All properties now expression-bodied read-only
+
+**Variance Benefits**
+```csharp
+// Contravariance example
+ITestDataProvider<ITestData> general = new GeneralProvider();
+ITestDataProvider<TestDataReturns<int>> specific = general; // ✅ Now works
+
+// Variance example
+ITestDataConverter<ITestData, object[]> converter = new GeneralConverter();
+ITestDataConverter<TestDataReturns<int>, object[]> typed = converter; // ✅ Works
+```
 
 **Migration**
 ```diff
 - public class MyTests : TestBase { }  // v1: IDisposable
 + public class MyTests : TestBase { }  // v2: Stateless
 
-- ResetLogCounter();                   // v1: Instance method
-+ Resolver.ResetLogCounter();          // v2: Static call
-
 - ArgsCode = AsProperties;             // v1: Mutable
 + var code = AsProperties;             // v2: Read-only
+
+- public interface ITestDataProvider<TTestData>              // v1: Invariant
++ public interface ITestDataProvider<in TTestData>           // v2: Contravariant
+
+- public interface ITestDataConverter<TTestData, TRow>       // v1: Invariant
++ public interface ITestDataConverter<in TTestData, out TRow> // v2: Variant
+
+- ResetLogCounter();                   // v1: Instance method
++ Resolver.ResetLogCounter();          // v2: Static call
 ```
 
 **Documentation & Code Quality**
