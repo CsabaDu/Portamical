@@ -6,6 +6,86 @@ Portamical.MSTest bridges **Portamical.Core** test data to **MSTest 4**, enablin
 
 ---
 
+## Portamical.MSTest [2.0.0] - 2026-03-19
+
+### ⚠️ BREAKING CHANGES
+
+**Portamical.TestBases.TestBase** (inherited from Portamical 2.0.0)
+
+**Removed IDisposable Implementation**
+```csharp
+// BEFORE (v1):
+public abstract class TestBase : IDisposable
+{
+    protected static ArgsCode ArgsCode { get; set; } = AsInstance;
+    
+    protected static long ResetLogCounter()
+        => Resolver.ResetLogCounter();
+    
+    public void Dispose() { ... }
+    protected virtual void Dispose(bool disposing) { ... }
+}
+
+// AFTER (v2):
+public abstract class TestBase  // ❌ No IDisposable
+{
+    // ❌ Removed: ArgsCode property with setter
+    // ❌ Removed: ResetLogCounter() method
+    // ❌ Removed: Dispose() methods
+    
+    protected static ArgsCode AsInstance => ArgsCode.Instance;
+    protected static ArgsCode AsProperties => ArgsCode.Properties;
+    
+    // ✅ Added: ConvertAsInstance() helpers
+}
+```
+
+**Removed Members:**
+
+    ❌ `IDisposable` interface implementation
+    ❌ `public void Dispose()`
+    ❌ `protected virtual void Dispose(bool disposing)`
+    ❌ `protected static long ResetLogCounter()`
+    ❌ `protected static ArgsCode ArgsCode { get; set; }`
+
+**Migration Required:**
+
+```csharp
+// v1 Code:
+public class MyTests : TestBase
+{
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ArgsCode = AsInstance;      // ❌ Property removed
+            ResetLogCounter();          // ❌ Method removed
+        }
+        base.Dispose(disposing);        // ❌ Base class no longer IDisposable
+    }
+}
+
+// v2 Migration:
+using Portamical.Core.Safety;  // ✅ Add namespace
+
+public class MyTests : TestBase  // ✅ Remove IDisposable inheritance
+{
+    // ✅ Use xUnit v3's lifecycle hooks instead:
+    public MyTests()
+    {
+        // Setup
+    }
+    
+    // ✅ Use IAsyncLifetime or similar for cleanup:
+    public void Dispose()  // ✅ Implement directly if needed
+    {
+        Resolver.ResetLogCounter();  // ✅ Call directly
+    }
+}
+```
+
+---
+
 ## Install
 
 ```bash
@@ -645,6 +725,26 @@ MIT
 ---
 
 ## Changelog
+
+
+### **Version 2.0.0 (2026-03-20)**
+
+- **`PortamicalDataAttribute`**
+  - **`PortamicalDataAttributeBase`** → `PortamicalBaseDataAttribute`
+  - **Added:** `ITestDataSourceIgnoreCapability` interface (discovery control)
+  - **Factory method:** `Create()` maps 6 MSTest constructor patterns
+  - **Constructor Overloads Expanded**
+    - v1: 2 constructors, v2: 6 constructors (all MSTest patterns covered)
+    - Supports: sourceName, sourceType, sourceArgs, declaringType, combinations
+  - **`GetDisplayName()`** Enhanced
+
+- **Documentation Overhaul**
+  - **+2,300 lines** of comprehensive XML docs
+
+- **`TestBase`**
+    `Convert<TTestData>(IEnumerable<TTestData>)` method refactored to use `ConvertAsInstance` helper method instead of the removed static `ArgsCode` proerty.
+
+---
 
 ### **Version 1.0.0 (2026-03-06)**
 
