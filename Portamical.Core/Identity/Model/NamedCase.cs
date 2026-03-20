@@ -51,7 +51,8 @@ namespace Portamical.Core.Identity.Model;
 [SuppressMessage("SonarLint", "S4035:Classes implementing 'IEqualityComparer<T>' should be sealed",
     Justification = "This abstract base class implements IEquatable<T>, not IEqualityComparer<T>. The nested NamedCaseEqualityComparer that implements IEqualityComparer<T> is properly sealed.")]
 public abstract class NamedCase : INamedCase
-{    /// <summary>
+{
+    /// <summary>
      /// Gets the unique name identifying this test case.
      /// </summary>
      /// <value>

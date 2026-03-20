@@ -22,37 +22,100 @@ dotnet add package Portamical
 
 ## What's New
 
-**Thread Safety Enhancement: Removed Static `TestBase.ArgsCode` Property**
+## Portamical [2.0.0] - 2026-03-16
 
-In v1.x, the static `TestBase.ArgsCode` property created race conditions during parallel test execution:
+### Breaking Changes
+- **Removed** `TestBase.ResetLogCounter()` - Use `Resolver.ResetLogCounter()` directly
+- **Removed** `IDisposable` implementation from `Portamical.TestBases.TestBase`
+- **Removed** mutable `ArgsCode` property with setter
+- **Changed** `TestBase` to stateless architecture (thread-safe, immutable design)
+- **Changed** `ITestDataProvider<TTestData>` to **contravariant** (`ITestDataProvider<in TTestData>`)
+- **Changed** `ITestDataConverter<TTestData, TRow>` to **variant** (`ITestDataConverter<in TTestData, out TRow>`)
 
+### Added
+- `ConvertAsInstance<TTestData, T>()` helper methods (2 overloads) for centralized delegation
+- Comprehensive XML documentation (3,000+ lines)
+- `AsInstance`, `AsProperties`, `WithTestCaseName` read-only properties
+- Design pattern documentation (Template Method, Strategy, Delegation)
+- Framework adapter implementation guidelines
+- **Variance support** for generic interfaces enabling flexible type assignments
+
+### Changed
+- **TestBase.cs**: Refactored from 38 lines (stateful, disposable) to 195 lines (stateless, documented)
+- **ITestDataProvider.cs**: Made contravariant to support base-to-derived type assignments
+- **ITestDataConverter.cs**: Made contravariant (input) and covariant (output) for flexible conversions
+- All properties now expression-bodied read-only members
+- Enhanced documentation with examples, remarks, and exception handling
+
+### Documentation
+- Added detailed XML comments for all public APIs
+- Documented variance patterns with practical examples
+- Documented delegation pattern for framework adapters
+- Added usage examples for MSTest, NUnit, xUnit implementations
+- Enhanced parameter descriptions and return value documentation
+- Added thread safety and stateless design notes
+
+### Variance Examples
+
+#### **ITestDataProvider** (Contravariance)
 ```csharp
-// v1.x ? RACE CONDITION EXAMPLE
-// Thread 1: Set ArgsCode to Properties
-TestBase.ArgsCode = AsProperties;
+// BEFORE (v1) - Invariant
+public interface ITestDataProvider<TTestData> { }
 
-// Thread 2: Simultaneously sets ArgsCode to Instance (OVERWRITES Thread 1)
-TestBase.ArgsCode = AsInstance;
+// AFTER (v2) - Contravariant
+public interface ITestDataProvider<in TTestData> { }
 
-// Thread 1: Convert reads ArgsCode.Instance (WRONG VALUE)
-var args = Convert(dataSource.GetArgs());  // Uses Instance instead of Properties
+// Example usage:
+ITestDataProvider<ITestData> generalProvider = new GeneralProvider();
+
+// ✅ Now works: Can use general provider for specific type
+ITestDataProvider<TestDataReturns<int>> specificProvider = generalProvider;
+// Works because TestDataReturns<int> IS AN ITestData (contravariance)
 ```
 
-**v2.0 Solution:** New `ConvertAsInstance` method  
-
-In v2.0, `ConvertAsInstance` is a convenience helper for **instance-mode** conversion that avoids the v1.x static `ArgsCode` state and keeps conversions **thread-safe**.
+### Architecture
 
 ```csharp
-// v2.0
-var args = ConvertAsInstance(convert, testDataCollection, testMethodName);
-```
+// BEFORE (v1)
+public abstract class TestBase : IDisposable
+{
+    protected static ArgsCode ArgsCode { get; set; } = AsInstance; // Mutable
+    protected static long ResetLogCounter() => Resolver.ResetLogCounter();
+    public void Dispose() { ... }
+}
 
-**Equivalent to:** invoking the adapter-supplied conversion delegate with `ArgsCode.Instance`.  
+public interface ITestDataProvider<TTestData> { }      // Invariant
+public interface ITestDataConverter<TTestData, TRow> { } // Invariant
+
+// AFTER (v2)
+public abstract class TestBase // Stateless
+{
+    protected static ArgsCode AsInstance => ArgsCode.Instance;
+    protected static ArgsCode AsProperties => ArgsCode.Properties;
+    
+    // Centralized delegation pattern
+    protected static T ConvertAsInstance<TTestData, T>(
+        Func<IEnumerable<TTestData>, ArgsCode, string?, T> convert,
+        IEnumerable<TTestData> testDataCollection,
+        string? testMethodName)
+    where TTestData : notnull, ITestData;
+}
+
+public interface ITestDataProvider<in TTestData> { }        // Contravariant
+public interface ITestDataConverter<in TTestData, out TRow> { } // Variant
+```
 
 **Migration:**
+// v1 → v2 Migration
+- Remove: IDisposable inheritance
+- Remove: Dispose() methods
+- Remove: ResetLogCounter() calls
 - Remove all `ArgsCode` static field assignments
-- Pass `ArgsCode` as parameter to `Convert()` methods
 - Default behavior unchanged (uses `ArgsCode.Instance`)
++ Add: using Portamical.Core.Safety;
++ Add: Direct Resolver.ResetLogCounter() calls
++ Update: Use AsInstance/AsProperties instead of ArgsCode property
++ Benefit: Leverage variance for flexible type assignments
 
 ---
 
@@ -177,42 +240,55 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
-### **Version 2.0.0 (2026-03-13)**
+### **Version 2.0.0 (2026-03-16)**
 
-#### Breaking Changes
+**Breaking**
+- Removed `TestBase.ResetLogCounter()` → use `Resolver.ResetLogCounter()`
+- Removed `IDisposable` from `TestBase` (now stateless)
+- Removed mutable `ArgsCode` property
+- **Made `ITestDataProvider<TTestData>` contravariant** (`<in TTestData>`)
+- **Made `ITestDataConverter<TTestData, TRow>` variant** (`<in TTestData, out TRow>`)
 
-- **Removed:** `TestBase.ArgsCode` static property (thread safety issue)
+**Added**
+- `ConvertAsInstance<TTestData, T>()` delegation helpers (2 overloads)
+- 3,000+ lines XML documentation
+- Read-only properties: `AsInstance`, `AsProperties`, `WithTestCaseName`
+- **Variance support** for flexible type assignments
 
-#### Major Enhancements
+**Changed**
+- `TestBase`: 38 → 195 lines (stateful → stateless)
+- `ITestDataProvider`: invariant → contravariant (enables base-to-derived assignment)
+- `ITestDataConverter`: invariant → variant (contravariant input + covariant output)
+- All properties now expression-bodied read-only
 
-**Comprehensive XML Documentation**
-- Added extensive XML documentation comments across the entire codebase (65 files updated)
-- Documented design patterns (Template Method, Strategy, Facade, Decorator)
-- Added detailed usage examples with code samples for all public APIs
-- Enhanced documentation for three distinct `TestBase` strategies
+**Variance Benefits**
+```csharp
+// Contravariance example
+ITestDataProvider<ITestData> general = new GeneralProvider();
+ITestDataProvider<TestDataReturns<int>> specific = general; // ✅ Now works
 
-**Core Infrastructure Improvements**
-- **`ConvertAsInstance` Helper Methods:**
-  - Added protected helper methods in base `TestBase` class
-  - Enables framework adapters to default to `ArgsCode.Instance` strategy
-  - Two overloads: with/without `testMethodName` parameter
-  - Thread-safe design (stateless implementation)
+// Variance example
+ITestDataConverter<ITestData, object[]> converter = new GeneralConverter();
+ITestDataConverter<TestDataReturns<int>, object[]> typed = converter; // ✅ Works
+```
 
-- **`TestBases.TestBase` (Base Class):**
-  - Added `AsInstance`, `AsProperties`, `WithTestCaseName` constants
-  - Added `ConvertAsInstance<TTestData, T>` protected helper methods
-  - Serves as foundation for framework-agnostic conversion utilities
+**Migration**
+```diff
+- public class MyTests : TestBase { }  // v1: IDisposable
++ public class MyTests : TestBase { }  // v2: Stateless
 
-- **`TestBases.TestDataCollection.TestBase`:**
-  - Provides `Convert<TTestData>` returning `IReadOnlyCollection<TTestData>`
-  - Automatic deduplication via `ToDistinctArray()` extension
-  - Designed for type-safe test data collection handling
+- ArgsCode = AsProperties;             // v1: Mutable
++ var code = AsProperties;             // v2: Read-only
 
-- **`TestBases.ObjectArrayCollection.TestBase`:**
-  - Provides `Convert<TTestData>` with optional `ArgsCode` parameter
-  - Two-parameter: `Convert(data, argsCode)` for explicit strategy
-  - One-parameter: `Convert(data)` defaults to `ArgsCode.Instance`
-  - Returns `IReadOnlyCollection<object?[]>` for framework compatibility
+- public interface ITestDataProvider<TTestData>              // v1: Invariant
++ public interface ITestDataProvider<in TTestData>           // v2: Contravariant
+
+- public interface ITestDataConverter<TTestData, TRow>       // v1: Invariant
++ public interface ITestDataConverter<in TTestData, out TRow> // v2: Variant
+
+- ResetLogCounter();                   // v1: Instance method
++ Resolver.ResetLogCounter();          // v2: Static call
+```
 
 **Documentation & Code Quality**
 - Enhanced code comments explaining the three-strategy approach
