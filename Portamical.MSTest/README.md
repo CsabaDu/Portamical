@@ -64,24 +64,6 @@ public class MyTests : TestBase
         base.Dispose(disposing);        // ❌ Base class no longer IDisposable
     }
 }
-
-// v2 Migration:
-using Portamical.Core.Safety;  // ✅ Add namespace
-
-public class MyTests : TestBase  // ✅ Remove IDisposable inheritance
-{
-    // ✅ Use xUnit v3's lifecycle hooks instead:
-    public MyTests()
-    {
-        // Setup
-    }
-    
-    // ✅ Use IAsyncLifetime or similar for cleanup:
-    public void Dispose()  // ✅ Implement directly if needed
-    {
-        Resolver.ResetLogCounter();  // ✅ Call directly
-    }
-}
 ```
 
 ---
