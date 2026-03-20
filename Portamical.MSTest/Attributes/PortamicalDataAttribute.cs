@@ -173,7 +173,7 @@ public abstract class PortamicalBaseDataAttribute(
     Type? declaringType = null,
     DynamicDataSourceType? sourceType = null,
     object?[]? sourceArgs = null)
-: Attribute, ITestDataSource
+: Attribute, ITestDataSource, ITestDataSourceIgnoreCapability
 {
     private readonly DynamicDataAttribute _innerAttribute =
         Create(sourceName, declaringType, sourceType, sourceArgs);
@@ -287,11 +287,11 @@ public abstract class PortamicalBaseDataAttribute(
                 "Use sourceType to explicitly mark as Method/Property, " +
                 "OR use sourceArgs for parameterized methods (implies Method type)."),
 
-            // Overload 6: new DynamicDataAttribute(sourceName, declaringType, sourceArgs)
-            (not null, null, not null) => new(sourceName, declaringType, sourceArgs),
-
-            // Overload 5: new DynamicDataAttribute(sourceName, declaringType, sourceType)
+            // Overload 6: new DynamicDataAttribute(sourceName, declaringType, sourceType)
             (not null, not null, null) => new(sourceName, declaringType, sourceType.Value),
+
+            // Overload 5: new DynamicDataAttribute(sourceName, declaringType, sourceArgs)
+            (not null, null, not null) => new(sourceName, declaringType, sourceArgs),
 
             // Overload 4: new DynamicDataAttribute(sourceName, declaringType)
             (not null, null, null) => new(sourceName, declaringType),
@@ -305,6 +305,36 @@ public abstract class PortamicalBaseDataAttribute(
             // Overload 1: new DynamicDataAttribute(sourceName)
             _ => new(sourceName),
         };
+    }
+
+    /// <summary>
+    /// Gets or sets the message that explains why a condition is being ignored.
+    /// </summary>
+    public string? IgnoreMessage
+    {
+        get => _innerAttribute.IgnoreMessage;
+        set => _innerAttribute.IgnoreMessage = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the display name used for dynamic data scenarios.
+    /// </summary>
+    public string? DynamicDataDisplayName
+    {
+        get => _innerAttribute.DynamicDataDisplayName;
+        set => _innerAttribute.DynamicDataDisplayName = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the type that declares the display name for dynamic data scenarios.
+    /// </summary>
+    /// <remarks>This property is typically used in dynamic data frameworks to specify the type that contains
+    /// the display name metadata for a data field or property. Setting this property enables custom display name
+    /// resolution based on the specified type.</remarks>
+    public Type? DynamicDataDisplayNameDeclaringType
+    {
+        get => _innerAttribute.DynamicDataDisplayNameDeclaringType;
+        set => _innerAttribute.DynamicDataDisplayNameDeclaringType = value;
     }
 
     /// <summary>
@@ -702,38 +732,6 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     : base(sourceName, declaringType: declaringType) { }
 
     /// <summary>
-    /// Initializes a new instance with a data source name, declaring type, and explicit source type.
-    /// </summary>
-    /// <param name="sourceName">
-    /// The name of the method or property providing test data.
-    /// </param>
-    /// <param name="declaringType">
-    /// The type that declares the data source member.
-    /// </param>
-    /// <param name="sourceType">
-    /// Explicitly specifies whether the source is a <see cref="DynamicDataSourceType.Method"/> or
-    /// <see cref="DynamicDataSourceType.Property"/>.
-    /// </param>
-    /// <remarks>
-    /// <para>
-    /// Combines declaring type specification with explicit source type. Use when referencing
-    /// test data from another class and you want to be explicit about the member type.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// [DataTestMethod]
-    /// [PortamicalData("GetTestData", typeof(SharedTestData), DynamicDataSourceType.Method)]
-    /// public void TestMethod(string testCaseName, ...) { }
-    /// 
-    /// // MSTest will look for a method in SharedTestData:
-    /// public static IEnumerable&lt;object[]&gt; GetTestData() { }
-    /// </code>
-    /// </example>
-    public PortamicalDataAttribute(string sourceName, Type declaringType, DynamicDataSourceType sourceType)
-    : base(sourceName, declaringType: declaringType, sourceType: sourceType) { }
-
-    /// <summary>
     /// Initializes a new instance with a data source method name, declaring type, and arguments.
     /// </summary>
     /// <param name="sourceName">
@@ -764,4 +762,36 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     /// </example>
     public PortamicalDataAttribute(string sourceName, Type declaringType, params object?[] sourceArgs)
     : base(sourceName, declaringType: declaringType, sourceArgs: sourceArgs) { }
+
+    /// <summary>
+    /// Initializes a new instance with a data source name, declaring type, and explicit source type.
+    /// </summary>
+    /// <param name="sourceName">
+    /// The name of the method or property providing test data.
+    /// </param>
+    /// <param name="declaringType">
+    /// The type that declares the data source member.
+    /// </param>
+    /// <param name="sourceType">
+    /// Explicitly specifies whether the source is a <see cref="DynamicDataSourceType.Method"/> or
+    /// <see cref="DynamicDataSourceType.Property"/>.
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// Combines declaring type specification with explicit source type. Use when referencing
+    /// test data from another class and you want to be explicit about the member type.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// [DataTestMethod]
+    /// [PortamicalData("GetTestData", typeof(SharedTestData), DynamicDataSourceType.Method)]
+    /// public void TestMethod(string testCaseName, ...) { }
+    /// 
+    /// // MSTest will look for a method in SharedTestData:
+    /// public static IEnumerable&lt;object[]&gt; GetTestData() { }
+    /// </code>
+    /// </example>
+    public PortamicalDataAttribute(string sourceName, Type declaringType, DynamicDataSourceType sourceType)
+    : base(sourceName, declaringType: declaringType, sourceType: sourceType) { }
 }
