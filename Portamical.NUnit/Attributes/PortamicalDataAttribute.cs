@@ -261,7 +261,7 @@ public abstract class PortamicalBaseDataAttribute(
                 var memberInfo = getMemberInfo(sourceType, sourceName, sourceTypeFullName);
                 var memberType = getMemberReturnType(memberInfo);
 
-                if (typeof(System.Collections.IEnumerable).IsAssignableFrom(memberType))
+                if (memberType.IsAssignableTo(typeof(System.Collections.IEnumerable)))
                 {
                     return;
                 }
