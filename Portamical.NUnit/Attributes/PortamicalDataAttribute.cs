@@ -255,16 +255,16 @@ public abstract class PortamicalBaseDataAttribute(
         static void validateSourceType(Type sourceType, string sourceName)
         {
             var sourceTypeFullName = sourceType.FullName;
+            var isValidType = sourceType.IsClass || sourceType.IsInterface;
 
-            if (sourceType.IsClass || sourceType.IsInterface)
+            if (isValidType)
             {
                 var memberInfo = getMemberInfo(sourceType, sourceName, sourceTypeFullName);
                 var memberType = getMemberReturnType(memberInfo);
+                isValidType = memberType.IsAssignableTo(
+                    typeof(System.Collections.IEnumerable));
 
-                if (memberType.IsAssignableTo(typeof(System.Collections.IEnumerable)))
-                {
-                    return;
-                }
+                if (isValidType) return;
 
                 throw new ArgumentException(
                     $"Source member '{sourceName}' must return an IEnumerable, " +
@@ -275,8 +275,8 @@ public abstract class PortamicalBaseDataAttribute(
             var message = sourceType.IsValueType ?
                 $"Source type cannot be a struct: {sourceTypeFullName}. " +
                 $"Use a class or interface instead."
-                : $"Source type must be a class or interface: {sourceTypeFullName}. " +
-                    $"Actual type: {sourceType.Name}";
+                : $"Source type must be a class or interface. " +
+                    $"Actual type: {sourceTypeFullName}";
 
             throw new ArgumentException(message, nameof(sourceType));
         }
@@ -318,16 +318,13 @@ public abstract class PortamicalBaseDataAttribute(
                 BindingFlags.Static |
                 BindingFlags.FlattenHierarchy);
 
-            if (member.Length == 0)
-            {
-                throw new ArgumentException(
-                    $"Source member '{sourceName}' " +
-                    $"not found or not accessible on type '{sourceTypeFullName}'. " +
-                    "Ensure it exists and is public static.",
-                    nameof(sourceName));
-            }
+            if (member.Length > 0) return member[0];
 
-            return member[0];
+            throw new ArgumentException(
+                $"Source member '{sourceName}' " +
+                $"not found or not accessible on type '{sourceTypeFullName}'. " +
+                "Ensure it exists and is public static.",
+                nameof(sourceName));
         }
         #endregion
     }
