@@ -517,6 +517,31 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
+### **Version 2.0.0 (2026-03-20)**
+
+#### **Breaking Changes (from Portamical 2.0.0 base)**
+
+- **Removed from TestBase:**
+  - ❌ `IDisposable` interface implementation
+  - ❌ `Dispose()` and `Dispose(bool)` methods
+  - ❌ `ResetLogCounter()` method ? use `Resolver.ResetLogCounter()`
+  - ❌ `ArgsCode` property with setter
+
+#### **Non-Breaking Changes**
+
+- **`PortamicalDataAttribute`**
+  - **`PortamicalDataAttributeBase`** → `PortamicalBaseDataAttribute`
+
+- **`TestBase`**
+  - `Convert<TTestData>(IEnumerable<TTestData>, string?)` method refactored to use `ConvertAsInstance` helper method instead of the removed static `ArgsCode` proerty.
+
+- **`TestDataConverter.ToTestCaseData`** - Refactored.
+
+- **Documentation Overhaul**
+- **690+ lines** of comprehensive XML docs
+
+---
+
 ### **Version 1.0.0 (2026-03-06)**
 
 - **Initial release**

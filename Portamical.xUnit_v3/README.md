@@ -950,10 +950,10 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 #### **Breaking Changes (from Portamical 2.0.0 base)**
 
 **Removed from TestBase:**
-- ? `IDisposable` interface implementation
-- ? `Dispose()` and `Dispose(bool)` methods
-- ? `ResetLogCounter()` method ? use `Resolver.ResetLogCounter()`
-- ? `ArgsCode` property with setter
+- ❌ `IDisposable` interface implementation
+- ❌ `Dispose()` and `Dispose(bool)` methods
+- ❌ `ResetLogCounter()` method ? use `Resolver.ResetLogCounter()`
+- ❌ `ArgsCode` property with setter
 
 **Migration:**
 ```diff
