@@ -13,19 +13,28 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>test; unittest; testdata; portable; dynamicdata; datadriven; mstest;</PackageTags>
-    <PackageReleaseNotes>- Initial release  
-- MSTest 4.0.2+ integration  
-- `PortamicalDataAttribute` with `DynamicDataDisplayName`  
-- `TestBase` with `Convert()` methods  
-- MSTest-specific `PortamicalAssert`  
-- `ToArgsWithTestCaseName()` converter
+    <PackageReleaseNotes>- Breaking Changes (from Portamical 2.0.0 base: TestBase members removed)
+- `PortamicalDataAttribute`
+  - `PortamicalDataAttributeBase` → `PortamicalBaseDataAttribute`
+  - Added: `ITestDataSourceIgnoreCapability` interface (discovery control)
+  - Factory method: `Create()` maps 6 MSTest constructor patterns
+  - Constructor Overloads Expanded**
+    - v1: 2 constructors, v2: 6 constructors (all MSTest patterns covered)
+    - Supports: sourceName, sourceType, sourceArgs, declaringType, combinations
+  - `GetDisplayName()` Enhanced
+- `TestBase`
+   - `Convert&lt;TTestData&gt;(IEnumerable&lt;TTestData&gt;)` method refactored to use `ConvertAsInstance` helper method instead of the removed static `ArgsCode` proerty.
+- Documentation Overhaul
+  - +2,300 lines of comprehensive XML docs
+
+
 </PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>2.0.0-beta</Version>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
