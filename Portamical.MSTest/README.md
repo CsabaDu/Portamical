@@ -726,7 +726,6 @@ MIT
 
 ## Changelog
 
-
 ### **Version 2.0.0 (2026-03-20)**
 
 - **`PortamicalDataAttribute`**
@@ -738,11 +737,19 @@ MIT
     - Supports: sourceName, sourceType, sourceArgs, declaringType, combinations
   - **`GetDisplayName()`** Enhanced
 
+- **`TestBase`**
+    `Convert<TTestData>(IEnumerable<TTestData>)` method refactored to use `ConvertAsInstance` helper method instead of the removed static `ArgsCode` proerty.
+
 - **Documentation Overhaul**
   - **+2,300 lines** of comprehensive XML docs
 
-- **`TestBase`**
-    `Convert<TTestData>(IEnumerable<TTestData>)` method refactored to use `ConvertAsInstance` helper method instead of the removed static `ArgsCode` proerty.
+---
+
+##### **Version 2.0.1 (2026-03-20)**
+
+- **Dependency updates** 
+  - `Microsoft.Extensions.Configuration.UserSecrets`: Version 10.0.3 to 10.0.5
+  - `Portamical` Version: 2.0.0-beta to 2.0.0
 
 ---
 
