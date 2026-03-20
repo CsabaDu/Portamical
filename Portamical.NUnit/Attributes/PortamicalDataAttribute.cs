@@ -589,9 +589,7 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     /// </code>
     /// </example>
     public PortamicalDataAttribute(string sourceName)
-    : base(sourceName)
-    {
-    }
+    : base(sourceName) { }
 
     /// <summary>
     /// Initializes a new instance with a data source name and method parameters.
@@ -606,9 +604,7 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     /// </code>
     /// </example>
     public PortamicalDataAttribute(string sourceName, object?[] methodParams)
-    : base(sourceName, methodParams: methodParams)
-    {
-    }
+    : base(sourceName, methodParams: methodParams) { }
 
     /// <summary>
     /// Initializes a new instance with a data source type and name.
@@ -623,9 +619,7 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     /// </code>
     /// </example>
     public PortamicalDataAttribute(Type sourceType, string sourceName)
-    : base(sourceName, sourceType: sourceType)
-    {
-    }
+    : base(sourceName, sourceType: sourceType) { }
 
     /// <summary>
     /// Initializes a new instance with a data source type, name, and method parameters.
@@ -641,7 +635,5 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     /// </code>
     /// </example>
     public PortamicalDataAttribute(Type sourceType, string sourceName, object?[] methodParams)
-    : base(sourceName, sourceType: sourceType, methodParams: methodParams)
-    {
-    }
+    : base(sourceName, sourceType: sourceType, methodParams: methodParams) { }
 }
