@@ -6,6 +6,87 @@ Portamical.xUnit bridges **Portamical.Core** test data to **xUnit v2**, enabling
 
 ---
 
+## Portamical.xUnit [2.0.0] - 2026-03-23
+
+### ⚠️ BREAKING CHANGES
+
+**Portamical.TestBases.TestBase** (inherited from Portamical 2.0.0)
+
+**Removed IDisposable Implementation**
+```csharp
+// BEFORE (v1):
+public abstract class TestBase : IDisposable
+{
+    protected static ArgsCode ArgsCode { get; set; } = AsInstance;
+    
+    protected static long ResetLogCounter()
+        => Resolver.ResetLogCounter();
+    
+    public void Dispose() { ... }
+    protected virtual void Dispose(bool disposing) { ... }
+}
+
+// AFTER (v2):
+public abstract class TestBase  // ❌ No IDisposable
+{
+    // ❌ Removed: ArgsCode property with setter
+    // ❌ Removed: ResetLogCounter() method
+    // ❌ Removed: Dispose() methods
+    
+    protected static ArgsCode AsInstance => ArgsCode.Instance;
+    protected static ArgsCode AsProperties => ArgsCode.Properties;
+    
+    // ✅ Added: ConvertAsInstance() helpers
+}
+```
+
+**Removed Members:**
+
+    ❌ `IDisposable` interface implementation
+    ❌ `public void Dispose()`
+    ❌ `protected virtual void Dispose(bool disposing)`
+    ❌ `protected static long ResetLogCounter()`
+    ❌ `protected static ArgsCode ArgsCode { get; set; }`
+
+**Migration Required:**
+
+```csharp
+// v1 Code:
+public class MyTests : TestBase
+{
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ArgsCode = AsInstance;      // ❌ Property removed
+            ResetLogCounter();          // ❌ Method removed
+        }
+        base.Dispose(disposing);        // ❌ Base class no longer IDisposable
+    }
+}
+
+// v2 Migration:
+using Portamical.Core.Safety;  // ✅ Add namespace
+
+public class MyTests : TestBase  // ✅ Remove IDisposable inheritance
+{
+    // ✅ Use xUnit v2's lifecycle hooks instead:
+    public MyTests()
+    {
+        // Setup
+    }
+    
+    // ✅ Use IAsyncLifetime or similar for cleanup:
+    public void Dispose()  // ✅ Implement directly if needed
+    {
+        Resolver.ResetLogCounter();  // ✅ Call directly if requred
+    }
+}
+```
+
+---
+
+
 ## Install
 
 ```bash
@@ -750,13 +831,51 @@ public void Test(TestData<int> testData) { ... }
 
 ---
 
-## License
+## License and Project Lineage
 
-MIT
+This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt).
+
+`Portamical.xUnit` is the **continuation and successor** of `CsabaDu.DynamicTestData.xUnit.v3` (also MIT-licensed).  
+`CsabaDu.DynamicTestData.xUnit` is considered **legacy** and is **no longer supported**; new development happens in Portamical.
 
 ---
 
 ## Changelog
+
+### **Version 2.0.0 (2026-03-23)**
+
+#### **Breaking Changes (from Portamical 2.0.0 base)**
+
+- ❌ `IDisposable` interface implementation
+- ❌ `Dispose()` and `Dispose(bool)` methods
+- ❌ `ResetLogCounter()` method ? use `Resolver.ResetLogCounter()`
+- ❌ `ArgsCode` property with setter
+
+#### What's New
+
+| Change | Details |
+|--------|---------|
+| **Base Renamed** | `PortamicalDataAttributeBase` → `PortamicalBaseDataAttribute` |
+| **Convert() Refactored** | NEW parameterless overload (default `ArgsCode.Instance`) |
+| **Pragma IDE0060** | Unused `testMethodName` (signature compatibility) |
+| **Pragma CA1825** | Zero-length array false positive (compiler optimized) |
+| **Documentation** | +640 lines with pragma justifications & 18+ examples |
+| **TestBase Variants** | 2 options: `TestBase` (Builder) or `TheoryData.TestBase` (Modern) |
+
+#### Migration
+
+```csharp
+// If using IDisposable:
+public class MyTests : TestBase, IDisposable
+{
+    public void Dispose() => Resolver.ResetLogCounter();
+}
+
+// If using static ArgsCode:
+Convert(testData, ArgsCode.Instance);  // ← Pass explicitly
+```
+
+---
 
 ### **Version 1.0.0 (2026-03-06)**
 

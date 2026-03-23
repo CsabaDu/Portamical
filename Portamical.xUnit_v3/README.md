@@ -79,7 +79,7 @@ public class MyTests : TestBase  // ✅ Remove IDisposable inheritance
     // ✅ Use IAsyncLifetime or similar for cleanup:
     public void Dispose()  // ✅ Implement directly if needed
     {
-        Resolver.ResetLogCounter();  // ✅ Call directly
+        Resolver.ResetLogCounter();  // ✅ Call directly if required
     }
 }
 ```
@@ -933,7 +933,6 @@ public void Test(TestData<int> testData) { ... }
 
 ---
 
-
 ## License and Project Lineage
 
 This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt).
@@ -977,13 +976,15 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 #### **Non-Breaking Changes**
 
 **Documentation Added**
-(+1,768 lines)  
+(+1,7768 lines)  
 - TheoryTestDataRow constructors: 3-level hierarchy, visibility rationale
-- TheoryTestData.Add(): Runtime type validation, deduplication logic
-- TestBase: Stateless delegation patterns
-- CollectionConverter: Conversion pipeline documentation
-- PortamicalDataAttribute: xUnit v3 integration details
+- `TheoryTestData.Add()`: Runtime type validation, deduplication logic
+- `TestBase`: Stateless delegation patterns
+- `CollectionConverter`: Conversion pipeline documentation
+- `PortamicalDataAttributeBase`: renamed to `PortamicalBaseDataAttribute`
+- `PortamicalDataAttribute`: xUnit integration details
 - 20+ code examples, design patterns, migration guides
+- `xunit.runner.json`: moved from base Portamical module
 
 **Code Enhancements**
 
