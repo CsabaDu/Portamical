@@ -6,6 +6,68 @@ Portamical.NUnit bridges **Portamical.Core** test data to **NUnit 4**, enabling 
 
 ---
 
+## Portamical.NUnit [2.0.0] - 2026-03-20
+
+### ⚠️ BREAKING CHANGES
+
+**Portamical.TestBases.TestBase** (inherited from Portamical 2.0.0)
+
+**Removed IDisposable Implementation**
+```csharp
+// BEFORE (v1):
+public abstract class TestBase : IDisposable
+{
+    protected static ArgsCode ArgsCode { get; set; } = AsInstance;
+    
+    protected static long ResetLogCounter()
+        => Resolver.ResetLogCounter();
+    
+    public void Dispose() { ... }
+    protected virtual void Dispose(bool disposing) { ... }
+}
+
+// AFTER (v2):
+public abstract class TestBase  // ❌ No IDisposable
+{
+    // ❌ Removed: ArgsCode property with setter
+    // ❌ Removed: ResetLogCounter() method
+    // ❌ Removed: Dispose() methods
+    
+    protected static ArgsCode AsInstance => ArgsCode.Instance;
+    protected static ArgsCode AsProperties => ArgsCode.Properties;
+    
+    // ✅ Added: ConvertAsInstance() helpers
+}
+```
+
+**Removed Members:**
+
+    ❌ `IDisposable` interface implementation
+    ❌ `public void Dispose()`
+    ❌ `protected virtual void Dispose(bool disposing)`
+    ❌ `protected static long ResetLogCounter()`
+    ❌ `protected static ArgsCode ArgsCode { get; set; }`
+
+**Migration Required:**
+
+```csharp
+// v1 Code:
+public class MyTests : TestBase
+{
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ArgsCode = AsInstance;      // ❌ Property removed
+            ResetLogCounter();          // ❌ Method removed
+        }
+        base.Dispose(disposing);        // ❌ Base class no longer IDisposable
+    }
+}
+```
+
+---
+
 ## Install
 
 ```bash
@@ -444,13 +506,41 @@ Portamical.Core (Domain)
 
 ---
 
-## License
+## License and Project Lineage
 
-MIT
+This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt).
+
+`Portamical.NUnit` is the **continuation and successor** of `CsabaDu.DynamicTestData.NUnit` (also MIT-licensed).  
+`CsabaDu.DynamicTestData.NUnit` is considered **legacy** and is **no longer supported**; new development happens in Portamical.
 
 ---
 
 ## Changelog
+
+### **Version 2.0.0 (2026-03-20)**
+
+#### **Breaking Changes (from Portamical 2.0.0 base)**
+
+- **Removed from TestBase:**
+  - ❌ `IDisposable` interface implementation
+  - ❌ `Dispose()` and `Dispose(bool)` methods
+  - ❌ `ResetLogCounter()` method ? use `Resolver.ResetLogCounter()`
+  - ❌ `ArgsCode` property with setter
+
+#### **Non-Breaking Changes**
+
+- **`PortamicalDataAttribute`**
+  - **`PortamicalDataAttributeBase`** → `PortamicalBaseDataAttribute`
+
+- **`TestBase`**
+  - `Convert<TTestData>(IEnumerable<TTestData>, string?)` method refactored to use `ConvertAsInstance` helper method instead of the removed static `ArgsCode` proerty.
+
+- **`TestDataConverter.ToTestCaseData`** - Refactored.
+
+- **Documentation Overhaul**
+- **690+ lines** of comprehensive XML docs
+
+---
 
 ### **Version 1.0.0 (2026-03-06)**
 

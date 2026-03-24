@@ -13,17 +13,26 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>test; unittest; testdata; portable; dynamicdata; datadriven; nunit;</PackageTags>
-    <PackageReleaseNotes>- Initial release
-- NUnit 4.4.0+ integration
-- `PortamicalDataAttribute` for test data
-- `TestBase` with `Convert()` methods
-- NUnit-specific `PortamicalAssert`</PackageReleaseNotes>
+    <PackageReleaseNotes>Breaking Changes (from Portamical 2.0.0 base)
+- Removed from TestBase:
+  - ❌ `IDisposable` interface implementation
+  - ❌ `Dispose()` and `Dispose(bool)` methods
+  - ❌ `ResetLogCounter()` method ? use `Resolver.ResetLogCounter()`
+  - ❌ `ArgsCode` property with setter
+Non-Breaking Changes
+- `PortamicalDataAttribute`
+  - `PortamicalDataAttributeBase` → `PortamicalBaseDataAttribute`
+- `TestBase`
+  - Convert&lt;TTestData&gt;(IEnumerable&lt;TTestData&gt;, string?)` method refactored to use `ConvertAsInstance` helper method instead of the removed static `ArgsCode` proerty.
+- `TestDataConverter.ToTestCaseData` - Refactored.
+- Documentation Overhaul
+- 690+ lines of comprehensive XML docs</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <FileVersion>2.0.0-beta</FileVersion>
-    <Version>2.0.0-beta</Version>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,7 +52,7 @@
 
   <ItemGroup>
     <PackageReference Include="NUnitLite" Version="4.5.1" />
-    <PackageReference Include="Portamical" Version="2.0.0-beta" />
+    <PackageReference Include="Portamical" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>

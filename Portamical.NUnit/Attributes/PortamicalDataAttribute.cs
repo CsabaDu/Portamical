@@ -255,16 +255,16 @@ public abstract class PortamicalBaseDataAttribute(
         static void validateSourceType(Type sourceType, string sourceName)
         {
             var sourceTypeFullName = sourceType.FullName;
+            var isValidType = sourceType.IsClass || sourceType.IsInterface;
 
-            if (sourceType.IsClass || sourceType.IsInterface)
+            if (isValidType)
             {
                 var memberInfo = getMemberInfo(sourceType, sourceName, sourceTypeFullName);
                 var memberType = getMemberReturnType(memberInfo);
+                isValidType = memberType.IsAssignableTo(
+                    typeof(System.Collections.IEnumerable));
 
-                if (typeof(System.Collections.IEnumerable).IsAssignableFrom(memberType))
-                {
-                    return;
-                }
+                if (isValidType) return;
 
                 throw new ArgumentException(
                     $"Source member '{sourceName}' must return an IEnumerable, " +
@@ -275,8 +275,8 @@ public abstract class PortamicalBaseDataAttribute(
             var message = sourceType.IsValueType ?
                 $"Source type cannot be a struct: {sourceTypeFullName}. " +
                 $"Use a class or interface instead."
-                : $"Source type must be a class or interface: {sourceTypeFullName}. " +
-                    $"Actual type: {sourceType.Name}";
+                : $"Source type must be a class or interface. " +
+                    $"Actual type: {sourceTypeFullName}";
 
             throw new ArgumentException(message, nameof(sourceType));
         }
@@ -318,16 +318,13 @@ public abstract class PortamicalBaseDataAttribute(
                 BindingFlags.Static |
                 BindingFlags.FlattenHierarchy);
 
-            if (member.Length == 0)
-            {
-                throw new ArgumentException(
-                    $"Source member '{sourceName}' " +
-                    $"not found or not accessible on type '{sourceTypeFullName}'. " +
-                    "Ensure it exists and is public static.",
-                    nameof(sourceName));
-            }
+            if (member.Length > 0) return member[0];
 
-            return member[0];
+            throw new ArgumentException(
+                $"Source member '{sourceName}' " +
+                $"not found or not accessible on type '{sourceTypeFullName}'. " +
+                "Ensure it exists and is public static.",
+                nameof(sourceName));
         }
         #endregion
     }
@@ -592,9 +589,7 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     /// </code>
     /// </example>
     public PortamicalDataAttribute(string sourceName)
-    : base(sourceName)
-    {
-    }
+    : base(sourceName) { }
 
     /// <summary>
     /// Initializes a new instance with a data source name and method parameters.
@@ -609,9 +604,7 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     /// </code>
     /// </example>
     public PortamicalDataAttribute(string sourceName, object?[] methodParams)
-    : base(sourceName, methodParams: methodParams)
-    {
-    }
+    : base(sourceName, methodParams: methodParams) { }
 
     /// <summary>
     /// Initializes a new instance with a data source type and name.
@@ -626,9 +619,7 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     /// </code>
     /// </example>
     public PortamicalDataAttribute(Type sourceType, string sourceName)
-    : base(sourceName, sourceType: sourceType)
-    {
-    }
+    : base(sourceName, sourceType: sourceType) { }
 
     /// <summary>
     /// Initializes a new instance with a data source type, name, and method parameters.
@@ -644,7 +635,5 @@ public sealed class PortamicalDataAttribute : PortamicalBaseDataAttribute
     /// </code>
     /// </example>
     public PortamicalDataAttribute(Type sourceType, string sourceName, object?[] methodParams)
-    : base(sourceName, sourceType: sourceType, methodParams: methodParams)
-    {
-    }
+    : base(sourceName, sourceType: sourceType, methodParams: methodParams) { }
 }
