@@ -79,7 +79,7 @@ public class MyTests : TestBase  // ✅ Remove IDisposable inheritance
     // ✅ Use IAsyncLifetime or similar for cleanup:
     public void Dispose()  // ✅ Implement directly if needed
     {
-        Resolver.ResetLogCounter();  // ✅ Call directly if required
+        Resolver.ResetLogCounter();  // ✅ Call directly
     }
 }
 ```
