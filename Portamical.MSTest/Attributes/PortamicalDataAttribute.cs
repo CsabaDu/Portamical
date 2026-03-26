@@ -446,8 +446,7 @@ public abstract class PortamicalBaseDataAttribute(
                     : null;
         }
 
-        return displayName
-            ?? _innerAttribute.GetDisplayName(methodInfo, data);
+        return displayName ?? _innerAttribute.GetDisplayName(methodInfo, data);
     }
 }
 
