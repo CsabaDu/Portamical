@@ -246,8 +246,8 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 - Removed `TestBase.ResetLogCounter()` → use `Resolver.ResetLogCounter()`
 - Removed `IDisposable` from `TestBase` (now stateless)
 - Removed mutable `ArgsCode` property
-- **Made `ITestDataProvider<TTestData>` contravariant** (`<in TTestData>`)
-- **Made `ITestDataConverter<TTestData, TRow>` variant** (`<in TTestData, out TRow>`)
+- Made `ITestDataProvider<TTestData>` contravariant (`<in TTestData>`)
+- Made `ITestDataConverter<TTestData, TRow>` variant (`<in TTestData, out TRow>`)
 
 **Added**
 - `ConvertAsInstance<TTestData, T>()` delegation helpers (2 overloads)
@@ -295,6 +295,19 @@ ITestDataConverter<TestDataReturns<int>, object[]> typed = converter; // ✅ Wor
 - Improved method naming consistency across base classes
 - Added comprehensive examples for each strategy
 - Clarified inheritance relationships between `TestBase` classes
+
+---
+
+##### **Version 2.0.1 (2026-03-20)**
+
+
+
+---
+
+##### **Version 2.0.2 (2026-04-02)**
+
+**Changed**
+- Updated Portamical.Core dependency: 2.0.0 → 2.0.1
 
 ---
 
