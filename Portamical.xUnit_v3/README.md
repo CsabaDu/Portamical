@@ -1048,6 +1048,13 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
+##### **Version 2.0.2 (2026-04-03)**
+
+**Dependencies**
+- Portamical: 2.0.0 ? 2.0.2
+
+---
+
 ### **Version 1.0.0 (2026-03-06)**
 
 - **Initial release**

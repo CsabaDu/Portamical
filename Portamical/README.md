@@ -300,7 +300,8 @@ ITestDataConverter<TestDataReturns<int>, object[]> typed = converter; // ✅ Wor
 
 ##### **Version 2.0.1 (2026-03-20)**
 
-
+**Documentation Update**
+- Breaking Changes description corrected.
 
 ---
 
