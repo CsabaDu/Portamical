@@ -115,6 +115,15 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
+##### **Version 2.0.1 (2026-04-02)**
+
+**`NamedCase.CreateDisplayName` Guard Centralization**
+- `CreateDisplayName(MethodInfo?, params object?[]?)` now validates that `args[0]` is `string` or `INamedCase` before delegating to the `string`-based overload; returns `null` early otherwise.
+- This moves the `args[0]` type-check from call sites (e.g., `PortamicalBaseDataAttribute.GetDisplayName`) into the core method, ensuring consistent behavior for all callers.
+- Minor formatting fix in `NamedCase` class declaration.  
+
+---
+
 ### **Version 1.0.0 (2026-03-04)**
 
 - **Initial release**

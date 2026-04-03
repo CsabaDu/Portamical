@@ -298,7 +298,9 @@ public abstract class NamedCase : INamedCase
     /// A string representing the display name for the test method, or null if a display name cannot be generated.
     /// </returns>
     public static string? CreateDisplayName(MethodInfo? testMethod, params object?[]? args)
-    => CreateDisplayName(testMethod?.Name, args);
+    => args is { Length: > 0 } &&  args[0] is string or INamedCase ?
+        CreateDisplayName(testMethod?.Name, args)
+        : null;
 
     /// <summary>
     /// Determines whether the specified collection contains the given named case using a predefined comparer.

@@ -13,31 +13,21 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>test; unittest; testdata; portable; dynamicdata; datadriven; mstest;</PackageTags>
-    <PackageReleaseNotes>- Dependency updates 
-  - Microsoft.Extensions.Configuration.UserSecrets: Version 10.0.3 to 10.0.5
-  - Portamical Version: 2.0.0-beta to 2.0.0
-- Breaking Changes (from Portamical 2.0.0 base: TestBase members removed)
-- `PortamicalDataAttribute`
-  - `PortamicalDataAttributeBase` → `PortamicalBaseDataAttribute`
-  - Added: `ITestDataSourceIgnoreCapability` interface (discovery control)
-  - Factory method: `Create()` maps 6 MSTest constructor patterns
-- Constructor Overloads Expanded
-    - v1: 2 constructors, v2: 6 constructors (all MSTest patterns covered)
-    - Supports: sourceName, sourceType, sourceArgs, declaringType, combinations
-  - `GetDisplayName()` Enhanced
-- `TestBase`
-   - `Convert&lt;TTestData&gt;(IEnumerable&lt;TTestData&gt;)` method refactored to use `ConvertAsInstance` helper method instead of the removed static `ArgsCode` property.
-- Documentation Overhaul
-  - +2,300 lines of comprehensive XML docs
+    <PackageReleaseNotes>v2.1.0
+Changed
+ - PortamicalBaseDataAttribute.GetDisplayName() — Simplified display-name resolution: replaced inline data[0] type guard (string or INamedCase) with a DynamicDataDisplayName is null check, delegating data-type validation to NamedCase.CreateDisplayName() in Portamical.Core 2.0.1
 
+Fixed
+- GetDisplayName() now correctly respects user-specified DynamicDataDisplayName — when explicitly set, the Portamical enhanced display-name logic is bypassed and MSTest's built-in formatting is used
 
-</PackageReleaseNotes>
+Dependencies
+- Portamical: 2.0.0 → 2.0.2</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -58,7 +48,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.5" />
     <PackageReference Include="MSTest.TestFramework" Version="4.1.0" />
-    <PackageReference Include="Portamical" Version="2.0.0" />
+    <PackageReference Include="Portamical" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>

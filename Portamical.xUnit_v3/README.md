@@ -933,7 +933,6 @@ public void Test(TestData<int> testData) { ... }
 
 ---
 
-
 ## License and Project Lineage
 
 This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt).
@@ -1046,6 +1045,13 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
   - Code: ~110 lines (60 xUnit_v3, 50 Portamical base)
   - Breaking Changes: 3 (TestBase members removed)
   - Enhancements: 4 (visibility, validation, deep copy, overload)
+
+---
+
+##### **Version 2.0.2 (2026-04-03)**
+
+**Dependencies**
+- Portamical: 2.0.0 ? 2.0.2
 
 ---
 

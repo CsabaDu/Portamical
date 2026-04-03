@@ -436,14 +436,11 @@ public abstract class PortamicalBaseDataAttribute(
     {
         ArgumentNullException.ThrowIfNull(methodInfo);
 
-        string? displayName =
-            data is { Length: > 0 } &&
-            data[0] is string or INamedCase ?
-                NamedCase.CreateDisplayName(methodInfo, data)
-                : null;
+        string? displayName = DynamicDataDisplayName is null ?
+            NamedCase.CreateDisplayName(methodInfo, data)
+            : null;
 
-        return displayName
-            ?? _innerAttribute.GetDisplayName(methodInfo, data);
+        return displayName ?? _innerAttribute.GetDisplayName(methodInfo, data);
     }
 }
 
