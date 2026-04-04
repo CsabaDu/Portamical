@@ -748,10 +748,10 @@ MIT
 ##### **Version 2.1.0 (2026-04-02)**
 
 **Changed**
- - PortamicalBaseDataAttribute.GetDisplayName() — Simplified display-name resolution: replaced inline data[0] type guard (string or INamedCase) with a DynamicDataDisplayName is null check, delegating data-type validation to NamedCase.CreateDisplayName() in Portamical.Core 2.0.1
+ - PortamicalBaseDataAttribute.GetDisplayName() ï¿½ Simplified display-name resolution: replaced inline data[0] type guard (string or INamedCase) with a DynamicDataDisplayName is null check, delegating data-type validation to NamedCase.CreateDisplayName() in Portamical.Core 2.0.1
 
 **Fixed**
-- GetDisplayName() now correctly respects user-specified DynamicDataDisplayName — when explicitly set, the Portamical enhanced display-name logic is bypassed and MSTest's built-in formatting is used
+- GetDisplayName() now correctly respects user-specified DynamicDataDisplayName ï¿½ when explicitly set, the Portamical enhanced display-name logic is bypassed and MSTest's built-in formatting is used
 
 **Dependencies**
 - Portamical: 2.0.0 ? 2.0.2
