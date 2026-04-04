@@ -1,0 +1,115 @@
+#title: Portamical_Core_Markers_Generic
+#direction: down
+
+#.concrete: fill=#C9DEEF title=center
+#.contract: fill=#DCE8CF title=center,italic,bold
+#.contractlight: fill=#DCE8CF title=center,italic
+#.abstractbold: fill=#C9DEEF title=center,italic,bold
+#.abstract: fill=#C9DEEF title=center,italic
+
+[<contractlight> IExpected]
+[<contract> IExpected<out TResult>
+where TResult: notnull]
+
+[<contractlight> IReturns]
+[<contract> IReturns<out TStruct>
+where TStruct: struct]
+
+[<contractlight> IThrows]
+[<contract> IThrows<out TException>
+where TException: Exception]
+
+[<abstractbold> TestDataExpected<TResult>]
+[<abstract> TestDataBase]
+
+[<abstract> TestData]
+[<abstract> TestDataReturns<TStruct>]
+[<contractlight>ITestData]
+
+
+[<abstract> TestDataThrows<TException>]
+
+[<concrete> TestDataReturns<TStruct, ...>]
+[<concrete> TestData<...>]
+[<concrete> TestDataThrows<TException, ...>]
+
+// diagram
+
+[
+IExpected
+] <:- [
+IReturns
+] <:- [
+IReturns<out TStruct>
+] <:-- [
+TestDataReturns<TStruct>
+]
+
+[
+TestDataExpected<TResult>
+] <:- [
+TestDataReturns<TStruct>
+] <:- [
+TestDataReturns<TStruct, ...>
+]
+
+[
+TestDataReturns<TStruct>
+] --:> [
+TestDataBase
+]
+
+[
+ITestData
+] <:-- [
+TestDataBase
+]
+
+[
+IExpected] <:-
+[
+IExpected<out TResult>
+] <:- [
+IReturns<out TStruct>
+]
+
+[
+IExpected<out TResult>
+] <:- [
+TestDataExpected<TResult>]
+
+[
+IExpected<out TResult>
+] <:- [
+IThrows<out TException>
+]
+
+[
+TestDataBase
+] <:-- [
+TestData
+] <:- [
+TestData<...>
+]
+
+[
+TestDataExpected<TResult>
+] <:- [
+TestDataThrows<TException>
+] --:> [
+TestDataBase
+]
+
+[
+IExpected
+] <:- [
+IThrows
+] <:- [
+IThrows<out TException>
+] <:-- [
+TestDataThrows<TException>
+] <:- [
+TestDataThrows<TException, ...>
+]
+
+

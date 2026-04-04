@@ -1,0 +1,16 @@
+#title: Portamical_Core_Markers_Choice
+#direction: right
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+#.concrete: fill=#C9DEEF align=left bold visual=class
+#.spec: title=center,italic visual=rhomb
+
+[<contract> ITestData] ->
+[<spec> Is 'IExpected'?] no ->
+[<concrete> TestData<...>]
+
+[Is 'IExpected'?] IExpected ->
+[<spec> Which?] IReturns ->
+[<concrete> TestDataReturns<TStruct, ...>]
+
+[Which?] IThrows ->
+[<concrete> TestDataThrows<TException, ...>]
