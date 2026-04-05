@@ -1,0 +1,30 @@
+#title: Portamical_Core_Markers
+#direction: down
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+#.contractlight: fill=#DCE8CF title=center,italic body=left,italic
+#.concrete: fill=#C9DEEF align=left
+
+[<contract> IExpected]
+[<contract> IReturns]
+[<contract> IThrows]
+
+[<concrete> TestDataReturns<TStruct, ...>]
+[<concrete> TestData<...>]
+[<concrete> TestDataThrows<TException, ...>]
+
+[<contractlight>ITestData]
+
+// diagram
+
+[IExpected] <:-
+[IReturns] <:--
+[TestDataReturns<TStruct, ...>] --:>
+[ITestData]
+
+[IExpected] <:-
+[IThrows] <:--
+[TestDataThrows<TException, ...>] --:>
+[ITestData]
+
+[ITestData] <:--
+[TestData<...>]
