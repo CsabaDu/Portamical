@@ -1,0 +1,52 @@
+#title: Portamical_NUnit_Dependencies
+#direction: right
+
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+#.package: title=bold,left visual=package
+#.concrete: fill=#C9DEEF title=center,bold body=left
+#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+
+
+
+
+// Portamical.NUnit
+
+[<package>NUnitLite | ] <--
+[<package> Portamical.NUnit
+|
+[<concrete>TestDataTypes]
+[<static>Converters]
+[<abstract>TestBases]
+[<abstract>TestBases.TestCaseDataCollection]
+[<concrete>Attributes]
+[<abstract>Assertions]
+
+[
+TestDataTypes
+] <-- [
+Converters
+]
+
+[
+TestDataTypes
+] <-- [
+Attributes
+]
+
+[
+Converters
+] <-- [
+TestBases
+]
+
+[
+Converters
+] <-- [
+TestBases.TestCaseDataCollection
+]
+] -->
+[<package>Portamical |]
+
+
+
