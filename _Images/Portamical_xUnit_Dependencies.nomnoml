@@ -1,0 +1,49 @@
+#title: Portamical_xUnit_Dependencies
+#direction: right
+
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+#.package: title=bold,left visual=package
+#.concrete: fill=#C9DEEF title=center,bold body=left
+#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+
+
+
+// Portamical.xUnit
+
+[<package>xunit.core | ] <--
+[<package> Portamical.xUnit
+|
+[<concrete>DataProviders]
+[<static>Converters]
+[<abstract>TestBases]
+[<abstract>TestBases.TheoryData]
+[<concrete>Attributes]
+[<abstract>Assertions]
+
+[
+DataProviders
+] <-- [
+Converters
+]
+
+[
+Converters
+] <-- [
+TestBases
+]
+
+[
+Converters
+] <--[
+TestBases.TheoryData
+]
+] -->
+[<package>Portamical |]
+
+
+[<package>xunit.runner.visualstudio | ] <--
+[Portamical.xUnit]
+
+[<package>xunit.assert | ] <--
+[Portamical.xUnit]

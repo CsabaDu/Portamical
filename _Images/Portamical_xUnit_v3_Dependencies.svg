@@ -1,0 +1,310 @@
+<svg version="1.1" baseProfile="full" width="1065.0" height="464.0" viewBox="0 0 1065 464" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_xUnit_v3_Dependencies</title>
+	<desc >#title: Portamical_xUnit_v3_Dependencies
+	#direction: right
+	
+	#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+	#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+	#.package: title=bold,left visual=package
+	#.concrete: fill=#C9DEEF title=center,bold body=left
+	#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+	
+	
+	
+	// Portamical.xUnit_v3
+	
+	[&lt;package&gt;xunit.v3.extensibility.core | ] &lt;--
+	[&lt;package&gt; Portamical.xUnit_v3
+	|
+	[&lt;contract&gt;TestDataTypes]
+	[&lt;concrete&gt;TestDataTypes.Model]
+	[&lt;contract&gt;DataProviders]
+	[&lt;concrete&gt;DataProviders.Model]
+	[&lt;static&gt;Converters]
+	[&lt;abstract&gt;TestBases]
+	[&lt;abstract&gt;TestBases.TheoryDataRowCollection]
+	[&lt;concrete&gt;Attributes]
+	[&lt;abstract&gt;Assertions]
+	[
+	TestDataTypes
+	] &lt;-- [
+	DataProviders
+	]
+	
+	[
+	TestDataTypes
+	] &lt;-- [
+	TestDataTypes.Model
+	]
+	
+	[
+	DataProviders
+	] &lt;-- [
+	DataProviders.Model
+	]
+	
+	[
+	TestDataTypes.Model
+	] &lt;-- [
+	DataProviders.Model
+	]
+	
+	[
+	DataProviders.Model
+	] &lt;-- [
+	Converters
+	]
+	
+	[
+	Converters
+	] &lt;-- [
+	TestBases
+	]
+	
+	[
+	Converters
+	] &lt;-- [
+	TestBases.TheoryDataRowCollection
+	]
+	
+	[
+	Converters
+	] &lt;-- [
+	Attributes
+	]
+	] --&gt;
+	[&lt;package&gt;Portamical |]
+	
+	[&lt;package&gt;xunit.v3.assert | ] &lt;--
+	[Portamical.xUnit_v3]
+	
+	</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="bold" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="464.0" width="1065.0" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+					<g stroke-dasharray="6 6">
+						<path d="M216.7 164.0 L230 164 L250 166.42057488653555 L250.0 166.4 " fill="none"></path>
+					</g>
+					<path d="M223.3 158.7 L216.7 164.0 L223.3 169.3 L210.0 164.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M871.0 204.0 L891 204 L904.3333333333334 204 L904.3 204.0 " fill="none"></path>
+					</g>
+					<path d="M897.7 209.3 L904.3 204.0 L897.7 198.7 L911.0 204.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M175.7 244.0 L230 244 L250 241.57942511346445 L250.0 241.6 " fill="none"></path>
+					</g>
+					<path d="M182.3 238.7 L175.7 244.0 L182.3 249.3 L169.0 244.0 Z"></path>
+					<g data-name="xunit.v3.extensibility.core">
+						<g fill="#eee8d5" stroke="#33322E" data-name="xunit.v3.extensibility.core">
+							<rect x="0.0" y="176.0" height="8.0" width="210.0" data-name="xunit.v3.extensibility.core"></rect>
+							<path d="M0.0 176.0 L0.0 144.0 L192.7 144.0 L192.7 176.0 Z" data-name="xunit.v3.extensibility.core"></path>
+							<path d="M0.0 176.0 L210.0 176.0" fill="none" data-name="xunit.v3.extensibility.core"></path>
+						</g>
+						<g transform="translate(0, 144)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="xunit.v3.extensibility.core" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="xunit.v3.extensibility.core" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="xunit.v3.extensibility.core" data-compartment="0">xunit.v3.extensibility.core</text>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 176)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="xunit.v3.extensibility.core" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="xunit.v3.extensibility.core" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Portamical.xUnit_v3">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical.xUnit_v3">
+							<rect x="250.0" y="32.0" height="376.0" width="621.0" data-name="Portamical.xUnit_v3"></rect>
+							<path d="M250.0 32.0 L250.0 0.0 L408.3 0.0 L408.3 32.0 Z" data-name="Portamical.xUnit_v3"></path>
+							<path d="M250.0 32.0 L871.0 32.0" fill="none" data-name="Portamical.xUnit_v3"></path>
+						</g>
+						<g transform="translate(250, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.xUnit_v3" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical.xUnit_v3" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical.xUnit_v3" data-compartment="0">Portamical.xUnit_v3</text>
+								
+							</g>
+						</g>
+						<g transform="translate(250, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.xUnit_v3" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical.xUnit_v3" data-compartment="1">
+								<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.xUnit_v3" data-compartment="1">
+									<g stroke-dasharray="6 6" data-name="Portamical.xUnit_v3" data-compartment="1">
+										<path d="M214.0 32.8 L134 52 L134 72 L134.0 72.0 " fill="none" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									</g>
+									<path d="M208.8 39.5 L214.0 32.8 L206.3 29.2 L220.5 31.2 Z" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.xUnit_v3" data-compartment="1">
+										<path d="M307.2 36.4 L325 52 L325 72 L325.0 72.0 " fill="none" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									</g>
+									<path d="M315.8 36.8 L307.2 36.4 L308.7 44.8 L302.2 32.0 Z" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.xUnit_v3" data-compartment="1">
+										<path d="M134.0 110.7 L134 124 L217.33333333333331 144 L217.3 144.0 " fill="none" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									</g>
+									<path d="M139.3 117.3 L134.0 110.7 L128.7 117.3 L134.0 104.0 Z" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.xUnit_v3" data-compartment="1">
+										<path d="M325.0 110.7 L325 124 L302.22222222222223 144 L302.2 144.0 " fill="none" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									</g>
+									<path d="M330.3 117.3 L325.0 110.7 L319.7 117.3 L325.0 104.0 Z" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.xUnit_v3" data-compartment="1">
+										<path d="M284.0 182.7 L284 196 L284 216 L284.0 216.0 " fill="none" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									</g>
+									<path d="M289.3 189.3 L284.0 182.7 L278.7 189.3 L284.0 176.0 Z" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.xUnit_v3" data-compartment="1">
+										<path d="M227.4 240.6 L47.5 268 L47.5 288 L47.5 288.0 " fill="none" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									</g>
+									<path d="M221.6 246.9 L227.4 240.6 L220.0 236.3 L234.0 239.6 Z" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.xUnit_v3" data-compartment="1">
+										<path d="M284.0 254.7 L284 268 L284 288 L284.0 288.0 " fill="none" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									</g>
+									<path d="M289.3 261.3 L284.0 254.7 L278.7 261.3 L284.0 248.0 Z" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									<g stroke-dasharray="6 6" data-name="Portamical.xUnit_v3" data-compartment="1">
+										<path d="M340.6 240.7 L519 268 L519 288 L519.0 288.0 " fill="none" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									</g>
+									<path d="M348.0 236.4 L340.6 240.7 L346.4 247.0 L334.0 239.7 Z" data-name="Portamical.xUnit_v3" data-compartment="1"></path>
+									<g data-name="TestDataTypes">
+										<g fill="#DCE8CF" stroke="#33322E" data-name="TestDataTypes">
+											<rect x="220.5" y="0.0" height="32.0" width="127.0" data-name="TestDataTypes"></rect>
+										</g>
+										<g transform="translate(220.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="TestDataTypes" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestDataTypes" data-compartment="0">
+												<text x="55.5" y="14.1" stroke="none" text-anchor="middle" data-name="TestDataTypes" data-compartment="0">TestDataTypes</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="TestDataTypes.Model">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="TestDataTypes.Model">
+											<rect x="236.0" y="72.0" height="32.0" width="178.0" data-name="TestDataTypes.Model"></rect>
+										</g>
+										<g transform="translate(236, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="TestDataTypes.Model" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestDataTypes.Model" data-compartment="0">
+												<text x="81.0" y="14.1" stroke="none" text-anchor="middle" data-name="TestDataTypes.Model" data-compartment="0">TestDataTypes.Model</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="DataProviders">
+										<g fill="#DCE8CF" stroke="#33322E" data-name="DataProviders">
+											<rect x="72.0" y="72.0" height="32.0" width="124.0" data-name="DataProviders"></rect>
+										</g>
+										<g transform="translate(72, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="DataProviders" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="DataProviders" data-compartment="0">
+												<text x="54.0" y="14.1" stroke="none" text-anchor="middle" data-name="DataProviders" data-compartment="0">DataProviders</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="DataProviders.Model">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="DataProviders.Model">
+											<rect x="196.5" y="144.0" height="32.0" width="175.0" data-name="DataProviders.Model"></rect>
+										</g>
+										<g transform="translate(196.5, 144)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="DataProviders.Model" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="DataProviders.Model" data-compartment="0">
+												<text x="79.5" y="14.1" stroke="none" text-anchor="middle" data-name="DataProviders.Model" data-compartment="0">DataProviders.Model</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Converters">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Converters">
+											<rect x="234.0" y="216.0" height="32.0" width="100.0" data-name="Converters"></rect>
+										</g>
+										<g transform="translate(234, 216)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Converters" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Converters" data-compartment="0">
+												<text x="42.0" y="14.1" stroke="none" text-anchor="middle" data-name="Converters" data-compartment="0">Converters</text>
+												<path d="M-0.2 16.6 L84.2 16.6" fill="none" data-name="Converters" data-compartment="0"></path>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="TestBases">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="TestBases">
+											<rect x="0.0" y="288.0" height="32.0" width="95.0" data-name="TestBases"></rect>
+										</g>
+										<g transform="translate(0, 288)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="TestBases" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestBases" data-compartment="0">
+												<text x="39.5" y="14.1" stroke="none" text-anchor="middle" data-name="TestBases" data-compartment="0">TestBases</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="TestBases.TheoryDataRowCollection">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="TestBases.TheoryDataRowCollection">
+											<rect x="135.0" y="288.0" height="32.0" width="298.0" data-name="TestBases.TheoryDataRowCollection"></rect>
+										</g>
+										<g transform="translate(135, 288)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="TestBases.TheoryDataRowCollection" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestBases.TheoryDataRowCollection" data-compartment="0">
+												<text x="141.0" y="14.1" stroke="none" text-anchor="middle" data-name="TestBases.TheoryDataRowCollection" data-compartment="0">TestBases.TheoryDataRowCollection</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Attributes">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Attributes">
+											<rect x="473.0" y="288.0" height="32.0" width="92.0" data-name="Attributes"></rect>
+										</g>
+										<g transform="translate(473, 288)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Attributes" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Attributes" data-compartment="0">
+												<text x="38.0" y="14.1" stroke="none" text-anchor="middle" data-name="Attributes" data-compartment="0">Attributes</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Assertions">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Assertions">
+											<rect x="387.5" y="0.0" height="32.0" width="99.0" data-name="Assertions"></rect>
+										</g>
+										<g transform="translate(387.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Assertions" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Assertions" data-compartment="0">
+												<text x="41.5" y="14.1" stroke="none" text-anchor="middle" data-name="Assertions" data-compartment="0">Assertions</text>
+												
+											</g>
+										</g>
+									</g>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g data-name="Portamical">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical">
+							<rect x="911.0" y="216.0" height="8.0" width="98.0" data-name="Portamical"></rect>
+							<path d="M911.0 216.0 L911.0 184.0 L1002.6 184.0 L1002.6 216.0 Z" data-name="Portamical"></path>
+							<path d="M911.0 216.0 L1009.0 216.0" fill="none" data-name="Portamical"></path>
+						</g>
+						<g transform="translate(911, 184)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical" data-compartment="0">Portamical</text>
+								
+							</g>
+						</g>
+						<g transform="translate(911, 216)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="xunit.v3.assert">
+						<g fill="#eee8d5" stroke="#33322E" data-name="xunit.v3.assert">
+							<rect x="41.0" y="256.0" height="8.0" width="128.0" data-name="xunit.v3.assert"></rect>
+							<path d="M41.0 256.0 L41.0 224.0 L160.2 224.0 L160.2 256.0 Z" data-name="xunit.v3.assert"></path>
+							<path d="M41.0 256.0 L169.0 256.0" fill="none" data-name="xunit.v3.assert"></path>
+						</g>
+						<g transform="translate(41, 224)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="xunit.v3.assert" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="xunit.v3.assert" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="xunit.v3.assert" data-compartment="0">xunit.v3.assert</text>
+								
+							</g>
+						</g>
+						<g transform="translate(41, 256)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="xunit.v3.assert" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="xunit.v3.assert" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>
