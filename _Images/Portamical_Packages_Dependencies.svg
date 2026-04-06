@@ -1,0 +1,345 @@
+<svg version="1.1" baseProfile="full" width="856.0" height="576.0" viewBox="0 0 856 576" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_Packages_Dependencies</title>
+	<desc >#title: Portamical_Packages_Dependencies
+	#direction: right
+	
+	#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+	#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+	#.package: title=bold,left visual=frame
+	#.concrete: fill=#C9DEEF title=center,bold body=left
+	#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+	
+	
+	
+	// Portamical.MSTest
+	
+	[&lt;package&gt;MSTest.TestFramework | ] &lt;--
+	[&lt;package&gt; Portamical.MSTest | ]
+	
+	// Portamical.NUnit
+	
+	[&lt;package&gt;NUnitLite | ] &lt;--
+	[&lt;package&gt; Portamical.NUnit | ]
+	
+	
+	
+	// Portamical.xUnit
+	
+	[&lt;package&gt;xunit.core | ] &lt;--
+	[&lt;package&gt; Portamical.xUnit | ]
+	
+	[&lt;package&gt;xunit.runner.visualstudio | ] &lt;--
+	[Portamical.xUnit]
+	
+	[&lt;package&gt;xunit.assert | ] &lt;--
+	[Portamical.xUnit]
+	
+	// Portamical.xUnit_v3
+	
+	[&lt;package&gt;xunit.v3.extensibility.core | ] &lt;--
+	[&lt;package&gt; Portamical.xUnit_v3 | ]
+	
+	[&lt;package&gt;xunit.v3.assert | ] &lt;--
+	[Portamical.xUnit_v3]
+	
+	
+	
+	
+	// Portamical
+	[&lt;package&gt; Portamical | ]
+	
+	[Portamical.MSTest] --&gt;
+	[Portamical]
+	
+	[Portamical.NUnit] --&gt;
+	[Portamical]
+	[Portamical.xUnit] --&gt;
+	[Portamical]
+	
+	[Portamical.xUnit_v3] --&gt;
+	[Portamical] --&gt;
+	
+	// Portamical.Core
+	[&lt;package&gt; Portamical.Core | ]
+	</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="bold" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="576.0" width="856.0" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+					<g stroke-dasharray="6 6">
+						<path d="M224.2 20.0 L246 20 L271.5 20 L271.5 20.0 " fill="none"></path>
+					</g>
+					<path d="M230.8 14.7 L224.2 20.0 L230.8 25.3 L217.5 20.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M171.2 100.0 L246 100 L278 100 L278.0 100.0 " fill="none"></path>
+					</g>
+					<path d="M177.8 94.7 L171.2 100.0 L177.8 105.3 L164.5 100.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M173.7 180.0 L246 180 L330.375 240 L330.4 240.0 " fill="none"></path>
+					</g>
+					<path d="M180.3 174.7 L173.7 180.0 L180.3 185.3 L167.0 180.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M230.7 260.0 L246 260 L279.5 260 L279.5 260.0 " fill="none"></path>
+					</g>
+					<path d="M237.3 254.7 L230.7 260.0 L237.3 265.3 L224.0 260.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M180.7 340.0 L246 340 L330.375 280 L330.4 280.0 " fill="none"></path>
+					</g>
+					<path d="M187.3 334.7 L180.7 340.0 L187.3 345.3 L174.0 340.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M232.7 420.0 L246 420 L302.25 440 L302.3 440.0 " fill="none"></path>
+					</g>
+					<path d="M239.3 414.7 L232.7 420.0 L239.3 425.3 L226.0 420.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M191.7 500.0 L246 500 L302.25 480 L302.3 480.0 " fill="none"></path>
+					</g>
+					<path d="M198.3 494.7 L191.7 500.0 L198.3 505.3 L185.0 500.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M445.5 20.0 L471 20 L535.484024788483 153.99277878126344 L535.5 154.0 " fill="none"></path>
+					</g>
+					<path d="M527.8 150.3 L535.5 154.0 L537.4 145.7 L538.4 160.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M439.0 100.0 L471 100 L524.126876024275 155.19675431093506 L524.1 155.2 " fill="none"></path>
+					</g>
+					<path d="M515.7 154.1 L524.1 155.2 L523.3 146.7 L528.8 160.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M437.5 260.0 L471 260 L524.126876024275 204.80324568906494 L524.1 204.8 " fill="none"></path>
+					</g>
+					<path d="M523.3 213.3 L524.1 204.8 L515.7 205.9 L528.8 200.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M451.0 460.0 L471 460 L540.732290113193 206.42803595202528 L540.7 206.4 " fill="none"></path>
+					</g>
+					<path d="M544.1 214.3 L540.7 206.4 L533.8 211.4 L542.5 200.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M605.0 180.0 L625 180 L638.3333333333334 180 L638.3 180.0 " fill="none"></path>
+					</g>
+					<path d="M631.7 185.3 L638.3 180.0 L631.7 174.7 L645.0 180.0 Z"></path>
+					<g data-name="MSTest.TestFramework">
+						<g fill="#eee8d5" stroke="#33322E" data-name="MSTest.TestFramework">
+							<rect x="8.5" y="0.0" height="40.0" width="209.0" data-name="MSTest.TestFramework"></rect>
+							<path d="M8.5 32.0 L193.5 32.0 L209.5 16.0 L209.5 0.0" fill="none" data-name="MSTest.TestFramework"></path>
+						</g>
+						<g transform="translate(8.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="MSTest.TestFramework" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="MSTest.TestFramework" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="MSTest.TestFramework" data-compartment="0">MSTest.TestFramework</text>
+								
+							</g>
+						</g>
+						<g transform="translate(8.5, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="MSTest.TestFramework" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="MSTest.TestFramework" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Portamical.MSTest">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical.MSTest">
+							<rect x="271.5" y="0.0" height="40.0" width="174.0" data-name="Portamical.MSTest"></rect>
+							<path d="M271.5 32.0 L421.5 32.0 L437.5 16.0 L437.5 0.0" fill="none" data-name="Portamical.MSTest"></path>
+						</g>
+						<g transform="translate(271.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.MSTest" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical.MSTest" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical.MSTest" data-compartment="0">Portamical.MSTest</text>
+								
+							</g>
+						</g>
+						<g transform="translate(271.5, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.MSTest" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical.MSTest" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="NUnitLite">
+						<g fill="#eee8d5" stroke="#33322E" data-name="NUnitLite">
+							<rect x="61.5" y="80.0" height="40.0" width="103.0" data-name="NUnitLite"></rect>
+							<path d="M61.5 112.0 L140.5 112.0 L156.5 96.0 L156.5 80.0" fill="none" data-name="NUnitLite"></path>
+						</g>
+						<g transform="translate(61.5, 80)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="NUnitLite" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="NUnitLite" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="NUnitLite" data-compartment="0">NUnitLite</text>
+								
+							</g>
+						</g>
+						<g transform="translate(61.5, 112)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="NUnitLite" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="NUnitLite" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Portamical.NUnit">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical.NUnit">
+							<rect x="278.0" y="80.0" height="40.0" width="161.0" data-name="Portamical.NUnit"></rect>
+							<path d="M278.0 112.0 L415.0 112.0 L431.0 96.0 L431.0 80.0" fill="none" data-name="Portamical.NUnit"></path>
+						</g>
+						<g transform="translate(278, 80)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.NUnit" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical.NUnit" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical.NUnit" data-compartment="0">Portamical.NUnit</text>
+								
+							</g>
+						</g>
+						<g transform="translate(278, 112)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.NUnit" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical.NUnit" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="xunit.core">
+						<g fill="#eee8d5" stroke="#33322E" data-name="xunit.core">
+							<rect x="59.0" y="160.0" height="40.0" width="108.0" data-name="xunit.core"></rect>
+							<path d="M59.0 192.0 L143.0 192.0 L159.0 176.0 L159.0 160.0" fill="none" data-name="xunit.core"></path>
+						</g>
+						<g transform="translate(59, 160)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="xunit.core" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="xunit.core" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="xunit.core" data-compartment="0">xunit.core</text>
+								
+							</g>
+						</g>
+						<g transform="translate(59, 192)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="xunit.core" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="xunit.core" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Portamical.xUnit">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical.xUnit">
+							<rect x="279.5" y="240.0" height="40.0" width="158.0" data-name="Portamical.xUnit"></rect>
+							<path d="M279.5 272.0 L413.5 272.0 L429.5 256.0 L429.5 240.0" fill="none" data-name="Portamical.xUnit"></path>
+						</g>
+						<g transform="translate(279.5, 240)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.xUnit" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical.xUnit" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical.xUnit" data-compartment="0">Portamical.xUnit</text>
+								
+							</g>
+						</g>
+						<g transform="translate(279.5, 272)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.xUnit" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical.xUnit" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="xunit.runner.visualstudio">
+						<g fill="#eee8d5" stroke="#33322E" data-name="xunit.runner.visualstudio">
+							<rect x="2.0" y="240.0" height="40.0" width="222.0" data-name="xunit.runner.visualstudio"></rect>
+							<path d="M2.0 272.0 L200.0 272.0 L216.0 256.0 L216.0 240.0" fill="none" data-name="xunit.runner.visualstudio"></path>
+						</g>
+						<g transform="translate(2, 240)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="xunit.runner.visualstudio" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="xunit.runner.visualstudio" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="xunit.runner.visualstudio" data-compartment="0">xunit.runner.visualstudio</text>
+								
+							</g>
+						</g>
+						<g transform="translate(2, 272)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="xunit.runner.visualstudio" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="xunit.runner.visualstudio" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="xunit.assert">
+						<g fill="#eee8d5" stroke="#33322E" data-name="xunit.assert">
+							<rect x="52.0" y="320.0" height="40.0" width="122.0" data-name="xunit.assert"></rect>
+							<path d="M52.0 352.0 L150.0 352.0 L166.0 336.0 L166.0 320.0" fill="none" data-name="xunit.assert"></path>
+						</g>
+						<g transform="translate(52, 320)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="xunit.assert" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="xunit.assert" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="xunit.assert" data-compartment="0">xunit.assert</text>
+								
+							</g>
+						</g>
+						<g transform="translate(52, 352)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="xunit.assert" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="xunit.assert" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="xunit.v3.extensibility.core">
+						<g fill="#eee8d5" stroke="#33322E" data-name="xunit.v3.extensibility.core">
+							<rect x="0.0" y="400.0" height="40.0" width="226.0" data-name="xunit.v3.extensibility.core"></rect>
+							<path d="M0.0 432.0 L202.0 432.0 L218.0 416.0 L218.0 400.0" fill="none" data-name="xunit.v3.extensibility.core"></path>
+						</g>
+						<g transform="translate(0, 400)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="xunit.v3.extensibility.core" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="xunit.v3.extensibility.core" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="xunit.v3.extensibility.core" data-compartment="0">xunit.v3.extensibility.core</text>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 432)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="xunit.v3.extensibility.core" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="xunit.v3.extensibility.core" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Portamical.xUnit_v3">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical.xUnit_v3">
+							<rect x="266.0" y="440.0" height="40.0" width="185.0" data-name="Portamical.xUnit_v3"></rect>
+							<path d="M266.0 472.0 L427.0 472.0 L443.0 456.0 L443.0 440.0" fill="none" data-name="Portamical.xUnit_v3"></path>
+						</g>
+						<g transform="translate(266, 440)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.xUnit_v3" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical.xUnit_v3" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical.xUnit_v3" data-compartment="0">Portamical.xUnit_v3</text>
+								
+							</g>
+						</g>
+						<g transform="translate(266, 472)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.xUnit_v3" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical.xUnit_v3" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="xunit.v3.assert">
+						<g fill="#eee8d5" stroke="#33322E" data-name="xunit.v3.assert">
+							<rect x="41.0" y="480.0" height="40.0" width="144.0" data-name="xunit.v3.assert"></rect>
+							<path d="M41.0 512.0 L161.0 512.0 L177.0 496.0 L177.0 480.0" fill="none" data-name="xunit.v3.assert"></path>
+						</g>
+						<g transform="translate(41, 480)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="xunit.v3.assert" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="xunit.v3.assert" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="xunit.v3.assert" data-compartment="0">xunit.v3.assert</text>
+								
+							</g>
+						</g>
+						<g transform="translate(41, 512)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="xunit.v3.assert" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="xunit.v3.assert" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Portamical">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical">
+							<rect x="491.0" y="160.0" height="40.0" width="114.0" data-name="Portamical"></rect>
+							<path d="M491.0 192.0 L581.0 192.0 L597.0 176.0 L597.0 160.0" fill="none" data-name="Portamical"></path>
+						</g>
+						<g transform="translate(491, 160)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical" data-compartment="0">Portamical</text>
+								
+							</g>
+						</g>
+						<g transform="translate(491, 192)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Portamical.Core">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical.Core">
+							<rect x="645.0" y="160.0" height="40.0" width="155.0" data-name="Portamical.Core"></rect>
+							<path d="M645.0 192.0 L776.0 192.0 L792.0 176.0 L792.0 160.0" fill="none" data-name="Portamical.Core"></path>
+						</g>
+						<g transform="translate(645, 160)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.Core" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical.Core" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical.Core" data-compartment="0">Portamical.Core</text>
+								
+							</g>
+						</g>
+						<g transform="translate(645, 192)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.Core" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical.Core" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

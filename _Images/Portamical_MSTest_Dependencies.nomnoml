@@ -1,15 +1,18 @@
 #title: Portamical_MSTest_Dependencies
-#direction: right
+#direction: down
 
 #.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
 #.static: fill=#C9DEEF title=center,bold,underline body=left,italic
-#.package: title=bold,left visual=package
+#.package: title=bold,left visual=frame
 #.concrete: fill=#C9DEEF title=center,bold body=left
 #.abstract: fill=#C9DEEF title=center,bold, italic body=left
 
 
 
 // Portamical.MSTest
+
+[<package>Portamical |] <--
+[Portamical.MSTest]
 
 [<package>MSTest.TestFramework | ] <--
 [<package> Portamical.MSTest
@@ -24,6 +27,4 @@ Converters
 ] <--[
 TestBases
 ]
-] -->
-[<package>Portamical |]
-
+]

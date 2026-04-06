@@ -1,0 +1,61 @@
+#title: Portamical_Packages_Dependencies
+#direction: right
+
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+#.package: title=bold,left visual=frame
+#.concrete: fill=#C9DEEF title=center,bold body=left
+#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+
+
+
+// Portamical.MSTest
+
+[<package>MSTest.TestFramework | ] <--
+[<package> Portamical.MSTest | ]
+
+// Portamical.NUnit
+
+[<package>NUnitLite | ] <--
+[<package> Portamical.NUnit | ]
+
+
+
+// Portamical.xUnit
+
+[<package>xunit.core | ] <--
+[<package> Portamical.xUnit | ]
+
+[<package>xunit.runner.visualstudio | ] <--
+[Portamical.xUnit]
+
+[<package>xunit.assert | ] <--
+[Portamical.xUnit]
+
+// Portamical.xUnit_v3
+
+[<package>xunit.v3.extensibility.core | ] <--
+[<package> Portamical.xUnit_v3 | ]
+
+[<package>xunit.v3.assert | ] <--
+[Portamical.xUnit_v3]
+
+
+
+
+// Portamical
+[<package> Portamical | ]
+
+[Portamical.MSTest] -->
+[Portamical]
+
+[Portamical.NUnit] -->
+[Portamical]
+[Portamical.xUnit] -->
+[Portamical]
+
+[Portamical.xUnit_v3] -->
+[Portamical] -->
+
+// Portamical.Core
+[<package> Portamical.Core | ]
