@@ -1,17 +1,20 @@
-<svg version="1.1" baseProfile="full" width="854.0" height="248.0" viewBox="0 0 854 248" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+<svg version="1.1" baseProfile="full" width="483.0" height="328.0" viewBox="0 0 483 328" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
 	<title >Portamical_MSTest_Dependencies</title>
 	<desc >#title: Portamical_MSTest_Dependencies
-	#direction: right
+	#direction: down
 	
 	#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
 	#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
-	#.package: title=bold,left visual=package
+	#.package: title=bold,left visual=frame
 	#.concrete: fill=#C9DEEF title=center,bold body=left
 	#.abstract: fill=#C9DEEF title=center,bold, italic body=left
 	
 	
 	
 	// Portamical.MSTest
+	
+	[&lt;package&gt;Portamical |] &lt;--
+	[Portamical.MSTest]
 	
 	[&lt;package&gt;MSTest.TestFramework | ] &lt;--
 	[&lt;package&gt; Portamical.MSTest
@@ -26,56 +29,52 @@
 	] &lt;--[
 	TestBases
 	]
-	] --&gt;
-	[&lt;package&gt;Portamical |]
-	
+	]
 	</desc>
 	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="bold" font-style="normal">
 		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
 			<g stroke="transparent" fill="transparent">
-				<rect x="0.0" y="0.0" height="248.0" width="854.0" stroke="none"></rect>
+				<rect x="0.0" y="0.0" height="328.0" width="483.0" stroke="none"></rect>
 			</g>
 			<g transform="translate(8, 8)" fill="#33322E">
 				<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
 					<g stroke-dasharray="6 6">
-						<path d="M199.7 96.0 L213 96 L233 96 L233.0 96.0 " fill="none"></path>
+						<path d="M112.8 46.7 L112.75 60 L130.1206896551724 80 L130.1 80.0 " fill="none"></path>
 					</g>
-					<path d="M206.3 90.7 L199.7 96.0 L206.3 101.3 L193.0 96.0 Z"></path>
+					<path d="M118.1 53.3 L112.8 46.7 L107.4 53.3 L112.8 40.0 Z"></path>
 					<g stroke-dasharray="6 6">
-						<path d="M660.0 96.0 L680 96 L693.3333333333334 96 L693.3 96.0 " fill="none"></path>
+						<path d="M314.3 46.7 L314.25 60 L296.87931034482756 80 L296.9 80.0 " fill="none"></path>
 					</g>
-					<path d="M686.7 101.3 L693.3 96.0 L686.7 90.7 L700.0 96.0 Z"></path>
-					<g data-name="MSTest.TestFramework">
-						<g fill="#eee8d5" stroke="#33322E" data-name="MSTest.TestFramework">
-							<rect x="0.0" y="108.0" height="8.0" width="193.0" data-name="MSTest.TestFramework"></rect>
-							<path d="M0.0 108.0 L0.0 76.0 L183.1 76.0 L183.1 108.0 Z" data-name="MSTest.TestFramework"></path>
-							<path d="M0.0 108.0 L193.0 108.0" fill="none" data-name="MSTest.TestFramework"></path>
+					<path d="M319.6 53.3 L314.3 46.7 L308.9 53.3 L314.3 40.0 Z"></path>
+					<g data-name="Portamical">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical">
+							<rect x="55.8" y="0.0" height="40.0" width="114.0" data-name="Portamical"></rect>
+							<path d="M55.8 32.0 L145.8 32.0 L161.8 16.0 L161.8 0.0" fill="none" data-name="Portamical"></path>
 						</g>
-						<g transform="translate(0, 76)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="MSTest.TestFramework" data-compartment="0">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="MSTest.TestFramework" data-compartment="0">
-								<text x="0.0" y="14.1" stroke="none" data-name="MSTest.TestFramework" data-compartment="0">MSTest.TestFramework</text>
+						<g transform="translate(55.75, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical" data-compartment="0">Portamical</text>
 								
 							</g>
 						</g>
-						<g transform="translate(0, 108)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="MSTest.TestFramework" data-compartment="1">
-							<g transform="translate(8, 8)" fill="#33322E" data-name="MSTest.TestFramework" data-compartment="1">
+						<g transform="translate(55.75, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical" data-compartment="1">
 								
 							</g>
 						</g>
 					</g>
 					<g data-name="Portamical.MSTest">
 						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical.MSTest">
-							<rect x="233.0" y="32.0" height="160.0" width="427.0" data-name="Portamical.MSTest"></rect>
-							<path d="M233.0 32.0 L233.0 0.0 L382.4 0.0 L382.4 32.0 Z" data-name="Portamical.MSTest"></path>
-							<path d="M233.0 32.0 L660.0 32.0" fill="none" data-name="Portamical.MSTest"></path>
+							<rect x="0.0" y="80.0" height="192.0" width="427.0" data-name="Portamical.MSTest"></rect>
+							<path d="M0.0 112.0 L150.0 112.0 L166.0 96.0 L166.0 80.0" fill="none" data-name="Portamical.MSTest"></path>
 						</g>
-						<g transform="translate(233, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.MSTest" data-compartment="0">
+						<g transform="translate(0, 80)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.MSTest" data-compartment="0">
 							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical.MSTest" data-compartment="0">
 								<text x="0.0" y="14.1" stroke="none" data-name="Portamical.MSTest" data-compartment="0">Portamical.MSTest</text>
 								
 							</g>
 						</g>
-						<g transform="translate(233, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.MSTest" data-compartment="1">
+						<g transform="translate(0, 112)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.MSTest" data-compartment="1">
 							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical.MSTest" data-compartment="1">
 								<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.MSTest" data-compartment="1">
 									<g stroke-dasharray="6 6" data-name="Portamical.MSTest" data-compartment="1">
@@ -131,20 +130,19 @@
 							</g>
 						</g>
 					</g>
-					<g data-name="Portamical">
-						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical">
-							<rect x="700.0" y="108.0" height="8.0" width="98.0" data-name="Portamical"></rect>
-							<path d="M700.0 108.0 L700.0 76.0 L791.6 76.0 L791.6 108.0 Z" data-name="Portamical"></path>
-							<path d="M700.0 108.0 L798.0 108.0" fill="none" data-name="Portamical"></path>
+					<g data-name="MSTest.TestFramework">
+						<g fill="#eee8d5" stroke="#33322E" data-name="MSTest.TestFramework">
+							<rect x="209.8" y="0.0" height="40.0" width="209.0" data-name="MSTest.TestFramework"></rect>
+							<path d="M209.8 32.0 L394.8 32.0 L410.8 16.0 L410.8 0.0" fill="none" data-name="MSTest.TestFramework"></path>
 						</g>
-						<g transform="translate(700, 76)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical" data-compartment="0">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical" data-compartment="0">
-								<text x="0.0" y="14.1" stroke="none" data-name="Portamical" data-compartment="0">Portamical</text>
+						<g transform="translate(209.75, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="MSTest.TestFramework" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="MSTest.TestFramework" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="MSTest.TestFramework" data-compartment="0">MSTest.TestFramework</text>
 								
 							</g>
 						</g>
-						<g transform="translate(700, 108)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical" data-compartment="1">
-							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical" data-compartment="1">
+						<g transform="translate(209.75, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="MSTest.TestFramework" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="MSTest.TestFramework" data-compartment="1">
 								
 							</g>
 						</g>
