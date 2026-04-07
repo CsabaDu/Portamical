@@ -26,7 +26,7 @@ public sealed class ResolverTests
     {
         var result = "Fallback".FallbackIfNullOrWhiteSpace(null, "GetName");
 
-        StringAssert.StartsWith(result, "Fallback (");
+        Assert.StartsWith("Fallback (", result);
     }
 
     [TestMethod]
@@ -34,7 +34,7 @@ public sealed class ResolverTests
     {
         var result = "Fallback".FallbackIfNullOrWhiteSpace(string.Empty, "GetName");
 
-        StringAssert.StartsWith(result, "Fallback (");
+        Assert.StartsWith("Fallback (", result);
     }
 
     [TestMethod]
@@ -42,7 +42,7 @@ public sealed class ResolverTests
     {
         var result = "Fallback".FallbackIfNullOrWhiteSpace("   ", "GetName");
 
-        StringAssert.StartsWith(result, "Fallback (");
+        Assert.StartsWith("Fallback (", result);
     }
 
     [TestMethod]

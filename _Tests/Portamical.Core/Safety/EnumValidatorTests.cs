@@ -29,7 +29,7 @@ public sealed class EnumValidatorTests
 
         var ex = invalidValue.GetInvalidEnumArgumentException(nameof(invalidValue));
 
-        StringAssert.Contains(ex.Message, "99");
+        Assert.Contains("99", ex.Message);
     }
 
     [TestMethod]
@@ -39,7 +39,7 @@ public sealed class EnumValidatorTests
 
         var ex = invalidValue.GetInvalidEnumArgumentException(nameof(invalidValue));
 
-        StringAssert.Contains(ex.Message, nameof(DayOfWeek));
+        Assert.Contains(nameof(DayOfWeek), ex.Message);
     }
 
     // Defined
@@ -83,6 +83,6 @@ public sealed class EnumValidatorTests
         var ex = Assert.ThrowsExactly<InvalidEnumArgumentException>(
             () => invalid.Defined(nameof(invalid)));
 
-        StringAssert.Contains(ex.Message, "999");
+        Assert.Contains("999", ex.Message);
     }
 }

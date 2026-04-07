@@ -444,11 +444,11 @@ public sealed class NamedCaseTests
     public void Contains_nonArrayEnumerable_worksCorrectly()
     {
         var namedCase = Case("test => passes");
-        IEnumerable<INamedCase> collection = new List<INamedCase>
-        {
+        IEnumerable<INamedCase> collection =
+        [
             Case("other => fails"),
             Case("test => passes"),
-        };
+        ];
 
         Assert.IsTrue(NamedCase.Contains(namedCase, collection));
     }

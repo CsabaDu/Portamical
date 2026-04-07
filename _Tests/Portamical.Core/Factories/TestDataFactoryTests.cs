@@ -116,8 +116,8 @@ public class TestDataFactoryTests
     public void createTestDataThrows_calledTwice_withSameArgs_returnsDifferentInstances()
     {
         var ex = new InvalidOperationException();
-        var a = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, ex, 1);
-        var b = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, ex, 1);
+        var a = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
+        var b = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
         Assert.AreNotSame(a, b);
     }
     #endregion
@@ -127,9 +127,9 @@ public class TestDataFactoryTests
     public void createTestDataThrows_withArgumentException_setsExpectedAndTestCaseName()
     {
         var ex = new ArgumentException("bad value");
-        var sut = TestDataFactory.CreateTestDataThrows<ArgumentException, int>(Def, ex, 1);
+        var sut = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
         Assert.IsInstanceOfType<TestDataThrows<ArgumentException, int>>(sut);
-        Assert.AreSame(ex, sut.Expected);
+        Assert.AreSame(sut.Expected, ex);
         Assert.AreEqual($"{Def} => throws ArgumentException", sut.TestCaseName);
     }
 
@@ -138,7 +138,7 @@ public class TestDataFactoryTests
     {
         // ArgumentNullException is a subtype of ArgumentException — type name used, not base
         var ex = new ArgumentNullException("param");
-        var sut = TestDataFactory.CreateTestDataThrows<ArgumentNullException, int>(Def, ex, 1);
+        var sut = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
         Assert.AreEqual($"{Def} => throws ArgumentNullException", sut.TestCaseName);
     }
     #endregion
