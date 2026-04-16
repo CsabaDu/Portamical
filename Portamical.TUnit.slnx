@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Portamical.TUnit/Portamical.TUnit.csproj" />
+  <Project Path="Portamical/Portamical.csproj" />
+</Solution>

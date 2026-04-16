@@ -376,7 +376,7 @@ public abstract class PortamicalAssert
 
         // initialized for better readability
         // and to ensure it's assigned before use
-        bool shouldAssertMessage = false;
+        bool shouldAssertMessage;
         var expectedMessage = expected.Message;
         var actualMessage = actual.Message;
 
