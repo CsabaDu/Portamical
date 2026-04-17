@@ -15,8 +15,4 @@
     <PackageReference Include="TUnit.Core" Version="1.28.7" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Assertions\" />
-  </ItemGroup>
-
 </Project>

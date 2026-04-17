@@ -119,13 +119,8 @@ namespace Portamical.Assertions;
 public abstract class PortamicalAssert
 {
     /// <summary>
-    /// Prevents external instantiation while allowing derived classes in extension projects.
+    /// Prevents external instantiation while allowing derived classes in extension scenarios.
     /// </summary>
-    /// <remarks>
-    /// This constructor is protected to enable inheritance in framework-specific extension projects
-    /// (e.g., Portamical.MSTest, Portamical.NUnit, Portamical.xUnit) while preventing direct
-    /// instantiation of this abstract base class.
-    /// </remarks>
     protected PortamicalAssert()
     {
     }
@@ -187,6 +182,23 @@ public abstract class PortamicalAssert
     => NotNull(assertEquality, nameof(assertEquality))(
         NotNull(expected, nameof(expected)),
         NotNull(actual, nameof(actual)).GetType());
+
+    public static void IsTypeOf<T>(
+        object actual,
+        Action<Type, Type> assertEquality)
+    => IsTypeOf(typeof(T), actual, assertEquality);
+
+    public static void Equality<T>(
+        T expected,
+        T? actual,
+        Func<T, T?, bool> equals,
+        Action assertFail)
+    {
+        if (!equals(expected, actual))
+        {
+            assertFail();
+        }
+    }
 
     /// <summary>
     /// Invokes the specified action and returns any exception that is thrown, or null if the action completes
@@ -253,15 +265,11 @@ public abstract class PortamicalAssert
             catchException,
             nameof(catchException))(
                 attempt);
-        var typedActual = ThrowsActualType(
-            expected,
-            actual,
+        var typedActual = ThrowsActualType(expected, actual,
             assertIsType,
             assertFail);
 
-        return ThrowsMetadataEquality(
-            expected,
-            typedActual,
+        return ThrowsMetadataEquality(expected, typedActual,
             assertEquality);
     }
 
@@ -289,10 +297,6 @@ public abstract class PortamicalAssert
         _ = NotNull(assertIsType, nameof(assertIsType));
         _ = NotNull(assertFail, nameof(assertFail));
 
-        const string expectedExceptionMessageStart = "Expected exception";
-        const string wasNotThrownMessageEnd = " was not thrown.";
-        const string wasThrownMessageEnd = " was thrown.";
-
         if (actual is null)
         {
             assertFail(getExpectedExceptionOfTypeMessage(
@@ -317,9 +321,9 @@ public abstract class PortamicalAssert
             return typedActual;
         }
 
-        assertFail(getExpectedExceptionOfTypeMessage(
-            expected,
-            getNotExpectedExceptionOfTypeWasThrownMessageInsert(actual)));
+        assertFail(GetExpectedExceptionOfTypeMessage(
+            expectedType,
+            GetNotExpectedExceptionOfTypeWasThrownMessageInsert(actualType)));
 
         const string unexpectedExceptionThrownMessage =
             $"Unexpected exception type{wasThrownMessageEnd}";
@@ -329,9 +333,6 @@ public abstract class PortamicalAssert
         #region Local methods
         static string getExpectedExceptionOfTypeMessage(TException expected, string end)
         => $"{expectedExceptionMessageStart} of type {GetTypeFullName(expected)}{end}";
-
-        static string getNotExpectedExceptionOfTypeWasThrownMessageInsert(Exception actual)
-        => $", but exception of type {GetTypeFullName(actual)}{wasThrownMessageEnd}";
         #endregion
     }
 
@@ -433,10 +434,32 @@ public abstract class PortamicalAssert
     #endregion
 
     #region Helpers
+    #region Protected members
     protected static string? GetTypeFullName(object? obj)
-    => obj?.GetType().FullName;
+    => GetFullName(obj?.GetType());
+
+    protected static string? GetFullName(Type? obj)
+    => obj?.FullName;
 
     protected static InvalidOperationException GetAssertionFailedException(string message)
     => new($"Assertion failed: {message}");
+
+    protected static string GetNotExpectedTypeExceptionThrownMessage(Type expectedType, Type actualType)
+    => GetExpectedExceptionOfTypeMessage(
+        expectedType,
+        GetNotExpectedExceptionOfTypeWasThrownMessageInsert(actualType));
+    #endregion
+
+    #region Private members
+    private static string GetExpectedExceptionOfTypeMessage(Type expectedType, string end)
+    => $"{expectedExceptionMessageStart} of type {GetFullName(expectedType)}{end}";
+
+    private static string GetNotExpectedExceptionOfTypeWasThrownMessageInsert(Type actualType)
+    => $", but exception of type {GetFullName(actualType)}{wasThrownMessageEnd}";
+
+    private const string expectedExceptionMessageStart = "Expected exception";
+    private const string wasThrownMessageEnd = " was thrown.";
+    private const string wasNotThrownMessageEnd = " was not thrown.";
+    #endregion
     #endregion
 }

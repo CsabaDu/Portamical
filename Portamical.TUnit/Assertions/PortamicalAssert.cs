@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using TUnit.Assertions.Exceptions;
@@ -27,7 +27,7 @@ namespace Portamical.TUnit.Assertions;
 ///   </item>
 ///   <item>
 ///     <strong>Simplifying:</strong> Provides methods with fewer parameters by pre-configuring TUnit-specific
-///     assertion delegates (e.g., <c>Assert.Fail</c>, <c>Assert.That</c>).
+///     assertion delegates (e.g., <c>Assert.EqualityFail</c>, <c>Assert.That</c>).
 ///   </item>
 ///   <item>
 ///     <strong>Bridging:</strong> Translates between TUnit's assertion model and the base class's delegate-based
@@ -46,7 +46,7 @@ namespace Portamical.TUnit.Assertions;
 /// [Test]
 /// public async Task DoesNotThrow_ValidOperation_NoException()
 /// {
-///     // Simplified API - no need to pass Assert.Fail
+///     // Simplified API - no need to pass Assert.EqualityFail
 ///     PortamicalAssert.DoesNotThrow(() => myService.DoWork());
 /// }
 /// 
@@ -100,17 +100,6 @@ namespace Portamical.TUnit.Assertions;
 /// <seealso cref="ThrowsDetails{TException}(Action, TException)"/>
 public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
 {
-    /// <summary>
-    /// Prevents external instantiation while allowing derived classes in extension scenarios.
-    /// </summary>
-    /// <remarks>
-    /// This constructor is protected to maintain consistency with the base class pattern
-    /// and enable potential future extension scenarios.
-    /// </remarks>
-    protected PortamicalAssert()
-    {
-    }
-
     #region Assert Methods
     /// <summary>
     /// Verifies that the specified action does not throw an exception using TUnit's assertion framework.
@@ -148,7 +137,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// </code>
     /// </example>
     public static void DoesNotThrow(Action attempt)
-        => DoesNotThrow(attempt, assertFail: msg => throw new AssertionException(msg));
+    => DoesNotThrow(attempt, Fail);
 
     /// <summary>
     /// Executes the specified action and verifies that it throws an exception of the expected type and with matching
@@ -163,7 +152,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     ///   <item><strong>Exception Capture:</strong> <see cref="CatchException(Action)"/></item>
     ///   <item><strong>Type Validation:</strong> TUnit's type checking via <c>Assert.That</c></item>
     ///   <item><strong>Equality Assertions:</strong> TUnit's <c>Assert.That</c> for string comparisons</item>
-    ///   <item><strong>Failure Handling:</strong> TUnit's <c>Assert.Fail</c></item>
+    ///   <item><strong>Failure Handling:</strong> TUnit's <c>Assert.EqualityFail</c></item>
     /// </list>
     /// <para>
     /// <strong>Selective Assertion Pattern:</strong> Properties are only asserted if set (non-null) in the
@@ -249,26 +238,40 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         Action attempt,
         TException expected)
     where TException : notnull, Exception
-        => ThrowsDetails(
-            attempt,
-            expected,
-            catchException: CatchException,
-            assertIsType: (expectedType, actual) =>
-            {
-                if (actual.GetType() != expectedType)
-                {
-                    throw new AssertionException(
-                        $"Expected exception type {expectedType.FullName} but got {actual.GetType().FullName}");
-                }
-            },
-            assertEquality: (expectedValue, actualValue) =>
-            {
-                if (actualValue != expectedValue)
-                {
-                    throw new AssertionException(
-                        $"Expected '{expectedValue}' but got '{actualValue}'");
-                }
-            },
-            assertFail: msg => throw new AssertionException(msg));
+    => ThrowsDetails(attempt, expected,
+        catchException: CatchException,
+        assertIsType: IsTypeOf,
+        assertEquality: Equality,
+        assertFail: Fail);
+    #endregion
+
+    public static void Fail(string message)
+    => throw new AssertionException(message);
+
+    public static void IsTypeOf(Type expectedType, Exception actual)
+    => IsTypeOf(expectedType, actual,
+        assertEquality: Equality);
+
+    static void Equality(Type expected, Type actual)
+    => Equality(expected, actual,
+        equals: (e, a) => actual == expected,
+        assertFail: () => Fail(
+            GetNotExpectedTypeExceptionThrownMessage(
+                expected,
+                actual)));
+
+    public static void Equality(string expected, string? actual)
+    => Equality(expected, actual,
+        equals: (e, a) => actual == expected,
+        assertFail: () => EqualityFail(expected, actual));
+
+    public static void Equality<T>(T expected, T? actual)
+    => Equality(expected, actual,
+        equals: (e, a) => a?.Equals(e) == true,
+        assertFail: () => EqualityFail(expected, actual));
+
+    #region Helpers
+    private static void EqualityFail<T>(T expected, T? actual)
+    => Fail($"Expected '{expected}' but '{actual}' returned.");
     #endregion
 }

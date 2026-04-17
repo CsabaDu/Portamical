@@ -14,9 +14,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical</RepositoryUrl>
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3;</PackageTags>
-    <PackageReleaseNotes>v2.0.2: Updated Portamical.Core dependency: 2.0.0 → 2.0.1
-
-</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      v2.1.0: PortamicalAssert.Equality(), PortamicalAssert.IsTypeOf()
+    </PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>

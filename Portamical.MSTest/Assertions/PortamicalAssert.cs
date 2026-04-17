@@ -116,30 +116,6 @@ namespace Portamical.MSTest.Assertions;
 public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
 {
     /// <summary>
-    /// Prevents external instantiation while allowing potential future derived classes.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This protected constructor maintains consistency with the base class
-    /// <see cref="Portamical.Assertions.PortamicalAssert"/> design pattern. While this MSTest
-    /// adapter is sealed in its abstraction (contains only static methods and is not intended
-    /// for further inheritance in typical usage), the protected constructor:
-    /// </para>
-    /// <list type="bullet">
-    ///   <item>Maintains architectural consistency with the base class</item>
-    ///   <item>Explicitly documents that instantiation is not intended</item>
-    ///   <item>Allows for potential future specialized adapters if needed</item>
-    /// </list>
-    /// <para>
-    /// The class is abstract and contains only static methods, so instantiation is neither
-    /// necessary nor intended in normal usage scenarios.
-    /// </para>
-    /// </remarks>
-    protected PortamicalAssert()
-    {
-    }
-
-    /// <summary>
     /// Executes multiple assertions. <strong>Note:</strong> MSTest does not support assertion
     /// aggregation; execution stops at the first failure.
     /// </summary>
