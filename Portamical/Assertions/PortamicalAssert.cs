@@ -189,10 +189,14 @@ public abstract class PortamicalAssert
         Func<T, T?, bool> equals,
         Action assertFail)
     {
-        if (!equals(expected, actual))
+        if (NotNull(equals, nameof(equals))(
+            expected,
+            actual))
         {
-            assertFail();
+            return;
         }
+
+        _ = NotNull(assertFail, nameof(assertFail));
     }
 
     /// <summary>
