@@ -313,6 +313,9 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         }
     }
 
+    public static void Equality<T>(T expected, T actual)
+    => Assert.That(actual, Is.EqualTo(expected));
+
     /// <summary>
     /// Asserts that the specified action completes without throwing any exceptions.
     /// </summary>
@@ -428,7 +431,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// <seealso cref="Portamical.Assertions.PortamicalAssert.IsTypeOf(Type, object, Action{Type, Type})"/>
     public static void IsTypeOf(Type expected, object actual)
     => IsTypeOf(expected, actual,
-        assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)));
+        assertEquality: Equality);
 
     /// <summary>
     /// Asserts that the specified action throws an exception of type <typeparamref name="TException"/>
@@ -554,9 +557,9 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         AssertMultiple(() =>
         {
             actual = ThrowsDetails(attempt, expected,
-                catchException: att => Assert.Catch(() => att()),
-                assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
-                assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
+                catchException: CatchException,
+                assertIsType: IsTypeOf,
+                assertEquality: Equality,
                 assertFail: Assert.Fail);
         });
 

@@ -13,15 +13,14 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>test; unittest; testdata; portable; dynamicdata; datadriven; nunit;</PackageTags>
-    <PackageReleaseNotes>v2.0.1
-- Dependencies: Portamical: 2.0.0 → 2.0.2
+    <PackageReleaseNotes>PortamicalAssert.Equality, ThrowsDetails bugfix
 </PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <FileVersion>2.0.0-beta</FileVersion>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,7 +40,10 @@
 
   <ItemGroup>
     <PackageReference Include="NUnitLite" Version="4.5.1" />
-    <PackageReference Include="Portamical" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Portamical\Portamical.csproj" />
   </ItemGroup>
 
   <ItemGroup>
