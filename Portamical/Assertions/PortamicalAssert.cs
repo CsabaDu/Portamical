@@ -183,11 +183,6 @@ public abstract class PortamicalAssert
         NotNull(expected, nameof(expected)),
         NotNull(actual, nameof(actual)).GetType());
 
-    public static void IsTypeOf<T>(
-        object actual,
-        Action<Type, Type> assertEquality)
-    => IsTypeOf(typeof(T), actual, assertEquality);
-
     public static void Equality<T>(
         T expected,
         T? actual,
