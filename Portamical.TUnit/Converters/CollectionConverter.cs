@@ -8,11 +8,6 @@ namespace Portamical.TUnit.Converters;
 
 public static class CollectionConverter
 {
-    public static IReadOnlyCollection<object?[]> ToDistinctReadOnly<TTestData>(
-        this IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(Core.Strategy.ArgsCode.Instance);
-
     public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData

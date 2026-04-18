@@ -47,6 +47,23 @@ public static class CollectionConverter
 
     /// <summary>
     /// Returns a read-only collection of distinct argument arrays generated from the specified test data collection
+    /// using the <see cref="ArgsCode.Instance"/> argument code.
+    /// </summary>
+    /// <remarks>Each element in the returned collection corresponds to the arguments produced by calling
+    /// ToArgs on each test data item with the specified argument code. Duplicate argument arrays are removed based on
+    /// their contents.</remarks>
+    /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
+    /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null.</param>
+    /// <returns>A read-only collection containing unique arrays of arguments produced from the test data. The collection is
+    /// empty if the input collection contains no items.</returns>
+    public static IReadOnlyCollection<object?[]> ToDistinctReadOnly<TTestData>(
+    this IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctArray(
+        testData => testData.ToArgs(ArgsCode.Instance));
+
+    /// <summary>
+    /// Returns a read-only collection of distinct argument arrays generated from the specified test data collection
     /// using the provided argument code.
     /// </summary>
     /// <remarks>Each element in the returned collection corresponds to the arguments produced by calling
