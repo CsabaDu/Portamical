@@ -211,29 +211,29 @@ public abstract class PortamicalAssert
 
         bool areEqual = (expected, actual) switch
         {
-            (_, null) or (null, _) => false,
+            (_, null) or (null, _)               => false,
 
-            (byte e, byte a) => e == a,
-            (sbyte e, sbyte a) => e == a,
-            (short e, short a) => e == a,
-            (ushort e, ushort a) => e == a,
-            (int e, int a) => e == a,
-            (uint e, uint a) => e == a,
-            (long e, long a) => e == a,
-            (ulong e, ulong a) => e == a,
-            (nint e, nint a) => e == a,
-            (nuint e, nuint a) => e == a,
-            (decimal e, decimal a) => e == a,
-            (bool e, bool a) => e == a,
-            (char e, char a) => e == a,
-            (string e, string a) => e == a,
-            (Guid e, Guid a) => e == a,
-            (DateTime e, DateTime a) => e == a,
-            (DateOnly e, DateOnly a) => e == a,
-            (TimeOnly e, TimeOnly a) => e == a,
-            (TimeSpan e, TimeSpan a) => e == a,
+            (byte e, byte a)                     => e == a,
+            (sbyte e, sbyte a)                   => e == a,
+            (short e, short a)                   => e == a,
+            (ushort e, ushort a)                 => e == a,
+            (int e, int a)                       => e == a,
+            (uint e, uint a)                     => e == a,
+            (long e, long a)                     => e == a,
+            (ulong e, ulong a)                   => e == a,
+            (nint e, nint a)                     => e == a,
+            (nuint e, nuint a)                   => e == a,
+            (decimal e, decimal a)               => e == a,
+            (bool e, bool a)                     => e == a,
+            (char e, char a)                     => e == a,
+            (string e, string a)                 => e == a,
+            (Guid e, Guid a)                     => e == a,
+            (DateTime e, DateTime a)             => e == a,
+            (DateOnly e, DateOnly a)             => e == a,
+            (TimeOnly e, TimeOnly a)             => e == a,
+            (TimeSpan e, TimeSpan a)             => e == a,
             (DateTimeOffset e, DateTimeOffset a) => e == a,
-            (BigInteger e, BigInteger a) => e == a,
+            (BigInteger e, BigInteger a)         => e == a,
 
             _ => expected.Equals(actual),
         };
@@ -344,10 +344,10 @@ public abstract class PortamicalAssert
         {
             assertFail(getExpectedExceptionOfTypeMessage(
                 expected,
-                wasNotThrownMessageEnd));
+                GetThrownMessageEnd(false)));
 
-            const string expectedExceptionNotThrownMessage =
-                $"{expectedExceptionMessageStart}{wasNotThrownMessageEnd}";
+            string expectedExceptionNotThrownMessage =
+                $"{ExpectedExceptionMessageStart}{GetThrownMessageEnd(false)}";
 
             // throws when custom assertFail does not throw,
             // or to ensure method exits after framework-specific assertFail
@@ -368,14 +368,14 @@ public abstract class PortamicalAssert
             expectedType,
             GetNotExpectedExceptionOfTypeWasThrownMessageInsert(actualType)));
 
-        const string unexpectedExceptionThrownMessage =
-            $"Unexpected exception type{wasThrownMessageEnd}";
+        string unexpectedExceptionThrownMessage =
+            $"Unexpected exception type{GetThrownMessageEnd(true)}";
 
         throw GetAssertionFailedException(unexpectedExceptionThrownMessage);
 
         #region Local methods
         static string getExpectedExceptionOfTypeMessage(TException expected, string end)
-        => $"{expectedExceptionMessageStart} of type {GetTypeFullName(expected)}{end}";
+        => $"{ExpectedExceptionMessageStart} of type {GetTypeFullName(expected)}{end}";
         #endregion
     }
 
@@ -495,14 +495,19 @@ public abstract class PortamicalAssert
 
     #region Private members
     private static string GetExpectedExceptionOfTypeMessage(Type expectedType, string end)
-    => $"{expectedExceptionMessageStart} of type {GetFullName(expectedType)}{end}";
+    => $"{ExpectedExceptionMessageStart} of type {GetFullName(expectedType)}{end}";
 
     private static string GetNotExpectedExceptionOfTypeWasThrownMessageInsert(Type? actualType)
-    => $", but exception of type {GetFullName(actualType)}{wasThrownMessageEnd}";
+    => $", but exception of type {GetFullName(actualType)}{GetThrownMessageEnd(true)}";
 
-    private const string expectedExceptionMessageStart = "Expected exception";
-    private const string wasThrownMessageEnd = " was thrown.";
-    private const string wasNotThrownMessageEnd = " was not thrown.";
+    private static string GetThrownMessageEnd(bool thrown)
+    {
+        string thrownNotThrown = thrown ? string.Empty : "not ";
+
+        return $" was {thrownNotThrown}thrown.";   
+    }
+
+    private const string ExpectedExceptionMessageStart = "Expected exception";
     #endregion
     #endregion
 }
