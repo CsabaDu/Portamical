@@ -13,7 +13,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctReadOnly(Core.Strategy.ArgsCode.Instance);
 
-    public static Task<TTestData[]> ToDistinctTask<TTestData>(
+    public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => Task.FromResult(testDataCollection.ToDistinctArray());

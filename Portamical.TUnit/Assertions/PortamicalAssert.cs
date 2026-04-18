@@ -243,35 +243,23 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         assertIsType: IsTypeOf,
         assertEquality: Equality,
         assertFail: Fail);
-    #endregion
 
-    public static void Fail(string message)
+    public static void Fail(string? message)
     => throw new AssertionException(message);
 
-    public static void IsTypeOf(Type expectedType, Exception actual)
+    public static void IsTypeOf(Type expectedType, object? actual)
     => IsTypeOf(expectedType, actual,
         assertEquality: Equality);
 
-    static void Equality(Type expected, Type actual)
+    static void Equality(Type expected, Type? actual)
     => Equality(expected, actual,
         equals: (e, a) => actual == expected,
+        assertFail: Fail,
+        message: GetNotExpectedTypeExceptionThrownMessage(expected, actual));
+
+    public static void Equality(object expected, object? actual)
+    => Equality(expected, actual,
         assertFail: () => Fail(
-            GetNotExpectedTypeExceptionThrownMessage(
-                expected,
-                actual)));
-
-    public static void Equality(string expected, string? actual)
-    => Equality(expected, actual,
-        equals: (e, a) => actual == expected,
-        assertFail: () => EqualityFail(expected, actual));
-
-    public static void Equality<T>(T expected, T? actual)
-    => Equality(expected, actual,
-        equals: (e, a) => a?.Equals(e) == true,
-        assertFail: () => EqualityFail(expected, actual));
-
-    #region Helpers
-    private static void EqualityFail<T>(T expected, T? actual)
-    => Fail($"Expected '{expected}' but '{actual}' returned.");
+            $"Expected '{expected}' but '{actual ?? "null"}' returned."));
     #endregion
 }

@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Numerics;
+
 namespace Portamical.Assertions;
 
 /// <summary>
@@ -177,26 +179,68 @@ public abstract class PortamicalAssert
     /// Cannot be null.</param>
     public static void IsTypeOf(
         Type expected,
-        object actual,
-        Action<Type, Type> assertEquality)
+        object? actual,
+        Action<Type, Type?> assertEquality)
     => NotNull(assertEquality, nameof(assertEquality))(
         NotNull(expected, nameof(expected)),
-        NotNull(actual, nameof(actual)).GetType());
+        actual?.GetType());
 
     public static void Equality<T>(
         T expected,
         T? actual,
-        Func<T, T?, bool> equals,
+        Func<T, object?, bool> equals,
+        Action<string?> assertFail,
+        string? message)
+    {
+        _ = NotNull(equals, nameof(equals));
+        _ = NotNull(assertFail, nameof(assertFail));
+
+        if (equals(expected, actual)) return;
+
+        assertFail(message);
+    }
+
+    public static void Equality(
+        object expected,
+        object? actual,
         Action assertFail)
     {
-        if (NotNull(equals, nameof(equals))(
-            expected,
-            actual))
-        {
-            return;
-        }
-
         _ = NotNull(assertFail, nameof(assertFail));
+
+        if (ReferenceEquals(expected, actual)) return;
+
+        bool areEqual = (expected, actual) switch
+        {
+            (_, null) or (null, _) => false,
+
+            (byte e, byte a) => e == a,
+            (sbyte e, sbyte a) => e == a,
+            (short e, short a) => e == a,
+            (ushort e, ushort a) => e == a,
+            (int e, int a) => e == a,
+            (uint e, uint a) => e == a,
+            (long e, long a) => e == a,
+            (ulong e, ulong a) => e == a,
+            (nint e, nint a) => e == a,
+            (nuint e, nuint a) => e == a,
+            (decimal e, decimal a) => e == a,
+            (bool e, bool a) => e == a,
+            (char e, char a) => e == a,
+            (string e, string a) => e == a,
+            (Guid e, Guid a) => e == a,
+            (DateTime e, DateTime a) => e == a,
+            (DateOnly e, DateOnly a) => e == a,
+            (TimeOnly e, TimeOnly a) => e == a,
+            (TimeSpan e, TimeSpan a) => e == a,
+            (DateTimeOffset e, DateTimeOffset a) => e == a,
+            (BigInteger e, BigInteger a) => e == a,
+
+            _ => expected.Equals(actual),
+        };
+
+        if (areEqual) return;
+
+        assertFail();
     }
 
     /// <summary>
@@ -437,13 +481,13 @@ public abstract class PortamicalAssert
     protected static string? GetTypeFullName(object? obj)
     => GetFullName(obj?.GetType());
 
-    protected static string? GetFullName(Type? obj)
-    => obj?.FullName;
+    protected static string GetFullName(Type? obj)
+    => obj?.FullName ?? "null";
 
     protected static InvalidOperationException GetAssertionFailedException(string message)
     => new($"Assertion failed: {message}");
 
-    protected static string GetNotExpectedTypeExceptionThrownMessage(Type expectedType, Type actualType)
+    protected static string GetNotExpectedTypeExceptionThrownMessage(Type expectedType, Type? actualType)
     => GetExpectedExceptionOfTypeMessage(
         expectedType,
         GetNotExpectedExceptionOfTypeWasThrownMessageInsert(actualType));
@@ -453,7 +497,7 @@ public abstract class PortamicalAssert
     private static string GetExpectedExceptionOfTypeMessage(Type expectedType, string end)
     => $"{expectedExceptionMessageStart} of type {GetFullName(expectedType)}{end}";
 
-    private static string GetNotExpectedExceptionOfTypeWasThrownMessageInsert(Type actualType)
+    private static string GetNotExpectedExceptionOfTypeWasThrownMessageInsert(Type? actualType)
     => $", but exception of type {GetFullName(actualType)}{wasThrownMessageEnd}";
 
     private const string expectedExceptionMessageStart = "Expected exception";

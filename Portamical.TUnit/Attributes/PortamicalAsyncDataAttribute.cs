@@ -4,9 +4,9 @@
 namespace Portamical.TUnit.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = true)]
-public class PortamicalAsyncDataAttribute<TTestData>(Func<IEnumerable<TTestData>> dataFactory)
-    : AsyncDataSourceGeneratorAttribute<TTestData>
-    where TTestData : notnull, ITestData
+public abstract class PortamicalAsyncBaseDataAttribute<TTestData>(Func<IEnumerable<TTestData>> dataFactory)
+: AsyncDataSourceGeneratorAttribute<TTestData>
+where TTestData : notnull, ITestData
 {
     private readonly Func<IEnumerable<TTestData>> _dataFactory = dataFactory;
 
@@ -22,7 +22,15 @@ public class PortamicalAsyncDataAttribute<TTestData>(Func<IEnumerable<TTestData>
                 yield return () => Task.FromResult(item);
             }
 
-            await Task.CompletedTask; // opcionális, de nem árt
+            await Task.CompletedTask;
         }
     }
+}
+
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = true)]
+public sealed class PortamicalAsyncDataAttribute<TTestData>(Func<IEnumerable<TTestData>> dataFactory)
+: PortamicalAsyncBaseDataAttribute<TTestData>(dataFactory)
+where TTestData : notnull, ITestData
+{
 }

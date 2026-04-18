@@ -373,8 +373,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// </example>
     /// <seealso cref="Portamical.Assertions.PortamicalAssert.DoesNotThrow(Action, Action{string})"/>
     public static void DoesNotThrow(Action attempt)
-    => DoesNotThrow(attempt,
-        assertFail: Assert.Fail);
+    => DoesNotThrow(attempt, assertFail: Assert.Fail);
 
     /// <summary>
     /// Asserts that the runtime type of the actual object matches the expected type.
@@ -430,8 +429,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// </example>
     /// <seealso cref="Portamical.Assertions.PortamicalAssert.IsTypeOf(Type, object, Action{Type, Type})"/>
     public static void IsTypeOf(Type expected, object actual)
-    => IsTypeOf(expected, actual,
-        assertEquality: Equality);
+    => IsTypeOf(expected, actual, assertEquality: Equality);
 
     /// <summary>
     /// Asserts that the specified action throws an exception of type <typeparamref name="TException"/>
