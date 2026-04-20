@@ -185,6 +185,15 @@ public abstract class PortamicalAssert
         NotNull(expected, nameof(expected)),
         actual?.GetType());
 
+    /// <summary>
+    /// Verifies value equality by delegating the comparison and failure behavior to caller-provided callbacks.
+    /// </summary>
+    /// <typeparam name="T">The value type being compared.</typeparam>
+    /// <param name="expected">The expected value.</param>
+    /// <param name="actual">The actual value.</param>
+    /// <param name="equals">A delegate that determines whether <paramref name="expected"/> and <paramref name="actual"/> are equal.</param>
+    /// <param name="assertFail">A delegate invoked when the values are not equal.</param>
+    /// <param name="message">The failure message to pass to <paramref name="assertFail"/>.</param>
     public static void Equality<T>(
         T expected,
         T? actual,
@@ -200,6 +209,12 @@ public abstract class PortamicalAssert
         assertFail(message);
     }
 
+    /// <summary>
+    /// Verifies value equality for common primitive and framework types, falling back to <see cref="object.Equals(object?)"/>.
+    /// </summary>
+    /// <param name="expected">The expected value.</param>
+    /// <param name="actual">The actual value.</param>
+    /// <param name="assertFail">A delegate invoked when the values are not equal.</param>
     public static void Equality(
         object expected,
         object? actual,
@@ -478,15 +493,36 @@ public abstract class PortamicalAssert
 
     #region Helpers
     #region Protected members
+    /// <summary>
+    /// Gets the full runtime type name of the supplied object.
+    /// </summary>
+    /// <param name="obj">The object whose runtime type name should be returned.</param>
+    /// <returns>The full name of the runtime type, or <c>null</c> when <paramref name="obj"/> is <c>null</c>.</returns>
     protected static string? GetTypeFullName(object? obj)
     => GetFullName(obj?.GetType());
 
+    /// <summary>
+    /// Gets the full name of the supplied type, or <c>"null"</c> when no type is available.
+    /// </summary>
+    /// <param name="obj">The type whose full name should be returned.</param>
+    /// <returns>The full type name, or <c>"null"</c> when <paramref name="obj"/> is <c>null</c>.</returns>
     protected static string GetFullName(Type? obj)
     => obj?.FullName ?? "null";
 
+    /// <summary>
+    /// Creates the fallback exception used when an injected assertion callback does not throw.
+    /// </summary>
+    /// <param name="message">The assertion failure message.</param>
+    /// <returns>An <see cref="InvalidOperationException"/> describing the failed assertion.</returns>
     protected static InvalidOperationException GetAssertionFailedException(string message)
     => new($"Assertion failed: {message}");
 
+    /// <summary>
+    /// Creates a message describing an unexpected exception type for assertion failures.
+    /// </summary>
+    /// <param name="expectedType">The expected exception type.</param>
+    /// <param name="actualType">The actual exception type, if one was thrown.</param>
+    /// <returns>A formatted message describing the expected and actual exception types.</returns>
     protected static string GetNotExpectedTypeExceptionThrownMessage(Type expectedType, Type? actualType)
     => GetExpectedExceptionOfTypeMessage(
         expectedType,

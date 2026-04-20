@@ -313,6 +313,12 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         }
     }
 
+    /// <summary>
+    /// Asserts that two values are equal using NUnit's equality constraint.
+    /// </summary>
+    /// <typeparam name="T">The value type being compared.</typeparam>
+    /// <param name="expected">The expected value.</param>
+    /// <param name="actual">The actual value.</param>
     public static void Equality<T>(T expected, T actual)
     => Assert.That(actual, Is.EqualTo(expected));
 

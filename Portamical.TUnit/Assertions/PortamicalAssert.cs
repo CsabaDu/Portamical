@@ -244,9 +244,19 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         assertEquality: Equality,
         assertFail: Fail);
 
+    /// <summary>
+    /// Fails the current assertion with the supplied message.
+    /// </summary>
+    /// <param name="message">The failure message.</param>
+    /// <exception cref="AssertionException">Always thrown to signal the assertion failure.</exception>
     public static void Fail(string? message)
     => throw new AssertionException(message);
 
+    /// <summary>
+    /// Verifies that the runtime type of the actual object matches the expected type.
+    /// </summary>
+    /// <param name="expectedType">The expected runtime type.</param>
+    /// <param name="actual">The object whose runtime type is being checked.</param>
     public static void IsTypeOf(Type expectedType, object? actual)
     => IsTypeOf(expectedType, actual,
         assertEquality: Equality);
@@ -257,6 +267,11 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         assertFail: Fail,
         message: GetNotExpectedTypeExceptionThrownMessage(expected, actual));
 
+    /// <summary>
+    /// Verifies that two values are equal using TUnit's assertion failure mechanism.
+    /// </summary>
+    /// <param name="expected">The expected value.</param>
+    /// <param name="actual">The actual value.</param>
     public static void Equality(object expected, object? actual)
     => Equality(expected, actual,
         assertFail: () => Fail(
