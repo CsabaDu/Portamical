@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Collections;
 using System.Numerics;
 
 namespace Portamical.Assertions;
@@ -174,7 +175,7 @@ public abstract class PortamicalAssert
     /// provided assertion action. This allows for custom assertion logic or integration with different testing
     /// frameworks.</remarks>
     /// <param name="expected">The expected type to compare against the actual object's type. Cannot be null.</param>
-    /// <param name="actual">The object whose runtime type is to be compared with the expected type. Cannot be null.</param>
+    /// <param name="actual">The object whose runtime type is to be compared with the expected type.</param>
     /// <param name="assertEquality">An action that receives the expected type and the actual object's type, and performs the equality assertion.
     /// Cannot be null.</param>
     public static void IsTypeOf(
@@ -195,9 +196,9 @@ public abstract class PortamicalAssert
     /// <param name="assertFail">A delegate invoked when the values are not equal.</param>
     /// <param name="message">The failure message to pass to <paramref name="assertFail"/>.</param>
     public static void Equality<T>(
-        T expected,
+        T? expected,
         T? actual,
-        Func<T, object?, bool> equals,
+        Func<T?, T?, bool> equals,
         Action<string?> assertFail,
         string? message)
     {
@@ -215,6 +216,10 @@ public abstract class PortamicalAssert
     /// <param name="expected">The expected value.</param>
     /// <param name="actual">The actual value.</param>
     /// <param name="assertFail">A delegate invoked when the values are not equal.</param>
+    /// <param name="floatingPointTolerance">
+    /// Epsilon for floating-point comparisons. Default: 1e-10 for double, 1e-6f for float.
+    /// Set to 0 to require exact equality (not recommended).
+    /// </param>
     public static void Equality(
         object expected,
         object? actual,
@@ -223,43 +228,60 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertFail, nameof(assertFail));
 
-        if (ReferenceEquals(expected, actual)) return;
-
-        bool areEqual = (expected, actual) switch
-        {
-            (_, null) or (null, _)                  => false,
-
-            (byte e, byte a)                        => e == a,
-            (sbyte e, sbyte a)                      => e == a,
-            (short e, short a)                      => e == a,
-            (ushort e, ushort a)                    => e == a,
-            (int e, int a)                          => e == a,
-            (uint e, uint a)                        => e == a,
-            (long e, long a)                        => e == a,
-            (ulong e, ulong a)                      => e == a,
-            (nint e, nint a)                        => e == a,
-            (nuint e, nuint a)                      => e == a,
-            (decimal e, decimal a)                  => e == a,
-            (bool e, bool a)                        => e == a,
-            (char e, char a)                        => e == a,
-            (string e, string a)                    => e == a,
-            (float e, float a)    => AreApproximatelyEqual(e, a, floatingPointTolerance),
-            (double e, double a) => AreApproximatelyEqual(e, a, floatingPointTolerance),
-
-            (Guid e, Guid a)                        => e == a,
-            (DateTime e, DateTime a)                => e == a,
-            (DateOnly e, DateOnly a)                => e == a,
-            (TimeOnly e, TimeOnly a)                => e == a,
-            (TimeSpan e, TimeSpan a)                => e == a,
-            (DateTimeOffset e, DateTimeOffset a)    => e == a,
-            (BigInteger e, BigInteger a)            => e == a,
-
-            _ => expected.Equals(actual),
-        };
-
-        if (areEqual) return;
+        if (areEqual(expected, actual, floatingPointTolerance)) return;
 
         assertFail();
+
+        #region Local methods
+        static bool areEqual(object? exp, object? act, double? tolerance)
+        {
+            if (ReferenceEquals(exp, act)) return true;
+            if (exp is null || act is null) return false;
+
+            return (exp, act) switch
+            {
+                // Integer types
+                (byte e, byte a) => e == a,
+                (sbyte e, sbyte a) => e == a,
+                (short e, short a) => e == a,
+                (ushort e, ushort a) => e == a,
+                (int e, int a) => e == a,
+                (uint e, uint a) => e == a,
+                (long e, long a) => e == a,
+                (ulong e, ulong a) => e == a,
+                (nint e, nint a) => e == a,
+                (nuint e, nuint a) => e == a,
+
+                // Other primitives
+                (bool e, bool a) => e == a,
+                (char e, char a) => e == a,
+                (string e, string a) => e == a,
+                (decimal e, decimal a) => e == a,
+
+                // Floating-point with tolerance
+                (float e, float a) => AreAppxEqual(e, a, tolerance),
+                (double e, double a) => AreAppxEqual(e, a, tolerance),
+
+                // Framework types
+                (Guid e, Guid a) => e == a,
+                (DateTime e, DateTime a) => e == a,
+                (DateOnly e, DateOnly a) => e == a,
+                (TimeOnly e, TimeOnly a) => e == a,
+                (TimeSpan e, TimeSpan a) => e == a,
+                (DateTimeOffset e, DateTimeOffset a) => e == a,
+                (BigInteger e, BigInteger a) => e == a,
+
+                // Collections (recursive comparison)
+                (IEnumerable e, IEnumerable a) =>
+                    e.Cast<object?>().SequenceEqual(a.Cast<object?>(),
+                        EqualityComparer<object?>.Create(
+                            (x, y) => areEqual(x, y, tolerance))),
+
+                // Fallback to object.Equals
+                _ => exp.Equals(act),
+            };
+        }
+        #endregion
     }
 
     /// <summary>
@@ -423,12 +445,6 @@ public abstract class PortamicalAssert
     /// exactly which exception properties matter for their test scenario.
     /// </para>
     /// </remarks>
-    /// <remarks>
-    /// <para>
-    /// <strong>Selective Assertion:</strong> Properties are only asserted if set (non-null).
-    /// Use null to skip assertions for properties that are implementation details.
-    /// </para>
-    /// </remarks>
     public static TException ThrowsMetadataEquality<TException>(
         TException expected,
         TException actual,
@@ -446,11 +462,10 @@ public abstract class PortamicalAssert
         if (expected is ArgumentException argExpected &&
             actual is ArgumentException argActual)
         {
+            const string argumentExceptionGuardMessageStart =
+                "The value cannot be an empty string";
 
-        const string argumentExceptionGuardMessageStart =
-            "The value cannot be an empty string";
-
-        var actualParamName = argActual.ParamName;
+            var actualParamName = argActual.ParamName;
             shouldAssertMessage =
                 actualMessageDoesNotStartWith(argumentExceptionGuardMessageStart) &&
                 actualMessageDoesNotStartWith(
@@ -493,10 +508,12 @@ public abstract class PortamicalAssert
         => $"'{actualParamName}' ('";
         #endregion
     }
+
     #endregion
 
     #region Helpers
     #region Protected members
+
     /// <summary>
     /// Gets the full runtime type name of the supplied object.
     /// </summary>
@@ -534,46 +551,101 @@ public abstract class PortamicalAssert
     #endregion
 
     #region Private members
-    private static bool AreApproximatelyEqual(float expected, float actual, double? floatingPointTolerance)
+
+    /// <summary>
+    /// Compares two float values with configurable tolerance.
+    /// </summary>
+    /// <param name="expected">The expected floating-point value.</param>
+    /// <param name="actual">The actual floating-point value.</param>
+    /// <param name="floatingPointTolerance">
+    /// The tolerance for comparison. If null, uses default epsilon (1e-6f).
+    /// </param>
+    /// <returns>
+    /// <c>true</c> if the values are considered equal; otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>
+    /// <para><strong>Special Value Handling:</strong></para>
+    /// <list type="bullet">
+    ///   <item><strong>NaN:</strong> All NaN representations are considered equal (regardless of bit pattern)</item>
+    ///   <item><strong>Infinity:</strong> Must be exactly equal (+∞ == +∞, -∞ == -∞)</item>
+    ///   <item><strong>Zero:</strong> +0.0 and -0.0 are considered equal (mathematical equality)</item>
+    /// </list>
+    /// <para><strong>Tolerance:</strong> Uses hybrid absolute/relative tolerance for normal values.</para>
+    /// </remarks>
+    private static bool AreAppxEqual(float expected, float actual, double? floatingPointTolerance)
     {
         const float DefaultEpsilonFloat = 1e-6f;
         float tolerance = (float)(floatingPointTolerance ?? DefaultEpsilonFloat);
 
-        if (float.IsNaN(expected) && float.IsNaN(actual))
+        // Fast path: exact bitwise equality (same object, +0/-0, same NaN pattern)
+        if (BitConverter.SingleToInt32Bits(expected) == BitConverter.SingleToInt32Bits(actual))
+        {
             return true;
+        }
 
-        if (float.IsPositiveInfinity(expected) && float.IsPositiveInfinity(actual))
-            return true;
+        // Special values: treat all NaN representations as equal
+        if (float.IsNaN(expected) || float.IsNaN(actual))
+        {
+            return float.IsNaN(expected) && float.IsNaN(actual);
+        }
 
-        if (float.IsNegativeInfinity(expected) && float.IsNegativeInfinity(actual))
-            return true;
-
+        // Infinities: only equal if bitwise equal (already checked above)
         if (float.IsInfinity(expected) || float.IsInfinity(actual))
+        {
             return false;
+        }
 
+        // Normal values: tolerance-based comparison
         float diff = Math.Abs(expected - actual);
         float maxAbs = Math.Max(Math.Abs(expected), Math.Abs(actual));
 
         return diff <= tolerance || diff <= maxAbs * tolerance;
     }
 
-    private static bool AreApproximatelyEqual(double expected, double actual, double? floatingPointTolerance)
+    /// <summary>
+    /// Compares two double values with configurable tolerance.
+    /// </summary>
+    /// <param name="expected">The expected floating-point value.</param>
+    /// <param name="actual">The actual floating-point value.</param>
+    /// <param name="floatingPointTolerance">
+    /// The tolerance for comparison. If null, uses default epsilon (1e-10).
+    /// </param>
+    /// <returns>
+    /// <c>true</c> if the values are considered equal; otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>
+    /// <para><strong>Special Value Handling:</strong></para>
+    /// <list type="bullet">
+    ///   <item><strong>NaN:</strong> All NaN representations are considered equal (regardless of bit pattern)</item>
+    ///   <item><strong>Infinity:</strong> Must be exactly equal (+∞ == +∞, -∞ == -∞)</item>
+    ///   <item><strong>Zero:</strong> +0.0 and -0.0 are considered equal (mathematical equality)</item>
+    /// </list>
+    /// <para><strong>Tolerance:</strong> Uses hybrid absolute/relative tolerance for normal values.</para>
+    /// </remarks>
+    private static bool AreAppxEqual(double expected, double actual, double? floatingPointTolerance)
     {
         const double DefaultEpsilon = 1e-10;
         double tolerance = floatingPointTolerance ?? DefaultEpsilon;
 
-        if (double.IsNaN(expected) && double.IsNaN(actual))
+        // Fast path: exact bitwise equality (same object, +0/-0, same NaN pattern)
+        if (BitConverter.DoubleToInt64Bits(expected) == BitConverter.DoubleToInt64Bits(actual))
+        {
             return true;
+        }
 
-        if (double.IsPositiveInfinity(expected) && double.IsPositiveInfinity(actual))
-            return true;
+        // Special values: treat all NaN representations as equal
+        if (double.IsNaN(expected) || double.IsNaN(actual))
+        {
+            return double.IsNaN(expected) && double.IsNaN(actual);
+        }
 
-        if (double.IsNegativeInfinity(expected) && double.IsNegativeInfinity(actual))
-            return true;
-
+        // Infinities: only equal if bitwise equal (already checked above)
         if (double.IsInfinity(expected) || double.IsInfinity(actual))
+        {
             return false;
+        }
 
+        // Normal values: tolerance-based comparison
         double diff = Math.Abs(expected - actual);
         double maxAbs = Math.Max(Math.Abs(expected), Math.Abs(actual));
 
@@ -589,8 +661,7 @@ public abstract class PortamicalAssert
     private static string GetThrownMessageEnd(bool thrown)
     {
         string thrownNotThrown = thrown ? string.Empty : "not ";
-
-        return $" was {thrownNotThrown}thrown.";   
+        return $" was {thrownNotThrown}thrown.";
     }
 
     private const string ExpectedExceptionMessageStart = "Expected exception";
