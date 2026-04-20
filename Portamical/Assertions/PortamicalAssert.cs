@@ -218,7 +218,8 @@ public abstract class PortamicalAssert
     public static void Equality(
         object expected,
         object? actual,
-        Action assertFail)
+        Action assertFail,
+        double? floatingPointTolerance = null)
     {
         _ = NotNull(assertFail, nameof(assertFail));
 
@@ -226,29 +227,32 @@ public abstract class PortamicalAssert
 
         bool areEqual = (expected, actual) switch
         {
-            (_, null) or (null, _)               => false,
+            (_, null) or (null, _)                  => false,
 
-            (byte e, byte a)                     => e == a,
-            (sbyte e, sbyte a)                   => e == a,
-            (short e, short a)                   => e == a,
-            (ushort e, ushort a)                 => e == a,
-            (int e, int a)                       => e == a,
-            (uint e, uint a)                     => e == a,
-            (long e, long a)                     => e == a,
-            (ulong e, ulong a)                   => e == a,
-            (nint e, nint a)                     => e == a,
-            (nuint e, nuint a)                   => e == a,
-            (decimal e, decimal a)               => e == a,
-            (bool e, bool a)                     => e == a,
-            (char e, char a)                     => e == a,
-            (string e, string a)                 => e == a,
-            (Guid e, Guid a)                     => e == a,
-            (DateTime e, DateTime a)             => e == a,
-            (DateOnly e, DateOnly a)             => e == a,
-            (TimeOnly e, TimeOnly a)             => e == a,
-            (TimeSpan e, TimeSpan a)             => e == a,
-            (DateTimeOffset e, DateTimeOffset a) => e == a,
-            (BigInteger e, BigInteger a)         => e == a,
+            (byte e, byte a)                        => e == a,
+            (sbyte e, sbyte a)                      => e == a,
+            (short e, short a)                      => e == a,
+            (ushort e, ushort a)                    => e == a,
+            (int e, int a)                          => e == a,
+            (uint e, uint a)                        => e == a,
+            (long e, long a)                        => e == a,
+            (ulong e, ulong a)                      => e == a,
+            (nint e, nint a)                        => e == a,
+            (nuint e, nuint a)                      => e == a,
+            (decimal e, decimal a)                  => e == a,
+            (bool e, bool a)                        => e == a,
+            (char e, char a)                        => e == a,
+            (string e, string a)                    => e == a,
+            (float e, float a)    => AreApproximatelyEqual(e, a, floatingPointTolerance),
+            (double e, double a) => AreApproximatelyEqual(e, a, floatingPointTolerance),
+
+            (Guid e, Guid a)                        => e == a,
+            (DateTime e, DateTime a)                => e == a,
+            (DateOnly e, DateOnly a)                => e == a,
+            (TimeOnly e, TimeOnly a)                => e == a,
+            (TimeSpan e, TimeSpan a)                => e == a,
+            (DateTimeOffset e, DateTimeOffset a)    => e == a,
+            (BigInteger e, BigInteger a)            => e == a,
 
             _ => expected.Equals(actual),
         };
@@ -530,6 +534,52 @@ public abstract class PortamicalAssert
     #endregion
 
     #region Private members
+    private static bool AreApproximatelyEqual(float expected, float actual, double? floatingPointTolerance)
+    {
+        const float DefaultEpsilonFloat = 1e-6f;
+        float tolerance = (float)(floatingPointTolerance ?? DefaultEpsilonFloat);
+
+        if (float.IsNaN(expected) && float.IsNaN(actual))
+            return true;
+
+        if (float.IsPositiveInfinity(expected) && float.IsPositiveInfinity(actual))
+            return true;
+
+        if (float.IsNegativeInfinity(expected) && float.IsNegativeInfinity(actual))
+            return true;
+
+        if (float.IsInfinity(expected) || float.IsInfinity(actual))
+            return false;
+
+        float diff = Math.Abs(expected - actual);
+        float maxAbs = Math.Max(Math.Abs(expected), Math.Abs(actual));
+
+        return diff <= tolerance || diff <= maxAbs * tolerance;
+    }
+
+    private static bool AreApproximatelyEqual(double expected, double actual, double? floatingPointTolerance)
+    {
+        const double DefaultEpsilon = 1e-10;
+        double tolerance = floatingPointTolerance ?? DefaultEpsilon;
+
+        if (double.IsNaN(expected) && double.IsNaN(actual))
+            return true;
+
+        if (double.IsPositiveInfinity(expected) && double.IsPositiveInfinity(actual))
+            return true;
+
+        if (double.IsNegativeInfinity(expected) && double.IsNegativeInfinity(actual))
+            return true;
+
+        if (double.IsInfinity(expected) || double.IsInfinity(actual))
+            return false;
+
+        double diff = Math.Abs(expected - actual);
+        double maxAbs = Math.Max(Math.Abs(expected), Math.Abs(actual));
+
+        return diff <= tolerance || diff <= maxAbs * tolerance;
+    }
+
     private static string GetExpectedExceptionOfTypeMessage(Type expectedType, string end)
     => $"{ExpectedExceptionMessageStart} of type {GetFullName(expectedType)}{end}";
 
