@@ -508,12 +508,10 @@ public abstract class PortamicalAssert
         => $"'{actualParamName}' ('";
         #endregion
     }
-
     #endregion
 
     #region Helpers
     #region Protected members
-
     /// <summary>
     /// Gets the full runtime type name of the supplied object.
     /// </summary>
@@ -548,10 +546,18 @@ public abstract class PortamicalAssert
     => GetExpectedExceptionOfTypeMessage(
         expectedType,
         GetNotExpectedExceptionOfTypeWasThrownMessageInsert(actualType));
+
+    /// <summary>
+    /// Formats a message indicating that the actual value returned does not match the expected value.
+    /// </summary>
+    /// <param name="expected">The value that was expected to be returned.</param>
+    /// <param name="actual">The value that was actually returned. May be null.</param>
+    /// <returns>A formatted string describing the mismatch between the expected and actual values.</returns>
+    protected static string GetNotExpectedValueMessage(object expected, object? actual)
+    => $"Expected '{expected}' but got '{actual ?? "null"}'.";
     #endregion
 
     #region Private members
-
     /// <summary>
     /// Compares two float values with configurable tolerance.
     /// </summary>

@@ -288,6 +288,13 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
+##### **[2.1.1] - 2026-04-21**
+
+**Added**
+- `GetNotExpectedValueMessage()` protected helper method
+
+---
+
 ### **[1.0.0] - 2026-03-06**
 
 - Initial release

@@ -274,7 +274,6 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// <param name="actual">The actual value.</param>
     public static void Equality(object expected, object? actual)
     => Equality(expected, actual,
-        assertFail: () => Fail(
-            $"Expected '{expected}' but '{actual ?? "null"}' returned."));
+        assertFail: () => Fail(GetNotExpectedValueMessage(expected, actual)));
     #endregion
 }

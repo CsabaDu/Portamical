@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Portamical</Title>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
     <Description>Shared utilities and base classes for cross‑framework test data solutions in .NET, built on the Portamical.Core data model.</Description>
@@ -14,22 +14,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical</RepositoryUrl>
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3;</PackageTags>
-    <PackageReleaseNotes>v2.1.0 - 2026-04-20
+    <PackageReleaseNotes>v2.1.1 - 2026-04-20
 Added
-- Generic Equality&lt;T&gt;() method with custom comparison delegate
-- Built-in Equality() method supporting 22+ types with pattern matching
-- Floating-point tolerance support (configurable epsilon)
-- Collection equality with recursive element comparison
-- Special value handling for NaN, infinities, and signed zeros
-- BigInteger equality support
-- ToDistinctReadOnly() parameterless overload
-Changed
-- IsTypeOf() now accepts nullable actual parameter (breaking change)
-- Improved floating-point comparison with bitwise equality checks
-- Enhanced null handling in generic methods
-Fixed
-- Floating-point precision issues (0.1 + 0.2 now equals 0.3)
-- Collection comparison with nested structures</PackageReleaseNotes>
+- GetNotExpectedValueMessage() protected helper method</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>

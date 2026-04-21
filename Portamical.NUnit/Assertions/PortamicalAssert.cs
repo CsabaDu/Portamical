@@ -314,13 +314,73 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     }
 
     /// <summary>
-    /// Asserts that two values are equal using NUnit's equality constraint.
+    /// Asserts that two values are equal using NUnit's constraint model.
     /// </summary>
     /// <typeparam name="T">The value type being compared.</typeparam>
     /// <param name="expected">The expected value.</param>
     /// <param name="actual">The actual value.</param>
-    public static void Equality<T>(T expected, T actual)
+    public static void Equality<T>(T expected, T? actual)
     => Assert.That(actual, Is.EqualTo(expected));
+
+    /// <summary>
+    /// Asserts that two values are equal with floating-point tolerance.
+    /// </summary>
+    /// <param name="expected">The expected value.</param>
+    /// <param name="actual">The actual value.</param>
+    /// <param name="floatingPointTolerance">
+    /// Epsilon for floating-point comparisons. Default: 1e-10 for double, 1e-6f for float.
+    /// </param>
+    /// <remarks>
+    /// <para><strong>Supported Types (22+):</strong></para>
+    /// <list type="bullet">
+    ///   <item><strong>Integers:</strong> byte, sbyte, short, ushort, int, uint, long, ulong, nint, nuint</item>
+    ///   <item><strong>Floating-point:</strong> float, double (with tolerance)</item>
+    ///   <item><strong>Other primitives:</strong> bool, char, string, decimal</item>
+    ///   <item><strong>Framework types:</strong> Guid, DateTime, DateOnly, TimeOnly, TimeSpan, DateTimeOffset</item>
+    ///   <item><strong>Numerics:</strong> BigInteger</item>
+    ///   <item><strong>Collections:</strong> Any IEnumerable (recursive comparison)</item>
+    /// </list>
+    /// <para><strong>Special Value Handling:</strong></para>
+    /// <list type="bullet">
+    ///   <item><strong>NaN:</strong> All NaN representations are equal</item>
+    ///   <item><strong>Infinity:</strong> Must match exactly (+∞ == +∞, -∞ == -∞)</item>
+    ///   <item><strong>Zero:</strong> +0.0 and -0.0 are equal</item>
+    /// </list>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Floating-point with default tolerance
+    /// Equality(0.3, 0.1 + 0.2);  // ✅ PASSES
+    /// 
+    /// // Custom tolerance
+    /// Equality(3.14159, Math.PI, floatingPointTolerance: 0.001);
+    /// 
+    /// // Collections
+    /// Equality(new[] { 1, 2, 3 }, service.GetNumbers());
+    /// 
+    /// // Special values
+    /// Equality(float.NaN, float.NaN);  // ✅ PASSES
+    /// Equality(double.PositiveInfinity, double.PositiveInfinity);  // ✅ PASSES
+    /// </code>
+    /// </example>
+    public static void Equality(
+        object expected,
+        object? actual,
+        double? floatingPointTolerance = null)
+    => Equality(expected, actual,
+        assertFail: () => Assert.Fail($"Expected '{expected}' but got '{actual ?? "null"}'."),
+        floatingPointTolerance: floatingPointTolerance);
+
+    /// <summary>
+    /// Asserts collection equality with element-wise comparison.
+    /// </summary>
+    /// <typeparam name="T">The collection element type.</typeparam>
+    /// <param name="expected">The expected collection.</param>
+    /// <param name="actual">The actual collection.</param>
+    public static void CollectionEquality<T>(
+        IEnumerable<T> expected,
+        IEnumerable<T> actual)
+    => Assert.That(actual, Is.EqualTo(expected).AsCollection);
 
     /// <summary>
     /// Asserts that the specified action completes without throwing any exceptions.
