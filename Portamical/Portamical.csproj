@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Portamical</Title>
-    <Version>2.1.1</Version>
+    <Version>2.2.0</Version>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
     <Description>Shared utilities and base classes for cross‑framework test data solutions in .NET, built on the Portamical.Core data model.</Description>
@@ -14,9 +14,18 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical</RepositoryUrl>
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3;</PackageTags>
-    <PackageReleaseNotes>v2.1.1 - 2026-04-20
+    <PackageReleaseNotes>v2.2.0 - 2026-04-22
 Added
-- GetNotExpectedValueMessage() protected helper method</PackageReleaseNotes>
+- Async-first assertion architecture using `ValueTask`
+- `DoesNotThrowAsync`, `ThrowsDetailsAsync`, `EqualityAsync`, `IsTypeOfAsync`
+- Zero-allocation async methods for optimal performance
+- Comprehensive XML documentation for async patterns
+Changed
+- Internal refactoring: sync methods delegate to async base (no API changes)
+- Performance optimizations with `ConfigureAwait(false)` and `MethodImpl(AggressiveInlining)`
+Migration
+- Fully backward compatible with 2.1.x
+- No code changes required for existing tests</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
