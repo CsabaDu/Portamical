@@ -518,7 +518,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// This method performs comprehensive exception validation using NUnit 4.x's multiple assertion feature:
     /// <list type="number">
     ///   <item><description>
-    ///     <strong>Catches Exception:</strong> Uses <c>Assert.Catch</c> to capture the thrown exception
+    ///     <strong>Catches Exception:</strong> Uses <c>PortamicalAssert.CatchException</c> to capture the thrown exception
     ///   </description></item>
     ///   <item><description>
     ///     <strong>Validates Type:</strong> Uses <c>Assert.That(actual, Is.TypeOf(expected))</c> to ensure exact type match
@@ -544,7 +544,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// <para>
     /// This method delegates to the base class template method, injecting NUnit-specific implementations:
     /// <list type="bullet">
-    ///   <item><description><c>catchException</c> = <c>Assert.Catch(() => att())</c></description></item>
+    ///   <item><description><c>catchException</c> = <c>PortamicalAssert.CatchException(() => att())</c></description></item>
     ///   <item><description><c>assertIsType</c> = <c>Assert.That(a, Is.TypeOf(e))</c></description></item>
     ///   <item><description><c>assertEquality</c> = <c>Assert.That(a, Is.EqualTo(e))</c></description></item>
     ///   <item><description><c>assertFail</c> = <c>Assert.Fail</c></description></item>
