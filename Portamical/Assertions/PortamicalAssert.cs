@@ -202,6 +202,7 @@ public abstract class PortamicalAssert
                 expected,
                 GetThrownMessageEnd(false));
             await assertFailAsync(message).ConfigureAwait(false);
+
             throw GetAssertionFailedException(message);  // Fallback
         }
 
@@ -214,6 +215,7 @@ public abstract class PortamicalAssert
                 expectedType,
                 GetNotExpectedExceptionOfTypeWasThrownMessageInsert(actualType));
             await assertFailAsync(message).ConfigureAwait(false);
+
             throw GetAssertionFailedException(message);
         }
 
@@ -700,7 +702,8 @@ public abstract class PortamicalAssert
             // Collections (recursive comparison)
             (IEnumerable e, IEnumerable a) =>
                 e.Cast<object?>().SequenceEqual(a.Cast<object?>(),
-                    EqualityComparer<object?>.Create((x, y) => AreEqual(x, y, tolerance))),
+                    EqualityComparer<object?>.Create(
+                        (x, y) => AreEqual(x, y, tolerance))),
 
             // Fallback to object.Equals
             _ => expected.Equals(actual),
