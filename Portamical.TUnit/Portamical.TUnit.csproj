@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical" Version="2.1.1" />
+    <PackageReference Include="Portamical" Version="2.2.0" />
     <PackageReference Include="TUnit.Assertions" Version="1.28.7" />
     <PackageReference Include="TUnit.Core" Version="1.28.7" />
   </ItemGroup>
