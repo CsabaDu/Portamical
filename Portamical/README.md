@@ -361,7 +361,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
-### **[2.2.0] - 2026-04-22**
+#### **[2.2.0] - 2026-04-22**
 
 **Added**
 - Async-first assertion architecture using `ValueTask`
