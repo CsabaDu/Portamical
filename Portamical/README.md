@@ -379,6 +379,13 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
+##### **[2.2.1] - 2026-04-23**
+
+**Changed**
+- Portamical.Core dependency 2.0.1 → 2.2.0
+
+---
+
 ### **[1.0.0] - 2026-03-06**
 
 - Initial release
