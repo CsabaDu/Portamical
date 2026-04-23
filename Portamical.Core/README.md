@@ -2,7 +2,7 @@
 
 **Portamical.Core** is the framework-agnostic core of **Portamical**: a universal, identity-driven test data modeling framework for .NET.
 
-Define test data **once** and consume it across test frameworks using adapter packages—without rewriting the data or sacrificing strong typing.
+Define test data **once** and consume it across test frameworks using adapter packages - without rewriting the data or sacrificing strong typing.
 
 ---
 
@@ -155,7 +155,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 #### **Version 2.2.0** (2026-04-23)
 
-#### Added
+**Added**
 - Performance optimizations via `MethodImpl(AggressiveInlining)` in 7 hot path methods:
   - `Validator.NotNull<T>` - 5x faster null validation (eliminates method call overhead)
   - `Validator.NotNullOrEmpty<T>` - 3-5x faster collection validation
@@ -165,11 +165,11 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
   - `NamedCase` implicit string operator - 5x faster implicit conversions
   - `TestDataBase.ToArgs(ArgsCode)` - 2x faster wrapper method
 
-#### Changed
+**Changed**
 - Internal performance improvements: critical methods now use aggressive inlining
 - Enhanced XML documentation with performance notes for optimized methods
 
-#### Performance
+**Performance**
 - Test data instantiation: ~5x faster (reduced overhead from ~35-50 ?s to ~7-10 ?s per 1000 objects)
 - Constructor validation: Eliminates guard clause overhead (NotNull/NotNullOrEmpty inlined)
 - String operations: Removes virtual dispatch and method call overhead
