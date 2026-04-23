@@ -19,6 +19,43 @@ public class PortamicalAssertTests
             => GetNotExpectedValueMessage(expected, actual);
         public static string ExposedGetFullName(Type? obj)
             => GetFullName(obj);
+        public static ValueTask ExposedDoesNotThrowAsync(
+            Action attempt,
+            Func<string, ValueTask> assertFailAsync)
+            => DoesNotThrowAsync(attempt, assertFailAsync);
+        public static ValueTask<TException> ExposedThrowsDetailsAsync<TException>(
+            Action attempt,
+            TException expected,
+            Func<Action, Exception?> catchException,
+            Func<Type, Exception, ValueTask> assertIsTypeAsync,
+            Func<object, object?, ValueTask> assertEqualityAsync,
+            Func<string, ValueTask> assertFailAsync)
+        where TException : notnull, Exception
+            => ThrowsDetailsAsync(
+                attempt,
+                expected,
+                catchException,
+                assertIsTypeAsync,
+                assertEqualityAsync,
+                assertFailAsync);
+        public static ValueTask ExposedEqualityAsync<T>(
+            T? expected,
+            T? actual,
+            Func<T?, T?, bool> equals,
+            Func<string, ValueTask> assertFailAsync,
+            string message)
+            => EqualityAsync(expected, actual, equals, assertFailAsync, message);
+        public static ValueTask ExposedEqualityAsync(
+            object expected,
+            object? actual,
+            Func<ValueTask> assertFailAsync,
+            double? floatingPointTolerance = null)
+            => EqualityAsync(expected, actual, assertFailAsync, floatingPointTolerance);
+        public static ValueTask ExposedIsTypeOfAsync(
+            Type expected,
+            object? actual,
+            Func<Type, Type?, ValueTask> assertEqualityAsync)
+            => IsTypeOfAsync(expected, actual, assertEqualityAsync);
     }
 
     #region CatchException
@@ -46,7 +83,9 @@ public class PortamicalAssertTests
     [TestMethod]
     public void CatchException_actionThrowsArgumentException_preservesType()
     {
+#pragma warning disable S3928
         var thrown = new ArgumentException("bad arg", "param");
+#pragma warning restore S3928
         var result = PortamicalAssert.CatchException(() => throw thrown);
         Assert.IsInstanceOfType<ArgumentException>(result);
         Assert.AreSame(thrown, result);
@@ -91,7 +130,10 @@ public class PortamicalAssertTests
         PortamicalAssert.DoesNotThrow(
             () => throw new InvalidOperationException("oops"),
             msg => message = msg);
-        Assert.IsTrue(message?.Contains(typeof(InvalidOperationException).FullName!));
+        Assert.IsNotNull(message);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(message, typeof(InvalidOperationException).FullName!);
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -101,8 +143,52 @@ public class PortamicalAssertTests
         PortamicalAssert.DoesNotThrow(
             () => throw new InvalidOperationException("specific error text"),
             msg => message = msg);
-        Assert.IsTrue(message?.Contains("specific error text"));
+        Assert.IsNotNull(message);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(message, "specific error text");
+#pragma warning restore MSTEST0046
     }
+
+    #endregion
+
+    #region DoesNotThrowAsync
+
+    [TestMethod]
+    public async Task DoesNotThrowAsync_noException_doesNotCallAssertFailAsync()
+    {
+        bool called = false;
+        await ConcreteAssert.ExposedDoesNotThrowAsync(
+            () => { },
+            _ =>
+            {
+                called = true;
+                return ValueTask.CompletedTask;
+            });
+        Assert.IsFalse(called);
+    }
+
+    [TestMethod]
+    public async Task DoesNotThrowAsync_exceptionThrown_callsAssertFailAsyncWithMessage()
+    {
+        string? message = null;
+        await ConcreteAssert.ExposedDoesNotThrowAsync(
+            () => throw new InvalidOperationException("async oops"),
+            msg =>
+            {
+                message = msg;
+                return ValueTask.CompletedTask;
+            });
+        Assert.IsNotNull(message);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(message, typeof(InvalidOperationException).FullName!);
+        StringAssert.Contains(message, "async oops");
+#pragma warning restore MSTEST0046
+    }
+
+    [TestMethod]
+    public async Task DoesNotThrowAsync_nullAssertFailAsync_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await ConcreteAssert.ExposedDoesNotThrowAsync(() => { }, null!));
 
     #endregion
 
@@ -166,8 +252,10 @@ public class PortamicalAssertTests
     public void ThrowsDetails_nullCatchException_throwsArgumentNullException()
         => Assert.ThrowsExactly<ArgumentNullException>(
             () => PortamicalAssert.ThrowsDetails(
+#pragma warning disable S3928
                 () => throw new ArgumentException(),
                 new ArgumentException(),
+#pragma warning restore S3928
                 null!,
                 (_, _) => { },
                 (_, _) => { },
@@ -177,8 +265,10 @@ public class PortamicalAssertTests
     public void ThrowsDetails_nullAssertIsType_throwsArgumentNullException()
         => Assert.ThrowsExactly<ArgumentNullException>(
             () => PortamicalAssert.ThrowsDetails(
+#pragma warning disable S3928
                 () => throw new ArgumentException(),
                 new ArgumentException(),
+#pragma warning restore S3928
                 PortamicalAssert.CatchException,
                 null!,
                 (_, _) => { },
@@ -188,8 +278,10 @@ public class PortamicalAssertTests
     public void ThrowsDetails_nullAssertEquality_throwsArgumentNullException()
         => Assert.ThrowsExactly<ArgumentNullException>(
             () => PortamicalAssert.ThrowsDetails(
+#pragma warning disable S3928
                 () => throw new ArgumentException(),
                 new ArgumentException(),
+#pragma warning restore S3928
                 PortamicalAssert.CatchException,
                 (_, _) => { },
                 null!,
@@ -199,8 +291,10 @@ public class PortamicalAssertTests
     public void ThrowsDetails_nullAssertFail_throwsArgumentNullException()
         => Assert.ThrowsExactly<ArgumentNullException>(
             () => PortamicalAssert.ThrowsDetails(
+#pragma warning disable S3928
                 () => throw new ArgumentException(),
                 new ArgumentException(),
+#pragma warning restore S3928
                 PortamicalAssert.CatchException,
                 (_, _) => { },
                 (_, _) => { },
@@ -213,7 +307,9 @@ public class PortamicalAssertTests
         Assert.ThrowsExactly<InvalidOperationException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => { },
+#pragma warning disable S3928
                 new ArgumentException(),
+#pragma warning restore S3928
                 PortamicalAssert.CatchException,
                 (_, _) => { },
                 (_, _) => { },
@@ -233,7 +329,10 @@ public class PortamicalAssertTests
                 (_, _) => { },
                 (_, _) => { },
                 msg => message = msg));
-        Assert.IsTrue(message?.Contains("was not thrown"));
+        Assert.IsNotNull(message);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(message, "was not thrown");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -243,7 +342,9 @@ public class PortamicalAssertTests
         Assert.ThrowsExactly<InvalidOperationException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => throw new InvalidOperationException(),
+#pragma warning disable S3928
                 new ArgumentException(),
+#pragma warning restore S3928
                 PortamicalAssert.CatchException,
                 (_, _) => { },
                 (_, _) => { },
@@ -258,13 +359,18 @@ public class PortamicalAssertTests
         Assert.ThrowsExactly<InvalidOperationException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => throw new InvalidOperationException(),
+#pragma warning disable S3928
                 new ArgumentException(),
+#pragma warning restore S3928
                 PortamicalAssert.CatchException,
                 (_, _) => { },
                 (_, _) => { },
                 msg => message = msg));
-        Assert.IsTrue(message?.Contains(nameof(ArgumentException)));
-        Assert.IsTrue(message?.Contains(nameof(InvalidOperationException)));
+        Assert.IsNotNull(message);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(message, nameof(ArgumentException));
+        StringAssert.Contains(message, nameof(InvalidOperationException));
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -273,10 +379,14 @@ public class PortamicalAssertTests
         bool isTypeCalled = false;
         Type? capturedType = null;
         Exception? capturedException = null;
+#pragma warning disable S3928
         var thrown = new ArgumentException("test msg", "p");
         var expected = new ArgumentException("test msg", "p");
+#pragma warning restore S3928
 
+#pragma warning disable S1481
         var result = PortamicalAssert.ThrowsDetails(
+#pragma warning restore S1481
             () => throw thrown,
             expected,
             PortamicalAssert.CatchException,
@@ -293,10 +403,14 @@ public class PortamicalAssertTests
     public void ThrowsDetails_correctException_callsAssertEquality()
     {
         bool equalityCalled = false;
+#pragma warning disable S3928
         var thrown = new ArgumentException("test msg", "p");
         var expected = new ArgumentException("test msg", "p");
+#pragma warning restore S3928
 
+#pragma warning disable S1481
         var result = PortamicalAssert.ThrowsDetails(
+#pragma warning restore S1481
             () => throw thrown,
             expected,
             PortamicalAssert.CatchException,
@@ -310,8 +424,10 @@ public class PortamicalAssertTests
     [TestMethod]
     public void ThrowsDetails_correctException_returnsTypedActual()
     {
+#pragma warning disable S3928
         var thrown = new ArgumentException("test msg", "p");
         var expected = new ArgumentException("test msg", "p");
+#pragma warning restore S3928
         var result = PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
@@ -320,6 +436,116 @@ public class PortamicalAssertTests
             (e, a) => { },
             msg => throw new InvalidOperationException(msg));
         Assert.AreSame(thrown, result);
+    }
+
+    #endregion
+
+    #region ThrowsDetailsAsync
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_correctException_returnsTypedActual()
+    {
+#pragma warning disable S3928
+        var thrown = new ArgumentException("async test msg", "p");
+        var expected = new ArgumentException("async test msg", "p");
+#pragma warning restore S3928
+        var result = await ConcreteAssert.ExposedThrowsDetailsAsync(
+            () => throw thrown,
+            expected,
+            PortamicalAssert.CatchException,
+            (_, _) => ValueTask.CompletedTask,
+            (_, _) => ValueTask.CompletedTask,
+            _ => ValueTask.CompletedTask);
+        Assert.AreSame(thrown, result);
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_argumentException_assertsMessageAndParamName()
+    {
+        var calls = new List<string>();
+#pragma warning disable S3928
+        var thrown = new ArgumentException("async message", "paramName");
+        var expected = new ArgumentException("async message", "paramName");
+#pragma warning restore S3928
+
+        await ConcreteAssert.ExposedThrowsDetailsAsync(
+            () => throw thrown,
+            expected,
+            PortamicalAssert.CatchException,
+            (_, _) => ValueTask.CompletedTask,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            },
+            _ => ValueTask.CompletedTask);
+
+        var callsText = string.Join(Environment.NewLine, calls);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(callsText, "async message");
+        StringAssert.Contains(callsText, "paramName");
+#pragma warning restore MSTEST0046
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_objectDisposedException_currently_assertsMessage()
+    {
+        var calls = new List<string>();
+        var thrown = new ObjectDisposedException("resource");
+        var expected = new ObjectDisposedException("resource");
+
+        await ConcreteAssert.ExposedThrowsDetailsAsync(
+            () => throw thrown,
+            expected,
+            PortamicalAssert.CatchException,
+            (_, _) => ValueTask.CompletedTask,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            },
+            _ => ValueTask.CompletedTask);
+
+        Assert.HasCount(1, calls);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(calls[0], "Cannot access a disposed object.");
+#pragma warning restore MSTEST0046
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_noException_assertFailDoesNotThrow_throwsFallbackException()
+    {
+        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+            async () => await ConcreteAssert.ExposedThrowsDetailsAsync(
+                () => { },
+#pragma warning disable S3928
+                new ArgumentException(),
+#pragma warning restore S3928
+                PortamicalAssert.CatchException,
+                (_, _) => ValueTask.CompletedTask,
+                (_, _) => ValueTask.CompletedTask,
+                _ => ValueTask.CompletedTask));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(ex.Message, "Assertion failed");
+#pragma warning restore MSTEST0046
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_wrongType_assertFailDoesNotThrow_throwsFallbackException()
+    {
+        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+            async () => await ConcreteAssert.ExposedThrowsDetailsAsync(
+                () => throw new InvalidOperationException(),
+#pragma warning disable S3928
+                new ArgumentException(),
+#pragma warning restore S3928
+                PortamicalAssert.CatchException,
+                (_, _) => ValueTask.CompletedTask,
+                (_, _) => ValueTask.CompletedTask,
+                _ => ValueTask.CompletedTask));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(ex.Message, "Assertion failed");
+#pragma warning restore MSTEST0046
     }
 
     #endregion
@@ -407,12 +633,89 @@ public class PortamicalAssertTests
 
     #endregion
 
+    #region EqualityAsync
+
+    [TestMethod]
+    public async Task EqualityAsync_generic_equalValues_doesNotCallAssertFailAsync()
+    {
+        bool failCalled = false;
+        await ConcreteAssert.ExposedEqualityAsync(
+            42,
+            42,
+            (a, b) => a == b,
+            _ =>
+            {
+                failCalled = true;
+                return ValueTask.CompletedTask;
+            },
+            "msg");
+        Assert.IsFalse(failCalled);
+    }
+
+    [TestMethod]
+    public async Task EqualityAsync_generic_unequalValues_callsAssertFailAsyncWithMessage()
+    {
+        string? message = null;
+        await ConcreteAssert.ExposedEqualityAsync(
+            42,
+            99,
+            (a, b) => a == b,
+            msg =>
+            {
+                message = msg;
+                return ValueTask.CompletedTask;
+            },
+            "async message");
+        Assert.AreEqual("async message", message);
+    }
+
+    [TestMethod]
+    public async Task EqualityAsync_object_unequalValues_callsAssertFailAsync()
+    {
+        bool failCalled = false;
+        await ConcreteAssert.ExposedEqualityAsync(
+            42,
+            99,
+            () =>
+            {
+                failCalled = true;
+                return ValueTask.CompletedTask;
+            });
+        Assert.IsTrue(failCalled);
+    }
+
+    [TestMethod]
+    public async Task EqualityAsync_object_equalNestedCollections_doesNotCallAssertFailAsync()
+    {
+        bool failCalled = false;
+        object?[] expected = [new[] { 1, 2 }, new[] { 3, 4 }];
+        object?[] actual = [new[] { 1, 2 }, new[] { 3, 4 }];
+        await ConcreteAssert.ExposedEqualityAsync(
+            expected,
+            actual,
+            () =>
+            {
+                failCalled = true;
+                return ValueTask.CompletedTask;
+            });
+        Assert.IsFalse(failCalled);
+    }
+
+    [TestMethod]
+    public async Task EqualityAsync_object_nullAssertFailAsync_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await ConcreteAssert.ExposedEqualityAsync(1, 1, null!));
+
+    #endregion
+
     #region Protected helpers
 
     [TestMethod]
     public void GetTypeFullName_nonNull_returnsFullName()
     {
+#pragma warning disable S3928
         var result = ConcreteAssert.ExposedGetTypeFullName(new ArgumentException());
+#pragma warning restore S3928
         Assert.AreEqual(typeof(ArgumentException).FullName, result);
     }
 
@@ -428,7 +731,9 @@ public class PortamicalAssertTests
     {
         var ex = ConcreteAssert.ExposedGetAssertionFailedException("something went wrong");
         Assert.IsInstanceOfType<InvalidOperationException>(ex);
-        Assert.IsTrue(ex.Message.Contains("something went wrong"));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(ex.Message, "something went wrong");
+#pragma warning restore MSTEST0046
     }
 
     #endregion
@@ -555,10 +860,14 @@ public class PortamicalAssertTests
     public void ThrowsDetails_argumentExceptionWithParamName_assertsParamName()
     {
         var calls = new List<string>();
+#pragma warning disable S3928
         var thrown = new ArgumentException("test message", "paramName");
         var expected = new ArgumentException("test message", "paramName");
+#pragma warning restore S3928
 
+#pragma warning disable S1481
         var result = PortamicalAssert.ThrowsDetails(
+#pragma warning restore S1481
             () => throw thrown,
             expected,
             PortamicalAssert.CatchException,
@@ -567,9 +876,12 @@ public class PortamicalAssertTests
             msg => throw new InvalidOperationException(msg));
 
         // Should assert both message and paramName
-        Assert.IsTrue(calls.Count >= 2);
-        Assert.IsTrue(calls.Any(c => c.Contains("test message")));
-        Assert.IsTrue(calls.Any(c => c.Contains("paramName")));
+        Assert.IsGreaterThanOrEqualTo(calls.Count, 2);
+        var callsText = string.Join(Environment.NewLine, calls);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(callsText, "test message");
+        StringAssert.Contains(callsText, "paramName");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -579,7 +891,9 @@ public class PortamicalAssertTests
         var thrown = new ArgumentException("test message");
         var expected = new ArgumentException("test message");
 
+#pragma warning disable S1481
         var result = PortamicalAssert.ThrowsDetails(
+#pragma warning restore S1481
             () => throw thrown,
             expected,
             PortamicalAssert.CatchException,
@@ -588,8 +902,11 @@ public class PortamicalAssertTests
             msg => throw new InvalidOperationException(msg));
 
         // Should assert message only (paramName is null)
-        Assert.IsTrue(calls.Count >= 1);
-        Assert.IsTrue(calls.Any(c => c.Contains("test message")));
+        Assert.IsGreaterThanOrEqualTo(calls.Count, 1);
+        var callsText = string.Join(Environment.NewLine, calls);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(callsText, "test message");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -599,7 +916,9 @@ public class PortamicalAssertTests
         var thrown = new ArgumentException("The value cannot be an empty string");
         var expected = new ArgumentException("The value cannot be an empty string");
 
+#pragma warning disable S1481
         var result = PortamicalAssert.ThrowsDetails(
+#pragma warning restore S1481
             () => throw thrown,
             expected,
             PortamicalAssert.CatchException,
@@ -608,7 +927,10 @@ public class PortamicalAssertTests
             msg => throw new InvalidOperationException(msg));
 
         // Guard message should skip message assertion
-        Assert.IsFalse(calls.Any(c => c.Contains("The value cannot be an empty string")));
+        var callsText = string.Join(Environment.NewLine, calls);
+        Assert.AreEqual(
+            -1,
+            callsText.IndexOf("The value cannot be an empty string", StringComparison.Ordinal));
     }
 
     [TestMethod]
@@ -618,7 +940,9 @@ public class PortamicalAssertTests
         var thrown = new InvalidOperationException("operation failed");
         var expected = new InvalidOperationException("operation failed");
 
+#pragma warning disable S1481
         var result = PortamicalAssert.ThrowsDetails(
+#pragma warning restore S1481
             () => throw thrown,
             expected,
             PortamicalAssert.CatchException,
@@ -626,7 +950,10 @@ public class PortamicalAssertTests
             (e, a) => calls.Add($"{e}={a}"),
             msg => throw new InvalidOperationException(msg));
 
-        Assert.IsTrue(calls.Any(c => c.Contains("operation failed")));
+        var callsText = string.Join(Environment.NewLine, calls);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(callsText, "operation failed");
+#pragma warning restore MSTEST0046
     }
 
     #endregion
@@ -639,8 +966,10 @@ public class PortamicalAssertTests
         bool failCalled = false;
         Assert.ThrowsExactly<InvalidOperationException>(
             () => PortamicalAssert.ThrowsDetails(
+#pragma warning disable S3928
                 () => throw new ArgumentNullException("param"),
                 new ArgumentException("expected"),
+#pragma warning restore S3928
                 PortamicalAssert.CatchException,
                 (_, _) => { },
                 (_, _) => { },
@@ -862,9 +1191,11 @@ public class PortamicalAssertTests
         var result = ConcreteAssert.ExposedGetNotExpectedTypeExceptionThrownMessage(
             typeof(ArgumentException), 
             typeof(InvalidOperationException));
-        Assert.IsTrue(result.Contains(nameof(ArgumentException)));
-        Assert.IsTrue(result.Contains(nameof(InvalidOperationException)));
-        Assert.IsTrue(result.Contains("Expected exception"));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(result, nameof(ArgumentException));
+        StringAssert.Contains(result, nameof(InvalidOperationException));
+        StringAssert.Contains(result, "Expected exception");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -873,25 +1204,31 @@ public class PortamicalAssertTests
         var result = ConcreteAssert.ExposedGetNotExpectedTypeExceptionThrownMessage(
             typeof(ArgumentException), 
             null);
-        Assert.IsTrue(result.Contains(nameof(ArgumentException)));
-        Assert.IsTrue(result.Contains("null"));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(result, nameof(ArgumentException));
+        StringAssert.Contains(result, "null");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
     public void GetNotExpectedValueMessage_formatsCorrectly()
     {
         var result = ConcreteAssert.ExposedGetNotExpectedValueMessage(42, 99);
-        Assert.IsTrue(result.Contains("42"));
-        Assert.IsTrue(result.Contains("99"));
-        Assert.IsTrue(result.Contains("Expected"));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(result, "42");
+        StringAssert.Contains(result, "99");
+        StringAssert.Contains(result, "Expected");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
     public void GetNotExpectedValueMessage_nullActual_includesNullString()
     {
         var result = ConcreteAssert.ExposedGetNotExpectedValueMessage(42, null);
-        Assert.IsTrue(result.Contains("42"));
-        Assert.IsTrue(result.Contains("null"));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(result, "42");
+        StringAssert.Contains(result, "null");
+#pragma warning restore MSTEST0046
     }
 
     #endregion
@@ -905,13 +1242,17 @@ public class PortamicalAssertTests
         var ex = Assert.ThrowsExactly<InvalidOperationException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => { }, // No exception thrown
+#pragma warning disable S3928
                 new ArgumentException(),
+#pragma warning restore S3928
                 PortamicalAssert.CatchException,
                 (_, _) => { },
                 (_, _) => { },
                 msg => { } // assertFail that doesn't throw
             ));
-        Assert.IsTrue(ex.Message.Contains("Assertion failed"));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(ex.Message, "Assertion failed");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -920,13 +1261,17 @@ public class PortamicalAssertTests
         var ex = Assert.ThrowsExactly<InvalidOperationException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => throw new InvalidOperationException(),
+#pragma warning disable S3928
                 new ArgumentException(),
+#pragma warning restore S3928
                 PortamicalAssert.CatchException,
                 (_, _) => { },
                 (_, _) => { },
                 msg => { } // assertFail that doesn't throw
             ));
-        Assert.IsTrue(ex.Message.Contains("Assertion failed"));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(ex.Message, "Assertion failed");
+#pragma warning restore MSTEST0046
     }
 
     #endregion
@@ -942,6 +1287,36 @@ public class PortamicalAssertTests
         Assert.AreSame(outer, result);
         Assert.AreSame(inner, result?.InnerException);
     }
+
+    #endregion
+
+    #region IsTypeOfAsync
+
+    [TestMethod]
+    public async Task IsTypeOfAsync_passesExpectedAndActualRuntimeType()
+    {
+        Type? capturedExpected = null;
+        Type? capturedActual = null;
+        object actual = new ArgumentException("runtime");
+
+        await ConcreteAssert.ExposedIsTypeOfAsync(
+            typeof(ArgumentException),
+            actual,
+            (expected, type) =>
+            {
+                capturedExpected = expected;
+                capturedActual = type;
+                return ValueTask.CompletedTask;
+            });
+
+        Assert.AreEqual(typeof(ArgumentException), capturedExpected);
+        Assert.AreEqual(typeof(ArgumentException), capturedActual);
+    }
+
+    [TestMethod]
+    public async Task IsTypeOfAsync_nullAssertEqualityAsync_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await ConcreteAssert.ExposedIsTypeOfAsync(typeof(string), "hello", null!));
 
     #endregion
 }

@@ -18,8 +18,10 @@ public class TestBaseTests
             => Convert(collection);
     }
 
+#pragma warning disable CA1859
     private static ITestData CreateData(string def, int arg = 1)
         => TestDataFactory.CreateTestData<int>(def, "result", arg);
+#pragma warning restore CA1859
 
     #region Convert
 

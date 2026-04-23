@@ -66,8 +66,10 @@ public class PortamicalAssertTests
     [TestMethod]
     public void ThrowsDetails_actionThrowsExpectedType_returnsException()
     {
+#pragma warning disable S3928
         var thrown = new ArgumentException("test message", "param1");
         var template = new ArgumentException("test message", "param1");
+#pragma warning restore S3928
         var sut_result = TestableAssert.ThrowsDetails(() => throw thrown, template);
         Assert.AreSame(thrown, sut_result);
     }

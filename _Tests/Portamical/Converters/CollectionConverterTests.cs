@@ -14,8 +14,10 @@ namespace Tests.Portamical.Converters;
 [TestClass]
 public class CollectionConverterTests
 {
+#pragma warning disable CA1859
     private static ITestData CreateData(string def, int arg = 1)
         => TestDataFactory.CreateTestData<int>(def, "result", arg);
+#pragma warning restore CA1859
 
     private sealed class TestProvider : ITestDataProvider<ITestData>
     {
@@ -96,6 +98,15 @@ public class CollectionConverterTests
     #region ToDistinctReadOnly(argsCode)
 
     [TestMethod]
+    public void ToDistinctReadOnly_defaultOverload_returnsInstanceArgs()
+    {
+        var item = CreateData("default");
+        ITestData[] collection = [item];
+        var result = collection.ToDistinctReadOnly();
+        CollectionAssert.AreEqual(item.ToArgs(ArgsCode.Instance), result.Single());
+    }
+
+    [TestMethod]
     public void ToDistinctReadOnly_argsCode_returnsReadOnlyCollection()
     {
         ITestData[] collection = [CreateData("a"), CreateData("b")];
@@ -121,6 +132,21 @@ public class CollectionConverterTests
         ITestData[] collection = [CreateData("dup"), duplicate];
         var result = collection.ToDistinctReadOnly(ArgsCode.Instance);
         Assert.HasCount(1, result);
+    }
+
+    [TestMethod]
+    public void ToDistinctReadOnly_argsCode_nullCollection_throwsArgumentNullException()
+    {
+        IEnumerable<ITestData> nullCollection = null!;
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => nullCollection.ToDistinctReadOnly(ArgsCode.Instance));
+    }
+
+    [TestMethod]
+    public void ToDistinctReadOnly_argsCode_emptyCollection_throwsArgumentException()
+    {
+        Assert.ThrowsExactly<ArgumentException>(
+            () => Array.Empty<ITestData>().ToDistinctReadOnly(ArgsCode.Instance));
     }
 
     #endregion
@@ -154,6 +180,21 @@ public class CollectionConverterTests
         ITestData[] collection = [CreateData("props-dup"), duplicate];
         var result = collection.ToDistinctReadOnly(ArgsCode.Properties, PropsCode.All);
         Assert.HasCount(1, result);
+    }
+
+    [TestMethod]
+    public void ToDistinctReadOnly_withPropsCode_nullCollection_throwsArgumentNullException()
+    {
+        IEnumerable<ITestData> nullCollection = null!;
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => nullCollection.ToDistinctReadOnly(ArgsCode.Properties, PropsCode.All));
+    }
+
+    [TestMethod]
+    public void ToDistinctReadOnly_withPropsCode_emptyCollection_throwsArgumentException()
+    {
+        Assert.ThrowsExactly<ArgumentException>(
+            () => Array.Empty<ITestData>().ToDistinctReadOnly(ArgsCode.Properties, PropsCode.All));
     }
 
     #endregion
@@ -192,10 +233,42 @@ public class CollectionConverterTests
     public void ToDistinctReadOnly_converter_undefinedArgsCode_throwsInvalidEnumArgumentException()
     {
         ITestData[] collection = [CreateData("t")];
+#pragma warning disable IDE0039
         Func<ITestData, ArgsCode, string?, object?[]> convertRow =
             (td, ac, name) => td.ToArgs(ac, PropsCode.All);
+#pragma warning restore IDE0039
         Assert.ThrowsExactly<InvalidEnumArgumentException>(
             () => collection.ToDistinctReadOnly(convertRow, (ArgsCode)99, null));
+    }
+
+    [TestMethod]
+    public void ToDistinctReadOnly_converter_nullConverter_throwsNullReferenceException()
+    {
+        ITestData[] collection = [CreateData("u")];
+        Func<ITestData, ArgsCode, string?, object?[]> nullConverter = null!;
+        Assert.ThrowsExactly<NullReferenceException>(
+            () => collection.ToDistinctReadOnly(nullConverter, ArgsCode.Instance, null));
+    }
+
+    [TestMethod]
+    public void ToDistinctReadOnly_converter_nullCollection_throwsArgumentNullException()
+    {
+        IEnumerable<ITestData> nullCollection = null!;
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => nullCollection.ToDistinctReadOnly(
+                (testData, argsCode, testMethodName) => testData.ToArgs(argsCode, PropsCode.All),
+                ArgsCode.Instance,
+                null));
+    }
+
+    [TestMethod]
+    public void ToDistinctReadOnly_converter_emptyCollection_throwsArgumentException()
+    {
+        Assert.ThrowsExactly<ArgumentException>(
+            () => Array.Empty<ITestData>().ToDistinctReadOnly(
+                (testData, argsCode, testMethodName) => testData.ToArgs(argsCode, PropsCode.All),
+                ArgsCode.Instance,
+                null));
     }
 
     #endregion

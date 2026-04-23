@@ -21,8 +21,10 @@ public class ITestDataProviderTests
         public void AddRow(TTestData testData) => Rows.Add(testData);
     }
 
+#pragma warning disable CA1859
     private static ITestData CreateData(string def = "def")
         => TestDataFactory.CreateTestData<int>(def, "result", 1);
+#pragma warning restore CA1859
 
     #region Properties
 
