@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Runtime.CompilerServices;
+
 namespace Portamical.Core.Safety;
 
 /// <summary>
@@ -17,6 +19,11 @@ namespace Portamical.Core.Safety;
 /// </para>
 /// <para>
 /// <strong>Thread Safety:</strong> All methods are thread-safe (stateless).
+/// </para>
+/// <para>
+/// <strong>Performance:</strong> Critical validation methods are marked with
+/// <see cref="MethodImplAttribute"/> using <see cref="MethodImplOptions.AggressiveInlining"/>
+/// to eliminate method call overhead on hot paths (constructor validation, property initialization).
 /// </para>
 /// <para>
 /// <strong>Key Methods:</strong>
@@ -74,6 +81,7 @@ public static class Validator
     /// <list type="bullet">
     ///   <item>Already array: O(1) - direct return</item>
     ///   <item>Other sequence: O(n) - creates array snapshot</item>
+    ///   <item>This method is marked for aggressive inlining to minimize overhead in hot paths</item>
     /// </list>
     /// </para>
     /// <para>
@@ -98,6 +106,7 @@ public static class Validator
     /// // Throws: ArgumentException: The sequence must contain at least one element.
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] NotNullOrEmpty<T>(IEnumerable<T>? enumerable, string? paramName)
     {
         // Take a stable snapshot once
@@ -141,6 +150,11 @@ public static class Validator
     /// when <paramref name="value"/> is successfully validated. This enables null-safe code flow
     /// in nullable reference type contexts (C# 8+).
     /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> This method is marked for aggressive inlining to eliminate
+    /// method call overhead on the critical success path. The fast path (non-null) compiles to
+    /// a single null check instruction.
+    /// </para>
     /// </remarks>
     /// <example>
     /// <code>
@@ -160,6 +174,7 @@ public static class Validator
     /// var invalid = new TestData(null); // Throws ArgumentNullException
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T NotNull<T>(T? value, string? paramName)
     => value is null ?
         throw new ArgumentNullException(paramName)

@@ -4,6 +4,7 @@
 using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
+using System.Runtime.CompilerServices;
 
 namespace Portamical.Core.TestDataTypes.Models;
 
@@ -11,7 +12,7 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// Abstract base class providing core test data functionality including test case naming,
 /// definition/result separation, and flexible argument generation strategies.
 /// </summary>
-/// <param name="definition">The descriptive definition of the test case scenario (left side of "=&gt;").</param>
+/// <param name="definition">The descriptive definition of the test case scenario (left side of "=>").</param>
 /// <remarks>
 /// <para>
 /// This class implements <see cref="ITestData"/> and extends <see cref="NamedCase"/> to provide
@@ -45,7 +46,8 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// <para>
 /// <strong>Performance Optimization:</strong> The <see cref="CreateTestCaseName()"/> method uses
 /// <see cref="string.Create(int, TState, SpanAction{char, TState})"/> for zero-copy string concatenation,
-/// minimizing allocations during test data creation.
+/// minimizing allocations during test data creation. The <see cref="ToArgs(ArgsCode)"/> convenience
+/// wrapper is marked for aggressive inlining to eliminate wrapper overhead.
 /// </para>
 /// </remarks>
 public abstract class TestDataBase(string definition)
@@ -77,6 +79,15 @@ public abstract class TestDataBase(string definition)
     /// An array of objects representing the test arguments, using <see cref="PropsCode.TrimTestCaseName"/>
     /// as the default property selection strategy.
     /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Performance:</strong> This method is marked for aggressive inlining to eliminate
+    /// wrapper overhead. However, since this delegates to the virtual <see cref="ToArgs(ArgsCode, PropsCode)"/>
+    /// method, the inlining benefit is limited to removing the wrapper call itself (~2-3 cycles).
+    /// The virtual dispatch cost dominates the overall performance.
+    /// </para>
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public object?[] ToArgs(ArgsCode argsCode)
     => ToArgs(argsCode, PropsCode.TrimTestCaseName);
 
