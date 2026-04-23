@@ -13,15 +13,29 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>test; unittest; testdata; portable; dynamicdata; datadriven; nunit;</PackageTags>
-    <PackageReleaseNotes>v2.0.1
-- Dependencies: Portamical: 2.0.0 → 2.0.2
+    <PackageReleaseNotes>v2.1.0 - 2026-04-21
+- Added:
+  - Enhanced equality methods with floating-point tolerance
+  - Collection equality with recursive comparison
+  - Support for 22+ built-in types
+- Fixed
+  - Floating-point precision issues (0.1 + 0.2 now equals 0.3)
+  - Collection comparison with nested structures
+  - Exception message comparison for framework-generated messages
+- Exception capture in `ThrowsDetails&lt;TException&gt;()`
+  - Changed from `Assert.Catch` lambda wrapper to direct `CatchException` method
+  - Fixes double-lambda indirection that prevented proper exception capture
+  - Adds fatal exception filtering (OutOfMemoryException, StackOverflowException, etc.)
+  - Aligns with MSTest/xUnit adapter implementations
+- Changed:
+  - Portamical dependency 2.0.2 → 2.1.1
 </PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <FileVersion>2.0.0-beta</FileVersion>
-    <Version>2.0.1</Version>
+    <FileVersion>2..1.0</FileVersion>
+    <Version>2.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,7 +55,7 @@
 
   <ItemGroup>
     <PackageReference Include="NUnitLite" Version="4.5.1" />
-    <PackageReference Include="Portamical" Version="2.0.2" />
+    <PackageReference Include="Portamical" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>

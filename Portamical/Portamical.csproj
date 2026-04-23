@@ -1,27 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Build Settings -->
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <!-- Package Info -->
+    <Version>2.2.1</Version>
     <Title>Portamical</Title>
-    <Version>2.0.2</Version>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
     <Description>Shared utilities and base classes for cross‑framework test data solutions in .NET, built on the Portamical.Core data model.</Description>
     <Copyright>(c) 2026. Csaba Dudas (CsabaDu)</Copyright>
+
+    <!-- Package Assets -->
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical</RepositoryUrl>
-    <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3;</PackageTags>
-    <PackageReleaseNotes>v2.0.2: Updated Portamical.Core dependency: 2.0.0 → 2.0.1
-
-</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+
+    <!-- Repository -->
+    <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical</RepositoryUrl>
+    <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
+
+
+    <!-- Release Notes -->
+    <PackageReleaseNotes>v2.2.1 - 2026-04-23
+Changed:
+- Portamical.Core dependency 2.0.1 → 2.2.0</PackageReleaseNotes>
+
+    <!-- Package Generation -->
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageOutputPath>$(OutputPath)</PackageOutputPath>
+
+    <!-- Symbols -->
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,7 +54,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical.Core" Version="2.0.1" />
+    <PackageReference Include="Portamical.Core" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>

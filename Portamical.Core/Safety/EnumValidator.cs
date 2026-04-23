@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Runtime.CompilerServices;
+
 namespace Portamical.Core.Safety;
 
 /// <summary>
@@ -17,6 +19,11 @@ namespace Portamical.Core.Safety;
 /// </para>
 /// <para>
 /// <strong>Thread Safety:</strong> All methods are thread-safe (stateless).
+/// </para>
+/// <para>
+/// <strong>Performance:</strong> The <see cref="Defined{TEnum}(TEnum, string)"/> method is marked
+/// with <see cref="MethodImplAttribute"/> using <see cref="MethodImplOptions.AggressiveInlining"/>
+/// to eliminate method call overhead when validating enum parameters in constructors and hot paths.
 /// </para>
 /// </remarks>
 /// <example>
@@ -56,6 +63,11 @@ public static class EnumValidator
     /// <strong>Note:</strong> For enumerations with <see langword="long"/> or <see langword="ulong"/> 
     /// underlying types, the value is cast to <see langword="int"/>, which may truncate large values. 
     /// This is a limitation of the <see cref="InvalidEnumArgumentException"/> constructor.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> This method is intentionally NOT inlined because it is only called
+    /// on the exception path (rare case). Inlining exception construction provides no performance
+    /// benefit and would increase code size unnecessarily.
     /// </para>
     /// </remarks>
     /// <example>
@@ -97,8 +109,13 @@ public static class EnumValidator
     /// </code>
     /// </para>
     /// <para>
-    /// <strong>Performance:</strong> For small enumerations (&lt;= 64 values), validation is O(1). 
-    /// For larger enumerations, validation is O(log n) using binary search.
+    /// <strong>Performance:</strong> 
+    /// <list type="bullet">
+    ///   <item>For small enumerations (&lt;= 64 values), validation is O(1)</item>
+    ///   <item>For larger enumerations, validation is O(log n) using binary search</item>
+    ///   <item>This method is marked for aggressive inlining to eliminate method call overhead
+    ///   when validating enum parameters. The success path (valid enum) is a single IsDefined check.</item>
+    /// </list>
     /// </para>
     /// </remarks>
     /// <example>
@@ -113,6 +130,7 @@ public static class EnumValidator
     /// // Throws: InvalidEnumArgumentException: The value of argument 'invalid' (999) is invalid for Enum type 'ArgsCode'.
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TEnum Defined<TEnum>(
         this TEnum enumValue,
         string paramName)

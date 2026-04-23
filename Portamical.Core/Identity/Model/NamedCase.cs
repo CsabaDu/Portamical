@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.Core.Identity.Model;
@@ -21,6 +22,11 @@ namespace Portamical.Core.Identity.Model;
 /// </para>
 /// <para>
 /// <strong>Thread Safety:</strong> This class is thread-safe when derived types maintain immutability.
+/// </para>
+/// <para>
+/// <strong>Performance:</strong> Critical methods (<see cref="ToString()"/> and implicit string conversion)
+/// are marked with <see cref="MethodImplAttribute"/> using <see cref="MethodImplOptions.AggressiveInlining"/>
+/// to eliminate method call overhead on hot paths.
 /// </para>
 /// <para>
 /// <strong>Key Features:</strong>
@@ -42,7 +48,7 @@ namespace Portamical.Core.Identity.Model;
 /// 
 /// var test = new TestData 
 /// { 
-///     TestCaseName = "Adding positives =&gt; returns sum",
+///     TestCaseName = "Adding positives => returns sum",
 ///     Value = 5 
 /// };
 /// string name = test; // Implicit conversion to string
@@ -53,27 +59,27 @@ namespace Portamical.Core.Identity.Model;
 public abstract class NamedCase : INamedCase
 {
     /// <summary>
-     /// Gets the unique name identifying this test case.
-     /// </summary>
-     /// <value>
-     /// A non-null string representing the test case identity, typically formatted as 
-     /// <c>"scenario description =&gt; expected outcome"</c>.
-     /// </value>
-     /// <remarks>
-     /// <para>
-     /// This property serves as the primary identity for equality comparison and is used for:
-     /// <list type="bullet">
-     ///   <item>Deduplication via <see cref="Equals(INamedCase)"/></item>
-     ///   <item>Hash code generation via <see cref="GetHashCode()"/></item>
-     ///   <item>Display name generation via <see cref="GetDisplayName(string)"/></item>
-     ///   <item>String representation via <see cref="ToString()"/></item>
-     /// </list>
-     /// </para>
-     /// <para>
-     /// <strong>Note:</strong> Derived classes must override this property and should use the 
-     /// <see langword="init"/> accessor to ensure immutability.
-     /// </para>
-     /// </remarks>
+    /// Gets the unique name identifying this test case.
+    /// </summary>
+    /// <value>
+    /// A non-null string representing the test case identity, typically formatted as 
+    /// <c>"scenario description => expected outcome"</c>.
+    /// </value>
+    /// <remarks>
+    /// <para>
+    /// This property serves as the primary identity for equality comparison and is used for:
+    /// <list type="bullet">
+    ///   <item>Deduplication via <see cref="Equals(INamedCase)"/></item>
+    ///   <item>Hash code generation via <see cref="GetHashCode()"/></item>
+    ///   <item>Display name generation via <see cref="GetDisplayName(string)"/></item>
+    ///   <item>String representation via <see cref="ToString()"/></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <strong>Note:</strong> Derived classes must override this property and should use the 
+    /// <see langword="init"/> accessor to ensure immutability.
+    /// </para>
+    /// </remarks>
     public abstract string TestCaseName { get; init; }
 
     /// <summary>
@@ -226,8 +232,15 @@ public abstract class NamedCase : INamedCase
     /// </summary>
     /// <returns>The value of <see cref="TestCaseName"/>.</returns>
     /// <remarks>
+    /// <para>
     /// This method is sealed to ensure consistent string representation across all derived types.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> This method is marked for aggressive inlining to eliminate
+    /// method call and virtual dispatch overhead. The implementation is a direct property access.
+    /// </para>
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public sealed override string ToString()
     => TestCaseName;
 
@@ -247,14 +260,19 @@ public abstract class NamedCase : INamedCase
     /// This implicit conversion enables seamless use of <see cref="NamedCase"/> objects in contexts 
     /// where a string is expected.
     /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> This operator is marked for aggressive inlining to eliminate
+    /// conversion call overhead. The operation is a simple null-conditional property access.
+    /// </para>
     /// </remarks>
     /// <example>
     /// <code>
-    /// var testCase = new TestData { TestCaseName = "test =&gt; succeeds" };
+    /// var testCase = new TestData { TestCaseName = "test => succeeds" };
     /// string name = testCase; // Implicit conversion
     /// Console.WriteLine(name); // Outputs: "test => succeeds"
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator string?(NamedCase? namedCase)
     => namedCase?.TestCaseName;
 
@@ -298,7 +316,7 @@ public abstract class NamedCase : INamedCase
     /// A string representing the display name for the test method, or null if a display name cannot be generated.
     /// </returns>
     public static string? CreateDisplayName(MethodInfo? testMethod, params object?[]? args)
-    => args is { Length: > 0 } &&  args[0] is string or INamedCase ?
+    => args is { Length: > 0 } && args[0] is string or INamedCase ?
         CreateDisplayName(testMethod?.Name, args)
         : null;
 

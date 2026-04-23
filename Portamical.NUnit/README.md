@@ -1,72 +1,11 @@
+# ?? **Concise README for NuGet Package**
+
+---
+
+```markdown
 # Portamical.NUnit
 
-**NUnit 4 adapter for Portamical: Universal, identity-driven test data modeling for .NET.**
-
-Portamical.NUnit bridges **Portamical.Core** test data to **NUnit 4**, enabling strongly-typed, reusable test data with automatic deduplication and self-documenting test names.
-
----
-
-## Portamical.NUnit [2.0.0] - 2026-03-20
-
-### ⚠️ BREAKING CHANGES
-
-**Portamical.TestBases.TestBase** (inherited from Portamical 2.0.0)
-
-**Removed IDisposable Implementation**
-```csharp
-// BEFORE (v1):
-public abstract class TestBase : IDisposable
-{
-    protected static ArgsCode ArgsCode { get; set; } = AsInstance;
-    
-    protected static long ResetLogCounter()
-        => Resolver.ResetLogCounter();
-    
-    public void Dispose() { ... }
-    protected virtual void Dispose(bool disposing) { ... }
-}
-
-// AFTER (v2):
-public abstract class TestBase  // ❌ No IDisposable
-{
-    // ❌ Removed: ArgsCode property with setter
-    // ❌ Removed: ResetLogCounter() method
-    // ❌ Removed: Dispose() methods
-    
-    protected static ArgsCode AsInstance => ArgsCode.Instance;
-    protected static ArgsCode AsProperties => ArgsCode.Properties;
-    
-    // ✅ Added: ConvertAsInstance() helpers
-}
-```
-
-**Removed Members:**
-
-    ❌ `IDisposable` interface implementation
-    ❌ `public void Dispose()`
-    ❌ `protected virtual void Dispose(bool disposing)`
-    ❌ `protected static long ResetLogCounter()`
-    ❌ `protected static ArgsCode ArgsCode { get; set; }`
-
-**Migration Required:**
-
-```csharp
-// v1 Code:
-public class MyTests : TestBase
-{
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            ArgsCode = AsInstance;      // ❌ Property removed
-            ResetLogCounter();          // ❌ Method removed
-        }
-        base.Dispose(disposing);        // ❌ Base class no longer IDisposable
-    }
-}
-```
-
----
+NUnit 4 adapter for Portamical: Universal, identity-driven test data modeling for .NET.
 
 ## Install
 
@@ -74,426 +13,211 @@ public class MyTests : TestBase
 dotnet add package Portamical.NUnit
 ```
 
-> **Prerequisites:**  
-> - NUnit 4.4.0+  
-> - .NET 10.0
+**Requirements:** NUnit 4.4.0+ | .NET 10.0
 
 ---
 
-## Example
-
-### 1. Create Test Data (Framework-Agnostic)
+## Quick Start
 
 ```csharp
+using Portamical.NUnit.TestBases;
 using static Portamical.Core.Factories.TestDataFactory;
 
-public class CalculatorDataSource
-{
-    public static IEnumerable<TestData<int, int>> AddCases()
-    {
-        yield return CreateTestData(
-            definition: "adding two positive numbers",
-            result: "returns their sum",
-            arg1: 2,
-            arg2: 3);
-
-        yield return CreateTestData(
-            definition: "adding with zero",
-            result: "returns the other number",
-            arg1: 0,
-            arg2: 5);
-    }
-}
-```
-
-### 2. Consume in NUnit Tests
-
-#### **Option A: Shared Style (Framework-Agnostic)**
-
-```csharp
-using Portamical.TestBases.ObjectArrayCollection;
-
+[TestFixture]
 public class CalculatorTests : TestBase
 {
-    private static IEnumerable<object?[]> AddArgs
-        => Convert(CalculatorDataSource.AddCases());
+    // Define test data
+    private static readonly TestDataReturns<int, int, int>[] AddCases =
+    [
+        CreateTestDataReturns("2 + 3", expected: 5, arg1: 2, arg2: 3),
+        CreateTestDataReturns("0 + 0", expected: 0, arg1: 0, arg2: 0)
+    ];
 
-    [Test, TestCaseSource(nameof(AddArgs))]
-    public void Add_validInputs_returnsSum(TestData<int, int> testData)
-    {
-        // Arrange
-        var sut = new Calculator();
-
-        // Act
-        var actual = sut.Add(testData.Arg1, testData.Arg2);
-
-        // Assert
-        Assert.That(actual, Is.EqualTo(5)); // (example expected)
-    }
-}
-```
-
-#### **Option B: Native Style (NUnit-Specific)**
-
-```csharp
-using Portamical.NUnit.Attributes;
-using Portamical.NUnit.TestBases;
-
-public class CalculatorTests : TestBase
-{
+    // Convert to NUnit test cases
     private static IReadOnlyCollection<TestCaseData> AddArgs
-        => Convert(CalculatorDataSource.AddCases());
+        => Convert(AddCases, AsProperties);
 
+    // Run parameterized tests
     [Test, PortamicalData(nameof(AddArgs))]
-    public void Add_validInputs_returnsSum(TestData<int, int> testData)
+    public void Add_ValidInputs_ReturnsExpected(int arg1, int arg2, int expected)
     {
-        // Arrange
-        var sut = new Calculator();
-
-        // Act
-        var actual = sut.Add(testData.Arg1, testData.Arg2);
-
-        // Assert
-        Assert.That(actual, Is.EqualTo(5));
+        var result = new Calculator().Add(arg1, arg2);
+        Assert.That(result, Is.EqualTo(expected));
     }
 }
 ```
 
 ---
 
-## What's Included
+## What's New in 2.1.0
 
-### Converters
+**Enhanced Assertions**
+- `ThrowsDetails<TException>()` now uses `CatchException` instead of `Assert.Catch` wrapper (eliminates double-lambda indirection, adds fatal exception filtering)
+- `Equality<T>()` - Generic equality with NUnit constraints
+- `Equality(object, object?, double?)` - Floating-point tolerance support
+- `CollectionEquality<T>()` - Element-wise collection comparison
+- Support for 22+ types: primitives, DateTime, Guid, BigInteger, collections
+- Special value handling: NaN, �?, �0.0
 
-Transform test data collections into NUnit's `TestCaseData`:
-
-```csharp
-using Portamical.NUnit.Converters;
-
-var testCases = testDataCollection.ToTestCaseTestDataCollection(
-    ArgsCode.Instance,
-    testMethodName: nameof(MyTest));
-```
-
-### Attributes
-
-**`PortamicalDataAttribute`** — NUnit-native attribute for test data:
-
-```csharp
-[Test, PortamicalData(nameof(Args))]
-public void MyTest(TestData<int> testData) { ... }
-```
-
-Automatically:
-- ✅ Sets test case names to `"definition => result"`
-- ✅ Deduplicates test cases via identity
-- ✅ Wraps test data in NUnit's `TestCaseData`
-
-### TestBases
-
-Abstract base classes with `Convert()` methods:
-
-```csharp
-using Portamical.NUnit.TestBases;
-
-public class MyTests : TestBase
-{
-    protected static IReadOnlyCollection<TestCaseData> Args
-        => Convert(dataSource.GetArgs());
-}
-```
-
-### Assertions
-
-NUnit-specific assertion helpers:
+**Examples**
 
 ```csharp
 using Portamical.NUnit.Assertions;
 
-PortamicalAssert.ThrowsDetails(
-    attempt: () => Sut.Method(null),
-    expected: new ArgumentNullException("paramName"));
+// Floating-point with tolerance
+PortamicalAssert.Equality(0.3, 0.1 + 0.2);  // ? PASSES
+
+// Custom tolerance
+PortamicalAssert.Equality(3.14159, Math.PI, floatingPointTolerance: 0.001);
+
+// Collection comparison
+PortamicalAssert.CollectionEquality(
+    expected: new[] { 1, 2, 3 },
+    actual: service.GetNumbers());
+
+// Special values
+PortamicalAssert.Equality(float.NaN, float.NaN);  // ? PASSES
 ```
 
-Validates:
-- ✅ Exception type
-- ✅ Exception message
-- ✅ Parameter name (for `ArgumentException`)
+### Exception Validation
+
+Comprehensive exception testing with type and metadata validation:
+
+```csharp
+[Test]
+public void Test_ExceptionDetails()
+{
+    var expected = new ArgumentException("Value must be positive", "amount");
+    
+    // Validates exception type, message, AND parameter name
+    var actual = PortamicalAssert.ThrowsDetails(
+        attempt: () => BankAccount.Withdraw(-100),
+        expected: expected);
+    
+    // Returns actual exception for further assertions
+    Assert.That(actual.ParamName, Is.EqualTo("amount"));
+}
+```
+
+---
+
+## Features
+
+### Test Data Management
+- ? **Identity-driven:** Unique test cases via `TestCaseName`
+- ? **Automatic deduplication:** Remove duplicate test cases
+- ? **Self-documenting:** Test names = `"definition => result"`
+- ? **Type-safe:** Strongly-typed test data
+
+### NUnit Integration
+- ? **`[PortamicalData]` attribute:** Drop-in replacement for `[TestCaseSource]`
+- ? **`TestBase` classes:** Convenient `Convert()` methods
+- ? **Enhanced assertions:** Floating-point, collections, exceptions
+- ? **Multiple assertion modes:** `AssertMultiple()`, `AssertMultipleAsync()`
+
+### Cross-Framework
+- ? **Framework-agnostic core:** Reuse test data across NUnit, xUnit, MSTest
+- ? **Shared/Native styles:** Choose portability or NUnit-specific features
+- ? **Zero coupling:** `Portamical.Core` has no testing framework dependencies
 
 ---
 
 ## Data Strategies
 
-### Strategy 1: TestData Mode (Pass Entire Object)
+### Instance Mode (Shared Style - Default)
 
 ```csharp
-// Data source
+// Pass entire test data object
 private static IReadOnlyCollection<TestCaseData> Args
-    => Convert(dataSource.GetArgs());  // ← ArgsCode.Instance (default)
+    => Convert(dataSource.GetCases());  // ArgsCode.Instance
 
-// Test signature
 [Test, PortamicalData(nameof(Args))]
-public void Test(TestData<int> testData)  // ← Receives object
+public void Test(TestData<int> testData)  // Receives object
 {
-    var actual = Sut.Method(testData.Arg1);
-    Assert.That(actual, Is.EqualTo(expected));
+    var result = Sut.Method(testData.Arg1);
+    Assert.That(result, Is.EqualTo(expected));
 }
 ```
 
-**Best for:** Tests needing access to `TestCaseName` or full test data object.
-
----
-
-### Strategy 2: Properties Mode (Flatten Parameters)
+### Properties Mode (Native Style)
 
 ```csharp
-// Data source
+// Flatten to individual parameters
 private static IReadOnlyCollection<TestCaseData> Args
-    => Convert(dataSource.GetArgs(), AsProperties);  // ← ArgsCode.Properties
+    => Convert(dataSource.GetCases(), AsProperties);  // ArgsCode.Properties
 
-// Test signature
 [Test, PortamicalData(nameof(Args))]
-public void Test(int arg1)  // ← Receives flattened parameter
+public void Test(int arg1, int arg2)  // Receives flattened parameters
 {
-    var actual = Sut.Method(arg1);
-    Assert.That(actual, Is.EqualTo(expected));
+    var result = Sut.Method(arg1, arg2);
+    Assert.That(result, Is.EqualTo(expected));
 }
 ```
 
-**Best for:** Tests preferring traditional parameter signatures.
-
 ---
 
-### Strategy 3: Return-Value Tests with `TestDataReturns`
+## Exception Testing
 
 ```csharp
 using static Portamical.Core.Factories.TestDataFactory;
 
-public class DataSource
-{
-    public static IEnumerable<TestDataReturns<int, int, int>> AddCases()
-    {
-        yield return CreateTestDataReturns(
-            definition: "adding 2 and 3",
-            expected: 5,
-            arg1: 2,
-            arg2: 3);
-    }
-}
+// Define exception test data
+private static readonly TestDataThrows<ArgumentNullException, string>[] NullCases =
+[
+    CreateTestDataThrows(
+        definition: "null input",
+        expected: new ArgumentNullException("name"),
+        arg1: (string?)null)
+];
 
-// Test
-private static IReadOnlyCollection<TestCaseData> Args
-    => Convert(DataSource.AddCases(), AsProperties);
+private static IReadOnlyCollection<TestCaseData> Args => Convert(NullCases);
 
 [Test, PortamicalData(nameof(Args))]
-public void Add_validInputs_returnsExpected(int arg1, int arg2, int expected)
-{
-    var actual = new Calculator().Add(arg1, arg2);
-    Assert.That(actual, Is.EqualTo(expected));
-}
-```
-
----
-
-### Strategy 4: Exception Tests with `TestDataThrows`
-
-```csharp
-using static Portamical.Core.Factories.TestDataFactory;
-
-public class DataSource
-{
-    public static IEnumerable<TestDataThrows<ArgumentNullException, string>> NullArgCases()
-    {
-        yield return CreateTestDataThrows(
-            definition: "name is null",
-            expected: new ArgumentNullException("name"),
-            arg1: (string?)null);
-    }
-}
-
-// Test
-private static IReadOnlyCollection<TestCaseData> Args
-    => Convert(DataSource.NullArgCases());
-
-[Test, PortamicalData(nameof(Args))]
-public void Constructor_nullName_throwsArgumentNullException(
+public void Constructor_NullInput_ThrowsArgumentNullException(
     TestDataThrows<ArgumentNullException, string> testData)
 {
-    // Arrange
-    var expected = testData.Expected;
-    var name = testData.Arg1;
-
-    // Act & Assert
     PortamicalAssert.ThrowsDetails(
-        attempt: () => new SomeClass(name),
-        expected: expected);
+        attempt: () => new SomeClass(testData.Arg1),
+        expected: testData.Expected);
 }
 ```
 
 ---
 
-## Shared vs. Native Styles
+## Supported Types (22+)
 
-### Shared Style (Framework-Agnostic)
-
-**Use:** `Portamical.TestBases.ObjectArrayCollection.TestBase`
-
-**Benefits:**
-- ✅ Same code works in xUnit, MSTest, NUnit
-- ✅ Easy migration between frameworks
-- ✅ Uses standard `[TestCaseSource]` attribute
-
-**Example:**
-
-```csharp
-using Portamical.TestBases.ObjectArrayCollection;
-
-public class MyTests : TestBase
-{
-    private static IEnumerable<object?[]> Args
-        => Convert(dataSource.GetArgs());
-
-    [Test, TestCaseSource(nameof(Args))]
-    public void Test(TestData<int> testData) { ... }
-}
-```
-
----
-
-### Native Style (NUnit-Specific)
-
-**Use:** `Portamical.NUnit.TestBases.TestBase`
-
-**Benefits:**
-- ✅ NUnit-specific optimizations
-- ✅ `PortamicalDataAttribute` with automatic deduplication
-- ✅ Better integration with NUnit Test Explorer
-
-**Example:**
-
-```csharp
-using Portamical.NUnit.Attributes;
-using Portamical.NUnit.TestBases;
-
-public class MyTests : TestBase
-{
-    private static IReadOnlyCollection<TestCaseData> Args
-        => Convert(dataSource.GetArgs());
-
-    [Test, PortamicalData(nameof(Args))]
-    public void Test(TestData<int> testData) { ... }
-}
-```
-
----
-
-## NUnit Integration Details
-
-### How `PortamicalDataAttribute` Works
-
-```csharp
-[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class PortamicalDataAttribute : TestCaseSourceAttribute
-{
-    public PortamicalDataAttribute(string sourceName)
-        : base(sourceName)
-    {
-    }
-}
-```
-
-**Behavior:**
-1. Extends NUnit's `TestCaseSourceAttribute`
-2. Reads data from static property/method
-3. Expects `IReadOnlyCollection<TestCaseData>`
-4. Each `TestCaseData` contains:
-   - Test arguments (`object?[]`)
-   - Test name (`"definition => result"`)
-   - Categories, properties (optional)
-
----
-
-### TestCaseData Structure
-
-```csharp
-var testData = CreateTestData(
-    definition: "Valid input",
-    result: "creates instance",
-    arg1: 42);
-
-var testCaseData = new TestCaseData(testData)
-    .SetName("Valid input => creates instance");  // ← Identity-based name
-```
-
-**Result in NUnit Test Explorer:**
-
-```
-✓ Constructor_validInput_createsInstance(testData: Valid input => creates instance)
-```
-
----
-
-## PropsCode Options
-
-Control which properties are included in test arguments:
-
-| `PropsCode` | Includes | Use Case |
-|-------------|----------|----------|
-| `TrimTestCaseName` | All properties **except** `TestCaseName` | **Default** — NUnit provides test naming |
-| `All` | `TestCaseName` + all properties | Custom scenarios needing explicit names |
-| `TrimReturnsExpected` | Also excludes `Expected` (for `IReturns`) | Return-value tests (extract expected separately) |
-| `TrimThrowsExpected` | Also excludes `Expected` (for `IThrows`) | Exception tests (extract exception separately) |
-
-**Example:**
-
-```csharp
-// Default: Exclude TestCaseName
-var args = Convert(dataSource.GetArgs());  // ← TrimTestCaseName
-
-// Include TestCaseName
-var args = Convert(dataSource.GetArgs(), AsProperties, WithTestCaseName);
-
-// Exclude Expected for return-value tests
-var args = Convert(dataSource.GetReturnsArgs(), AsProperties, TrimReturnsExpected);
-```
-
----
-
-## Use Cases
-
-Install **Portamical.NUnit** if you are:
-
-- ✅ Using NUnit 4.4.0+ for testing
-- ✅ Want strongly-typed, reusable test data
-- ✅ Need cross-framework test data portability
-- ✅ Want self-documenting test names (`"definition => result"`)
-- ✅ Need automatic deduplication of test cases
+| Category | Types |
+|----------|-------|
+| **Integers** | byte, sbyte, short, ushort, int, uint, long, ulong, nint, nuint |
+| **Floating-point** | float, double (with tolerance) |
+| **Primitives** | bool, char, string, decimal |
+| **Framework** | Guid, DateTime, DateOnly, TimeOnly, TimeSpan, DateTimeOffset |
+| **Numerics** | BigInteger |
+| **Collections** | Any IEnumerable (recursive) |
 
 ---
 
 ## Architecture
 
 ```
-Your NUnit Tests
-    ↓ depends on
-Portamical.NUnit (Adapter)
-    ├── Converters    → ToTestCaseTestDataCollection()
-    ├── Attributes    → PortamicalDataAttribute
-    ├── TestBases     → TestBase with Convert() methods
-    └── Assertions    → PortamicalAssert
-    ↓ depends on
+Your Tests
+    ?
+Portamical.NUnit (NUnit 4 Adapter)
+    ??? Assertions: PortamicalAssert
+    ??? Attributes: PortamicalDataAttribute
+    ??? Converters: ToTestCaseDataCollection()
+    ??? TestBases: TestBase with Convert()
+    ?
 Portamical (Shared Layer)
-    ├── Converters    → ToObjectArrayCollection()
-    ├── Assertions    → PortamicalAssert base
-    └── TestBases     → Framework-agnostic base classes
-    ↓ depends on
-Portamical.Core (Domain)
-    ├── ITestData     → Core abstraction
-    ├── TestData<T>   → Test data types
-    └── TestDataFactory → Factory methods
+    ??? Base assertions
+    ??? Converters
+    ??? Framework-agnostic TestBase
+    ?
+Portamical.Core (Domain - Zero Dependencies)
+    ??? ITestData abstraction
+    ??? TestData<T> types
+    ??? TestDataFactory
 ```
-
-**Key Principle:** `Portamical.Core` has **zero dependencies** on NUnit.
 
 ---
 
@@ -502,65 +226,62 @@ Portamical.Core (Domain)
 - **GitHub:** https://github.com/CsabaDu/Portamical
 - **Documentation:** https://github.com/CsabaDu/Portamical/blob/master/README.md
 - **Issues:** https://github.com/CsabaDu/Portamical/issues
-- **Portamical.Core:** https://github.com/CsabaDu/Portamical/tree/master/Portamical.Core
 
 ---
 
-## License and Project Lineage
+## License
 
-This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt).
+MIT License - See [LICENSE.txt](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt)
 
-`Portamical.NUnit` is the **continuation and successor** of `CsabaDu.DynamicTestData.NUnit` (also MIT-licensed).  
-`CsabaDu.DynamicTestData.NUnit` is considered **legacy** and is **no longer supported**; new development happens in Portamical.
+**Project Lineage:** Successor to `CsabaDu.DynamicTestData.NUnit` (legacy)
 
 ---
 
 ## Changelog
 
-### **Version 2.0.0 (2026-03-20)**
+### [2.0.0] - 2026-03-20
 
-#### **Breaking Changes (from Portamical 2.0.0 base)**
-
-- **Removed from TestBase:**
-  - ❌ `IDisposable` interface implementation
-  - ❌ `Dispose()` and `Dispose(bool)` methods
-  - ❌ `ResetLogCounter()` method ? use `Resolver.ResetLogCounter()`
-  - ❌ `ArgsCode` property with setter
-
-#### **Non-Breaking Changes**
-
-- **`PortamicalDataAttribute`**
-  - **`PortamicalDataAttributeBase`** → `PortamicalBaseDataAttribute`
-
-- **`TestBase`**
-  - `Convert<TTestData>(IEnumerable<TTestData>, string?)` method refactored to use `ConvertAsInstance` helper method instead of the removed static `ArgsCode` proerty.
-
-- **`TestDataConverter.ToTestCaseData`** - Refactored.
-
-- **Documentation Overhaul**
-- **690+ lines** of comprehensive XML docs
+- **Breaking:** Removed `IDisposable` from `TestBase`
+- **Breaking:** Removed `ArgsCode` property setter
+- **Added:** `ConvertAsInstance()` helper methods
+- **Added:** 690+ lines of XML documentation
 
 ---
 
-##### **Version 2.0.1 (2026-04-03)**
+##### [2.0.1] - 2026-04-03
 
-**Dependencies**
-- Portamical: 2.0.0 ? 2.0.2
+- **Changed:** Portamical dependency 2.0.0 ? 2.0.2
 
 ---
 
-### **Version 1.0.0 (2026-03-06)**
+#### [2.1.0] - 2026-04-21
 
-- **Initial release**
-- NUnit 4.4.0+ integration
-- `PortamicalDataAttribute` for test data
-- `TestBase` with `Convert()` methods
-- NUnit-specific `PortamicalAssert`
+- **Added:**
+  - Enhanced equality methods with floating-point tolerance
+  - Collection equality with recursive comparison
+  - Support for 22+ built-in types
+- **Fixed**
+  - Floating-point precision issues (0.1 + 0.2 now equals 0.3)
+  - Collection comparison with nested structures
+  - Exception message comparison for framework-generated messages
+- **Exception capture in `ThrowsDetails<TException>()`**
+  - Changed from `Assert.Catch` lambda wrapper to direct `CatchException` method
+  - Fixes double-lambda indirection that prevented proper exception capture
+  - Adds fatal exception filtering (OutOfMemoryException, StackOverflowException, etc.)
+  - Aligns with MSTest/xUnit adapter implementations
+- **Changed:**
+  - Portamical dependency 2.0.2 ? 2.1.1
+
+---
+
+### [1.0.0] - 2026-03-06
+- Initial release
 
 ---
 
 **Made by [CsabaDu](https://github.com/CsabaDu)**
 
 *Portamical: Test data as a domain, not an afterthought.*
+```
 
 ---

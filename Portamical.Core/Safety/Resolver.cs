@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.Core.Safety;
@@ -22,6 +23,11 @@ namespace Portamical.Core.Safety;
 /// <para>
 /// <strong>Thread Safety:</strong> All public methods are thread-safe. The internal log counter
 /// uses atomic operations (<see cref="Interlocked"/>) to ensure thread-safe increments and resets.
+/// </para>
+/// <para>
+/// <strong>Performance:</strong> The <see cref="ResetLogCounter"/> method is marked with
+/// <see cref="MethodImplAttribute"/> using <see cref="MethodImplOptions.AggressiveInlining"/>
+/// to eliminate method call overhead for atomic operations.
 /// </para>
 /// <para>
 /// <strong>Key Features:</strong>
@@ -85,6 +91,11 @@ public static class Resolver
     /// listeners via <see cref="Trace.TraceWarning(string)"/>. The message format is:
     /// <c>"Portamical log {index}: The '{methodName}' method of the test data object returned a null, empty, or whitespace value. Using indexed fallback label '{fallback}' in the test report."</c>
     /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> This method is NOT inlined because it contains complex logic
+    /// (string operations, trace I/O). The overhead is acceptable since this is a fallback path
+    /// (rare case in well-designed tests).
+    /// </para>
     /// </remarks>
     /// <example>
     /// <code>
@@ -138,6 +149,11 @@ public static class Resolver
     /// log counter is reset without race conditions.
     /// </para>
     /// <para>
+    /// <strong>Performance:</strong> This method is marked for aggressive inlining because it wraps
+    /// a single atomic operation (<see cref="Interlocked.Exchange"/>). Inlining eliminates method
+    /// call overhead while preserving thread safety.
+    /// </para>
+    /// <para>
     /// <strong>Typical Usage:</strong> Call this method in test cleanup or between test runs
     /// to reset the fallback counter to zero. This is useful for:
     /// <list type="bullet">
@@ -157,6 +173,7 @@ public static class Resolver
     /// }
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long ResetLogCounter()
     => Interlocked.Exchange(ref LogCounter, 0L);
 
@@ -168,8 +185,19 @@ public static class Resolver
     /// </param>
     /// <returns>The incremented log counter value.</returns>
     /// <remarks>
+    /// <para>
     /// This method is thread-safe. It uses <see cref="Interlocked.Increment(ref long)"/> to ensure
     /// atomic increment without race conditions.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> This method is NOT inlined because:
+    /// <list type="bullet">
+    ///   <item>It has only a single call site (from <see cref="FallbackIfNullOrWhiteSpace"/>)</item>
+    ///   <item>It allocates a string via interpolation (dominant cost)</item>
+    ///   <item>It's only called on the fallback path (rare case)</item>
+    /// </list>
+    /// Inlining would provide no benefit and would increase code size unnecessarily.
+    /// </para>
     /// </remarks>
     private static long IncrementLogIndex(out string logPrefix)
     {

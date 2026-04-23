@@ -314,6 +314,75 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     }
 
     /// <summary>
+    /// Asserts that two values are equal using NUnit's constraint model.
+    /// </summary>
+    /// <typeparam name="T">The value type being compared.</typeparam>
+    /// <param name="expected">The expected value.</param>
+    /// <param name="actual">The actual value.</param>
+    public static void Equality<T>(T expected, T? actual)
+    => Assert.That(actual, Is.EqualTo(expected));
+
+    /// <summary>
+    /// Asserts that two values are equal with floating-point tolerance.
+    /// </summary>
+    /// <param name="expected">The expected value.</param>
+    /// <param name="actual">The actual value.</param>
+    /// <param name="floatingPointTolerance">
+    /// Epsilon for floating-point comparisons. Default: 1e-10 for double, 1e-6f for float.
+    /// </param>
+    /// <remarks>
+    /// <para><strong>Supported Types (22+):</strong></para>
+    /// <list type="bullet">
+    ///   <item><strong>Integers:</strong> byte, sbyte, short, ushort, int, uint, long, ulong, nint, nuint</item>
+    ///   <item><strong>Floating-point:</strong> float, double (with tolerance)</item>
+    ///   <item><strong>Other primitives:</strong> bool, char, string, decimal</item>
+    ///   <item><strong>Framework types:</strong> Guid, DateTime, DateOnly, TimeOnly, TimeSpan, DateTimeOffset</item>
+    ///   <item><strong>Numerics:</strong> BigInteger</item>
+    ///   <item><strong>Collections:</strong> Any IEnumerable (recursive comparison)</item>
+    /// </list>
+    /// <para><strong>Special Value Handling:</strong></para>
+    /// <list type="bullet">
+    ///   <item><strong>NaN:</strong> All NaN representations are equal</item>
+    ///   <item><strong>Infinity:</strong> Must match exactly (+∞ == +∞, -∞ == -∞)</item>
+    ///   <item><strong>Zero:</strong> +0.0 and -0.0 are equal</item>
+    /// </list>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Floating-point with default tolerance
+    /// Equality(0.3, 0.1 + 0.2);  // ✅ PASSES
+    /// 
+    /// // Custom tolerance
+    /// Equality(3.14159, Math.PI, floatingPointTolerance: 0.001);
+    /// 
+    /// // Collections
+    /// Equality(new[] { 1, 2, 3 }, service.GetNumbers());
+    /// 
+    /// // Special values
+    /// Equality(float.NaN, float.NaN);  // ✅ PASSES
+    /// Equality(double.PositiveInfinity, double.PositiveInfinity);  // ✅ PASSES
+    /// </code>
+    /// </example>
+    public static void Equality(
+        object expected,
+        object? actual,
+        double? floatingPointTolerance = null)
+    => Equality(expected, actual,
+        assertFail: () => Assert.Fail($"Expected '{expected}' but got '{actual ?? "null"}'."),
+        floatingPointTolerance: floatingPointTolerance);
+
+    /// <summary>
+    /// Asserts collection equality with element-wise comparison.
+    /// </summary>
+    /// <typeparam name="T">The collection element type.</typeparam>
+    /// <param name="expected">The expected collection.</param>
+    /// <param name="actual">The actual collection.</param>
+    public static void CollectionEquality<T>(
+        IEnumerable<T> expected,
+        IEnumerable<T> actual)
+    => Assert.That(actual, Is.EqualTo(expected).AsCollection);
+
+    /// <summary>
     /// Asserts that the specified action completes without throwing any exceptions.
     /// </summary>
     /// <param name="attempt">
@@ -370,8 +439,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// </example>
     /// <seealso cref="Portamical.Assertions.PortamicalAssert.DoesNotThrow(Action, Action{string})"/>
     public static void DoesNotThrow(Action attempt)
-    => DoesNotThrow(attempt,
-        assertFail: Assert.Fail);
+    => DoesNotThrow(attempt, assertFail: Assert.Fail);
 
     /// <summary>
     /// Asserts that the runtime type of the actual object matches the expected type.
@@ -427,8 +495,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// </example>
     /// <seealso cref="Portamical.Assertions.PortamicalAssert.IsTypeOf(Type, object, Action{Type, Type})"/>
     public static void IsTypeOf(Type expected, object actual)
-    => IsTypeOf(expected, actual,
-        assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)));
+    => IsTypeOf(expected, actual, assertEquality: Equality);
 
     /// <summary>
     /// Asserts that the specified action throws an exception of type <typeparamref name="TException"/>
@@ -451,7 +518,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// This method performs comprehensive exception validation using NUnit 4.x's multiple assertion feature:
     /// <list type="number">
     ///   <item><description>
-    ///     <strong>Catches Exception:</strong> Uses <c>Assert.Catch</c> to capture the thrown exception
+    ///     <strong>Catches Exception:</strong> Uses <c>PortamicalAssert.CatchException</c> to capture the thrown exception
     ///   </description></item>
     ///   <item><description>
     ///     <strong>Validates Type:</strong> Uses <c>Assert.That(actual, Is.TypeOf(expected))</c> to ensure exact type match
@@ -477,7 +544,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// <para>
     /// This method delegates to the base class template method, injecting NUnit-specific implementations:
     /// <list type="bullet">
-    ///   <item><description><c>catchException</c> = <c>Assert.Catch(() => att())</c></description></item>
+    ///   <item><description><c>catchException</c> = <c>PortamicalAssert.CatchException(() => att())</c></description></item>
     ///   <item><description><c>assertIsType</c> = <c>Assert.That(a, Is.TypeOf(e))</c></description></item>
     ///   <item><description><c>assertEquality</c> = <c>Assert.That(a, Is.EqualTo(e))</c></description></item>
     ///   <item><description><c>assertFail</c> = <c>Assert.Fail</c></description></item>
@@ -554,9 +621,9 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         AssertMultiple(() =>
         {
             actual = ThrowsDetails(attempt, expected,
-                catchException: att => Assert.Catch(() => att()),
-                assertIsType: (e, a) => Assert.That(a, Is.TypeOf(e)),
-                assertEquality: (e, a) => Assert.That(a, Is.EqualTo(e)),
+                catchException: CatchException,
+                assertIsType: IsTypeOf,
+                assertEquality: Equality,
                 assertFail: Assert.Fail);
         });
 
