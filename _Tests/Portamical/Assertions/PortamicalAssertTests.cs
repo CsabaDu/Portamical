@@ -19,43 +19,6 @@ public class PortamicalAssertTests
             => GetNotExpectedValueMessage(expected, actual);
         public static string ExposedGetFullName(Type? obj)
             => GetFullName(obj);
-        public static ValueTask ExposedDoesNotThrowAsync(
-            Action attempt,
-            Func<string, ValueTask> assertFailAsync)
-            => DoesNotThrowAsync(attempt, assertFailAsync);
-        public static ValueTask<TException> ExposedThrowsDetailsAsync<TException>(
-            Action attempt,
-            TException expected,
-            Func<Action, Exception?> catchException,
-            Func<Type, Exception, ValueTask> assertIsTypeAsync,
-            Func<object, object?, ValueTask> assertEqualityAsync,
-            Func<string, ValueTask> assertFailAsync)
-        where TException : notnull, Exception
-            => ThrowsDetailsAsync(
-                attempt,
-                expected,
-                catchException,
-                assertIsTypeAsync,
-                assertEqualityAsync,
-                assertFailAsync);
-        public static ValueTask ExposedEqualityAsync<T>(
-            T? expected,
-            T? actual,
-            Func<T?, T?, bool> equals,
-            Func<string, ValueTask> assertFailAsync,
-            string message)
-            => EqualityAsync(expected, actual, equals, assertFailAsync, message);
-        public static ValueTask ExposedEqualityAsync(
-            object expected,
-            object? actual,
-            Func<ValueTask> assertFailAsync,
-            double? floatingPointTolerance = null)
-            => EqualityAsync(expected, actual, assertFailAsync, floatingPointTolerance);
-        public static ValueTask ExposedIsTypeOfAsync(
-            Type expected,
-            object? actual,
-            Func<Type, Type?, ValueTask> assertEqualityAsync)
-            => IsTypeOfAsync(expected, actual, assertEqualityAsync);
     }
 
     #region CatchException
@@ -157,8 +120,8 @@ public class PortamicalAssertTests
     public async Task DoesNotThrowAsync_noException_doesNotCallAssertFailAsync()
     {
         bool called = false;
-        await ConcreteAssert.ExposedDoesNotThrowAsync(
-            () => { },
+        await PortamicalAssert.DoesNotThrowAsync(
+            () => Task.CompletedTask,
             _ =>
             {
                 called = true;
@@ -171,8 +134,8 @@ public class PortamicalAssertTests
     public async Task DoesNotThrowAsync_exceptionThrown_callsAssertFailAsyncWithMessage()
     {
         string? message = null;
-        await ConcreteAssert.ExposedDoesNotThrowAsync(
-            () => throw new InvalidOperationException("async oops"),
+        await PortamicalAssert.DoesNotThrowAsync(
+            () => Task.FromException(new InvalidOperationException("async oops")),
             msg =>
             {
                 message = msg;
@@ -188,7 +151,7 @@ public class PortamicalAssertTests
     [TestMethod]
     public async Task DoesNotThrowAsync_nullAssertFailAsync_throwsArgumentNullException()
         => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await ConcreteAssert.ExposedDoesNotThrowAsync(() => { }, null!));
+            async () => await PortamicalAssert.DoesNotThrowAsync(() => Task.CompletedTask, null!));
 
     #endregion
 
@@ -449,7 +412,7 @@ public class PortamicalAssertTests
         var thrown = new ArgumentException("async test msg", "p");
         var expected = new ArgumentException("async test msg", "p");
 #pragma warning restore S3928
-        var result = await ConcreteAssert.ExposedThrowsDetailsAsync(
+        var result = await PortamicalAssert.ThrowsDetailsAsync(
             () => throw thrown,
             expected,
             PortamicalAssert.CatchException,
@@ -468,7 +431,7 @@ public class PortamicalAssertTests
         var expected = new ArgumentException("async message", "paramName");
 #pragma warning restore S3928
 
-        await ConcreteAssert.ExposedThrowsDetailsAsync(
+        await PortamicalAssert.ThrowsDetailsAsync(
             () => throw thrown,
             expected,
             PortamicalAssert.CatchException,
@@ -494,7 +457,7 @@ public class PortamicalAssertTests
         var thrown = new ObjectDisposedException("resource");
         var expected = new ObjectDisposedException("resource");
 
-        await ConcreteAssert.ExposedThrowsDetailsAsync(
+        await PortamicalAssert.ThrowsDetailsAsync(
             () => throw thrown,
             expected,
             PortamicalAssert.CatchException,
@@ -516,7 +479,7 @@ public class PortamicalAssertTests
     public async Task ThrowsDetailsAsync_noException_assertFailDoesNotThrow_throwsFallbackException()
     {
         var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
-            async () => await ConcreteAssert.ExposedThrowsDetailsAsync(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
                 () => { },
 #pragma warning disable S3928
                 new ArgumentException(),
@@ -534,7 +497,7 @@ public class PortamicalAssertTests
     public async Task ThrowsDetailsAsync_wrongType_assertFailDoesNotThrow_throwsFallbackException()
     {
         var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
-            async () => await ConcreteAssert.ExposedThrowsDetailsAsync(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
                 () => throw new InvalidOperationException(),
 #pragma warning disable S3928
                 new ArgumentException(),
@@ -639,7 +602,7 @@ public class PortamicalAssertTests
     public async Task EqualityAsync_generic_equalValues_doesNotCallAssertFailAsync()
     {
         bool failCalled = false;
-        await ConcreteAssert.ExposedEqualityAsync(
+        await PortamicalAssert.EqualityAsync(
             42,
             42,
             (a, b) => a == b,
@@ -656,7 +619,7 @@ public class PortamicalAssertTests
     public async Task EqualityAsync_generic_unequalValues_callsAssertFailAsyncWithMessage()
     {
         string? message = null;
-        await ConcreteAssert.ExposedEqualityAsync(
+        await PortamicalAssert.EqualityAsync(
             42,
             99,
             (a, b) => a == b,
@@ -673,7 +636,7 @@ public class PortamicalAssertTests
     public async Task EqualityAsync_object_unequalValues_callsAssertFailAsync()
     {
         bool failCalled = false;
-        await ConcreteAssert.ExposedEqualityAsync(
+        await PortamicalAssert.EqualityAsync(
             42,
             99,
             () =>
@@ -690,7 +653,7 @@ public class PortamicalAssertTests
         bool failCalled = false;
         object?[] expected = [new[] { 1, 2 }, new[] { 3, 4 }];
         object?[] actual = [new[] { 1, 2 }, new[] { 3, 4 }];
-        await ConcreteAssert.ExposedEqualityAsync(
+        await PortamicalAssert.EqualityAsync(
             expected,
             actual,
             () =>
@@ -704,7 +667,7 @@ public class PortamicalAssertTests
     [TestMethod]
     public async Task EqualityAsync_object_nullAssertFailAsync_throwsArgumentNullException()
         => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await ConcreteAssert.ExposedEqualityAsync(1, 1, null!));
+            async () => await PortamicalAssert.EqualityAsync(1, 1, null!));
 
     #endregion
 
@@ -1299,7 +1262,7 @@ public class PortamicalAssertTests
         Type? capturedActual = null;
         object actual = new ArgumentException("runtime");
 
-        await ConcreteAssert.ExposedIsTypeOfAsync(
+        await PortamicalAssert.IsTypeOfAsync(
             typeof(ArgumentException),
             actual,
             (expected, type) =>
@@ -1316,7 +1279,7 @@ public class PortamicalAssertTests
     [TestMethod]
     public async Task IsTypeOfAsync_nullAssertEqualityAsync_throwsArgumentNullException()
         => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await ConcreteAssert.ExposedIsTypeOfAsync(typeof(string), "hello", null!));
+            async () => await PortamicalAssert.IsTypeOfAsync(typeof(string), "hello", null!));
 
     #endregion
 }

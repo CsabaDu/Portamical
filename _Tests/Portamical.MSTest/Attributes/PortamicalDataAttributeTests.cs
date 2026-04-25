@@ -68,24 +68,30 @@ public class PortamicalDataAttributeTests
     [TestMethod]
     public void IgnoreMessage_getSet_roundtrips()
     {
-        var attr = new PortamicalDataAttribute("MyMethod");
-        attr.IgnoreMessage = "skip reason";
+        var attr = new PortamicalDataAttribute("MyMethod")
+        {
+            IgnoreMessage = "skip reason"
+        };
         Assert.AreEqual("skip reason", attr.IgnoreMessage);
     }
 
     [TestMethod]
     public void DynamicDataDisplayName_getSet_roundtrips()
     {
-        var attr = new PortamicalDataAttribute("MyMethod");
-        attr.DynamicDataDisplayName = "MyDisplay";
+        var attr = new PortamicalDataAttribute("MyMethod")
+        {
+            DynamicDataDisplayName = "MyDisplay"
+        };
         Assert.AreEqual("MyDisplay", attr.DynamicDataDisplayName);
     }
 
     [TestMethod]
     public void DynamicDataDisplayNameDeclaringType_getSet_roundtrips()
     {
-        var attr = new PortamicalDataAttribute("MyMethod");
-        attr.DynamicDataDisplayNameDeclaringType = typeof(PortamicalDataAttributeTests);
+        var attr = new PortamicalDataAttribute("MyMethod")
+        {
+            DynamicDataDisplayNameDeclaringType = typeof(PortamicalDataAttributeTests)
+        };
         Assert.AreEqual(typeof(PortamicalDataAttributeTests), attr.DynamicDataDisplayNameDeclaringType);
     }
 
@@ -107,7 +113,7 @@ public class PortamicalDataAttributeTests
         string? displayName = attr.GetDisplayName(methodInfo, "MyTestCase");
 
         Assert.IsNotNull(displayName);
-        Assert.IsTrue(displayName.Contains("MyTestCase"),
+        Assert.Contains("MyTestCase", displayName,
             $"Expected display name to contain 'MyTestCase' but was '{displayName}'");
     }
 
@@ -124,13 +130,25 @@ public class PortamicalDataAttributeTests
     }
 
     [TestMethod]
+    public void GetDisplayName_withNullDisplayName_returnsFallback()
+    {
+        var attr = new PortamicalDataAttribute("MyMethod");
+        MethodInfo methodInfo = typeof(PortamicalDataAttributeTests)
+            .GetMethod(nameof(GetDisplayName_withNullDisplayName_returnsFallback))!;
+        string? displayName = attr.GetDisplayName(methodInfo, []);
+
+        Assert.IsNotNull(displayName);
+    }
+
+    [TestMethod]
     public void GetDisplayName_withNullData_returnsFallback()
     {
         var attr = new PortamicalDataAttribute("MyMethod");
         MethodInfo methodInfo = typeof(PortamicalDataAttributeTests)
             .GetMethod(nameof(GetDisplayName_withNullData_returnsFallback))!;
 
-        string? displayName = attr.GetDisplayName(methodInfo, (object?[]?)null);
-        // Verifies no exception is thrown — return value may be null or a fallback string
+        string? displayName = attr.GetDisplayName(methodInfo, null);
+
+        Assert.IsNull(displayName);
     }
 }

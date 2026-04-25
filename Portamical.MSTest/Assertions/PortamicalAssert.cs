@@ -4,7 +4,7 @@
 namespace Portamical.MSTest.Assertions;
 
 /// <summary>
-/// Provides MSTest-specific assertion helper methods with simplified APIs.
+/// Provides MSTest-specific assertion helper methods with simplified APIs for both sync and async test methods.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -22,11 +22,16 @@ namespace Portamical.MSTest.Assertions;
 ///   <item>Inheriting all assertion logic from <see cref="Portamical.Assertions.PortamicalAssert"/></item>
 ///   <item>Providing simplified method overloads that inject MSTest-specific assertion delegates</item>
 ///   <item>Wrapping MSTest's <see cref="Assert"/> class methods in a consistent API</item>
+///   <item>Exposing both sync and async assertion methods for MSTest 4 async test support</item>
 /// </list>
 /// </para>
 /// <para>
-/// <strong>Usage Pattern:</strong> Test classes can use these methods directly via static import
-/// or derive from a test base class that exposes them.
+/// <strong>Async-First Architecture (v2.2.0):</strong>
+/// </para>
+/// <para>
+/// This adapter now exposes async assertion methods that delegate to the base class's async-first
+/// implementation using <see cref="ValueTask"/>. Async methods return <see cref="Task"/> to match
+/// MSTest 4 async test method signatures.
 /// </para>
 /// <para>
 /// <strong>MSTest-Specific Behaviors:</strong>
@@ -40,11 +45,16 @@ namespace Portamical.MSTest.Assertions;
 ///     <strong>Exception Assertions:</strong> Uses <see cref="Assert.AreEqual"/> for metadata
 ///     comparison and <see cref="Assert.Fail"/> for assertion failures.
 ///   </item>
+///   <item>
+///     <strong>Async Wrappers:</strong> MSTest assertions are synchronous, so async wrappers
+///     wrap sync <see cref="Assert"/> calls in completed <see cref="ValueTask"/> instances
+///     for zero-allocation async support.
+///   </item>
 /// </list>
 /// </para>
 /// </remarks>
 /// <example>
-/// <para><strong>Basic Usage via Static Import:</strong></para>
+/// <para><strong>Sync Test Methods:</strong></para>
 /// <code>
 /// using static Portamical.MSTest.Assertions.PortamicalAssert;
 /// using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -71,19 +81,58 @@ namespace Portamical.MSTest.Assertions;
 ///         
 ///         // 'actual' is the caught exception, verified against 'expected'
 ///     }
+///     
+///     [TestMethod]
+///     public void TestTypeOf()
+///     {
+///         object result = Calculator.Create();
+///         IsTypeOf(typeof(Calculator), result);
+///     }
 /// }
 /// </code>
 /// 
-/// <para><strong>Comparison with Base Class (Framework-Agnostic):</strong></para>
+/// <para><strong>Async Test Methods (NEW in v2.2.0):</strong></para>
 /// <code>
-/// // Base class (verbose - requires delegates):
-/// Portamical.Assertions.PortamicalAssert.DoesNotThrow(
-///     () => Calculator.Add(2, 3),
-///     assertFail: Assert.Fail);  // Must provide MSTest delegate
-/// 
-/// // MSTest adapter (simplified - delegates pre-configured):
-/// Portamical.MSTest.Assertions.PortamicalAssert.DoesNotThrow(
-///     () => Calculator.Add(2, 3));  // No delegate needed!
+/// [TestClass]
+/// public class AsyncCalculatorTests
+/// {
+///     [TestMethod]
+///     public async Task TestNoExceptionAsync()
+///     {
+///         // Zero-overhead async assertion
+///         await DoesNotThrowAsync(async () => 
+///             await Calculator.AddAsync(2, 3));
+///     }
+///     
+///     [TestMethod]
+///     public async Task TestExceptionDetailsAsync()
+///     {
+///         var expected = new ArgumentException("Invalid input", "value");
+///         
+///         var actual = await ThrowsDetailsAsync(
+///             async () => await Calculator.DivideAsync(10, 0),
+///             expected);
+///     }
+///     
+///     [TestMethod]
+///     public async Task TestTypeOfAsync()
+///     {
+///         object result = await Calculator.CreateAsync();
+///         await IsTypeOfAsync(typeof(Calculator), result);
+///     }
+///     
+///     [TestMethod]
+///     public async Task TestEqualityAsync()
+///     {
+///         var result = await Calculator.ComputeAsync();
+///         
+///         // Floating-point comparison with tolerance
+///         await EqualityAsync(
+///             expected: 0.3,
+///             actual: result,
+///             floatingPointTolerance: 1e-10);
+///     }
+/// }
 /// </code>
 /// 
 /// <para><strong>AssertMultiple Limitation Example:</strong></para>
@@ -109,12 +158,9 @@ namespace Portamical.MSTest.Assertions;
 /// </example>
 /// <seealso cref="Portamical.Assertions.PortamicalAssert"/>
 /// <seealso cref="Microsoft.VisualStudio.TestTools.UnitTesting.Assert"/>
-/// <seealso cref="DoesNotThrow(Action)"/>
-/// <seealso cref="ThrowsDetails{TException}(Action, TException)"/>
-/// <seealso cref="IsTypeOf(Type, object)"/>
-/// <seealso cref="AssertMultiple(Action)"/>
 public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
 {
+    #region AssertMultiple
     /// <summary>
     /// Executes multiple assertions. <strong>Note:</strong> MSTest does not support assertion
     /// aggregation; execution stops at the first failure.
@@ -185,6 +231,10 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// <para>
     /// Async version of <see cref="AssertMultiple(Action)"/>. See that method for MSTest limitation details.
     /// </para>
+    /// <para>
+    /// <strong>MSTest 4 Compatibility:</strong> Returns <see cref="Task"/> to match MSTest async
+    /// test method signatures.
+    /// </para>
     /// </remarks>
     /// <param name="assertions">
     /// A function containing multiple assertion statements that returns a <see cref="Task"/>.
@@ -210,6 +260,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// <seealso cref="AssertMultiple(Action)"/>
     public static Task AssertMultipleAsync(Func<Task> assertions)
     => assertions();
+    #endregion
 
     /// <summary>
     /// Creates an equality assertion delegate for MSTest using <see cref="Assert.AreEqual"/>.
@@ -232,6 +283,8 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// </returns>
     private static Action<T, T?> AssertEquality<T>()
     => (e, a) => Assert.AreEqual(e, a);
+
+    #region DoesNotThrow
 
     /// <summary>
     /// Verifies that an action does not throw any exception.
@@ -256,10 +309,54 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// }
     /// </code>
     /// </example>
+    /// <seealso cref="DoesNotThrowAsync(Func{Task})"/>
     /// <seealso cref="Portamical.Assertions.PortamicalAssert.DoesNotThrow(Action, Action{string})"/>
     public static void DoesNotThrow(Action attempt)
-    => DoesNotThrow(attempt,
-        assertFail: Assert.Fail);
+        => DoesNotThrow(attempt,
+            assertFail: Assert.Fail);
+
+    /// <summary>
+    /// Asynchronously verifies that an action does not throw any exception.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Async version of <see cref="DoesNotThrow(Action)"/> for use in async test methods.
+    /// Delegates to base class <see cref="Portamical.Assertions.PortamicalAssert.DoesNotThrowAsync(Func{Task}, Func{string, ValueTask})"/>
+    /// with MSTest-specific assertion delegates.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Zero allocations on success path. MSTest's <see cref="Assert.Fail"/>
+    /// is wrapped in a completed <see cref="ValueTask"/> for async compatibility.
+    /// </para>
+    /// </remarks>
+    /// <param name="attempt">The async action to execute and verify for absence of exceptions.</param>
+    /// <returns>A task representing the async assertion operation.</returns>
+    /// <exception cref="AssertFailedException">
+    /// Thrown via <see cref="Assert.Fail"/> if <paramref name="attempt"/> throws any exception.
+    /// </exception>
+    /// <example>
+    /// <code>
+    /// [TestMethod]
+    /// public async Task TestNoExceptionAsync()
+    /// {
+    ///     await DoesNotThrowAsync(async () => 
+    ///         await service.ProcessAsync());
+    /// }
+    /// </code>
+    /// </example>
+    /// <seealso cref="DoesNotThrow(Action)"/>
+    public static Task DoesNotThrowAsync(Action attempt)
+        => DoesNotThrowAsync(
+            attempt: attempt,
+            assertFailAsync: msg =>
+            {
+                Assert.Fail(msg);
+                return default;  // Completed ValueTask (zero allocation)
+            })
+            .AsTask();
+
+    #endregion
+
 
     /// <summary>
     /// Verifies that an object is of the expected type.

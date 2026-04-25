@@ -49,7 +49,7 @@ public class CollectionConverterTests
         var result = data.ToArgsWithTestCaseName(ArgsCode.Instance);
 
         object?[] row = result.First();
-        Assert.AreEqual(1, row.Length);
+        Assert.HasCount(1, row);
         Assert.IsInstanceOfType<TestData<int>>(row[0]);
     }
 

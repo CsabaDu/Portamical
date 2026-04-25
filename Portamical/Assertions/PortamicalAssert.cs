@@ -114,46 +114,80 @@ public abstract class PortamicalAssert
     }
 
     #region Primary Implementation (Async)
-
     /// <summary>
-    /// Verifies that the specified action does not throw an exception (async version).
+    /// Verifies that the specified asynchronous action does not throw an exception.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <strong>This is the PRIMARY implementation.</strong> The sync version
-    /// <see cref="DoesNotThrow(Action, Action{string})"/> delegates to this method.
+    /// <strong>This is a PRIMARY implementation</strong> for async actions. For synchronous actions,
+    /// use the overload <see cref="DoesNotThrowAsync(Action, Func{string, ValueTask})"/>.
     /// </para>
     /// <para>
-    /// Completes synchronously with zero allocation when no exception is thrown.
+    /// <strong>Architecture:</strong> Uses <see cref="CatchExceptionAsync(Func{Task})"/> to execute
+    /// the async action and capture any non-fatal exceptions. Fatal exceptions propagate immediately.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Completes synchronously with zero allocation when no exception
+    /// is thrown (uses <c>default(ValueTask)</c>).
     /// </para>
     /// </remarks>
-    /// <param name="attempt">The action to execute and verify for the absence of exceptions. Cannot be null.</param>
+    /// <param name="attempt">
+    /// The async action to execute and verify for the absence of exceptions. Cannot be null.
+    /// </param>
     /// <param name="assertFailAsync">
-    /// A callback to invoke with an error message if the action throws an exception. Cannot be null.
+    /// A callback to invoke with an error message if a non-fatal exception is thrown. Cannot be null.
     /// The callback should throw an assertion exception or complete the returned <see cref="ValueTask"/>.
     /// </param>
     /// <returns>A <see cref="ValueTask"/> representing the async assertion operation.</returns>
+    /// <exception cref="StackOverflowException">Propagated if thrown (fatal).</exception>
+    /// <exception cref="OutOfMemoryException">Propagated if thrown (fatal).</exception>
+    /// <exception cref="AccessViolationException">Propagated if thrown (fatal).</exception>
+    /// <exception cref="ThreadAbortException">Propagated if thrown (fatal).</exception>
     /// <example>
     /// <code>
-    /// // TUnit usage:
+    /// // TUnit async usage:
     /// await DoesNotThrowAsync(
-    ///     () => myService.DoWork(),
+    ///     async () => await myService.ProcessAsync(),
     ///     msg => throw new AssertionException(msg));
+    /// 
+    /// // Success path (no exception)
+    /// await DoesNotThrowAsync(
+    ///     async () => await Task.Delay(10),
+    ///     msg => throw new AssertionException(msg));
+    /// // ✅ Passes (no exception thrown)
+    /// 
+    /// // Failure path (non-fatal exception)
+    /// await DoesNotThrowAsync(
+    ///     async () => throw new InvalidOperationException("error"),
+    ///     msg => throw new AssertionException(msg));
+    /// // ❌ Fails with assertion message
+    /// 
+    /// // Fatal exception propagates (not caught)
+    /// try
+    /// {
+    ///     await DoesNotThrowAsync(
+    ///         async () => throw new StackOverflowException(),
+    ///         msg => throw new AssertionException(msg));
+    /// }
+    /// catch (StackOverflowException)
+    /// {
+    ///     // Fatal exception bypassed assertion logic
+    /// }
     /// </code>
     /// </example>
-    protected static ValueTask DoesNotThrowAsync(
-        Action attempt,
+    public static async ValueTask DoesNotThrowAsync(
+        Func<Task> attempt,
         Func<string, ValueTask> assertFailAsync)
     {
-        var exception = CatchException(attempt);
+        var exception = await CatchExceptionAsync(attempt).ConfigureAwait(false);
         _ = NotNull(assertFailAsync, nameof(assertFailAsync));
 
         if (exception is not null)
         {
-            return assertFailAsync(GetNotExpectedExceptionMessage(exception));
+            await assertFailAsync(
+                GetNotExpectedExceptionMessage(exception))
+                .ConfigureAwait(false);
         }
-
-        return default;  // ← Zero allocation success path
     }
 
     /// <summary>
@@ -185,7 +219,7 @@ public abstract class PortamicalAssert
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> containing the actual exception that was thrown and verified.
     /// </returns>
-    protected static async ValueTask<TException> ThrowsDetailsAsync<TException>(
+    public static async ValueTask<TException> ThrowsDetailsAsync<TException>(
         Action attempt,
         TException expected,
         Func<Action, Exception?> catchException,
@@ -201,6 +235,7 @@ public abstract class PortamicalAssert
             var message = GetExpectedExceptionOfTypeMessage(
                 expected,
                 GetThrownMessageEnd(false));
+
             await assertFailAsync(message).ConfigureAwait(false);
 
             throw GetAssertionFailedException(message);  // Fallback
@@ -214,7 +249,9 @@ public abstract class PortamicalAssert
             var message = GetExpectedExceptionOfTypeMessage(
                 expectedType,
                 GetNotExpectedExceptionOfTypeWasThrownMessageInsert(actualType));
-            await assertFailAsync(message).ConfigureAwait(false);
+
+            await assertFailAsync(message)
+                .ConfigureAwait(false);
 
             throw GetAssertionFailedException(message);
         }
@@ -222,7 +259,8 @@ public abstract class PortamicalAssert
         var typedActual = (TException)actual;
 
         // Type assertion
-        await assertIsTypeAsync(expectedType, typedActual).ConfigureAwait(false);
+        await assertIsTypeAsync(expectedType, typedActual)
+            .ConfigureAwait(false);
 
         // Metadata equality
         await MetadataEqualityAsync(expected, typedActual, assertEqualityAsync)
@@ -248,7 +286,7 @@ public abstract class PortamicalAssert
     /// <param name="assertFailAsync">A delegate invoked when the values are not equal.</param>
     /// <param name="message">The failure message to pass to <paramref name="assertFailAsync"/>.</param>
     /// <returns>A <see cref="ValueTask"/> representing the async assertion operation.</returns>
-    protected static ValueTask EqualityAsync<T>(
+    public static ValueTask EqualityAsync<T>(
         T? expected,
         T? actual,
         Func<T?, T?, bool> equals,
@@ -260,7 +298,7 @@ public abstract class PortamicalAssert
 
         if (equals(expected, actual))
         {
-            return default;  // ← Zero allocation success path
+            return default;
         }
 
         return assertFailAsync(message);
@@ -282,7 +320,7 @@ public abstract class PortamicalAssert
     /// Epsilon for floating-point comparisons. Default: 1e-10 for double, 1e-6f for float.
     /// </param>
     /// <returns>A <see cref="ValueTask"/> representing the async assertion operation.</returns>
-    protected static ValueTask EqualityAsync(
+    public static ValueTask EqualityAsync(
         object expected,
         object? actual,
         Func<ValueTask> assertFailAsync,
@@ -292,7 +330,7 @@ public abstract class PortamicalAssert
 
         if (AreEqual(expected, actual, floatingPointTolerance))
         {
-            return default;  // ← Zero allocation success path
+            return default;
         }
 
         return assertFailAsync();
@@ -307,12 +345,13 @@ public abstract class PortamicalAssert
     /// <see cref="IsTypeOf(Type, object, Action{Type, Type})"/> delegates to this method.
     /// </para>
     /// </remarks>
-    protected static ValueTask IsTypeOfAsync(
+    public static ValueTask IsTypeOfAsync(
         Type expected,
         object? actual,
         Func<Type, Type?, ValueTask> assertEqualityAsync)
     {
         _ = NotNull(assertEqualityAsync, nameof(assertEqualityAsync));
+
         return assertEqualityAsync(
             NotNull(expected, nameof(expected)),
             actual?.GetType());
@@ -327,16 +366,21 @@ public abstract class PortamicalAssert
     /// <remarks>
     /// <para>
     /// <strong>This is a CONVENIENCE WRAPPER</strong> that delegates to
-    /// <see cref="DoesNotThrowAsync(Action, Func{string, ValueTask})"/>.
+    /// <see cref="DoesNotThrowAsync(Func{Task}, Func{string, ValueTask})"/> via
+    /// <see cref="ThreadSafeSyncAssertion(ValueTask)"/>.
     /// </para>
     /// <para>
     /// Safe for use in test contexts where <see cref="SynchronizationContext"/> is typically
-    /// not present (NUnit, xUnit, MSTest). Uses <c>ConfigureAwait(false)</c> to prevent
-    /// potential deadlocks.
+    /// not present (NUnit, xUnit, MSTest). Uses <c>ConfigureAwait(false)</c> internally to
+    /// prevent potential deadlocks.
     /// </para>
     /// </remarks>
-    /// <param name="attempt">The action to execute and verify for the absence of exceptions. Cannot be null.</param>
-    /// <param name="assertFail">A callback to invoke with an error message if the action throws an exception. Cannot be null.</param>
+    /// <param name="attempt">
+    /// The action to execute and verify for the absence of exceptions. Cannot be null.
+    /// </param>
+    /// <param name="assertFail">
+    /// A callback to invoke with an error message if the action throws an exception. Cannot be null.
+    /// </param>
     /// <example>
     /// <code>
     /// // NUnit usage:
@@ -347,15 +391,19 @@ public abstract class PortamicalAssert
     /// </example>
     public static void DoesNotThrow(Action attempt, Action<string> assertFail)
     {
+        _ = NotNull(attempt, nameof(attempt));
         _ = NotNull(assertFail, nameof(assertFail));
 
-#pragma warning disable CA2012
-        DoesNotThrowAsync(attempt, msg =>
+        ThreadSafeSyncAssertion(DoesNotThrowAsync(() =>
+        {
+            attempt();
+            return Task.CompletedTask;
+        },
+        msg =>
         {
             assertFail(msg);
             return new ValueTask();
-        });
-#pragma warning restore CA2012
+        }));
     }
 
     /// <summary>
@@ -381,8 +429,7 @@ public abstract class PortamicalAssert
         _ = NotNull(assertEquality, nameof(assertEquality));
         _ = NotNull(assertFail, nameof(assertFail));
 
-        return ThreadSafeSyncAssertion(
-            ThrowsDetailsAsync(
+        return ThreadSafeSyncAssertion(ThrowsDetailsAsync(
             attempt,
             expected,
             catchException,
@@ -421,12 +468,16 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertFail, nameof(assertFail));
 
-        ThreadSafeSyncAssertion(
-            EqualityAsync(expected, actual, equals, msg =>
+        ThreadSafeSyncAssertion(EqualityAsync(
+            expected,
+            actual,
+            equals,
+            msg =>
             {
                 assertFail(msg);
                 return new ValueTask();
-            }, message ?? string.Empty));
+            },
+            message ?? string.Empty));
     }
 
     /// <summary>
@@ -446,12 +497,15 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertFail, nameof(assertFail));
 
-        ThreadSafeSyncAssertion(
-            EqualityAsync(expected, actual, () =>
+        ThreadSafeSyncAssertion(EqualityAsync(
+            expected,
+            actual,
+            () =>
             {
                 assertFail();
                 return new ValueTask();
-            }, floatingPointTolerance));
+            },
+            floatingPointTolerance));
     }
 
     /// <summary>
@@ -470,8 +524,10 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertEquality, nameof(assertEquality));
 
-        ThreadSafeSyncAssertion(
-            IsTypeOfAsync(expected, actual, (e, a) =>
+        ThreadSafeSyncAssertion(IsTypeOfAsync(
+            expected,
+            actual,
+            (e, a) =>
             {
                 assertEquality(e, a);
                 return new ValueTask();
@@ -481,30 +537,184 @@ public abstract class PortamicalAssert
 
     #region Helper methods
     #region Shared Helper Methods
-
     /// <summary>
-    /// Invokes the specified action and returns any exception that is thrown, or null if the action
-    /// completes successfully.
+    /// Asynchronously executes an action and catches any non-fatal exception that occurs.
     /// </summary>
     /// <remarks>
-    /// This method is truly synchronous with no I/O - does not need async version.
+    /// <para>
+    /// This is the async counterpart to <see cref="CatchException(Action)"/>. It executes an async
+    /// action and returns any non-fatal exception that occurs during execution, or <see langword="null"/>
+    /// if the action completes successfully.
+    /// </para>
+    /// <para>
+    /// <strong>Fatal Exception Handling:</strong> This method uses <see cref="IsNotFatal(Exception)"/>
+    /// to filter exceptions. Fatal exceptions (<see cref="OutOfMemoryException"/>,
+    /// <see cref="AccessViolationException"/>, <see cref="StackOverflowException"/>,
+    /// <see cref="ThreadAbortException"/>) are not caught and will propagate to terminate the process.
+    /// This is critical for process safety - catching fatal exceptions can lead to undefined behavior.
+    /// </para>
+    /// <para>
+    /// <strong>Design Pattern:</strong> Exception handler that converts non-fatal exceptions to return
+    /// values, enabling functional error handling without <c>try/catch</c> at call sites. Fatal exceptions
+    /// bypass this pattern and propagate immediately.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Zero allocations when <paramref name="attempt"/> completes
+    /// successfully. Non-fatal exception path allocates only the exception object itself (unavoidable).
+    /// Uses <see cref="ValueTask{TResult}"/> to minimize allocations when used in hot paths.
+    /// </para>
+    /// <para>
+    /// <strong>Thread Safety:</strong> This method is thread-safe as it maintains no shared state.
+    /// Multiple concurrent invocations are safe. However, the caller is responsible for ensuring
+    /// <paramref name="attempt"/> is safe to execute concurrently if needed.
+    /// </para>
     /// </remarks>
-    /// <param name="attempt">The action to execute. Cannot be null.</param>
-    /// <returns>The exception thrown by the action, or null if no exception is thrown.</returns>
-    public static Exception? CatchException(Action attempt)
+    /// <param name="attempt">
+    /// The async action to execute. Must not be <see langword="null"/>. If the action throws a
+    /// non-fatal exception, it will be caught and returned. Fatal exceptions propagate.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ValueTask{TResult}"/> that resolves to:
+    /// <list type="bullet">
+    ///   <item>
+    ///     <see langword="null"/> if <paramref name="attempt"/> completes successfully without
+    ///     throwing an exception.
+    ///   </item>
+    ///   <item>
+    ///     The non-fatal <see cref="Exception"/> that was thrown by <paramref name="attempt"/> if
+    ///     execution failed with a non-fatal exception.
+    ///   </item>
+    /// </list>
+    /// </returns>
+    /// <exception cref="StackOverflowException">Propagated if thrown (fatal).</exception>
+    /// <exception cref="OutOfMemoryException">Propagated if thrown (fatal).</exception>
+    /// <exception cref="AccessViolationException">Propagated if thrown (fatal).</exception>
+    /// <exception cref="ThreadAbortException">Propagated if thrown (fatal).</exception>
+    /// <example>
+    /// <para><strong>Non-Fatal Exception (Caught and Returned):</strong></para>
+    /// <code>
+    /// var exception = await CatchExceptionAsync(async () => 
+    /// {
+    ///     await Task.Delay(10);
+    ///     throw new InvalidOperationException("Invalid state");
+    /// });
+    /// 
+    /// Assert.IsNotNull(exception);
+    /// Assert.IsInstanceOfType(exception, typeof(InvalidOperationException));
+    /// </code>
+    /// 
+    /// <para><strong>Fatal Exception (Propagates):</strong></para>
+    /// <code>
+    /// try
+    /// {
+    ///     var exception = await CatchExceptionAsync(async () => 
+    ///     {
+    ///         await Task.Delay(10);
+    ///         throw new StackOverflowException();
+    ///     });
+    ///     // This line never executes - StackOverflowException propagates
+    /// }
+    /// catch (StackOverflowException)
+    /// {
+    ///     // Fatal exception caught at outer level
+    ///     // Process should terminate
+    /// }
+    /// </code>
+    /// 
+    /// <para><strong>Success Path (No Exception):</strong></para>
+    /// <code>
+    /// var exception = await CatchExceptionAsync(async () => 
+    ///     await service.ValidOperationAsync());
+    /// 
+    /// Assert.IsNull(exception);
+    /// </code>
+    /// 
+    /// <para><strong>Using in Assertion Methods:</strong></para>
+    /// <code>
+    /// protected static async ValueTask DoesNotThrowAsync(
+    ///     Func&lt;Task&gt; attempt,
+    ///     Func&lt;string, ValueTask&gt; assertFailAsync)
+    /// {
+    ///     var exception = await CatchExceptionAsync(attempt);
+    ///     
+    ///     if (exception is not null)
+    ///     {
+    ///         await assertFailAsync($"Expected no exception but got: {exception.Message}");
+    ///     }
+    /// }
+    /// </code>
+    /// </example>
+    /// <seealso cref="CatchException(Action)"/>
+    /// <seealso cref="IsNotFatal(Exception)"/>
+    /// <seealso cref="DoesNotThrowAsync(Func{Task}, Func{string, ValueTask})"/>
+    public static async ValueTask<Exception?> CatchExceptionAsync(Func<Task> attempt)
     {
-        _ = NotNull(attempt, nameof(attempt));
-
         try
         {
-            attempt();
+            await attempt();
+            return null;
         }
         catch (Exception exception) when (IsNotFatal(exception))
         {
             return exception;
         }
+    }
 
-        return null;
+    /// <summary>
+    /// Executes a synchronous action and catches any non-fatal exception that occurs.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>This is a CONVENIENCE WRAPPER</strong> that delegates to
+    /// <see cref="CatchExceptionAsync(Func{Task})"/> via <see cref="ThreadSafeSyncAssertion{T}(ValueTask{T})"/>.
+    /// </para>
+    /// <para>
+    /// <strong>Fatal Exception Handling:</strong> Uses <see cref="IsNotFatal(Exception)"/>
+    /// to filter exceptions. Fatal exceptions propagate immediately without being caught.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Zero allocations on success path. Uses <c>ConfigureAwait(false)</c>
+    /// internally for thread safety.
+    /// </para>
+    /// </remarks>
+    /// <param name="attempt">
+    /// The synchronous action to execute. Must not be <see langword="null"/>. Non-fatal
+    /// exceptions are caught and returned; fatal exceptions propagate.
+    /// </param>
+    /// <returns>
+    /// <see langword="null"/> if execution completes successfully; otherwise, the non-fatal
+    /// <see cref="Exception"/> that was thrown.
+    /// </returns>
+    /// <exception cref="StackOverflowException">Propagated (fatal).</exception>
+    /// <exception cref="OutOfMemoryException">Propagated (fatal).</exception>
+    /// <exception cref="AccessViolationException">Propagated (fatal).</exception>
+    /// <exception cref="ThreadAbortException">Propagated (fatal).</exception>
+    /// <example>
+    /// <code>
+    /// // Non-fatal exception is caught
+    /// var ex = CatchException(() => throw new ArgumentException("invalid"));
+    /// Assert.IsNotNull(ex);
+    /// 
+    /// // Fatal exception propagates
+    /// try
+    /// {
+    ///     CatchException(() => throw new StackOverflowException());
+    /// }
+    /// catch (StackOverflowException)
+    /// {
+    ///     // Caught at outer level
+    /// }
+    /// </code>
+    /// </example>
+    public static Exception? CatchException(Action attempt)
+    {
+        _ = NotNull(attempt, nameof(attempt));
+
+        return ThreadSafeSyncAssertion(CatchExceptionAsync(() =>
+        {
+            attempt();
+            return Task.CompletedTask;
+        }));
     }
     #endregion
 
@@ -611,6 +821,98 @@ public abstract class PortamicalAssert
         return diff <= tolerance || diff <= maxAbs * tolerance;
     }
 
+    /// <summary>
+    /// Determines whether an exception is non-fatal and safe to catch for testing purposes.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>Fatal Exception Classification:</strong> This method identifies exceptions that indicate
+    /// catastrophic process failures and should never be caught in normal error handling. These exceptions
+    /// represent unrecoverable states where continuing execution could lead to undefined behavior or
+    /// data corruption.
+    /// </para>
+    /// <para>
+    /// <strong>Fatal Exception Types:</strong>
+    /// <list type="bullet">
+    ///   <item>
+    ///     <see cref="OutOfMemoryException"/> - Process has exhausted available memory. Catching this
+    ///     can prevent proper cleanup and may cause cascading failures.
+    ///   </item>
+    ///   <item>
+    ///     <see cref="AccessViolationException"/> - Unmanaged code attempted to read/write protected
+    ///     memory. Indicates memory corruption or invalid pointer usage.
+    ///   </item>
+    ///   <item>
+    ///     <see cref="StackOverflowException"/> - Call stack exceeded available space (typically from
+    ///     infinite recursion). The CLR cannot reliably execute catch blocks in this state.
+    ///   </item>
+    ///   <item>
+    ///     <see cref="ThreadAbortException"/> - Thread termination was requested via <c>Thread.Abort()</c>.
+    ///     Catching this can interfere with proper thread shutdown.
+    ///   </item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <strong>Usage Pattern:</strong> This method is used as a filter in exception handlers to ensure
+    /// test infrastructure only catches testable exceptions. Fatal exceptions are allowed to propagate
+    /// immediately, ensuring the process terminates cleanly.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/> to
+    /// eliminate method call overhead in hot paths (exception handling).
+    /// </para>
+    /// </remarks>
+    /// <param name="exception">The exception to evaluate. Cannot be null.</param>
+    /// <returns>
+    /// <see langword="true"/> if <paramref name="exception"/> is non-fatal (safe to catch for testing);
+    /// <see langword="false"/> if <paramref name="exception"/> is fatal (must propagate immediately).
+    /// </returns>
+    /// <example>
+    /// <para><strong>Non-Fatal Exception (Returns true):</strong></para>
+    /// <code>
+    /// try
+    /// {
+    ///     throw new ArgumentException("invalid");
+    /// }
+    /// catch (Exception ex) when (IsNotFatal(ex))
+    /// {
+    ///     // Safe to catch and handle
+    ///     return ex; // Non-fatal exception caught
+    /// }
+    /// </code>
+    /// 
+    /// <para><strong>Fatal Exception (Returns false, propagates):</strong></para>
+    /// <code>
+    /// try
+    /// {
+    ///     throw new StackOverflowException();
+    /// }
+    /// catch (Exception ex) when (IsNotFatal(ex))
+    /// {
+    ///     // This block never executes - filter returns false
+    ///     return ex;
+    /// }
+    /// // StackOverflowException propagates, terminating process
+    /// </code>
+    /// 
+    /// <para><strong>Usage in CatchException:</strong></para>
+    /// <code>
+    /// public static Exception? CatchException(Action attempt)
+    /// {
+    ///     try
+    ///     {
+    ///         attempt();
+    ///         return null;
+    ///     }
+    ///     catch (Exception exception) when (IsNotFatal(exception))
+    ///     {
+    ///         // Only non-fatal exceptions are caught
+    ///         return exception;
+    ///     }
+    ///     // Fatal exceptions bypass this catch and propagate
+    /// }
+    /// </code>
+    /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsNotFatal(Exception exception)
     => exception is not (
@@ -618,7 +920,6 @@ public abstract class PortamicalAssert
         AccessViolationException or
         StackOverflowException or
         ThreadAbortException);
-
 
     /// <summary>
     /// Executes a ValueTask synchronously in a thread-safe manner.
@@ -657,6 +958,7 @@ public abstract class PortamicalAssert
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static T ThreadSafeSyncAssertion<T>(ValueTask<T> assertion)
     => assertion.ConfigureAwait(false).GetAwaiter().GetResult();
+
     /// <summary>
     /// Determines whether two values are equal using built-in type support and tolerance for floating-point.
     /// </summary>
@@ -734,12 +1036,14 @@ public abstract class PortamicalAssert
 
             if (shouldAssertMessage && expectedMessage is not null)
             {
-                await assertEqualityAsync(expectedMessage, actualMessage).ConfigureAwait(false);
+                await assertEqualityAsync(expectedMessage, actualMessage)
+                    .ConfigureAwait(false);
             }
 
             if (argExpected.ParamName is string expectedParamName)
             {
-                await assertEqualityAsync(expectedParamName, actualParamName).ConfigureAwait(false);
+                await assertEqualityAsync(expectedParamName, actualParamName)
+                    .ConfigureAwait(false);
             }
         }
         else if (expectedMessage is not null)
@@ -750,11 +1054,13 @@ public abstract class PortamicalAssert
 
             if (shouldAssertMessage)
             {
-                await assertEqualityAsync(expectedMessage, actualMessage).ConfigureAwait(false);
+                await assertEqualityAsync(expectedMessage, actualMessage)
+                    .ConfigureAwait(false);
             }
         }
     }
 
+    #region Assertion message helpers
     private static string GetNotExpectedExceptionMessage(Exception exception)
     => $"Did not expect exception to be thrown, " +
         $"but exception of type {GetTypeFullName(exception)} was thrown. " +
@@ -776,6 +1082,7 @@ public abstract class PortamicalAssert
     }
 
     private const string ExpectedExceptionMessageStart = "Expected exception";
+    #endregion
     #endregion
     #endregion
 }
