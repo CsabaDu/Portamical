@@ -196,9 +196,9 @@ public abstract class PortamicalAssert
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <strong>This is the PRIMARY implementation.</strong> The sync version
-    /// <see cref="ThrowsDetails{TException}(Action, TException, Func{Action, Exception}, Action{Type, Exception}, Action{string, string}, Action{string})"/>
-    /// delegates to this method.
+    /// <strong>This is an ASYNC WRAPPER</strong> that delegates to the <see cref="Func{Task}"/> overload.
+    /// The sync version <see cref="ThrowsDetails{TException}(Action, TException, Func{Action, Exception}, Action{Type, Exception}, Action{string, string}, Action{string})"/>
+    /// also delegates to this method.
     /// </para>
     /// </remarks>
     /// <typeparam name="TException">
@@ -206,7 +206,7 @@ public abstract class PortamicalAssert
     /// </typeparam>
     /// <param name="attempt">The action to execute, which is expected to throw an exception.</param>
     /// <param name="expected">The expected exception instance, used as a reference for type and detail comparisons.</param>
-    /// <param name="catchException">A delegate that executes the action and returns the exception thrown, or null if no exception is thrown.</param>
+    /// <param name="catchException">A delegate that executes the action and returns the exception thrown, or null if no exception is thrown. Note: This parameter is kept for signature consistency but is not used in this overload.</param>
     /// <param name="assertIsTypeAsync">
     /// A delegate that asserts the actual exception is of the expected type. Returns a <see cref="ValueTask"/>.
     /// </param>
@@ -228,45 +228,19 @@ public abstract class PortamicalAssert
         Func<string, ValueTask> assertFailAsync)
     where TException : notnull, Exception
     {
-        var actual = NotNull(catchException, nameof(catchException))(attempt);
+        _ = NotNull(attempt, nameof(attempt));
 
-        if (actual is null)
-        {
-            var message = GetExpectedExceptionOfTypeMessage(
-                expected,
-                GetThrownMessageEnd(false));
-
-            await assertFailAsync(message).ConfigureAwait(false);
-
-            throw GetAssertionFailedException(message);  // Fallback
-        }
-
-        var expectedType = expected.GetType();
-        var actualType = actual.GetType();
-
-        if (actualType != expectedType)
-        {
-            var message = GetExpectedExceptionOfTypeMessage(
-                expectedType,
-                GetNotExpectedExceptionOfTypeWasThrownMessageInsert(actualType));
-
-            await assertFailAsync(message)
-                .ConfigureAwait(false);
-
-            throw GetAssertionFailedException(message);
-        }
-
-        var typedActual = (TException)actual;
-
-        // Type assertion
-        await assertIsTypeAsync(expectedType, typedActual)
-            .ConfigureAwait(false);
-
-        // Metadata equality
-        await MetadataEqualityAsync(expected, typedActual, assertEqualityAsync)
-            .ConfigureAwait(false);
-
-        return typedActual;
+        return await ThrowsDetailsAsync(
+            () =>
+            {
+                attempt();
+                return Task.CompletedTask;
+            },
+            expected,
+            catchException,
+            assertIsTypeAsync,
+            assertEqualityAsync,
+            assertFailAsync).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -275,7 +249,11 @@ public abstract class PortamicalAssert
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <strong>This is an ASYNC OVERLOAD</strong> that accepts <see cref="Func{Task}"/> instead of <see cref="Action"/>.
+    /// <strong>This is the PRIMARY implementation.</strong> The <see cref="Action"/> overload and the sync version
+    /// <see cref="ThrowsDetails{TException}(Action, TException, Func{Action, Exception}, Action{Type, Exception}, Action{string, string}, Action{string})"/>
+    /// both delegate to this method.
+    /// </para>
+    /// <para>
     /// Use this overload when testing async methods that need to be awaited within the exception assertion.
     /// </para>
     /// </remarks>
