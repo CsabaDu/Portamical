@@ -23,6 +23,28 @@ dotnet add package Portamical
 
 ## What's New
 
+### **Version 2.3.0 (2026-04-25)**
+
+**Async-First Architecture Completed** - This release completes the async-first refactoring started in v2.2.0, adding comprehensive async support for exception handling.
+
+**Key Additions:**
+- **`CatchExceptionAsync(Func<Task>)`** - Async version of exception catcher with fatal exception filtering
+- **`DoesNotThrowAsync(Func<Task>, ...)`** - Async action overload for assertion scenarios
+
+**Key Changes:**
+- **Sync methods refactored as wrappers** - `CatchException` and `DoesNotThrow` now delegate to async implementations (backward compatible)
+- **Async methods now public** - Changed visibility from `protected` to `public` for direct usage in modern async frameworks
+- **Eliminated warnings** - Removed `#pragma warning disable CA2012` via consistent use of `ThreadSafeSyncAssertion`
+
+**Improvements:**
+- Fatal exception handling now consistent across all sync/async paths
+- Comprehensive documentation added for `IsNotFatal` and all new/changed methods
+- Zero-allocation success paths preserved in all refactorings
+
+**Breaking Changes:** None - fully backward compatible with 2.2.x
+
+---
+
 ### **Version 2.2.0 (2026-04-22)**
 
 **Added**
@@ -383,6 +405,51 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 **Changed**
 - Portamical.Core dependency 2.0.1 → 2.2.0
+
+---
+
+#### **[2.3.0] - 2026-04-25**
+
+**Async-First Architecture Completed**
+
+**Added**
+- `CatchExceptionAsync(Func<Task>)` - Async exception catcher with fatal exception filtering
+  - Zero-allocation success path using `ValueTask<Exception?>`
+  - Uses `ConfigureAwait(false)` for thread safety
+- `DoesNotThrowAsync(Func<Task>, Func<string, ValueTask>)` - Async action overload
+  - Supports async operations in assertion scenarios
+  - Delegates to `CatchExceptionAsync` for exception handling
+
+**Changed**
+- `CatchException(Action)` - Refactored as sync wrapper delegating to `CatchExceptionAsync`
+  - Backward compatible - identical signature and behavior
+  - Consistent architecture - follows async-first pattern
+  - DRY principle - exception catching logic centralized
+- `DoesNotThrow(Action, Action<string>)` - Refactored as sync wrapper
+  - Backward compatible - identical signature and behavior
+  - Eliminated `#pragma warning disable CA2012`
+  - Uses `ThreadSafeSyncAssertion` pattern consistently
+- Async assertion methods visibility - Changed from `protected` to `public`
+  - Affected: `DoesNotThrowAsync`, `ThrowsDetailsAsync`, `EqualityAsync`, `IsTypeOfAsync`
+  - Non-breaking change (widening access)
+  - Enables direct usage in async frameworks (TUnit, MSTest 4)
+
+**Improved**
+- Documentation - Comprehensive XML docs added for `IsNotFatal` with fatal exception handling examples
+- Architecture - Completed async-first refactoring pattern across all assertion methods
+- Thread Safety - All sync wrappers now use `ConfigureAwait(false)` via `ThreadSafeSyncAssertion`
+- Fatal Exception Filtering - Consistent application of `IsNotFatal` across sync and async paths
+
+**Technical Details**
+- Fatal exceptions (`OutOfMemoryException`, `AccessViolationException`, `StackOverflowException`, `ThreadAbortException`) propagate immediately without being caught
+- Zero-allocation success paths preserved in all refactored methods
+- Performance characteristics unchanged (aggressive inlining maintained)
+
+##### **Dependencies**
+- Portamical.Core: 2.2.0 (unchanged)
+
+##### **Breaking Changes**
+- None - fully backward compatible with 2.2.x
 
 ---
 
