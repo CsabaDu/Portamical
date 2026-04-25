@@ -8,7 +8,7 @@
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 [![Stars](https://img.shields.io/github/stars/CsabaDu/Portamical?style=social)](https://github.com/CsabaDu/Portamical/stargazers)
 
-> **Write test data once. Run it on xUnit v2, xUnit v3, MSTest 4, and NUnit 4â€”without rewriting tests or losing strong typing.**
+> **Write test data once. Run it on xUnit v2, xUnit v3, MSTest 4, NUnit 4 and TUnit - ”without rewriting tests or losing strong typing.**
 
 Portamical is the **test data abstraction layer** missing from the .NET testing ecosystem. It treats test data as **first-class domain objects** with deterministic identity, enabling automatic deduplication, cross-framework portability, and self-documenting test output.
 
