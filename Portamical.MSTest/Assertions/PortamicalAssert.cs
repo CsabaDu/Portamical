@@ -345,7 +345,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// </code>
     /// </example>
     /// <seealso cref="DoesNotThrow(Action)"/>
-    public static Task DoesNotThrowAsync(Action attempt)
+    public static Task DoesNotThrowAsync(Func<Task> attempt)
         => DoesNotThrowAsync(
             attempt: attempt,
             assertFailAsync: msg =>
@@ -356,7 +356,6 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
             .AsTask();
 
     #endregion
-
 
     /// <summary>
     /// Verifies that an object is of the expected type.
