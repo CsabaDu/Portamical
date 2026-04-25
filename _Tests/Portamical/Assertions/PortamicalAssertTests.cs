@@ -511,6 +511,134 @@ public class PortamicalAssertTests
 #pragma warning restore MSTEST0046
     }
 
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_FuncTask_correctException_returnsTypedActual()
+    {
+#pragma warning disable S3928
+        var thrown = new ArgumentException("async func task msg", "asyncParam");
+        var expected = new ArgumentException("async func task msg", "asyncParam");
+#pragma warning restore S3928
+        var result = await PortamicalAssert.ThrowsDetailsAsync(
+            async () =>
+            {
+                await Task.Delay(1);
+                throw thrown;
+            },
+            expected,
+            PortamicalAssert.CatchException,
+            (_, _) => ValueTask.CompletedTask,
+            (_, _) => ValueTask.CompletedTask,
+            _ => ValueTask.CompletedTask);
+        Assert.AreSame(thrown, result);
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_FuncTask_argumentException_assertsMessageAndParamName()
+    {
+        var calls = new List<string>();
+#pragma warning disable S3928
+        var thrown = new ArgumentException("async func message", "asyncParamName");
+        var expected = new ArgumentException("async func message", "asyncParamName");
+#pragma warning restore S3928
+
+        await PortamicalAssert.ThrowsDetailsAsync(
+            async () =>
+            {
+                await Task.Delay(1);
+                throw thrown;
+            },
+            expected,
+            PortamicalAssert.CatchException,
+            (_, _) => ValueTask.CompletedTask,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            },
+            _ => ValueTask.CompletedTask);
+
+        var callsText = string.Join(Environment.NewLine, calls);
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(callsText, "async func message");
+        StringAssert.Contains(callsText, "asyncParamName");
+#pragma warning restore MSTEST0046
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_FuncTask_noException_assertFailDoesNotThrow_throwsFallbackException()
+    {
+        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
+                async () => await Task.Delay(1),
+#pragma warning disable S3928
+                new ArgumentException(),
+#pragma warning restore S3928
+                PortamicalAssert.CatchException,
+                (_, _) => ValueTask.CompletedTask,
+                (_, _) => ValueTask.CompletedTask,
+                _ => ValueTask.CompletedTask));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(ex.Message, "Assertion failed");
+#pragma warning restore MSTEST0046
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_FuncTask_wrongType_assertFailDoesNotThrow_throwsFallbackException()
+    {
+        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
+                async () =>
+                {
+                    await Task.Delay(1);
+                    throw new InvalidOperationException();
+                },
+#pragma warning disable S3928
+                new ArgumentException(),
+#pragma warning restore S3928
+                PortamicalAssert.CatchException,
+                (_, _) => ValueTask.CompletedTask,
+                (_, _) => ValueTask.CompletedTask,
+                _ => ValueTask.CompletedTask));
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(ex.Message, "Assertion failed");
+#pragma warning restore MSTEST0046
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_FuncTask_nullAttempt_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
+                (Func<Task>)null!,
+#pragma warning disable S3928
+                new ArgumentException(),
+#pragma warning restore S3928
+                PortamicalAssert.CatchException,
+                (_, _) => ValueTask.CompletedTask,
+                (_, _) => ValueTask.CompletedTask,
+                _ => ValueTask.CompletedTask));
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_FuncTask_trulyAsyncException_capturesCorrectly()
+    {
+#pragma warning disable S3928
+        var thrown = new InvalidOperationException("truly async error");
+        var expected = new InvalidOperationException("truly async error");
+#pragma warning restore S3928
+        var result = await PortamicalAssert.ThrowsDetailsAsync(
+            async () =>
+            {
+                await Task.Yield(); // Ensure true async behavior
+                await Task.Delay(5);
+                throw thrown;
+            },
+            expected,
+            PortamicalAssert.CatchException,
+            (_, _) => ValueTask.CompletedTask,
+            (_, _) => ValueTask.CompletedTask,
+            _ => ValueTask.CompletedTask);
+        Assert.AreSame(thrown, result);
+    }
+
     #endregion
 
     #region Equality

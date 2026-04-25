@@ -270,6 +270,84 @@ public abstract class PortamicalAssert
     }
 
     /// <summary>
+    /// Executes the specified async function and verifies that it throws an exception of the expected type
+    /// with matching details (async version for async test methods).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>This is an ASYNC OVERLOAD</strong> that accepts <see cref="Func{Task}"/> instead of <see cref="Action"/>.
+    /// Use this overload when testing async methods that need to be awaited within the exception assertion.
+    /// </para>
+    /// </remarks>
+    /// <typeparam name="TException">
+    /// The type of exception expected to be thrown. Must be a non-null reference type derived from Exception.
+    /// </typeparam>
+    /// <param name="attempt">The async function to execute, which is expected to throw an exception.</param>
+    /// <param name="expected">The expected exception instance, used as a reference for type and detail comparisons.</param>
+    /// <param name="catchException">A delegate that executes the action and returns the exception thrown, or null if no exception is thrown. Note: This parameter is kept for signature consistency but is not used in this async overload.</param>
+    /// <param name="assertIsTypeAsync">
+    /// A delegate that asserts the actual exception is of the expected type. Returns a <see cref="ValueTask"/>.
+    /// </param>
+    /// <param name="assertEqualityAsync">
+    /// A delegate that asserts equality between expected and actual values. Returns a <see cref="ValueTask"/>.
+    /// </param>
+    /// <param name="assertFailAsync">
+    /// A delegate that is called to indicate a failed assertion. Returns a <see cref="ValueTask"/>.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ValueTask{TResult}"/> containing the actual exception that was thrown and verified.
+    /// </returns>
+    public static async ValueTask<TException> ThrowsDetailsAsync<TException>(
+        Func<Task> attempt,
+        TException expected,
+        Func<Action, Exception?> catchException,
+        Func<Type, Exception, ValueTask> assertIsTypeAsync,
+        Func<object, object?, ValueTask> assertEqualityAsync,
+        Func<string, ValueTask> assertFailAsync)
+    where TException : notnull, Exception
+    {
+        var actual = await CatchExceptionAsync(NotNull(attempt, nameof(attempt))).ConfigureAwait(false);
+
+        if (actual is null)
+        {
+            var message = GetExpectedExceptionOfTypeMessage(
+                expected,
+                GetThrownMessageEnd(false));
+
+            await assertFailAsync(message).ConfigureAwait(false);
+
+            throw GetAssertionFailedException(message);  // Fallback
+        }
+
+        var expectedType = expected.GetType();
+        var actualType = actual.GetType();
+
+        if (actualType != expectedType)
+        {
+            var message = GetExpectedExceptionOfTypeMessage(
+                expectedType,
+                GetNotExpectedExceptionOfTypeWasThrownMessageInsert(actualType));
+
+            await assertFailAsync(message)
+                .ConfigureAwait(false);
+
+            throw GetAssertionFailedException(message);
+        }
+
+        var typedActual = (TException)actual;
+
+        // Type assertion
+        await assertIsTypeAsync(expectedType, typedActual)
+            .ConfigureAwait(false);
+
+        // Metadata equality
+        await MetadataEqualityAsync(expected, typedActual, assertEqualityAsync)
+            .ConfigureAwait(false);
+
+        return typedActual;
+    }
+
+    /// <summary>
     /// Verifies value equality by delegating to caller-provided async callbacks (async version).
     /// </summary>
     /// <remarks>
@@ -1059,6 +1137,7 @@ public abstract class PortamicalAssert
             }
         }
     }
+    #endregion
 
     #region Assertion message helpers
     private static string GetNotExpectedExceptionMessage(Exception exception)
@@ -1082,7 +1161,6 @@ public abstract class PortamicalAssert
     }
 
     private const string ExpectedExceptionMessageStart = "Expected exception";
-    #endregion
     #endregion
     #endregion
 }
