@@ -23,22 +23,58 @@ dotnet add package Portamical
 
 ## What's New
 
+### **Version 3.0.0 (2026-04-27)**
+
+**Breaking Changes**
+- **Removed `ThrowsDetailsAsync(Action, Func<Func<Task>, ValueTask<Exception?>>, ...)` overload**
+  - Async method accepting sync action with async exception catcher
+  - Rationale: Unnecessary wrapper encouraging anti-pattern (async test for sync code)
+  - Migration: Use sync `ThrowsDetails(Action, Func<Action, Exception?>, ...)` for testing synchronous code
+
+**Migration Guide**
+
+Before (v2.3.0):
+```csharp
+await ThrowsDetailsAsync(
+    () => mySyncMethod(),
+    expected,
+    CatchExceptionAsync,  // Async catcher with sync action
+    // ...
+);
+```
+
+After (v3.0.0-pre-01):
+```csharp
+// Recommended: sync test for sync code
+ThrowsDetails(
+    () => mySyncMethod(),
+    expected,
+    CatchException,  // Sync catcher
+    assertIsType,
+    assertEquality,
+    assertFail);
+```
+
+---
+
 ### **Version 2.3.0 (2026-04-25)**
 
-**Async-First Architecture Completed** - This release completes the async-first refactoring started in v2.2.0, adding comprehensive async support for exception handling.
+**Async-First Architecture Completed**
 
-**Key Additions:**
-- **`CatchExceptionAsync(Func<Task>)`** - Async version of exception catcher with fatal exception filtering
-- **`DoesNotThrowAsync(Func<Task>, ...)`** - Async action overload for assertion scenarios
+**Added**
+- `CatchExceptionAsync(Func<Task>)` - Async exception catcher with fatal exception filtering
+- `DoesNotThrowAsync(Func<Task>, Func<string, ValueTask>)` - Async action overload for assertion scenarios
 
-**Key Changes:**
-- **Sync methods refactored as wrappers** - `CatchException` and `DoesNotThrow` now delegate to async implementations (backward compatible)
-- **Async methods now public** - Changed visibility from `protected` to `public` for direct usage in modern async frameworks
-- **Eliminated warnings** - Removed `#pragma warning disable CA2012` via consistent use of `ThreadSafeSyncAssertion`
+**Changed**
+- `CatchException(Action)` - Refactored as sync wrapper delegating to `CatchExceptionAsync` (backward compatible)
+- `DoesNotThrow(Action, Action<string>)` - Refactored as sync wrapper, eliminated `#pragma warning disable CA2012`
+- Async assertion methods visibility changed from `protected` to `public`
+  - Affected: `DoesNotThrowAsync`, `ThrowsDetailsAsync`, `EqualityAsync`, `IsTypeOfAsync`
+  - Enables direct usage in async frameworks (TUnit, MSTest 4)
 
-**Improvements:**
-- Fatal exception handling now consistent across all sync/async paths
-- Comprehensive documentation added for `IsNotFatal` and all new/changed methods
+**Improved**
+- Comprehensive XML documentation for `IsNotFatal` and all new/changed methods
+- Fatal exception filtering consistent across all sync/async paths
 - Zero-allocation success paths preserved in all refactorings
 
 **Breaking Changes:** None - fully backward compatible with 2.2.x
@@ -66,7 +102,7 @@ dotnet add package Portamical
 - Sync wrappers have ~5ns overhead (negligible)
 
 **Migration**
-- **Fully backward compatible** with 2.1.x - no code changes required
+- Fully backward compatible with 2.1.x - no code changes required
 - Existing sync methods work unchanged (delegate internally to async base)
 - Optional: upgrade to async methods in async-first frameworks (TUnit, MSTest v2+)
 
@@ -133,12 +169,16 @@ Equality(
 ThrowsDetails(
     attempt: () => MethodUnderTest(),
     expected: new ArgumentNullException("paramName"),
-    catchException: Record.Exception,
+    catchException: CatchException,
     assertIsType: Assert.IsType,
     assertEquality: Assert.Equal,
     assertFail: Assert.Fail);
 
-// Async assertions (new in 2.2.0)
+// Async exception catching (new in 2.3.0)
+var exception = await CatchExceptionAsync(async () => 
+    await myService.ProcessAsync());
+
+// Async assertion (new in 2.3.0)
 await DoesNotThrowAsync(
     attempt: async () => await service.ProcessAsync(),
     assertFailAsync: msg => throw new AssertionException(msg));
@@ -228,14 +268,14 @@ Returns: `IReadOnlyCollection<object?[]>` where each array contains `[arg1, arg2
 
 ```csharp
 // Default tolerance
-Equality(0.3, 0.1 + 0.2, Assert.Fail);  // ✅ PASSES
+Equality(0.3, 0.1 + 0.2, Assert.Fail);  // Passes
 
 // Custom tolerance
 Equality(3.14159, Math.PI, Assert.Fail, floatingPointTolerance: 0.001);
 
 // Special values
-Equality(float.NaN, float.NaN, Assert.Fail);  // ✅ PASSES
-Equality(double.PositiveInfinity, double.PositiveInfinity, Assert.Fail);  // ✅ PASSES
+Equality(float.NaN, float.NaN, Assert.Fail);  // Passes
+Equality(double.PositiveInfinity, double.PositiveInfinity, Assert.Fail);  // Passes
 ```
 
 **Special Value Behavior:**
@@ -250,7 +290,7 @@ Equality(double.PositiveInfinity, double.PositiveInfinity, Assert.Fail);  // ✅
 Equality(
     expected: new[] { 1, 2, 3 },
     actual: new[] { 1, 2, 3 },
-    assertFail: Assert.Fail);  // ✅ PASSES
+    assertFail: Assert.Fail);  // Passes
 
 // Nested collections
 Equality(
@@ -267,7 +307,7 @@ Equality(
 
 ---
 
-## Async-First Architecture (v2.2.0)
+## Async-First Architecture (v2.2.0+)
 
 ### Design Principle
 
@@ -275,20 +315,44 @@ Core assertion logic is implemented in async methods using `ValueTask`. Sync met
 
 ```csharp
 // Primary implementation (async)
-protected static ValueTask DoesNotThrowAsync(
-    Action attempt,
+public static async ValueTask DoesNotThrowAsync(
+    Func<Task> attempt,
     Func<string, ValueTask> assertFailAsync);
 
 // Sync wrapper (delegates to async)
 public static void DoesNotThrow(Action attempt, Action<string> assertFail)
 {
-    DoesNotThrowAsync(attempt, msg =>
+    ThreadSafeSyncAssertion(DoesNotThrowAsync(() =>
+    {
+        attempt();
+        return Task.CompletedTask;
+    },
+    msg =>
     {
         assertFail(msg);
-        return default;
-    }).ConfigureAwait(false).GetAwaiter().GetResult();
+        return new ValueTask();
+    }));
 }
 ```
+
+### Exception Handling Architecture (v2.3.0)
+
+**Sync/Async Parity:**
+
+| Operation | Sync Method | Async Method | Implementation |
+|-----------|-------------|--------------|----------------|
+| **Catch Exception** | `CatchException(Action)` | `CatchExceptionAsync(Func<Task>)` | Async primary, sync wrapper |
+| **Assert No Throw** | `DoesNotThrow(Action, ...)` | `DoesNotThrowAsync(Func<Task>, ...)` | Async primary, sync wrapper |
+| **Fatal Exception Filtering** | `IsNotFatal(Exception)` | Same (shared) | Used in both sync/async paths |
+
+**Fatal Exception Safety:**
+All exception catching methods filter fatal exceptions using `IsNotFatal`:
+- `OutOfMemoryException`
+- `AccessViolationException`
+- `StackOverflowException`
+- `ThreadAbortException`
+
+These exceptions always propagate immediately to terminate the process safely.
 
 ### Performance Characteristics
 
@@ -318,6 +382,68 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 ---
 
 ## Changelog
+
+### **[3.0.0] - 2026-04-25**
+
+**Breaking Changes**
+- **Removed `ThrowsDetailsAsync(Action, Func<Func<Task>, ValueTask<Exception?>>, ...)` overload**
+  - Async method with sync action and async exception catcher parameter
+  - Rationale: Unnecessary wrapper that encouraged anti-pattern (async test for sync code)
+  - Migration: Use sync `ThrowsDetails(Action, Func<Action, Exception?>, ...)` for testing synchronous code
+  - Impact: Users calling this specific overload signature will need to update to sync wrapper
+
+**Retained**
+- `ThrowsDetailsAsync(Action, Func<Action, Exception?>, ...)` - Async version with sync exception catcher
+  - Primary async implementation for exception detail testing
+  - Accepts sync action and sync exception catcher
+  - Used internally by sync `ThrowsDetails` wrapper
+
+**Technical Details**
+- Simplified API surface by removing redundant async/sync hybrid overload
+- No impact on common usage patterns (framework adapters unaffected)
+- Version bump to 3.0.0 due to public API removal
+
+**Migration Guide**
+
+Before (v2.3.0):
+```csharp
+// Anti-pattern: async catcher with sync action
+await ThrowsDetailsAsync(
+    () => mySyncMethod(),
+    expected,
+    CatchExceptionAsync,  // Async catcher (mismatch!)
+    // ...
+);
+```
+
+After (v3.0.0-pre-01):
+```csharp
+// Recommended: sync test for sync code
+ThrowsDetails(
+    () => mySyncMethod(),
+    expected,
+    CatchException,  // Sync catcher (matches!)
+    assertIsType,
+    assertEquality,
+    assertFail);
+
+// Or: async test with sync catcher
+await ThrowsDetailsAsync(
+    () => mySyncMethod(),
+    expected,
+    CatchException,
+    assertIsTypeAsync,
+    assertEqualityAsync,
+    assertFailAsync);
+```
+
+**Dependencies**
+- Portamical.Core: 2.2.0 (unchanged)
+
+**Pre-release Status**
+This is a pre-release version for testing breaking changes before stable 3.0.0 release.
+
+---
 
 ### **[2.0.0] - 2026-03-16**
 
@@ -408,19 +534,21 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
-#### **[2.3.0] - 2026-04-25**
+### **[2.3.0] - 2026-04-25**
 
 **Async-First Architecture Completed**
 
-**Added**
+#### **Added**
 - `CatchExceptionAsync(Func<Task>)` - Async exception catcher with fatal exception filtering
   - Zero-allocation success path using `ValueTask<Exception?>`
   - Uses `ConfigureAwait(false)` for thread safety
+  - Comprehensive XML documentation with fatal exception handling examples
 - `DoesNotThrowAsync(Func<Task>, Func<string, ValueTask>)` - Async action overload
   - Supports async operations in assertion scenarios
   - Delegates to `CatchExceptionAsync` for exception handling
+  - Completes synchronously with zero allocation when no exception occurs
 
-**Changed**
+#### **Changed**
 - `CatchException(Action)` - Refactored as sync wrapper delegating to `CatchExceptionAsync`
   - Backward compatible - identical signature and behavior
   - Consistent architecture - follows async-first pattern
@@ -433,22 +561,28 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
   - Affected: `DoesNotThrowAsync`, `ThrowsDetailsAsync`, `EqualityAsync`, `IsTypeOfAsync`
   - Non-breaking change (widening access)
   - Enables direct usage in async frameworks (TUnit, MSTest 4)
+  - Framework adapters can still provide simplified convenience APIs
 
-**Improved**
-- Documentation - Comprehensive XML docs added for `IsNotFatal` with fatal exception handling examples
+#### **Improved**
+- Documentation - Comprehensive XML docs added for:
+  - `IsNotFatal` - 98 lines explaining fatal exception classification, usage patterns, and examples
+  - `CatchExceptionAsync` - Complete async exception handling documentation
+  - `DoesNotThrowAsync` - Async testing patterns with examples
+  - All new and refactored methods include detailed remarks and examples
 - Architecture - Completed async-first refactoring pattern across all assertion methods
-- Thread Safety - All sync wrappers now use `ConfigureAwait(false)` via `ThreadSafeSyncAssertion`
+- Thread Safety - All sync wrappers use `ConfigureAwait(false)` via `ThreadSafeSyncAssertion`
 - Fatal Exception Filtering - Consistent application of `IsNotFatal` across sync and async paths
+  - Fatal exceptions (`OutOfMemoryException`, `AccessViolationException`, `StackOverflowException`, `ThreadAbortException`) propagate immediately
 
-**Technical Details**
-- Fatal exceptions (`OutOfMemoryException`, `AccessViolationException`, `StackOverflowException`, `ThreadAbortException`) propagate immediately without being caught
+#### **Technical Details**
 - Zero-allocation success paths preserved in all refactored methods
 - Performance characteristics unchanged (aggressive inlining maintained)
+- Sync/async parity achieved for exception handling operations
 
-##### **Dependencies**
+#### **Dependencies**
 - Portamical.Core: 2.2.0 (unchanged)
 
-##### **Breaking Changes**
+#### **Breaking Changes**
 - None - fully backward compatible with 2.2.x
 
 ---

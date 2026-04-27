@@ -179,7 +179,8 @@ public abstract class PortamicalAssert
         Func<Task> attempt,
         Func<string, ValueTask> assertFailAsync)
     {
-        var exception = await CatchExceptionAsync(attempt).ConfigureAwait(false);
+        var exception = await CatchExceptionAsync(attempt)
+            .ConfigureAwait(false);
         _ = NotNull(assertFailAsync, nameof(assertFailAsync));
 
         if (exception is not null)

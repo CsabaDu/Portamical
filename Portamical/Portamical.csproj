@@ -28,7 +28,31 @@
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; async; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
 
     <!-- Release Notes -->
-    <PackageReleaseNotes>v3.0.0 - 2026-04-27
+    <PackageReleaseNotes>
+      v3.0.0 - 2026-04-25
+      Breaking Changes:
+      - Removed ThrowsDetailsAsync(Action, Func&lt;Func&lt;Task&gt;, ValueTask&lt;Exception?&gt;&gt;, ...) overload
+      - Async method with sync action and async exception catcher parameter
+      - Rationale: Unnecessary wrapper encouraging anti-pattern (async test for sync code)
+      - Migration: Use sync ThrowsDetails(Action, Func&lt;Action, Exception?&gt;, ...) for testing synchronous code
+      - Impact: Users calling this specific overload signature need to update to sync wrapper
+
+      Retained:
+      - ThrowsDetailsAsync(Action, Func&lt;Action, Exception?&gt;, ...) - Async version with sync exception catcher
+      - Primary async implementation for exception detail testing
+      - Accepts sync action and sync exception catcher
+      - Used internally by sync ThrowsDetails wrapper
+
+      Technical Details:
+      - Simplified API surface by removing redundant async/sync hybrid overload
+      - No impact on common usage patterns (framework adapters unaffected)
+      - Version bump to 3.0.0 due to public API removal
+
+      Dependencies:
+      - Portamical.Core 2.2.0 (unchanged)
+
+      Pre-release Status:
+      This is a pre-release version for testing breaking changes before stable 3.0.0 release.
     </PackageReleaseNotes>
     
     <!-- Package Generation -->
