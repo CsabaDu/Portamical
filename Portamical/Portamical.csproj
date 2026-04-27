@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>2.3.0</Version>
+    <Version>3.0.0-pre-01</Version>
     <Title>Portamical</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -28,27 +28,7 @@
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; async; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
 
     <!-- Release Notes -->
-<PackageReleaseNotes>v2.2.1 - 2026-04-23
-Changed:
-- Portamical.Core dependency 2.0.1 → 2.2.0</PackageReleaseNotes>
-    <PackageReleaseNotes>
-      v2.3.0 - 2026-04-25
-      Added:
-      - CatchExceptionAsync(Func&lt;Task&gt;) - async exception catcher with fatal exception filtering
-      - DoesNotThrowAsync(Func&lt;Task&gt;, Func&lt;string, ValueTask&gt;) - async action overload
-      Changed:
-      - CatchException(Action) - refactored as sync wrapper (backward compatible)
-      - DoesNotThrow(Action, Action&lt;string&gt;) - refactored as sync wrapper (backward compatible)
-      - Async assertion methods visibility: protected → public (non-breaking)
-      Improved:
-      - Completed async-first architecture from v2.2.0
-      - Eliminated #pragma warning disable CA2012
-      - Added comprehensive documentation for IsNotFatal and all new/changed methods
-      - Consistent fatal exception handling across all sync/async paths
-      Dependencies:
-      - Portamical.Core 2.2.0 (unchanged)
-      Breaking Changes:
-      - None - fully backward compatible with 2.2.x
+    <PackageReleaseNotes>v3.0.0 - 2026-04-27
     </PackageReleaseNotes>
     
     <!-- Package Generation -->
