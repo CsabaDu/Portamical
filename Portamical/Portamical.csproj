@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>3.0.0-pre-01</Version>
+    <Version>3.0.0-pre-02</Version>
     <Title>Portamical</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>

@@ -464,7 +464,7 @@ public abstract class PortamicalAssert
     public static TException ThrowsDetails<TException>(
         Action attempt,
         TException expected,
-        Func<Exception?> catchException,
+        Func<Action, Exception?> catchException,
         Action<Type, object> assertIsType,
         Action<string, string?> assertEquality,
         Action<string?> assertFail)
@@ -483,7 +483,7 @@ public abstract class PortamicalAssert
                 return Task.CompletedTask;
             },
             expected,
-            catchExceptionAsync: _ => new ValueTask<Exception?>(catchException()),
+            catchExceptionAsync: _ => new ValueTask<Exception?>(catchException(attempt)),
             assertIsTypeAsync: (e, a) =>
             {
                 assertIsType(e, a);

@@ -238,7 +238,7 @@ public class PortamicalAssertTests
 
                 () => throw new ArgumentException("test", paramName),
                 new ArgumentException("expected", paramName),
-                () => PortamicalAssert.CatchException(() => throw new ArgumentException("test", paramName)),
+                attempt => PortamicalAssert.CatchException(attempt),
 
                 null!,
                 (_, _) => { },
@@ -255,7 +255,7 @@ public class PortamicalAssertTests
 
                 () => throw new ArgumentException("test", paramName),
                 new ArgumentException("expected", paramName),
-                () => PortamicalAssert.CatchException(() => throw new ArgumentException("test", paramName)),
+                attempt => PortamicalAssert.CatchException(attempt),
 
                 (_, _) => { },
                 null!,
@@ -272,7 +272,7 @@ public class PortamicalAssertTests
 
                 () => throw new ArgumentException("test", paramName),
                 new ArgumentException("expected", paramName),
-                () => PortamicalAssert.CatchException(() => throw new ArgumentException("test", paramName)),
+                attempt => PortamicalAssert.CatchException(attempt),
 
                 (_, _) => { },
                 (_, _) => { },
@@ -291,7 +291,7 @@ public class PortamicalAssertTests
 
                 new ArgumentException("expected", paramName),
 
-                () => PortamicalAssert.CatchException(() => { }),
+                attempt => PortamicalAssert.CatchException(attempt),
                 (_, _) => { },
                 (_, _) => { },
                 msg => failCalled = true));
@@ -309,7 +309,7 @@ public class PortamicalAssertTests
 
                 new ArgumentException("expected", paramName),
 
-                () => PortamicalAssert.CatchException(() => { }),
+                attempt => PortamicalAssert.CatchException(attempt),
                 (_, _) => { },
                 (_, _) => { },
                 msg => message = msg));
@@ -329,7 +329,7 @@ public class PortamicalAssertTests
 
                 new ArgumentException("expected", paramName),
 
-                () => PortamicalAssert.CatchException(() => throw new InvalidOperationException()),
+                PortamicalAssert.CatchException,
                 (expectedType, actual) =>
                 {
                     isTypeCalled = true;
@@ -355,7 +355,7 @@ public class PortamicalAssertTests
 
                 new ArgumentException("expected", paramName),
 
-                () => PortamicalAssert.CatchException(() => throw new InvalidOperationException()),
+                PortamicalAssert.CatchException,
                 (expectedType, actual) => throw new InvalidOperationException(
                     $"Expected {expectedType.Name} but got {actual.GetType().Name}"),
                 (_, _) => { },
@@ -378,7 +378,7 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            () => PortamicalAssert.CatchException(() => throw thrown),
+            PortamicalAssert.CatchException,
             (t, e) => { isTypeCalled = true; capturedType = t; capturedException = e; },
             (_, _) => { },
             msg => throw new InvalidOperationException(msg));
@@ -400,7 +400,7 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            () => PortamicalAssert.CatchException(() => throw thrown),
+            PortamicalAssert.CatchException,
             (_, _) => { },
             (e, a) => equalityCalled = true,
             msg => throw new InvalidOperationException(msg));
@@ -418,7 +418,7 @@ public class PortamicalAssertTests
         var result = PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            () => PortamicalAssert.CatchException(() => throw thrown),
+            PortamicalAssert.CatchException,
             (t, e) => { },
             (e, a) => { },
             msg => throw new InvalidOperationException(msg));
@@ -975,7 +975,7 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            () => PortamicalAssert.CatchException(() => throw thrown),
+            PortamicalAssert.CatchException,
             (_, _) => { },
             (e, a) => calls.Add($"{e}={a}"),
             msg => throw new InvalidOperationException(msg));
@@ -997,7 +997,7 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            () => PortamicalAssert.CatchException(() => throw thrown),
+            PortamicalAssert.CatchException,
             (_, _) => { },
             (e, a) => calls.Add($"{e}={a}"),
             msg => throw new InvalidOperationException(msg));
@@ -1018,7 +1018,7 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            () => PortamicalAssert.CatchException(() => throw thrown),
+            PortamicalAssert.CatchException,
             (_, _) => { },
             (e, a) => calls.Add($"{e}={a}"),
             msg => throw new InvalidOperationException(msg));
@@ -1040,7 +1040,7 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            () => PortamicalAssert.CatchException(() => throw thrown),
+            PortamicalAssert.CatchException,
             (_, _) => { },
             (e, a) => calls.Add($"{e}={a}"),
             msg => throw new InvalidOperationException(msg));
@@ -1062,7 +1062,7 @@ public class PortamicalAssertTests
             () => PortamicalAssert.ThrowsDetails(
                 () => throw new ArgumentNullException(paramName),
                 new ArgumentException("expected", paramName),
-                () => PortamicalAssert.CatchException(() => throw new ArgumentNullException(paramName)),
+                PortamicalAssert.CatchException,
                 (expectedType, actual) =>
                 {
                     isTypeCalled = true;
@@ -1339,7 +1339,7 @@ public class PortamicalAssertTests
 
                 new ArgumentException("expected", paramName),
 
-                () => PortamicalAssert.CatchException(() => { }),
+                PortamicalAssert.CatchException,
                 (_, _) => { },
                 (_, _) => { },
                 msg => { } // assertFail that doesn't throw
@@ -1358,7 +1358,7 @@ public class PortamicalAssertTests
 
                 new ArgumentException("expected", paramName),
 
-                () => PortamicalAssert.CatchException(() => throw new InvalidOperationException()),
+                PortamicalAssert.CatchException,
                 (_, _) => { },
                 (_, _) => { },
                 msg => { } // assertFail that doesn't throw
