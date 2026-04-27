@@ -61,7 +61,7 @@ ThrowsDetails(
 
 ### **Version 2.3.0 (2026-04-25)**
 
-**Async-First Architecture Completed**
+***Async-First Architecture Completed***
 
 **Added**
 - `CatchExceptionAsync(Func<Task>)` - Async exception catcher with fatal exception filtering
