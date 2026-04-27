@@ -25,6 +25,8 @@ dotnet add package Portamical
 
 ### **Version 3.0.0 (2026-04-27)**
 
+***API Cleanup***
+
 **Breaking Changes**
 - **Removed `ThrowsDetailsAsync(Action, Func<Func<Task>, ValueTask<Exception?>>, ...)` overload**
   - Async method accepting sync action with async exception catcher
@@ -385,6 +387,8 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ### **[3.0.0] - 2026-04-25**
 
+***API Cleanup***
+
 **Breaking Changes**
 - **Removed `ThrowsDetailsAsync(Action, Func<Func<Task>, ValueTask<Exception?>>, ...)` overload**
   - Async method with sync action and async exception catcher parameter
@@ -534,11 +538,11 @@ This is a pre-release version for testing breaking changes before stable 3.0.0 r
 
 ---
 
-### **[2.3.0] - 2026-04-25**
+#### **[2.3.0] - 2026-04-25**
 
-**Async-First Architecture Completed**
+***Async-First Architecture Completed***
 
-#### **Added**
+**Added**
 - `CatchExceptionAsync(Func<Task>)` - Async exception catcher with fatal exception filtering
   - Zero-allocation success path using `ValueTask<Exception?>`
   - Uses `ConfigureAwait(false)` for thread safety
@@ -548,7 +552,7 @@ This is a pre-release version for testing breaking changes before stable 3.0.0 r
   - Delegates to `CatchExceptionAsync` for exception handling
   - Completes synchronously with zero allocation when no exception occurs
 
-#### **Changed**
+**Changed**
 - `CatchException(Action)` - Refactored as sync wrapper delegating to `CatchExceptionAsync`
   - Backward compatible - identical signature and behavior
   - Consistent architecture - follows async-first pattern
@@ -563,7 +567,7 @@ This is a pre-release version for testing breaking changes before stable 3.0.0 r
   - Enables direct usage in async frameworks (TUnit, MSTest 4)
   - Framework adapters can still provide simplified convenience APIs
 
-#### **Improved**
+**Improved**
 - Documentation - Comprehensive XML docs added for:
   - `IsNotFatal` - 98 lines explaining fatal exception classification, usage patterns, and examples
   - `CatchExceptionAsync` - Complete async exception handling documentation
@@ -574,15 +578,15 @@ This is a pre-release version for testing breaking changes before stable 3.0.0 r
 - Fatal Exception Filtering - Consistent application of `IsNotFatal` across sync and async paths
   - Fatal exceptions (`OutOfMemoryException`, `AccessViolationException`, `StackOverflowException`, `ThreadAbortException`) propagate immediately
 
-#### **Technical Details**
+**Technical Details**
 - Zero-allocation success paths preserved in all refactored methods
 - Performance characteristics unchanged (aggressive inlining maintained)
 - Sync/async parity achieved for exception handling operations
 
-#### **Dependencies**
+**Dependencies**
 - Portamical.Core: 2.2.0 (unchanged)
 
-#### **Breaking Changes**
+**Breaking Changes**
 - None - fully backward compatible with 2.2.x
 
 ---

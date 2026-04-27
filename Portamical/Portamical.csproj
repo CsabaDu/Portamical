@@ -28,7 +28,7 @@
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; async; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
 
     <!-- Release Notes -->
-    <PackageReleaseNotes>v3.0.0 - 2026-04-25
+    <PackageReleaseNotes>v3.0.0 - 2026-04-27 - API Cleanup
 Breaking Changes:
 - Removed ThrowsDetailsAsync(Action, Func&lt;Func&lt;Task&gt;, ValueTask&lt;Exception?&gt;&gt;, ...) overload
 - Async method with sync action and async exception catcher parameter
