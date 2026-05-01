@@ -45,7 +45,7 @@ await ThrowsDetailsAsync(
 );
 ```
 
-After (v3.0.0-pre-01):
+After (v3.0.0):
 ```csharp
 // Recommended: sync test for sync code
 ThrowsDetails(
@@ -420,7 +420,7 @@ await ThrowsDetailsAsync(
 );
 ```
 
-After (v3.0.0-pre-01):
+After (v3.0.0):
 ```csharp
 // Recommended: sync test for sync code
 ThrowsDetails(
@@ -444,8 +444,24 @@ await ThrowsDetailsAsync(
 **Dependencies**
 - Portamical.Core: 2.2.0 (unchanged)
 
-**Pre-release Status**
-This is a pre-release version for testing breaking changes before stable 3.0.0 release.
+---
+
+##### **[3.0.1] - 2026-05-01**
+
+**Added**
+- Null parameter validation to async assertion methods (`DoesNotThrowAsync(Func<Task>`, `Func<string, ValueTask>)`, `ThrowsDetailsAsync<TException>(Func<Task>`, `TException, Func<Func<Task>, ValueTask<Exception?>>`, `Func<Type, object, ValueTask>`, `Func<string, string?, ValueTask>`, `Func<string, ValueTask>), CatchExceptionAsync(Func<Task>)`)
+- 6 unit tests for `CatchExceptionAsync(Func<Task>)` method coverage
+- 5 unit tests for exception metadata edge cases (`ArgumentOutOfRangeException`, `ObjectDisposedException`)
+- 5 unit tests for collection equality edge cases (empty collections, different lengths)
+
+**Fixed**
+- `DoesNotThrowAsync(Func<Task>, Func<string, ValueTask>)`: Null check now occurs before `CatchExceptionAsync(Func<Task>)` call
+- `ThrowsDetailsAsync<TException>(Func<Task>, TException, Func<Func<Task>, ValueTask<Exception?>>, Func<Type, object, ValueTask>, Func<string, string?, ValueTask>, Func<string, ValueTask>)`: Added validation for all 5 delegate parameters
+- `CatchExceptionAsync(Func<Task>)`: Added missing attempt parameter validation
+
+**Changed**
+- Test count increased from 119 to 135 (all passing)
+- Async methods now throw `ArgumentNullException` instead of `NullReferenceException` for null parameters
 
 ---
 

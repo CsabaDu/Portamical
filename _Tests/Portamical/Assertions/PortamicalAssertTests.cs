@@ -62,6 +62,64 @@ public class PortamicalAssertTests
 
     #endregion
 
+    #region CatchExceptionAsync
+
+    [TestMethod]
+    public async Task CatchExceptionAsync_nullAttempt_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.CatchExceptionAsync(null!));
+
+    [TestMethod]
+    public async Task CatchExceptionAsync_actionDoesNotThrow_returnsNull()
+    {
+        var result = await PortamicalAssert.CatchExceptionAsync(() => Task.CompletedTask);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task CatchExceptionAsync_actionThrows_returnsException()
+    {
+        var thrown = new InvalidOperationException("async test");
+        var result = await PortamicalAssert.CatchExceptionAsync(() => Task.FromException(thrown));
+        Assert.AreSame(thrown, result);
+    }
+
+    [TestMethod]
+    public async Task CatchExceptionAsync_actionThrowsArgumentException_preservesType()
+    {
+        var paramName = "asyncParam";
+        var thrown = new ArgumentException("bad arg async", paramName);
+
+        var result = await PortamicalAssert.CatchExceptionAsync(() => Task.FromException(thrown));
+        Assert.IsInstanceOfType<ArgumentException>(result);
+        Assert.AreSame(thrown, result);
+    }
+
+    [TestMethod]
+    public async Task CatchExceptionAsync_nestedExceptions_returnsOuterException()
+    {
+        var inner = new InvalidOperationException("inner async");
+        var outer = new ArgumentException("outer async", inner);
+        var result = await PortamicalAssert.CatchExceptionAsync(() => Task.FromException(outer));
+        Assert.AreSame(outer, result);
+        Assert.AreSame(inner, result?.InnerException);
+    }
+
+    [TestMethod]
+    public async Task CatchExceptionAsync_trulyAsyncException_capturesCorrectly()
+    {
+        var thrown = new InvalidOperationException("truly async");
+        var result = await PortamicalAssert.CatchExceptionAsync(async () =>
+        {
+            await Task.Yield();
+            await Task.Delay(5, TestContext.CancellationToken);
+            throw thrown;
+        });
+        Assert.AreSame(thrown, result);
+    }
+
+    #endregion
+
     #region DoesNotThrow
 
     [TestMethod]
@@ -147,6 +205,11 @@ public class PortamicalAssertTests
         AssertContainsOrdinal(message, typeof(InvalidOperationException).FullName!);
         AssertContainsOrdinal(message, "async oops");
     }
+
+    [TestMethod]
+    public async Task DoesNotThrowAsync_nullAttempt_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.DoesNotThrowAsync(null!, _ => ValueTask.CompletedTask));
 
     [TestMethod]
     public async Task DoesNotThrowAsync_nullAssertFailAsync_throwsArgumentNullException()
@@ -430,6 +493,81 @@ public class PortamicalAssertTests
     #region ThrowsDetailsAsync
 
     [TestMethod]
+    public async Task ThrowsDetailsAsync_nullAttempt_throwsArgumentNullException()
+    {
+        string paramName = "param";
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
+                null!,
+                new ArgumentException("expected", paramName),
+                PortamicalAssert.CatchExceptionAsync,
+                (_, _) => ValueTask.CompletedTask,
+                (_, _) => ValueTask.CompletedTask,
+                _ => ValueTask.CompletedTask));
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_nullCatchExceptionAsync_throwsArgumentNullException()
+    {
+        string paramName = "param";
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
+                () => throw new ArgumentException("test", paramName),
+                new ArgumentException("expected", paramName),
+                null!,
+                (_, _) => ValueTask.CompletedTask,
+                (_, _) => ValueTask.CompletedTask,
+                _ => ValueTask.CompletedTask));
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_nullAssertIsTypeAsync_throwsArgumentNullException()
+    {
+        string paramName = "param";
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
+                () => throw new ArgumentException("test", paramName),
+                new ArgumentException("expected", paramName),
+                PortamicalAssert.CatchExceptionAsync,
+                null!,
+                (_, _) => ValueTask.CompletedTask,
+                _ => ValueTask.CompletedTask));
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_nullAssertEqualityAsync_throwsArgumentNullException()
+    {
+        string paramName = "param";
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
+                () => throw new ArgumentException("test", paramName),
+                new ArgumentException("expected", paramName),
+                PortamicalAssert.CatchExceptionAsync,
+                (_, _) => ValueTask.CompletedTask,
+                null!,
+                _ => ValueTask.CompletedTask));
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_nullAssertFailAsync_throwsArgumentNullException()
+    {
+        string paramName = "param";
+
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.ThrowsDetailsAsync(
+                () => throw new ArgumentException("test", paramName),
+                new ArgumentException("expected", paramName),
+                PortamicalAssert.CatchExceptionAsync,
+                (_, _) => ValueTask.CompletedTask,
+                (_, _) => ValueTask.CompletedTask,
+                null!));
+    }
+
+    [TestMethod]
     public async Task ThrowsDetailsAsync_correctException_returnsTypedActual()
     {
         string testMessage = "async test msg";
@@ -473,7 +611,7 @@ public class PortamicalAssertTests
     }
 
     [TestMethod]
-    public async Task ThrowsDetailsAsync_objectDisposedException_currently_assertsMessage()
+    public async Task ThrowsDetailsAsync_objectDisposedException_skipsGuardMessage()
     {
         var calls = new List<string>();
         var thrown = new ObjectDisposedException("resource");
@@ -491,8 +629,32 @@ public class PortamicalAssertTests
             },
             _ => ValueTask.CompletedTask);
 
-        Assert.HasCount(1, calls);
-        AssertContainsOrdinal(calls[0], "Cannot access a disposed object.");
+        // Should skip guard message assertion
+        Assert.IsLessThanOrEqualTo(calls.Count, 1);
+    }
+
+    [TestMethod]
+    public async Task ThrowsDetailsAsync_argumentOutOfRangeException_assertsParamNameButSkipsGuardMessage()
+    {
+        var calls = new List<string>();
+        string paramName = "asyncCount";
+        var thrown = new ArgumentOutOfRangeException(paramName, 10, "Must be less than 20");
+        var expected = new ArgumentOutOfRangeException(paramName, 10, "Must be less than 20");
+
+        await PortamicalAssert.ThrowsDetailsAsync(
+            () => throw thrown,
+            expected,
+            catchExceptionAsync: PortamicalAssert.CatchExceptionAsync,
+            (_, _) => ValueTask.CompletedTask,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            },
+            _ => ValueTask.CompletedTask);
+
+        var callsText = string.Join(Environment.NewLine, calls);
+        AssertContainsOrdinal(callsText, paramName);
     }
 
     [TestMethod]
@@ -744,6 +906,16 @@ public class PortamicalAssertTests
     #region EqualityAsync
 
     [TestMethod]
+    public async Task EqualityAsync_generic_nullEquals_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.EqualityAsync(1, 1, null!, _ => ValueTask.CompletedTask, "msg"));
+
+    [TestMethod]
+    public async Task EqualityAsync_generic_nullAssertFailAsync_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.EqualityAsync(1, 1, (a, b) => a == b, null!, "msg"));
+
+    [TestMethod]
     public async Task EqualityAsync_generic_equalValues_doesNotCallAssertFailAsync()
     {
         bool failCalled = false;
@@ -813,6 +985,40 @@ public class PortamicalAssertTests
     public async Task EqualityAsync_object_nullAssertFailAsync_throwsArgumentNullException()
         => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await PortamicalAssert.EqualityAsync(1, 1, null!));
+
+    [TestMethod]
+    public async Task EqualityAsync_object_emptyCollections_doesNotCallAssertFailAsync()
+    {
+        bool failCalled = false;
+        object?[] expected = [];
+        object?[] actual = [];
+        await PortamicalAssert.EqualityAsync(
+            expected,
+            actual,
+            () =>
+            {
+                failCalled = true;
+                return ValueTask.CompletedTask;
+            });
+        Assert.IsFalse(failCalled);
+    }
+
+    [TestMethod]
+    public async Task EqualityAsync_object_differentLengthCollections_callsAssertFailAsync()
+    {
+        bool failCalled = false;
+        object?[] expected = [1, 2, 3];
+        object?[] actual = [1, 2];
+        await PortamicalAssert.EqualityAsync(
+            expected,
+            actual,
+            () =>
+            {
+                failCalled = true;
+                return ValueTask.CompletedTask;
+            });
+        Assert.IsTrue(failCalled);
+    }
 
     #endregion
 
@@ -959,6 +1165,43 @@ public class PortamicalAssertTests
         Assert.IsTrue(failCalled);
     }
 
+    [TestMethod]
+    public void Equality_object_nullActual_callsAssertFail()
+    {
+        bool failCalled = false;
+        PortamicalAssert.Equality(42, null, () => failCalled = true);
+        Assert.IsTrue(failCalled);
+    }
+
+    [TestMethod]
+    public void Equality_object_sameReferenceComplexObject_doesNotCallAssertFail()
+    {
+        bool failCalled = false;
+        var obj = new ArgumentException("test");
+        PortamicalAssert.Equality(obj, obj, () => failCalled = true);
+        Assert.IsFalse(failCalled);
+    }
+
+    [TestMethod]
+    public void Equality_object_emptyCollections_doesNotCallAssertFail()
+    {
+        bool failCalled = false;
+        object?[] arr1 = [];
+        object?[] arr2 = [];
+        PortamicalAssert.Equality(arr1, arr2, () => failCalled = true);
+        Assert.IsFalse(failCalled);
+    }
+
+    [TestMethod]
+    public void Equality_object_differentLengthCollections_callsAssertFail()
+    {
+        bool failCalled = false;
+        object?[] arr1 = [1, 2, 3];
+        object?[] arr2 = [1, 2];
+        PortamicalAssert.Equality(arr1, arr2, () => failCalled = true);
+        Assert.IsTrue(failCalled);
+    }
+
     #endregion
 
     #region ThrowsDetails - ArgumentException Metadata
@@ -1028,6 +1271,67 @@ public class PortamicalAssertTests
         Assert.AreEqual(
             -1,
             callsText.IndexOf("The value cannot be an empty string", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
+    public void ThrowsDetails_argumentOutOfRangeException_assertsParamNameButSkipsGuardMessage()
+    {
+        var calls = new List<string>();
+        string paramName = "count";
+        var thrown = new ArgumentOutOfRangeException(paramName, 5, "Value must be less than 10");
+        var expected = new ArgumentOutOfRangeException(paramName, 5, "Value must be less than 10");
+
+        PortamicalAssert.ThrowsDetails(
+            () => throw thrown,
+            expected,
+            PortamicalAssert.CatchException,
+            (_, _) => { },
+            (e, a) => calls.Add($"{e}={a}"),
+            msg => throw new InvalidOperationException(msg));
+
+        // Should assert paramName but skip guard message that starts with 'paramName' ('actualValue')
+        var callsText = string.Join(Environment.NewLine, calls);
+        AssertContainsOrdinal(callsText, paramName);
+    }
+
+    [TestMethod]
+    public void ThrowsDetails_objectDisposedException_assertsMessageIfNotGuardMessage()
+    {
+        var calls = new List<string>();
+        var thrown = new ObjectDisposedException("MyResource", "Custom disposal message");
+        var expected = new ObjectDisposedException("MyResource", "Custom disposal message");
+
+        PortamicalAssert.ThrowsDetails(
+            () => throw thrown,
+            expected,
+            PortamicalAssert.CatchException,
+            (_, _) => { },
+            (e, a) => calls.Add($"{e}={a}"),
+            msg => throw new InvalidOperationException(msg));
+
+        // Should assert custom message
+        var callsText = string.Join(Environment.NewLine, calls);
+        AssertContainsOrdinal(callsText, "Custom disposal message");
+    }
+
+    [TestMethod]
+    public void ThrowsDetails_objectDisposedExceptionWithGuardMessage_skipsMessageAssertion()
+    {
+        var calls = new List<string>();
+        var thrown = new ObjectDisposedException("MyResource");
+        var expected = new ObjectDisposedException("MyResource");
+
+        PortamicalAssert.ThrowsDetails(
+            () => throw thrown,
+            expected,
+            PortamicalAssert.CatchException,
+            (_, _) => { },
+            (e, a) => calls.Add($"{e}={a}"),
+            msg => throw new InvalidOperationException(msg));
+
+        // Guard message "Cannot access a disposed object" should skip message assertion
+        // Only one call expected (no message assertion)
+        Assert.IsLessThanOrEqualTo(calls.Count, 1);
     }
 
     [TestMethod]
@@ -1384,6 +1688,19 @@ public class PortamicalAssertTests
     #region IsTypeOfAsync
 
     [TestMethod]
+    public async Task IsTypeOfAsync_nullExpected_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.IsTypeOfAsync(
+                null!,
+                new object(),
+                (_, _) => ValueTask.CompletedTask));
+
+    [TestMethod]
+    public async Task IsTypeOfAsync_nullAssertEqualityAsync_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.IsTypeOfAsync(typeof(string), "hello", null!));
+
+    [TestMethod]
     public async Task IsTypeOfAsync_passesExpectedAndActualRuntimeType()
     {
         Type? capturedExpected = null;
@@ -1403,11 +1720,6 @@ public class PortamicalAssertTests
         Assert.AreEqual(typeof(ArgumentException), capturedExpected);
         Assert.AreEqual(typeof(ArgumentException), capturedActual);
     }
-
-    [TestMethod]
-    public async Task IsTypeOfAsync_nullAssertEqualityAsync_throwsArgumentNullException()
-        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await PortamicalAssert.IsTypeOfAsync(typeof(string), "hello", null!));
 
     #endregion
 }

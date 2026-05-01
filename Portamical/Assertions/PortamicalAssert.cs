@@ -179,9 +179,11 @@ public abstract class PortamicalAssert
         Func<Task> attempt,
         Func<string, ValueTask> assertFailAsync)
     {
+        _ = NotNull(attempt, nameof(attempt));
+        _ = NotNull(assertFailAsync, nameof(assertFailAsync));
+
         var exception = await CatchExceptionAsync(attempt)
             .ConfigureAwait(false);
-        _ = NotNull(assertFailAsync, nameof(assertFailAsync));
 
         if (exception is not null)
         {
@@ -232,7 +234,13 @@ public abstract class PortamicalAssert
         Func<string, ValueTask> assertFailAsync)
     where TException : notnull, Exception
     {
-        var exception = await catchExceptionAsync(NotNull(attempt, nameof(attempt)))
+        _ = NotNull(attempt, nameof(attempt));
+        _ = NotNull(catchExceptionAsync, nameof(catchExceptionAsync));
+        _ = NotNull(assertIsTypeAsync, nameof(assertIsTypeAsync));
+        _ = NotNull(assertEqualityAsync, nameof(assertEqualityAsync));
+        _ = NotNull(assertFailAsync, nameof(assertFailAsync));
+
+        var exception = await catchExceptionAsync(attempt)
             .ConfigureAwait(false);
 
         if (exception is null)
@@ -484,7 +492,8 @@ public abstract class PortamicalAssert
                 return Task.CompletedTask;
             },
             expected,
-            catchExceptionAsync: _ => new ValueTask<Exception?>(catchException(attempt)),
+            catchExceptionAsync: _ => new ValueTask<Exception?>(
+                catchException(attempt)),
             assertIsTypeAsync: (e, a) =>
             {
                 assertIsType(e, a);
@@ -701,6 +710,8 @@ public abstract class PortamicalAssert
     /// <seealso cref="DoesNotThrowAsync(Func{Task}, Func{string, ValueTask})"/>
     public static async ValueTask<Exception?> CatchExceptionAsync(Func<Task> attempt)
     {
+        _ = NotNull(attempt, nameof(attempt));
+
         try
         {
             await attempt();
