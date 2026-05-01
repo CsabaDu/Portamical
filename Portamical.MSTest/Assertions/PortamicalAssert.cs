@@ -160,6 +160,13 @@ namespace Portamical.MSTest.Assertions;
 /// <seealso cref="Microsoft.VisualStudio.TestTools.UnitTesting.Assert"/>
 public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
 {
+    /// <summary>
+    /// Prevents external instantiation. This class provides only static methods.
+    /// </summary>
+    protected PortamicalAssert()
+    {
+    }
+
     #region AssertMultiple
     /// <summary>
     /// Executes multiple assertions. <strong>Note:</strong> MSTest does not support assertion
@@ -284,7 +291,6 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     private static Action<T, T?> AssertEquality<T>()
     => (e, a) => Assert.AreEqual(e, a);
 
-
     /// <summary>
     /// Executes the specified synchronous action and verifies that it throws an exception of the expected type
     /// with matching details (async version for MSTest).
@@ -327,14 +333,14 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// </code>
     /// </example>
     public static async ValueTask<TException> ThrowsDetailsAsync<TException>(
-        Action attempt,
+        Func<Task> attempt,
         TException expected)
     where TException : notnull, Exception
     {
         return await ThrowsDetailsAsync(
             attempt,
             expected,
-            CatchException,
+            CatchExceptionAsync,
             assertIsTypeAsync: (expectedType, actual) =>
             {
                 Assert.IsNotNull(actual);
@@ -351,79 +357,6 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
                 Assert.Fail(msg);
                 return new ValueTask();
             });
-    }
-
-    /// <summary>
-    /// Executes the specified asynchronous action and verifies that it throws an exception of the expected type
-    /// with matching details (async version for MSTest).
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This method tests asynchronous code that is expected to throw exceptions. It delegates to the base
-    /// <see cref="Portamical.Assertions.PortamicalAssert.ThrowsDetailsAsync{TException}(Action, TException, Func{Action, Exception?}, Func{Type, Exception, ValueTask}, Func{object, object?, ValueTask}, Func{string, ValueTask})"/>
-    /// implementation with MSTest-specific assertion delegates by wrapping the async action.
-    /// </para>
-    /// <para>
-    /// <strong>Type Checking:</strong> Verifies exact type equality. Derived types are not accepted.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TException">
-    /// The type of exception expected to be thrown. Must be a non-null reference type derived from <see cref="Exception"/>.
-    /// </typeparam>
-    /// <param name="attempt">
-    /// The asynchronous action to execute, which is expected to throw an exception. Cannot be null.
-    /// </param>
-    /// <param name="expected">
-    /// The expected exception instance, used as a reference for type and detail comparisons. Cannot be null.
-    /// </param>
-    /// <returns>
-    /// A <see cref="ValueTask{TResult}"/> containing the actual exception that was thrown and verified.
-    /// </returns>
-    /// <exception cref="AssertFailedException">
-    /// Thrown when the assertion fails (no exception, wrong type, or metadata mismatch).
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// [TestMethod]
-    /// public async Task TestAsyncMethod_InvalidInput_ThrowsException()
-    /// {
-    ///     var expected = new InvalidOperationException("Async operation failed");
-    ///     var actual = await ThrowsDetailsAsync(
-    ///         async () => await myService.ProcessAsync(null),
-    ///         expected);
-    /// }
-    /// </code>
-    /// </example>
-    public static async ValueTask<TException> ThrowsDetailsAsync<TException>(
-        Func<Task> attempt,
-        TException expected)
-    where TException : notnull, Exception
-    {
-        Exception? actual = null;
-        try
-        {
-            await attempt();
-        }
-        catch (Exception ex)
-        {
-            actual = ex;
-        }
-
-        if (actual is null)
-        {
-            Assert.Fail($"Expected exception of type {typeof(TException).Name} but no exception was thrown.");
-        }
-
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(expected.GetType(), actual.GetType());
-        Assert.AreEqual(expected.Message, actual.Message);
-
-        if (expected is ArgumentException expectedArgEx && actual is ArgumentException actualArgEx)
-        {
-            Assert.AreEqual(expectedArgEx.ParamName, actualArgEx.ParamName);
-        }
-
-        return (TException)actual;
     }
 
     #region DoesNotThrow

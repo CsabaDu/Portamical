@@ -64,7 +64,7 @@ Dependencies
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.7" />
     <PackageReference Include="MSTest.TestFramework" Version="4.2.1" />
-    <PackageReference Include="Portamical" Version="3.0.0-pre-01" />
+    <PackageReference Include="Portamical" Version="3.0.0-pre-02" />
   </ItemGroup>
 
   <ItemGroup>
