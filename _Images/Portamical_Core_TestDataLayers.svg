@@ -42,15 +42,15 @@
 	
 	[
 	1. Identity Layer
-	] --&gt; [
+	] -&gt; [
 	2. Core Abstraction Layer
-	] --&gt; [
+	] -&gt; [
 	4. Specialization Layer
 	] 
 	
 	[
 	3. Pattern Markers Layer
-	] --&gt; [
+	] -&gt; [
 	4. Specialization Layer
 	]
 	</desc>
@@ -61,17 +61,11 @@
 			</g>
 			<g transform="translate(8, 8)" fill="#33322E">
 				<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
-					<g stroke-dasharray="6 6">
-						<path d="M211.0 104.0 L211 124 L211 153.83333333333334 L211.0 153.8 " fill="none"></path>
-					</g>
+					<path d="M211.0 104.0 L211 124 L211 153.83333333333334 L211.0 153.8 " fill="none"></path>
 					<path d="M205.7 147.2 L211.0 153.8 L216.3 147.2 L211.0 160.5 Z"></path>
-					<g stroke-dasharray="6 6">
-						<path d="M211.0 264.5 L211 301 L250.2372598410308 318.30923691272903 L250.2 318.3 " fill="none"></path>
-					</g>
+					<path d="M211.0 264.5 L211 301 L250.2372598410308 318.30923691272903 L250.2 318.3 " fill="none"></path>
 					<path d="M242.0 320.5 L250.2 318.3 L246.3 310.7 L256.3 321.0 Z"></path>
-					<g stroke-dasharray="6 6">
-						<path d="M648.5 281.0 L648.5 301 L609.2627401589692 318.30923691272903 L609.3 318.3 " fill="none"></path>
-					</g>
+					<path d="M648.5 281.0 L648.5 301 L609.2627401589692 318.30923691272903 L609.3 318.3 " fill="none"></path>
 					<path d="M613.2 310.7 L609.3 318.3 L617.5 320.5 L603.2 321.0 Z"></path>
 					<g data-name="1. Identity Layer">
 						<g fill="#ffcccc" stroke="#33322E" data-name="1. Identity Layer">

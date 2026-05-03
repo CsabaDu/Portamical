@@ -40,14 +40,14 @@ with compile-time type safety
 
 [
 1. Identity Layer
-] --> [
+] -> [
 2. Core Abstraction Layer
-] --> [
+] -> [
 4. Specialization Layer
 ] 
 
 [
 3. Pattern Markers Layer
-] --> [
+] -> [
 4. Specialization Layer
 ]
