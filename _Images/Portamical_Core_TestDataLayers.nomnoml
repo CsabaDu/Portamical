@@ -1,0 +1,53 @@
+#title: Portamical_Core_TestDataLayers
+#direction: down
+
+#.found: fill=#ffcccc title=center,bold
+#.core: fill=#ffffcc title=center,bold 
+#.marker: fill=#ccffff title=center,bold 
+#.spec: fill=#ccffcc title=center,bold 
+
+
+[<found>1. Identity Layer
+||
+INamedCase ← Semantic identification & deduplication
+ |
+ Purpose: Equality, deduplication, test case naming
+ ]
+ 
+[<core>2. Core Abstraction Layer
+||
+ITestData ← Non-generic contract for framework adapters
+ |
+ Purpose: Reflection-based, dynamically typed handling]
+ 
+[<marker>3. Pattern Markers Layer
+||
+IExpected<T> ← Expected outcome categorization
+ |
+ Purpose: Semantic specialization
+ - IReturns<TStruct> → Return-value assertions
+ - IThrows<TException> → Exception assertions]
+ 
+[<spec>4. Specialization Layer
+||
+Concrete DTOs ← Fully typed implementations
+with compile-time type safety
+ |
+ - TestData<T1..T9> (general test data)
+ - TestDataReturns<TStruct, T1..T9> (return-value tests)
+ - TestDataThrows<TException, T1..T9> (exception tests)
+]
+
+[
+1. Identity Layer
+] --> [
+2. Core Abstraction Layer
+] --> [
+4. Specialization Layer
+] 
+
+[
+3. Pattern Markers Layer
+] --> [
+4. Specialization Layer
+]
