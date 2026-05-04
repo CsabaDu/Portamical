@@ -1,53 +1,56 @@
 #title: Portamical_Core_TestDataLayers
 #direction: down
 
-#.found: fill=#ffcccc title=center,bold
-#.core: fill=#ffffcc title=center,bold 
-#.marker: fill=#ccffff title=center,bold 
-#.spec: fill=#ccffcc title=center,bold 
+#.found: fill=#ffe6e6 title=center,bold,italic body=italic
+#.core: fill=#ffcccc title=center,bold,italic body=italic 
+#.marker: fill=#80e5ff title=center,bold,italic body=italic 
+#.spec: fill=#e6ccff title=center,bold 
 
-
-[<found>1. Identity Layer
-||
-INamedCase ← Semantic identification & deduplication
- |
- Purpose: Equality, deduplication, test case naming
- ]
- 
-[<core>2. Core Abstraction Layer
-||
-ITestData ← Non-generic contract for framework adapters
- |
- Purpose: Reflection-based, dynamically typed handling]
- 
-[<marker>3. Pattern Markers Layer
-||
-IExpected<T> ← Expected outcome categorization
- |
- Purpose: Semantic specialization
- - IReturns<TStruct> → Return-value assertions
- - IThrows<TException> → Exception assertions]
- 
-[<spec>4. Specialization Layer
-||
-Concrete DTOs ← Fully typed implementations
-with compile-time type safety
- |
- - TestData<T1..T9> (general test data)
- - TestDataReturns<TStruct, T1..T9> (return-value tests)
- - TestDataThrows<TException, T1..T9> (exception tests)
+[<found>1. Identity
+|
+ Equality, deduplication, test‑case naming
+// ||
+// Types:
+// - INamedCase (contract)
+// -- NamedCase (abstract)
 ]
 
-[
-1. Identity Layer
-] -> [
-2. Core Abstraction Layer
-] -> [
-4. Specialization Layer
-] 
-
-[
-3. Pattern Markers Layer
-] -> [
-4. Specialization Layer
+[<core>2. Core Abstraction
+|
+ Reflection‑based, runtime‑inspected handling
+// ||
+// Types:
+// - ITestData (contract)
+// -- TestDataBase (abstract)
 ]
+
+[<marker>3. Pattern Markers
+|
+ Semantic specialization markers
+// ||
+// Types (contracts):
+// - IExpected
+// -- IExpected<T> (expected‑outcome categories)
+// - IReturns
+// -- IReturns<TStruct> (return‑value assertions)
+// - IThrows
+// -- IThrows<TException> (exception assertions)
+]
+
+[<spec>4. Specialization
+|
+ Immutable, strongly typed DTOs
+// ||
+// Types:
+// - TestData<T1..T9> (general test data)
+// 
+// - TestDataExpected<T> (abstract)
+// -- TestDataReturns<TStruct> (abstract)
+// --- TestDataReturns<TStruct, T1..T9> (return‑value tests)
+// 
+// -- TestDataThrows<TException> (abstract)
+// --- TestDataThrows<TException, T1..T9> (exception tests)
+]
+
+[1. Identity] -> [2. Core Abstraction] -> [4. Specialization] 
+[3. Pattern Markers] -> [4. Specialization]

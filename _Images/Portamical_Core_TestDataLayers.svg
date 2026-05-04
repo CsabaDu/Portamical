@@ -1,197 +1,142 @@
-<svg version="1.1" baseProfile="full" width="891.0" height="530.0" viewBox="0 0 891 530" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+<svg version="1.1" baseProfile="full" width="673.0" height="328.0" viewBox="0 0 673 328" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
 	<title >Portamical_Core_TestDataLayers</title>
 	<desc >#title: Portamical_Core_TestDataLayers
 	#direction: down
 	
-	#.found: fill=#ffcccc title=center,bold
-	#.core: fill=#ffffcc title=center,bold 
-	#.marker: fill=#ccffff title=center,bold 
-	#.spec: fill=#ccffcc title=center,bold 
+	#.found: fill=#ffe6e6 title=center,bold,italic body=italic
+	#.core: fill=#ffcccc title=center,bold,italic body=italic 
+	#.marker: fill=#80e5ff title=center,bold,italic body=italic 
+	#.spec: fill=#e6ccff title=center,bold 
 	
-	
-	[&lt;found&gt;1. Identity Layer
-	||
-	INamedCase ← Semantic identification &amp; deduplication
-	 |
-	 Purpose: Equality, deduplication, test case naming
-	 ]
-	 
-	[&lt;core&gt;2. Core Abstraction Layer
-	||
-	ITestData ← Non-generic contract for framework adapters
-	 |
-	 Purpose: Reflection-based, dynamically typed handling]
-	 
-	[&lt;marker&gt;3. Pattern Markers Layer
-	||
-	IExpected&lt;T&gt; ← Expected outcome categorization
-	 |
-	 Purpose: Semantic specialization
-	 - IReturns&lt;TStruct&gt; → Return-value assertions
-	 - IThrows&lt;TException&gt; → Exception assertions]
-	 
-	[&lt;spec&gt;4. Specialization Layer
-	||
-	Concrete DTOs ← Fully typed implementations
-	with compile-time type safety
-	 |
-	 - TestData&lt;T1..T9&gt; (general test data)
-	 - TestDataReturns&lt;TStruct, T1..T9&gt; (return-value tests)
-	 - TestDataThrows&lt;TException, T1..T9&gt; (exception tests)
+	[&lt;found&gt;1. Identity
+	|
+	 Equality, deduplication, test‑case naming
+	// ||
+	// Types:
+	// - INamedCase (contract)
+	// -- NamedCase (abstract)
 	]
 	
-	[
-	1. Identity Layer
-	] -&gt; [
-	2. Core Abstraction Layer
-	] -&gt; [
-	4. Specialization Layer
-	] 
-	
-	[
-	3. Pattern Markers Layer
-	] -&gt; [
-	4. Specialization Layer
+	[&lt;core&gt;2. Core Abstraction
+	|
+	 Reflection‑based, runtime‑inspected handling
+	// ||
+	// Types:
+	// - ITestData (contract)
+	// -- TestDataBase (abstract)
 	]
-	</desc>
+	
+	[&lt;marker&gt;3. Pattern Markers
+	|
+	 Semantic specialization markers
+	// ||
+	// Types (contracts):
+	// - IExpected
+	// -- IExpected&lt;T&gt; (expected‑outcome categories)
+	// - IReturns
+	// -- IReturns&lt;TStruct&gt; (return‑value assertions)
+	// - IThrows
+	// -- IThrows&lt;TException&gt; (exception assertions)
+	]
+	
+	[&lt;spec&gt;4. Specialization
+	|
+	 Immutable, strongly typed DTOs
+	// ||
+	// Types:
+	// - TestData&lt;T1..T9&gt; (general test data)
+	// 
+	// - TestDataExpected&lt;T&gt; (abstract)
+	// -- TestDataReturns&lt;TStruct&gt; (abstract)
+	// --- TestDataReturns&lt;TStruct, T1..T9&gt; (return‑value tests)
+	// 
+	// -- TestDataThrows&lt;TException&gt; (abstract)
+	// --- TestDataThrows&lt;TException, T1..T9&gt; (exception tests)
+	]
+	
+	[1. Identity] -&gt; [2. Core Abstraction] -&gt; [4. Specialization] 
+	[3. Pattern Markers] -&gt; [4. Specialization]</desc>
 	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="normal" font-style="normal">
 		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
 			<g stroke="transparent" fill="transparent">
-				<rect x="0.0" y="0.0" height="530.0" width="891.0" stroke="none"></rect>
+				<rect x="0.0" y="0.0" height="328.0" width="673.0" stroke="none"></rect>
 			</g>
 			<g transform="translate(8, 8)" fill="#33322E">
 				<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
-					<path d="M211.0 104.0 L211 124 L211 153.83333333333334 L211.0 153.8 " fill="none"></path>
-					<path d="M205.7 147.2 L211.0 153.8 L216.3 147.2 L211.0 160.5 Z"></path>
-					<path d="M211.0 264.5 L211 301 L250.2372598410308 318.30923691272903 L250.2 318.3 " fill="none"></path>
-					<path d="M242.0 320.5 L250.2 318.3 L246.3 310.7 L256.3 321.0 Z"></path>
-					<path d="M648.5 281.0 L648.5 301 L609.2627401589692 318.30923691272903 L609.3 318.3 " fill="none"></path>
-					<path d="M613.2 310.7 L609.3 318.3 L617.5 320.5 L603.2 321.0 Z"></path>
-					<g data-name="1. Identity Layer">
-						<g fill="#ffcccc" stroke="#33322E" data-name="1. Identity Layer">
-							<rect x="9.0" y="0.0" height="104.0" width="404.0" data-name="1. Identity Layer"></rect>
-							<path d="M9.0 32.0 L413.0 32.0" fill="none" data-name="1. Identity Layer"></path>
-							<path d="M9.0 40.0 L413.0 40.0" fill="none" data-name="1. Identity Layer"></path>
-							<path d="M9.0 72.0 L413.0 72.0" fill="none" data-name="1. Identity Layer"></path>
+					<path d="M167.0 64.0 L167 84 L167 97.33333333333333 L167.0 97.3 " fill="none"></path>
+					<path d="M161.7 90.7 L167.0 97.3 L172.3 90.7 L167.0 104.0 Z"></path>
+					<path d="M167.0 168.0 L167 188 L223.81732289219497 205.9878282520191 L223.8 206.0 " fill="none"></path>
+					<path d="M215.9 209.1 L223.8 206.0 L219.1 198.9 L230.2 208.0 Z"></path>
+					<path d="M495.5 168.0 L495.5 188 L438.68267710780503 205.9878282520191 L438.7 206.0 " fill="none"></path>
+					<path d="M443.4 198.9 L438.7 206.0 L446.6 209.1 L432.3 208.0 Z"></path>
+					<g data-name="1. Identity">
+						<g fill="#ffe6e6" stroke="#33322E" data-name="1. Identity">
+							<rect x="15.5" y="0.0" height="64.0" width="303.0" data-name="1. Identity"></rect>
+							<path d="M15.5 32.0 L318.5 32.0" fill="none" data-name="1. Identity"></path>
 						</g>
-						<g transform="translate(9, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="1. Identity Layer" data-compartment="0">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="1. Identity Layer" data-compartment="0">
-								<text x="194.0" y="14.1" stroke="none" text-anchor="middle" data-name="1. Identity Layer" data-compartment="0">1. Identity Layer</text>
+						<g transform="translate(15.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="1. Identity" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="1. Identity" data-compartment="0">
+								<text x="143.5" y="14.1" stroke="none" text-anchor="middle" data-name="1. Identity" data-compartment="0">1. Identity</text>
 								
 							</g>
 						</g>
-						<g transform="translate(9, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="1. Identity Layer" data-compartment="1">
-							<g transform="translate(8, 8)" fill="#33322E" data-name="1. Identity Layer" data-compartment="1">
-								
-							</g>
-						</g>
-						<g transform="translate(9, 40)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="1. Identity Layer" data-compartment="2">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="1. Identity Layer" data-compartment="2">
-								<text x="0.0" y="14.1" stroke="none" data-name="1. Identity Layer" data-compartment="2">INamedCase ← Semantic identification &amp; deduplication</text>
-								
-							</g>
-						</g>
-						<g transform="translate(9, 72)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="1. Identity Layer" data-compartment="3">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="1. Identity Layer" data-compartment="3">
-								<text x="0.0" y="14.1" stroke="none" data-name="1. Identity Layer" data-compartment="3">Purpose: Equality, deduplication, test case naming</text>
+						<g transform="translate(15.5, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="italic" data-name="1. Identity" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="1. Identity" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="1. Identity" data-compartment="1">Equality, deduplication, test‑case naming</text>
 								
 							</g>
 						</g>
 					</g>
-					<g data-name="2. Core Abstraction Layer">
-						<g fill="#ffffcc" stroke="#33322E" data-name="2. Core Abstraction Layer">
-							<rect x="0.0" y="160.5" height="104.0" width="422.0" data-name="2. Core Abstraction Layer"></rect>
-							<path d="M0.0 192.5 L422.0 192.5" fill="none" data-name="2. Core Abstraction Layer"></path>
-							<path d="M0.0 200.5 L422.0 200.5" fill="none" data-name="2. Core Abstraction Layer"></path>
-							<path d="M0.0 232.5 L422.0 232.5" fill="none" data-name="2. Core Abstraction Layer"></path>
+					<g data-name="2. Core Abstraction">
+						<g fill="#ffcccc" stroke="#33322E" data-name="2. Core Abstraction">
+							<rect x="0.0" y="104.0" height="64.0" width="334.0" data-name="2. Core Abstraction"></rect>
+							<path d="M0.0 136.0 L334.0 136.0" fill="none" data-name="2. Core Abstraction"></path>
 						</g>
-						<g transform="translate(0, 160.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="2. Core Abstraction Layer" data-compartment="0">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="2. Core Abstraction Layer" data-compartment="0">
-								<text x="203.0" y="14.1" stroke="none" text-anchor="middle" data-name="2. Core Abstraction Layer" data-compartment="0">2. Core Abstraction Layer</text>
+						<g transform="translate(0, 104)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="2. Core Abstraction" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="2. Core Abstraction" data-compartment="0">
+								<text x="159.0" y="14.1" stroke="none" text-anchor="middle" data-name="2. Core Abstraction" data-compartment="0">2. Core Abstraction</text>
 								
 							</g>
 						</g>
-						<g transform="translate(0, 192.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="2. Core Abstraction Layer" data-compartment="1">
-							<g transform="translate(8, 8)" fill="#33322E" data-name="2. Core Abstraction Layer" data-compartment="1">
-								
-							</g>
-						</g>
-						<g transform="translate(0, 200.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="2. Core Abstraction Layer" data-compartment="2">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="2. Core Abstraction Layer" data-compartment="2">
-								<text x="0.0" y="14.1" stroke="none" data-name="2. Core Abstraction Layer" data-compartment="2">ITestData ← Non-generic contract for framework adapters</text>
-								
-							</g>
-						</g>
-						<g transform="translate(0, 232.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="2. Core Abstraction Layer" data-compartment="3">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="2. Core Abstraction Layer" data-compartment="3">
-								<text x="0.0" y="14.1" stroke="none" data-name="2. Core Abstraction Layer" data-compartment="3">Purpose: Reflection-based, dynamically typed handling</text>
+						<g transform="translate(0, 136)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="italic" data-name="2. Core Abstraction" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="2. Core Abstraction" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="2. Core Abstraction" data-compartment="1">Reflection‑based, runtime‑inspected handling</text>
 								
 							</g>
 						</g>
 					</g>
-					<g data-name="3. Pattern Markers Layer">
-						<g fill="#ccffff" stroke="#33322E" data-name="3. Pattern Markers Layer">
-							<rect x="462.0" y="144.0" height="137.0" width="373.0" data-name="3. Pattern Markers Layer"></rect>
-							<path d="M462.0 176.0 L835.0 176.0" fill="none" data-name="3. Pattern Markers Layer"></path>
-							<path d="M462.0 184.0 L835.0 184.0" fill="none" data-name="3. Pattern Markers Layer"></path>
-							<path d="M462.0 216.0 L835.0 216.0" fill="none" data-name="3. Pattern Markers Layer"></path>
+					<g data-name="3. Pattern Markers">
+						<g fill="#80e5ff" stroke="#33322E" data-name="3. Pattern Markers">
+							<rect x="374.0" y="104.0" height="64.0" width="243.0" data-name="3. Pattern Markers"></rect>
+							<path d="M374.0 136.0 L617.0 136.0" fill="none" data-name="3. Pattern Markers"></path>
 						</g>
-						<g transform="translate(462, 144)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="3. Pattern Markers Layer" data-compartment="0">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="3. Pattern Markers Layer" data-compartment="0">
-								<text x="178.5" y="14.1" stroke="none" text-anchor="middle" data-name="3. Pattern Markers Layer" data-compartment="0">3. Pattern Markers Layer</text>
+						<g transform="translate(374, 104)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="3. Pattern Markers" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="3. Pattern Markers" data-compartment="0">
+								<text x="113.5" y="14.1" stroke="none" text-anchor="middle" data-name="3. Pattern Markers" data-compartment="0">3. Pattern Markers</text>
 								
 							</g>
 						</g>
-						<g transform="translate(462, 176)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="3. Pattern Markers Layer" data-compartment="1">
-							<g transform="translate(8, 8)" fill="#33322E" data-name="3. Pattern Markers Layer" data-compartment="1">
-								
-							</g>
-						</g>
-						<g transform="translate(462, 184)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="3. Pattern Markers Layer" data-compartment="2">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="3. Pattern Markers Layer" data-compartment="2">
-								<text x="0.0" y="14.1" stroke="none" data-name="3. Pattern Markers Layer" data-compartment="2">IExpected&lt;T&gt; ← Expected outcome categorization</text>
-								
-							</g>
-						</g>
-						<g transform="translate(462, 216)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="3. Pattern Markers Layer" data-compartment="3">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="3. Pattern Markers Layer" data-compartment="3">
-								<text x="0.0" y="14.1" stroke="none" data-name="3. Pattern Markers Layer" data-compartment="3">Purpose: Semantic specialization</text>
-								<text x="0.0" y="30.3" stroke="none" data-name="3. Pattern Markers Layer" data-compartment="3">- IReturns&lt;TStruct&gt; → Return-value assertions</text>
-								<text x="0.0" y="46.5" stroke="none" data-name="3. Pattern Markers Layer" data-compartment="3">- IThrows&lt;TException&gt; → Exception assertions</text>
+						<g transform="translate(374, 136)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="italic" data-name="3. Pattern Markers" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="3. Pattern Markers" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="3. Pattern Markers" data-compartment="1">Semantic specialization markers</text>
 								
 							</g>
 						</g>
 					</g>
-					<g data-name="4. Specialization Layer">
-						<g fill="#ccffcc" stroke="#33322E" data-name="4. Specialization Layer">
-							<rect x="223.3" y="321.0" height="153.0" width="413.0" data-name="4. Specialization Layer"></rect>
-							<path d="M223.3 353.0 L636.3 353.0" fill="none" data-name="4. Specialization Layer"></path>
-							<path d="M223.3 361.0 L636.3 361.0" fill="none" data-name="4. Specialization Layer"></path>
-							<path d="M223.3 409.0 L636.3 409.0" fill="none" data-name="4. Specialization Layer"></path>
+					<g data-name="4. Specialization">
+						<g fill="#e6ccff" stroke="#33322E" data-name="4. Specialization">
+							<rect x="209.8" y="208.0" height="64.0" width="243.0" data-name="4. Specialization"></rect>
+							<path d="M209.8 240.0 L452.8 240.0" fill="none" data-name="4. Specialization"></path>
 						</g>
-						<g transform="translate(223.25, 321)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="4. Specialization Layer" data-compartment="0">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="4. Specialization Layer" data-compartment="0">
-								<text x="198.5" y="14.1" stroke="none" text-anchor="middle" data-name="4. Specialization Layer" data-compartment="0">4. Specialization Layer</text>
+						<g transform="translate(209.75, 208)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="4. Specialization" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="4. Specialization" data-compartment="0">
+								<text x="113.5" y="14.1" stroke="none" text-anchor="middle" data-name="4. Specialization" data-compartment="0">4. Specialization</text>
 								
 							</g>
 						</g>
-						<g transform="translate(223.25, 353)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="4. Specialization Layer" data-compartment="1">
-							<g transform="translate(8, 8)" fill="#33322E" data-name="4. Specialization Layer" data-compartment="1">
-								
-							</g>
-						</g>
-						<g transform="translate(223.25, 361)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="4. Specialization Layer" data-compartment="2">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="4. Specialization Layer" data-compartment="2">
-								<text x="0.0" y="14.1" stroke="none" data-name="4. Specialization Layer" data-compartment="2">Concrete DTOs ← Fully typed implementations</text>
-								<text x="0.0" y="30.3" stroke="none" data-name="4. Specialization Layer" data-compartment="2">with compile-time type safety</text>
-								
-							</g>
-						</g>
-						<g transform="translate(223.25, 409)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="4. Specialization Layer" data-compartment="3">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="4. Specialization Layer" data-compartment="3">
-								<text x="0.0" y="14.1" stroke="none" data-name="4. Specialization Layer" data-compartment="3">- TestData&lt;T1..T9&gt; (general test data)</text>
-								<text x="0.0" y="30.3" stroke="none" data-name="4. Specialization Layer" data-compartment="3">- TestDataReturns&lt;TStruct, T1..T9&gt; (return-value tests)</text>
-								<text x="0.0" y="46.5" stroke="none" data-name="4. Specialization Layer" data-compartment="3">- TestDataThrows&lt;TException, T1..T9&gt; (exception tests)</text>
+						<g transform="translate(209.75, 240)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="4. Specialization" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="4. Specialization" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="4. Specialization" data-compartment="1">Immutable, strongly typed DTOs</text>
 								
 							</g>
 						</g>
