@@ -1,0 +1,12 @@
+#title: Portamical_Packages_Dependencies_Schema
+#direction: right
+
+#.core: fill=#ffe6e6 title=bold
+#.shared: fill=#ffcccc title=bold
+#.native: fill=#ffb3b3 title=bold
+#.framework: fill=#80e5ff title=bold
+
+[<framework>Frameworks] <--
+[<native>Native Adapters] -->
+[<shared>Shared] -->
+[<core>Core]
