@@ -1,0 +1,193 @@
+<svg version="1.1" baseProfile="full" width="524.0" height="328.0" viewBox="0 0 524 328" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_TUnit_Dependencies</title>
+	<desc >#title: Portamical_TUnit_Dependencies
+	#direction: down
+	
+	#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+	#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+	#.package: title=bold,left visual=frame
+	#.concrete: fill=#C9DEEF title=center,bold body=left
+	#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+	
+	
+	
+	// Portamical.xUnit_v3
+	[&lt;package&gt;Portamical | 
+	] &lt;-- [
+	Portamical.TUnit
+	]
+	
+	[&lt;package&gt;
+	TUnit.Core | 
+	] &lt;-- [
+	Portamical.TUnit
+	]
+	
+	[&lt;package&gt;
+	TUnit.Assertions | 
+	] &lt;-- [
+	Portamical.TUnit
+	]
+	
+	
+	[&lt;package&gt; Portamical.TUnit
+	|
+	
+	[&lt;static&gt;Converters]
+	[&lt;abstract&gt;TestBases]
+	[&lt;concrete&gt;Attributes]
+	[&lt;abstract&gt;Assertions]
+	
+	[
+	Converters
+	] &lt;-- [
+	TestBases
+	]
+	
+	]
+	
+	
+	
+	</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="bold" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="328.0" width="524.0" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+					<g stroke-dasharray="6 6">
+						<path d="M59.5 46.7 L59.5 60 L85.87931034482759 80 L85.9 80.0 " fill="none"></path>
+					</g>
+					<path d="M64.8 53.3 L59.5 46.7 L54.2 53.3 L59.5 40.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M212.5 46.7 L212.5 60 L212.5 80 L212.5 80.0 " fill="none"></path>
+					</g>
+					<path d="M217.8 53.3 L212.5 46.7 L207.2 53.3 L212.5 40.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M388.5 46.7 L388.5 60 L358.15517241379314 80 L358.2 80.0 " fill="none"></path>
+					</g>
+					<path d="M393.8 53.3 L388.5 46.7 L383.2 53.3 L388.5 40.0 Z"></path>
+					<g data-name="Portamical">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical">
+							<rect x="3.0" y="0.0" height="40.0" width="113.0" data-name="Portamical"></rect>
+							<path d="M3.0 32.0 L92.0 32.0 L108.0 16.0 L108.0 0.0" fill="none" data-name="Portamical"></path>
+						</g>
+						<g transform="translate(3, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical" data-compartment="0">Portamical</text>
+								
+							</g>
+						</g>
+						<g transform="translate(3, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Portamical.TUnit">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Portamical.TUnit">
+							<rect x="0.0" y="80.0" height="192.0" width="425.0" data-name="Portamical.TUnit"></rect>
+							<path d="M0.0 112.0 L134.0 112.0 L150.0 96.0 L150.0 80.0" fill="none" data-name="Portamical.TUnit"></path>
+						</g>
+						<g transform="translate(0, 80)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Portamical.TUnit" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Portamical.TUnit" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="Portamical.TUnit" data-compartment="0">Portamical.TUnit</text>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 112)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.TUnit" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Portamical.TUnit" data-compartment="1">
+								<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Portamical.TUnit" data-compartment="1">
+									<g stroke-dasharray="6 6" data-name="Portamical.TUnit" data-compartment="1">
+										<path d="M50.0 38.7 L50 52 L50 72 L50.0 72.0 " fill="none" data-name="Portamical.TUnit" data-compartment="1"></path>
+									</g>
+									<path d="M55.3 45.3 L50.0 38.7 L44.7 45.3 L50.0 32.0 Z" data-name="Portamical.TUnit" data-compartment="1"></path>
+									<g data-name="Converters">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Converters">
+											<rect x="0.0" y="0.0" height="32.0" width="100.0" data-name="Converters"></rect>
+										</g>
+										<g transform="translate(0, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Converters" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Converters" data-compartment="0">
+												<text x="42.0" y="14.1" stroke="none" text-anchor="middle" data-name="Converters" data-compartment="0">Converters</text>
+												<path d="M0.1 16.6 L83.9 16.6" fill="none" data-name="Converters" data-compartment="0"></path>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="TestBases">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="TestBases">
+											<rect x="3.0" y="72.0" height="32.0" width="94.0" data-name="TestBases"></rect>
+										</g>
+										<g transform="translate(3, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="TestBases" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="TestBases" data-compartment="0">
+												<text x="39.0" y="14.1" stroke="none" text-anchor="middle" data-name="TestBases" data-compartment="0">TestBases</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Attributes">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Attributes">
+											<rect x="140.0" y="0.0" height="32.0" width="91.0" data-name="Attributes"></rect>
+										</g>
+										<g transform="translate(140, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Attributes" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Attributes" data-compartment="0">
+												<text x="37.5" y="14.1" stroke="none" text-anchor="middle" data-name="Attributes" data-compartment="0">Attributes</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Assertions">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Assertions">
+											<rect x="271.0" y="0.0" height="32.0" width="98.0" data-name="Assertions"></rect>
+										</g>
+										<g transform="translate(271, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Assertions" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Assertions" data-compartment="0">
+												<text x="41.0" y="14.1" stroke="none" text-anchor="middle" data-name="Assertions" data-compartment="0">Assertions</text>
+												
+											</g>
+										</g>
+									</g>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g data-name="TUnit.Core">
+						<g fill="#eee8d5" stroke="#33322E" data-name="TUnit.Core">
+							<rect x="156.0" y="0.0" height="40.0" width="113.0" data-name="TUnit.Core"></rect>
+							<path d="M156.0 32.0 L245.0 32.0 L261.0 16.0 L261.0 0.0" fill="none" data-name="TUnit.Core"></path>
+						</g>
+						<g transform="translate(156, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="TUnit.Core" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="TUnit.Core" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="TUnit.Core" data-compartment="0">TUnit.Core</text>
+								
+							</g>
+						</g>
+						<g transform="translate(156, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="TUnit.Core" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="TUnit.Core" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="TUnit.Assertions">
+						<g fill="#eee8d5" stroke="#33322E" data-name="TUnit.Assertions">
+							<rect x="309.0" y="0.0" height="40.0" width="159.0" data-name="TUnit.Assertions"></rect>
+							<path d="M309.0 32.0 L444.0 32.0 L460.0 16.0 L460.0 0.0" fill="none" data-name="TUnit.Assertions"></path>
+						</g>
+						<g transform="translate(309, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="TUnit.Assertions" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="TUnit.Assertions" data-compartment="0">
+								<text x="0.0" y="14.1" stroke="none" data-name="TUnit.Assertions" data-compartment="0">TUnit.Assertions</text>
+								
+							</g>
+						</g>
+						<g transform="translate(309, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="TUnit.Assertions" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="TUnit.Assertions" data-compartment="1">
+								
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

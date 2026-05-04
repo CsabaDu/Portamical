@@ -19,7 +19,13 @@
 [<package>NUnitLite | ] <--
 [<package> Portamical.NUnit | ]
 
+// Portamical.TUnit
 
+[<package>TUnit.Core | ] <--
+[<package> Portamical.TUnit | ]
+
+[<package>TUnit.Assertions | ] <--
+[Portamical.TUnit]
 
 // Portamical.xUnit
 
@@ -46,16 +52,21 @@
 // Portamical
 [<package> Portamical | ]
 
+[Portamical.NUnit] -->
+[Portamical]
+
+[Portamical.TUnit] -->
+[Portamical]
+
 [Portamical.MSTest] -->
 [Portamical]
 
-[Portamical.NUnit] -->
+[Portamical.xUnit_v3] -->
 [Portamical]
+
 [Portamical.xUnit] -->
 [Portamical]
 
-[Portamical.xUnit_v3] -->
-[Portamical] -->
-
 // Portamical.Core
+[Portamical] -->
 [<package> Portamical.Core | ]

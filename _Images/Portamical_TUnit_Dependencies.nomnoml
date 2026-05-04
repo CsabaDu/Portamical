@@ -1,0 +1,48 @@
+#title: Portamical_TUnit_Dependencies
+#direction: down
+
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
+#.static: fill=#C9DEEF title=center,bold,underline body=left,italic
+#.package: title=bold,left visual=frame
+#.concrete: fill=#C9DEEF title=center,bold body=left
+#.abstract: fill=#C9DEEF title=center,bold, italic body=left
+
+
+
+// Portamical.xUnit_v3
+[<package>Portamical | 
+] <-- [
+Portamical.TUnit
+]
+
+[<package>
+TUnit.Core | 
+] <-- [
+Portamical.TUnit
+]
+
+[<package>
+TUnit.Assertions | 
+] <-- [
+Portamical.TUnit
+]
+
+
+[<package> Portamical.TUnit
+|
+
+[<static>Converters]
+[<abstract>TestBases]
+[<concrete>Attributes]
+[<abstract>Assertions]
+
+[
+Converters
+] <-- [
+TestBases
+]
+
+]
+
+
+
