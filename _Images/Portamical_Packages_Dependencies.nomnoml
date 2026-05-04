@@ -13,7 +13,7 @@
 #.framework: fill=#80e5ff title=bold,left visual=frame
 
 [Test frameworks
-(exzernal dependencies)] <--
+(external dependencies)] <--
 [Adapters] -->
 [Shared] -->
 [Core]
