@@ -15,7 +15,7 @@
 	#.framework: fill=#80e5ff title=bold,left visual=frame
 	
 	[Test frameworks
-	(outer dependencies)] &lt;--
+	(exzernal dependencies)] &lt;--
 	[Adapters] --&gt;
 	[Shared] --&gt;
 	[Core]
@@ -90,9 +90,9 @@
 			<g transform="translate(8, 8)" fill="#33322E">
 				<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
 					<g stroke-dasharray="6 6">
-						<path d="M207.2 24.0 L245 24 L314.5 24 L314.5 24.0 " fill="none"></path>
+						<path d="M219.2 24.0 L245 24 L314.5 24 L314.5 24.0 " fill="none"></path>
 					</g>
-					<path d="M213.8 18.7 L207.2 24.0 L213.8 29.3 L200.5 24.0 Z"></path>
+					<path d="M225.8 18.7 L219.2 24.0 L225.8 29.3 L212.5 24.0 Z"></path>
 					<g stroke-dasharray="6 6">
 						<path d="M399.5 24.0 L469 24 L503.8333333333333 24 L503.8 24.0 " fill="none"></path>
 					</g>
@@ -163,12 +163,12 @@
 					<path d="M628.7 353.3 L635.3 348.0 L628.7 342.7 L642.0 348.0 Z"></path>
 					<g data-name="Test frameworks">
 						<g fill="#eee8d5" stroke="#33322E" data-name="Test frameworks">
-							<rect x="24.5" y="0.0" height="48.0" width="176.0" data-name="Test frameworks"></rect>
+							<rect x="12.5" y="0.0" height="48.0" width="200.0" data-name="Test frameworks"></rect>
 						</g>
-						<g transform="translate(24.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Test frameworks" data-compartment="0">
+						<g transform="translate(12.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Test frameworks" data-compartment="0">
 							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Test frameworks" data-compartment="0">
-								<text x="80.0" y="14.1" stroke="none" text-anchor="middle" data-name="Test frameworks" data-compartment="0">Test frameworks</text>
-								<text x="80.0" y="30.3" stroke="none" text-anchor="middle" data-name="Test frameworks" data-compartment="0">(outer dependencies)</text>
+								<text x="92.0" y="14.1" stroke="none" text-anchor="middle" data-name="Test frameworks" data-compartment="0">Test frameworks</text>
+								<text x="92.0" y="30.3" stroke="none" text-anchor="middle" data-name="Test frameworks" data-compartment="0">(exzernal dependencies)</text>
 								
 							</g>
 						</g>
