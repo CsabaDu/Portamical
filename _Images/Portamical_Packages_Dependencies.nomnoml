@@ -12,6 +12,11 @@
 #.native: fill=#ffb3b3 title=bold,left visual=frame
 #.framework: fill=#80e5ff title=bold,left visual=frame
 
+[Frameworks] <--
+[Adapters] -->
+[Shared] -->
+[Core]
+
 // Portamical.MSTest
 
 [<framework>MSTest.TestFramework | ] <--
