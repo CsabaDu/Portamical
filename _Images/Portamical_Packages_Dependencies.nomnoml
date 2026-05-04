@@ -7,50 +7,54 @@
 #.concrete: fill=#C9DEEF title=center,bold body=left
 #.abstract: fill=#C9DEEF title=center,bold, italic body=left
 
-
+#.core: fill=#ffe6e6 title=bold,left visual=frame
+#.shared: fill=#ffcccc title=bold,left visual=frame
+#.native: fill=#ffb3b3 title=bold,left visual=frame
+#.framework: fill=#80e5ff title=bold,left visual=frame
+ffe6e6
 
 // Portamical.MSTest
 
-[<package>MSTest.TestFramework | ] <--
-[<package> Portamical.MSTest | ]
+[<framework>MSTest.TestFramework | ] <--
+[<native> Portamical.MSTest | ]
 
 // Portamical.NUnit
 
-[<package>NUnitLite | ] <--
-[<package> Portamical.NUnit | ]
+[<framework>NUnitLite | ] <--
+[<native> Portamical.NUnit | ]
 
 // Portamical.TUnit
 
-[<package>TUnit.Core | ] <--
-[<package> Portamical.TUnit | ]
+[<framework>TUnit.Core | ] <--
+[<native> Portamical.TUnit | ]
 
-[<package>TUnit.Assertions | ] <--
+[<framework>TUnit.Assertions | ] <--
 [Portamical.TUnit]
 
 // Portamical.xUnit
 
-[<package>xunit.core | ] <--
-[<package> Portamical.xUnit | ]
+[<framework>xunit.core | ] <--
+[<native> Portamical.xUnit | ]
 
-[<package>xunit.runner.visualstudio | ] <--
+[<framework>xunit.runner.visualstudio | ] <--
 [Portamical.xUnit]
 
-[<package>xunit.assert | ] <--
+[<framework>xunit.assert | ] <--
 [Portamical.xUnit]
 
 // Portamical.xUnit_v3
 
-[<package>xunit.v3.extensibility.core | ] <--
-[<package> Portamical.xUnit_v3 | ]
+[<framework>xunit.v3.extensibility.core | ] <--
+[<native> Portamical.xUnit_v3 | ]
 
-[<package>xunit.v3.assert | ] <--
+[<framework>xunit.v3.assert | ] <--
 [Portamical.xUnit_v3]
 
 
 
 
 // Portamical
-[<package> Portamical | ]
+[<shared> Portamical | ]
 
 [Portamical.NUnit] -->
 [Portamical]
@@ -69,4 +73,4 @@
 
 // Portamical.Core
 [Portamical] -->
-[<package> Portamical.Core | ]
+[<core> Portamical.Core | ]
