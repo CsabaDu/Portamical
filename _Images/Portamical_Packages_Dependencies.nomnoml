@@ -10,7 +10,7 @@
 #.core: fill=#ffe6e6 title=bold,left visual=frame
 #.shared: fill=#ffcccc title=bold,left visual=frame
 #.native: fill=#ffb3b3 title=bold,left visual=frame
-#.framework: fill=#80e5ff title=bold,left visual=frame
+#.framework: fill=#ffd9b3 title=bold,left visual=frame
 
 [Test frameworks
 (external dependencies)] <--
@@ -61,13 +61,13 @@
 // Portamical
 [<shared> Portamical | ]
 
-[Portamical.NUnit] -->
+[Portamical.MSTest] -->
 [Portamical]
 
 [Portamical.TUnit] -->
 [Portamical]
 
-[Portamical.MSTest] -->
+[Portamical.NUnit] -->
 [Portamical]
 
 [Portamical.xUnit_v3] -->
