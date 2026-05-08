@@ -1,0 +1,73 @@
+#title: Portamical_Core_Layers
+#direction: down
+
+#.layer: fill=#adebeb title=bold
+#.utility: fill=#70dbdb title=bold
+
+#.found: fill=#ffe6e6 title=center,bold,italic body=italic
+#.core: fill=#ffcccc title=center,bold,italic body=italic 
+#.marker: fill=#80e5ff title=center,bold,italic body=italic 
+#.spec: fill=#e6ccff title=center,bold 
+
+
+  [<found>Identity Layer]
+  [<core>Core Abstraction Layer]
+  [<marker>Pattern Markers Layer]
+  [<spec>Specialization Layer]
+ 
+  [<utility>Safety Layer]
+  [<utility>Strategy Layer]
+  [<utility>Conversion Pipeline]
+  [<utility>Factory Layer]
+
+  [
+  Safety Layer
+  ] <:-- [
+  Identity Layer
+  ]
+
+  
+  [
+  Conversion Pipeline
+  ] --:> [
+  Strategy Layer
+  ]
+  
+  [
+  Conversion Pipeline
+  ] --:> [
+  Core Abstraction Layer
+  ]
+
+
+  [
+  Strategy Layer
+  ] <:-- [
+  Specialization Layer
+  ]
+
+  [
+  Identity Layer
+  ] <:-- [
+  Core Abstraction Layer
+  ]
+  
+  [
+  Core Abstraction Layer
+  ] <:-- [
+  Specialization Layer
+  ]
+
+  [
+  Specialization Layer
+  ] <:-- [
+  Factory Layer
+  ]
+
+  
+  [
+  Pattern Markers Layer
+  ] <:-- [
+  Specialization Layer
+  ]
+

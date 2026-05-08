@@ -1,0 +1,208 @@
+<svg version="1.1" baseProfile="full" width="651.0" height="376.0" viewBox="0 0 651 376" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_Core_Layers</title>
+	<desc >#title: Portamical_Core_Layers
+	#direction: down
+	
+	#.layer: fill=#adebeb title=bold
+	#.utility: fill=#70dbdb title=bold
+	
+	#.found: fill=#ffe6e6 title=center,bold,italic body=italic
+	#.core: fill=#ffcccc title=center,bold,italic body=italic 
+	#.marker: fill=#80e5ff title=center,bold,italic body=italic 
+	#.spec: fill=#e6ccff title=center,bold 
+	
+	
+	  [&lt;found&gt;Identity Layer]
+	  [&lt;core&gt;Core Abstraction Layer]
+	  [&lt;marker&gt;Pattern Markers Layer]
+	  [&lt;spec&gt;Specialization Layer]
+	 
+	  [&lt;utility&gt;Safety Layer]
+	  [&lt;utility&gt;Strategy Layer]
+	  [&lt;utility&gt;Conversion Pipeline]
+	  [&lt;utility&gt;Factory Layer]
+	
+	  [
+	  Safety Layer
+	  ] &lt;:-- [
+	  Identity Layer
+	  ]
+	
+	  
+	  [
+	  Conversion Pipeline
+	  ] --:&gt; [
+	  Strategy Layer
+	  ]
+	  
+	  [
+	  Conversion Pipeline
+	  ] --:&gt; [
+	  Core Abstraction Layer
+	  ]
+	
+	
+	  [
+	  Strategy Layer
+	  ] &lt;:-- [
+	  Specialization Layer
+	  ]
+	
+	  [
+	  Identity Layer
+	  ] &lt;:-- [
+	  Core Abstraction Layer
+	  ]
+	  
+	  [
+	  Core Abstraction Layer
+	  ] &lt;:-- [
+	  Specialization Layer
+	  ]
+	
+	  [
+	  Specialization Layer
+	  ] &lt;:-- [
+	  Factory Layer
+	  ]
+	
+	  
+	  [
+	  Pattern Markers Layer
+	  ] &lt;:-- [
+	  Specialization Layer
+	  ]
+	
+	</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="bold" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="376.0" width="651.0" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)" fill="#eee8d5" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+					<g stroke-dasharray="6 6">
+						<path d="M296.0 45.3 L296 52 L296 72 L296.0 72.0 " fill="none"></path>
+					</g>
+					<path d="M301.3 45.3 L296.0 45.3 L290.7 45.3 L296.0 32.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M75.6 104.0 L64.5 124 L64.5 130.66666666666666 L64.5 130.7 " fill="none"></path>
+					</g>
+					<path d="M59.2 130.7 L64.5 130.7 L69.8 130.7 L64.5 144.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M128.7 104.0 L184 124 L222.6945407150344 139.1413420189265 L222.7 139.1 " fill="none"></path>
+					</g>
+					<path d="M220.8 144.1 L222.7 139.1 L224.6 134.2 L235.1 144.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M64.5 189.3 L64.5 196 L192 217.70212765957447 L192.0 217.7 " fill="none"></path>
+					</g>
+					<path d="M69.8 189.3 L64.5 189.3 L59.2 189.3 L64.5 176.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M296.0 117.3 L296 124 L284.8888888888889 144 L284.9 144.0 " fill="none"></path>
+					</g>
+					<path d="M301.3 117.3 L296.0 117.3 L290.7 117.3 L296.0 104.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M276.0 189.3 L276 196 L276 216 L276.0 216.0 " fill="none"></path>
+					</g>
+					<path d="M281.3 189.3 L276.0 189.3 L270.7 189.3 L276.0 176.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M276.0 261.3 L276 268 L276 288 L276.0 288.0 " fill="none"></path>
+					</g>
+					<path d="M281.3 261.3 L276.0 261.3 L270.7 261.3 L276.0 248.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M503.5 189.3 L503.5 196 L360 218.7076923076923 L360.0 218.7 " fill="none"></path>
+					</g>
+					<path d="M508.8 189.3 L503.5 189.3 L498.2 189.3 L503.5 176.0 Z"></path>
+					<g data-name="Identity Layer">
+						<g fill="#ffe6e6" stroke="#33322E" data-name="Identity Layer">
+							<rect x="236.5" y="72.0" height="32.0" width="119.0" data-name="Identity Layer"></rect>
+						</g>
+						<g transform="translate(236.5, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Identity Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Identity Layer" data-compartment="0">
+								<text x="51.5" y="14.1" stroke="none" text-anchor="middle" data-name="Identity Layer" data-compartment="0">Identity Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Core Abstraction Layer">
+						<g fill="#ffcccc" stroke="#33322E" data-name="Core Abstraction Layer">
+							<rect x="180.0" y="144.0" height="32.0" width="192.0" data-name="Core Abstraction Layer"></rect>
+						</g>
+						<g transform="translate(180, 144)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Core Abstraction Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Core Abstraction Layer" data-compartment="0">
+								<text x="88.0" y="14.1" stroke="none" text-anchor="middle" data-name="Core Abstraction Layer" data-compartment="0">Core Abstraction Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Pattern Markers Layer">
+						<g fill="#80e5ff" stroke="#33322E" data-name="Pattern Markers Layer">
+							<rect x="412.0" y="144.0" height="32.0" width="183.0" data-name="Pattern Markers Layer"></rect>
+						</g>
+						<g transform="translate(412, 144)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Pattern Markers Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Pattern Markers Layer" data-compartment="0">
+								<text x="83.5" y="14.1" stroke="none" text-anchor="middle" data-name="Pattern Markers Layer" data-compartment="0">Pattern Markers Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Specialization Layer">
+						<g fill="#e6ccff" stroke="#33322E" data-name="Specialization Layer">
+							<rect x="192.0" y="216.0" height="32.0" width="168.0" data-name="Specialization Layer"></rect>
+						</g>
+						<g transform="translate(192, 216)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Specialization Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Specialization Layer" data-compartment="0">
+								<text x="76.0" y="14.1" stroke="none" text-anchor="middle" data-name="Specialization Layer" data-compartment="0">Specialization Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Safety Layer">
+						<g fill="#70dbdb" stroke="#33322E" data-name="Safety Layer">
+							<rect x="241.0" y="0.0" height="32.0" width="110.0" data-name="Safety Layer"></rect>
+						</g>
+						<g transform="translate(241, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Safety Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Safety Layer" data-compartment="0">
+								<text x="47.0" y="14.1" stroke="none" text-anchor="middle" data-name="Safety Layer" data-compartment="0">Safety Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Strategy Layer">
+						<g fill="#70dbdb" stroke="#33322E" data-name="Strategy Layer">
+							<rect x="1.5" y="144.0" height="32.0" width="126.0" data-name="Strategy Layer"></rect>
+						</g>
+						<g transform="translate(1.5, 144)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Strategy Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Strategy Layer" data-compartment="0">
+								<text x="55.0" y="14.1" stroke="none" text-anchor="middle" data-name="Strategy Layer" data-compartment="0">Strategy Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Conversion Pipeline">
+						<g fill="#70dbdb" stroke="#33322E" data-name="Conversion Pipeline">
+							<rect x="0.0" y="72.0" height="32.0" width="169.0" data-name="Conversion Pipeline"></rect>
+						</g>
+						<g transform="translate(0, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Conversion Pipeline" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Conversion Pipeline" data-compartment="0">
+								<text x="76.5" y="14.1" stroke="none" text-anchor="middle" data-name="Conversion Pipeline" data-compartment="0">Conversion Pipeline</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Factory Layer">
+						<g fill="#70dbdb" stroke="#33322E" data-name="Factory Layer">
+							<rect x="216.0" y="288.0" height="32.0" width="120.0" data-name="Factory Layer"></rect>
+						</g>
+						<g transform="translate(216, 288)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Factory Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Factory Layer" data-compartment="0">
+								<text x="52.0" y="14.1" stroke="none" text-anchor="middle" data-name="Factory Layer" data-compartment="0">Factory Layer</text>
+								
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

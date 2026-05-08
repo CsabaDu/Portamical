@@ -3,7 +3,7 @@
 
 #.contract: fill=#DCE8CF title=center,italic,bold body=left,italic
 #.static: fill=#C9DEEF title=center,bold,underline body=left,italic
-#.package: title=bold,left visual=frame
+#.module: title=bold,left visual=frame
 #.concrete: fill=#C9DEEF title=center,bold body=left
 #.abstract: fill=#C9DEEF title=center,bold, italic body=left
 
@@ -12,11 +12,32 @@
 #.native: fill=#ffb3b3 title=bold,left visual=frame
 #.framework: fill=#ffd9b3 title=bold,left visual=frame
 
-[Test frameworks
+
+[<package>Test frameworks
+|
 (external dependencies)] <--
-[Adapters] -->
-[Shared] -->
-[Core]
+[<package>Adapters
+|
+Thin integration layers
+for each supported test framework,
+extending the Shared Module
+and binding it to the corresponding
+MSTest, NUnit, xUnit, xUnit v3,
+or TUnit packages.] -->
+[<package>Shared
+|
+Framework‑independent converters,
+base assertions, data providers,
+and foundational test classes
+built strictly on the Core.] -->
+[<package>Core
+|
+Framework‑agnostic domain kernel
+ontaining the full immutable data model
+and its contracts and factories,
+with zero external dependencies.]
+
+
 
 // Portamical.MSTest
 
