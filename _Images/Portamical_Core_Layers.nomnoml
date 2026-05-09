@@ -17,7 +17,6 @@
  
   [<utility>Safety Layer]
   [<utility>Strategy Layer]
-  [<utility>Conversion Pipeline]
   [<utility>Factory Layer]
 
   [
@@ -27,24 +26,6 @@
   ]
 
   
-  [
-  Conversion Pipeline
-  ] --:> [
-  Strategy Layer
-  ]
-  
-  [
-  Conversion Pipeline
-  ] --:> [
-  Core Abstraction Layer
-  ]
-
-
-  [
-  Strategy Layer
-  ] <:-- [
-  Specialization Layer
-  ]
 
   [
   Identity Layer
@@ -62,6 +43,12 @@
   Specialization Layer
   ] <:-- [
   Factory Layer
+  ]
+
+  [
+  Strategy Layer
+  ] <:-- [
+  Specialization Layer
   ]
 
   
