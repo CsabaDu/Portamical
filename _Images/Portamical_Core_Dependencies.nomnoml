@@ -7,7 +7,7 @@
 #.concrete: fill=#C9DEEF title=center,bold body=left
 #.abstract: fill=#C9DEEF title=center,bold, italic body=left
 
-[<package> Portamical.Core
+[<frame> Portamical.Core
 |
 [<static>Strategy]
 [<contract>Identity]

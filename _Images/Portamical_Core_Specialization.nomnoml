@@ -1,0 +1,40 @@
+#title: Portamical_Core_Specialization
+#direction: down
+#.contract: fill=#DCE8CF title=center,italic,bold
+#.contractlight: fill=#DCE8CF title=center,italic
+#.abstractbold: fill=#C9DEEF title=center,italic,bold
+#.abstract: fill=#C9DEEF title=center,italic
+#.concrete: fill=#C9DEEF title=center,bold
+
+[<contractlight>ITestData] <:--
+[<abstractbold> TestDataBase]
+
+[<concrete> TestData<T1..T9>] -:>
+[<concrete> TestData<T1>] -:>
+[<abstractbold>TestData] -:>
+[<abstractbold>TestDataBase]
+
+
+[<contractlight> IReturns<TStruct>
+where TStruct: struct] <:--
+[<abstractbold> TestDataReturns<TStruct>] 
+
+[<abstract>NamedCase] <:-
+[<abstractbold> TestDataBase] <:-
+[<abstractbold> TestDataExpected<TResult>] <:-
+[<abstractbold> TestDataReturns<TStruct>] <:-
+[<concrete> TestDataReturns<TStruct, T1>] <:-
+[<concrete> TestDataReturns<TStruct, T1..T9>]
+
+[<abstractbold> TestDataExpected<TResult>] --:>
+[<contractlight> IExpected<TResult>
+where TResult: notnull]
+
+[<contractlight> IThrows<TException>
+where TException: Exception] <:--
+[<abstractbold> TestDataThrows<TException>] 
+
+[<abstractbold> TestDataExpected<TResult>] <:-
+[<abstractbold> TestDataThrows<TException>] <:-
+[<concrete> TestDataThrows<TException, T1>] <:-
+[<concrete> TestDataThrows<TException, T1..T9>]

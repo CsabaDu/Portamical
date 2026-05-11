@@ -1,0 +1,111 @@
+#title: Portamical_Core_Layers_Full
+#direction: down
+
+#.layer: fill=#adebeb title=bold
+#.utility: fill=#70dbdb title=bold,underline
+
+#.found: fill=#ffe6e6 title=center,bold,italic body=italic
+#.core: fill=#ffcccc title=center,bold,italic body=italic 
+#.marker: fill=#80e5ff title=center,bold,italic body=italic 
+#.spec: fill=#e6ccff title=center,bold 
+
+
+
+[<found>Identity Layer
+|
+ Equality, deduplication, test‑case naming
+// ||
+// Types:
+// - INamedCase (contract)
+// -- NamedCase (abstract)
+]
+
+[<core>Core Abstraction Layer
+|
+ Reflection‑based, runtime‑inspected handling
+// ||
+// Types:
+// - ITestData (contract)
+// -- TestDataBase (abstract)
+]
+
+[<marker>Pattern Markers Layer
+|
+ Semantic specialization markers
+// ||
+// Types (contracts):
+// - IExpected
+// -- IExpected<T> (expected‑outcome categories)
+// - IReturns
+// -- IReturns<TStruct> (return‑value assertions)
+// - IThrows
+// -- IThrows<TException> (exception assertions)
+]
+
+[<spec>Specialization Layer
+|
+ Immutable, strongly typed DTOs
+// ||
+// Types:
+// - TestData<T1..T9> (general test data)
+// 
+// - TestDataExpected<T> (abstract)
+// -- TestDataReturns<TStruct> (abstract)
+// --- TestDataReturns<TStruct, T1..T9> (return‑value tests)
+// 
+// -- TestDataThrows<TException> (abstract)
+// --- TestDataThrows<TException, T1..T9> (exception tests)
+]
+
+ 
+[<utility>Strategy Layer
+|
+Data materialization controlling enums]
+
+[<utility>Safety Layer
+|
+Validators and resolvers]
+[<utility>Factory Layer
+|
+Fluent test data factories]
+
+  
+  [
+  Strategy Layer
+  ] <:-- [
+  Core Abstraction Layer
+  ]
+
+  [
+  Safety Layer
+  ] <:-- [
+  Identity Layer
+  ]
+
+  
+
+  [
+  Identity Layer
+  ] <:-- [
+  Core Abstraction Layer
+  ]
+
+
+  [
+  Core Abstraction Layer
+  ] <:-- [
+  Specialization Layer
+  ]
+
+  [
+  Specialization Layer
+  ] <:-- [
+  Factory Layer
+  ]
+
+  [
+  Pattern Markers Layer
+  ] <:-- [
+  Specialization Layer
+  ]
+

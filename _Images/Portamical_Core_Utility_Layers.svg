@@ -1,0 +1,214 @@
+<svg version="1.1" baseProfile="full" width="637.8" height="472.0" viewBox="0 0 637.75 472" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_Core_Utility_Layers</title>
+	<desc >#title: Portamical_Core_Utility_Layers
+	#direction: down
+	
+	#.layer: fill=#adebeb title=bold
+	#.utility: fill=#70dbdb title=bold,underline
+	
+	#.found: fill=#ffe6e6 title=center,bold,italic body=italic
+	#.core: fill=#ffcccc title=center,bold,italic body=italic 
+	#.marker: fill=#80e5ff title=center,bold,italic body=italic 
+	#.spec: fill=#e6ccff title=center,bold 
+	
+	
+	
+	[&lt;found&gt;Identity Layer]
+	
+	[&lt;core&gt;Core Abstraction Layer]
+	
+	[&lt;marker&gt;Pattern Markers Layer]
+	
+	[&lt;spec&gt;Specialization Layer]
+	
+	 
+	[&lt;utility&gt;Strategy Layer
+	|
+	Data materialization controlling enums]
+	
+	[&lt;utility&gt;Safety Layer
+	|
+	Validators and resolvers]
+	
+	[&lt;utility&gt;Factory Layer
+	|
+	Fluent test data factories]
+	
+	  
+	  [
+	  Strategy Layer
+	  ] &lt;:-- [
+	  Core Abstraction Layer
+	  ]
+	
+	  [
+	  Safety Layer
+	  ] &lt;:-- [
+	  Identity Layer
+	  ]
+	
+	  
+	
+	  [
+	  Identity Layer
+	  ] &lt;:-- [
+	  Core Abstraction Layer
+	  ]
+	
+	
+	  [
+	  Core Abstraction Layer
+	  ] &lt;:-- [
+	  Specialization Layer
+	  ]
+	
+	  [
+	  Specialization Layer
+	  ] &lt;:-- [
+	  Factory Layer
+	  ]
+	
+	  [
+	  Pattern Markers Layer
+	  ] &lt;:-- [
+	  Specialization Layer
+	  ]
+	
+	</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="normal" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="472.0" width="637.8" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)" fill="#eee8d5" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+					<g stroke-dasharray="6 6">
+						<path d="M142.0 181.3 L142 188 L209.08333333333334 208 L209.1 208.0 " fill="none"></path>
+					</g>
+					<path d="M147.3 181.3 L142.0 181.3 L136.7 181.3 L142.0 168.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M383.5 77.3 L383.5 84 L383.5 120 L383.5 120.0 " fill="none"></path>
+					</g>
+					<path d="M388.8 77.3 L383.5 77.3 L378.2 77.3 L383.5 64.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M383.5 165.3 L383.5 188 L316.4166666666667 208 L316.4 208.0 " fill="none"></path>
+					</g>
+					<path d="M388.8 165.3 L383.5 165.3 L378.2 165.3 L383.5 152.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M262.8 253.3 L262.75 260 L325.94444444444446 280 L325.9 280.0 " fill="none"></path>
+					</g>
+					<path d="M268.1 253.3 L262.8 253.3 L257.4 253.3 L262.8 240.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M376.5 325.3 L376.5 332 L376.5 352 L376.5 352.0 " fill="none"></path>
+					</g>
+					<path d="M381.8 325.3 L376.5 325.3 L371.2 325.3 L376.5 312.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M490.3 253.3 L490.25 260 L427.05555555555554 280 L427.1 280.0 " fill="none"></path>
+					</g>
+					<path d="M495.6 253.3 L490.3 253.3 L484.9 253.3 L490.3 240.0 Z"></path>
+					<g data-name="Identity Layer">
+						<g fill="#ffe6e6" stroke="#33322E" data-name="Identity Layer">
+							<rect x="324.0" y="120.0" height="32.0" width="119.0" data-name="Identity Layer"></rect>
+						</g>
+						<g transform="translate(324, 120)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Identity Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Identity Layer" data-compartment="0">
+								<text x="51.5" y="14.1" stroke="none" text-anchor="middle" data-name="Identity Layer" data-compartment="0">Identity Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Core Abstraction Layer">
+						<g fill="#ffcccc" stroke="#33322E" data-name="Core Abstraction Layer">
+							<rect x="166.8" y="208.0" height="32.0" width="192.0" data-name="Core Abstraction Layer"></rect>
+						</g>
+						<g transform="translate(166.75, 208)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Core Abstraction Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Core Abstraction Layer" data-compartment="0">
+								<text x="88.0" y="14.1" stroke="none" text-anchor="middle" data-name="Core Abstraction Layer" data-compartment="0">Core Abstraction Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Pattern Markers Layer">
+						<g fill="#80e5ff" stroke="#33322E" data-name="Pattern Markers Layer">
+							<rect x="398.8" y="208.0" height="32.0" width="183.0" data-name="Pattern Markers Layer"></rect>
+						</g>
+						<g transform="translate(398.75, 208)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="Pattern Markers Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Pattern Markers Layer" data-compartment="0">
+								<text x="83.5" y="14.1" stroke="none" text-anchor="middle" data-name="Pattern Markers Layer" data-compartment="0">Pattern Markers Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Specialization Layer">
+						<g fill="#e6ccff" stroke="#33322E" data-name="Specialization Layer">
+							<rect x="292.5" y="280.0" height="32.0" width="168.0" data-name="Specialization Layer"></rect>
+						</g>
+						<g transform="translate(292.5, 280)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Specialization Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Specialization Layer" data-compartment="0">
+								<text x="76.0" y="14.1" stroke="none" text-anchor="middle" data-name="Specialization Layer" data-compartment="0">Specialization Layer</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Strategy Layer">
+						<g fill="#70dbdb" stroke="#33322E" data-name="Strategy Layer">
+							<rect x="0.0" y="104.0" height="64.0" width="284.0" data-name="Strategy Layer"></rect>
+							<path d="M0.0 136.0 L284.0 136.0" fill="none" data-name="Strategy Layer"></path>
+						</g>
+						<g transform="translate(0, 104)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Strategy Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Strategy Layer" data-compartment="0">
+								<text x="134.0" y="14.1" stroke="none" text-anchor="middle" data-name="Strategy Layer" data-compartment="0">Strategy Layer</text>
+								<path d="M78.9 16.6 L189.1 16.6" fill="none" data-name="Strategy Layer" data-compartment="0"></path>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 136)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Strategy Layer" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Strategy Layer" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="Strategy Layer" data-compartment="1">Data materialization controlling enums</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Safety Layer">
+						<g fill="#70dbdb" stroke="#33322E" data-name="Safety Layer">
+							<rect x="291.0" y="0.0" height="64.0" width="185.0" data-name="Safety Layer"></rect>
+							<path d="M291.0 32.0 L476.0 32.0" fill="none" data-name="Safety Layer"></path>
+						</g>
+						<g transform="translate(291, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Safety Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Safety Layer" data-compartment="0">
+								<text x="84.5" y="14.1" stroke="none" text-anchor="middle" data-name="Safety Layer" data-compartment="0">Safety Layer</text>
+								<path d="M37.3 16.6 L131.7 16.6" fill="none" data-name="Safety Layer" data-compartment="0"></path>
+								
+							</g>
+						</g>
+						<g transform="translate(291, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Safety Layer" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Safety Layer" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="Safety Layer" data-compartment="1">Validators and resolvers</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="Factory Layer">
+						<g fill="#70dbdb" stroke="#33322E" data-name="Factory Layer">
+							<rect x="282.0" y="352.0" height="64.0" width="189.0" data-name="Factory Layer"></rect>
+							<path d="M282.0 384.0 L471.0 384.0" fill="none" data-name="Factory Layer"></path>
+						</g>
+						<g transform="translate(282, 352)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Factory Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Factory Layer" data-compartment="0">
+								<text x="86.5" y="14.1" stroke="none" text-anchor="middle" data-name="Factory Layer" data-compartment="0">Factory Layer</text>
+								<path d="M34.5 16.6 L138.5 16.6" fill="none" data-name="Factory Layer" data-compartment="0"></path>
+								
+							</g>
+						</g>
+						<g transform="translate(282, 384)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Factory Layer" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Factory Layer" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="Factory Layer" data-compartment="1">Fluent test data factories</text>
+								
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

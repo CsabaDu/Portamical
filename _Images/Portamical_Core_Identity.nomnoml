@@ -1,0 +1,27 @@
+#title: Portamical_Core_Identity
+#direction: down
+#.contract: fill=#DCE8CF title=center,italic,bold
+#.contractlight: fill=#DCE8CF title=center,italic
+#.abstractbold: fill=#C9DEEF title=center,italic,bold
+#.abstract: fill=#C9DEEF title=center,italic
+
+[<contractlight> IEquatable<INamedCase>]
+[<contract> INamedCase
+|
+TestCaseName { get, init }: string
+|
+ContainedBy(IEnumerable<INamedCase>?): bool
+GetDisplayName(string?): string?
+]
+
+[<abstractbold> NamedCase]
+
+// diagram
+
+[
+IEquatable<INamedCase>
+] <:- [
+INamedCase
+] <:-- [
+NamedCase
+]

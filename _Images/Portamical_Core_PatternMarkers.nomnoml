@@ -1,0 +1,72 @@
+
+#title: Portamical_Core_PatternMarkers
+#direction: down
+#.contract: fill=#DCE8CF title=center,italic,bold body=left,italic visual=class
+
+[<contract> IReturns
+]
+
+[<contract> IExpected<out TResult>
+where TResult: notnull
+|
+  Expected: TResult
+]
+
+[<contract> IThrows
+]
+
+[<contract> IExpected
+|
+  GetResultPrefix(): string
+  GetExpected(): object
+]
+
+[<contract> IThrows
+]
+
+[<contract> IReturns<out TStruct>
+where TStruct: struct
+]
+
+[<contract> IThrows<out TException>
+where TException: Exception
+]
+
+
+
+// diagram
+
+[IExpected
+] <:-
+[IReturns
+]
+
+[IExpected
+] <:-
+[IExpected<out TResult>
+]
+
+[IExpected
+] <:-
+[IThrows
+]
+
+[IReturns
+]<:-
+[IReturns<out TStruct>
+]
+
+[IExpected<out TResult>
+] <:-
+[IReturns<out TStruct>
+]
+
+[IThrows
+]<:-
+[IThrows<out TException>
+]
+
+[IExpected<out TResult>
+] <:-
+[IThrows<out TException>
+]

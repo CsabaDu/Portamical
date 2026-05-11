@@ -1,0 +1,24 @@
+#title: Portamical_Core_CoreAbstraction
+#direction: down
+#.contract: fill=#DCE8CF title=center,italic,bold
+#.contractlight: fill=#DCE8CF title=center,italic
+#.abstractbold: fill=#C9DEEF title=center,italic,bold
+#.abstract: fill=#C9DEEF title=center,italic
+
+[<contractlight>INamedCase]
+[<contract> ITestData
+|
+GetDefinition(): string
+GetResult(): string
+ToArgs(ArgsCode): object?array
+ToArgs(ArgsCode, PropsCode): object?array
+]
+
+
+// diagram
+
+[
+INamedCase
+] <:-- [
+ITestData
+]

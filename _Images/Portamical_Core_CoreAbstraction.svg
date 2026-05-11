@@ -1,0 +1,74 @@
+<svg version="1.1" baseProfile="full" width="386.0" height="241.0" viewBox="0 0 386 241" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_Core_CoreAbstraction</title>
+	<desc >#title: Portamical_Core_CoreAbstraction
+	#direction: down
+	#.contract: fill=#DCE8CF title=center,italic,bold
+	#.contractlight: fill=#DCE8CF title=center,italic
+	#.abstractbold: fill=#C9DEEF title=center,italic,bold
+	#.abstract: fill=#C9DEEF title=center,italic
+	
+	[&lt;contractlight&gt;INamedCase]
+	[&lt;contract&gt; ITestData
+	|
+	GetDefinition(): string
+	GetResult(): string
+	ToArgs(ArgsCode): object?array
+	ToArgs(ArgsCode, PropsCode): object?array
+	]
+	
+	
+	// diagram
+	
+	[
+	INamedCase
+	] &lt;:-- [
+	ITestData
+	]</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="normal" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="241.0" width="386.0" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)" fill="#eee8d5" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+					<g stroke-dasharray="6 6">
+						<path d="M165.0 45.3 L165 52 L165 72 L165.0 72.0 " fill="none"></path>
+					</g>
+					<path d="M170.3 45.3 L165.0 45.3 L159.7 45.3 L165.0 32.0 Z"></path>
+					<g data-name="INamedCase">
+						<g fill="#DCE8CF" stroke="#33322E" data-name="INamedCase">
+							<rect x="109.5" y="0.0" height="32.0" width="111.0" data-name="INamedCase"></rect>
+						</g>
+						<g transform="translate(109.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="italic" data-name="INamedCase" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="INamedCase" data-compartment="0">
+								<text x="47.5" y="14.1" stroke="none" text-anchor="middle" data-name="INamedCase" data-compartment="0">INamedCase</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="ITestData">
+						<g fill="#DCE8CF" stroke="#33322E" data-name="ITestData">
+							<rect x="0.0" y="72.0" height="113.0" width="330.0" data-name="ITestData"></rect>
+							<path d="M0.0 104.0 L330.0 104.0" fill="none" data-name="ITestData"></path>
+						</g>
+						<g transform="translate(0, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="ITestData" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="ITestData" data-compartment="0">
+								<text x="157.0" y="14.1" stroke="none" text-anchor="middle" data-name="ITestData" data-compartment="0">ITestData</text>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 104)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="ITestData" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="ITestData" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="ITestData" data-compartment="1">GetDefinition(): string</text>
+								<text x="0.0" y="30.3" stroke="none" data-name="ITestData" data-compartment="1">GetResult(): string</text>
+								<text x="0.0" y="46.5" stroke="none" data-name="ITestData" data-compartment="1">ToArgs(ArgsCode): object?array</text>
+								<text x="0.0" y="62.7" stroke="none" data-name="ITestData" data-compartment="1">ToArgs(ArgsCode, PropsCode): object?array</text>
+								
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

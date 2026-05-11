@@ -1,0 +1,95 @@
+<svg version="1.1" baseProfile="full" width="422.0" height="312.0" viewBox="0 0 422 312" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_Core_Identity</title>
+	<desc >#title: Portamical_Core_Identity
+	#direction: down
+	#.contract: fill=#DCE8CF title=center,italic,bold
+	#.contractlight: fill=#DCE8CF title=center,italic
+	#.abstractbold: fill=#C9DEEF title=center,italic,bold
+	#.abstract: fill=#C9DEEF title=center,italic
+	
+	[&lt;contractlight&gt; IEquatable&lt;INamedCase&gt;]
+	[&lt;contract&gt; INamedCase
+	|
+	TestCaseName { get, init }: string
+	|
+	ContainedBy(IEnumerable&lt;INamedCase&gt;?): bool
+	GetDisplayName(string?): string?
+	]
+	
+	[&lt;abstractbold&gt; NamedCase]
+	
+	// diagram
+	
+	[
+	IEquatable&lt;INamedCase&gt;
+	] &lt;:- [
+	INamedCase
+	] &lt;:-- [
+	NamedCase
+	]</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="bold" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="312.0" width="422.0" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)" fill="#eee8d5" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+					<path d="M183.0 45.3 L183 52 L183 72 L183.0 72.0 " fill="none"></path>
+					<path d="M188.3 45.3 L183.0 45.3 L177.7 45.3 L183.0 32.0 Z"></path>
+					<g stroke-dasharray="6 6">
+						<path d="M183.0 197.3 L183 204 L183 224 L183.0 224.0 " fill="none"></path>
+					</g>
+					<path d="M188.3 197.3 L183.0 197.3 L177.7 197.3 L183.0 184.0 Z"></path>
+					<g data-name="IEquatable&lt;INamedCase&gt;">
+						<g fill="#DCE8CF" stroke="#33322E" data-name="IEquatable&lt;INamedCase&gt;">
+							<rect x="78.0" y="0.0" height="32.0" width="210.0" data-name="IEquatable&lt;INamedCase&gt;"></rect>
+						</g>
+						<g transform="translate(78, 0)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="italic" data-name="IEquatable&lt;INamedCase&gt;" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="IEquatable&lt;INamedCase&gt;" data-compartment="0">
+								<text x="97.0" y="14.1" stroke="none" text-anchor="middle" data-name="IEquatable&lt;INamedCase&gt;" data-compartment="0">IEquatable&lt;INamedCase&gt;</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="INamedCase">
+						<g fill="#DCE8CF" stroke="#33322E" data-name="INamedCase">
+							<rect x="0.0" y="72.0" height="112.0" width="366.0" data-name="INamedCase"></rect>
+							<path d="M0.0 104.0 L366.0 104.0" fill="none" data-name="INamedCase"></path>
+							<path d="M0.0 136.0 L366.0 136.0" fill="none" data-name="INamedCase"></path>
+						</g>
+						<g transform="translate(0, 72)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="INamedCase" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="INamedCase" data-compartment="0">
+								<text x="175.0" y="14.1" stroke="none" text-anchor="middle" data-name="INamedCase" data-compartment="0">INamedCase</text>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 104)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="INamedCase" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="INamedCase" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="INamedCase" data-compartment="1">TestCaseName { get, init }: string</text>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 136)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="INamedCase" data-compartment="2">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="INamedCase" data-compartment="2">
+								<text x="0.0" y="14.1" stroke="none" data-name="INamedCase" data-compartment="2">ContainedBy(IEnumerable&lt;INamedCase&gt;?): bool</text>
+								<text x="0.0" y="30.3" stroke="none" data-name="INamedCase" data-compartment="2">GetDisplayName(string?): string?</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="NamedCase">
+						<g fill="#C9DEEF" stroke="#33322E" data-name="NamedCase">
+							<rect x="129.5" y="224.0" height="32.0" width="107.0" data-name="NamedCase"></rect>
+						</g>
+						<g transform="translate(129.5, 224)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="NamedCase" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="NamedCase" data-compartment="0">
+								<text x="45.5" y="14.1" stroke="none" text-anchor="middle" data-name="NamedCase" data-compartment="0">NamedCase</text>
+								
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>
