@@ -21,7 +21,7 @@
 	
 	[
 	INamedCase
-	] &lt;:-- [
+	] &lt;:- [
 	ITestData
 	]</desc>
 	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="normal" font-style="normal">
@@ -31,9 +31,7 @@
 			</g>
 			<g transform="translate(8, 8)" fill="#33322E">
 				<g transform="translate(20, 20)" fill="#eee8d5" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
-					<g stroke-dasharray="6 6">
-						<path d="M165.0 45.3 L165 52 L165 72 L165.0 72.0 " fill="none"></path>
-					</g>
+					<path d="M165.0 45.3 L165 52 L165 72 L165.0 72.0 " fill="none"></path>
 					<path d="M170.3 45.3 L165.0 45.3 L159.7 45.3 L165.0 32.0 Z"></path>
 					<g data-name="INamedCase">
 						<g fill="#DCE8CF" stroke="#33322E" data-name="INamedCase">

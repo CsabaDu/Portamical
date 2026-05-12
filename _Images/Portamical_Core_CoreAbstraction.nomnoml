@@ -19,6 +19,6 @@ ToArgs(ArgsCode, PropsCode): object?array
 
 [
 INamedCase
-] <:-- [
+] <:- [
 ITestData
 ]
