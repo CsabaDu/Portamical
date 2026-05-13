@@ -28,7 +28,7 @@ Data materialization controlling enums]
 |
 Validators and resolvers]
 
-[<utility>Factory Layer
+[<utility>Factories Layer
 |
 Fluent test data factories]
 
@@ -63,7 +63,7 @@ Fluent test data factories]
   [
   Specialization Layer
   ] <:-- [
-  Factory Layer
+  Factories Layer
   ]
 
   [

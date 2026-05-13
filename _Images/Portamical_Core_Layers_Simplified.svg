@@ -19,7 +19,7 @@
 	 
 	  [&lt;utility&gt;Strategy Layer]
 	[&lt;utility&gt;Safety Layer]
-	  [&lt;utility&gt;Factory Layer]
+	  [&lt;utility&gt;Factories Layer]
 	
 	  
 	  [
@@ -52,7 +52,7 @@
 	  [
 	  Specialization Layer
 	  ] &lt;:-- [
-	  Factory Layer
+	  Factories Layer
 	  ]
 	
 	  [
@@ -161,14 +161,14 @@
 							</g>
 						</g>
 					</g>
-					<g data-name="Factory Layer">
-						<g fill="#70dbdb" stroke="#33322E" data-name="Factory Layer">
-							<rect x="198.0" y="288.0" height="32.0" width="120.0" data-name="Factory Layer"></rect>
+					<g data-name="Factories Layer">
+						<g fill="#70dbdb" stroke="#33322E" data-name="Factories Layer">
+							<rect x="191.5" y="288.0" height="32.0" width="133.0" data-name="Factories Layer"></rect>
 						</g>
-						<g transform="translate(198, 288)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Factory Layer" data-compartment="0">
-							<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Factory Layer" data-compartment="0">
-								<text x="52.0" y="14.1" stroke="none" text-anchor="middle" data-name="Factory Layer" data-compartment="0">Factory Layer</text>
-								<path d="M0.0 16.6 L104.0 16.6" fill="none" data-name="Factory Layer" data-compartment="0"></path>
+						<g transform="translate(191.5, 288)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Factories Layer" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" stroke-width="3.0" data-name="Factories Layer" data-compartment="0">
+								<text x="58.5" y="14.1" stroke="none" text-anchor="middle" data-name="Factories Layer" data-compartment="0">Factories Layer</text>
+								<path d="M-0.1 16.6 L117.1 16.6" fill="none" data-name="Factories Layer" data-compartment="0"></path>
 								
 							</g>
 						</g>

@@ -17,7 +17,7 @@
  
   [<utility>Strategy Layer]
 [<utility>Safety Layer]
-  [<utility>Factory Layer]
+  [<utility>Factories Layer]
 
   
   [
@@ -50,7 +50,7 @@
   [
   Specialization Layer
   ] <:-- [
-  Factory Layer
+  Factories Layer
   ]
 
   [
