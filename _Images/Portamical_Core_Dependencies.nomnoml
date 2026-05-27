@@ -9,12 +9,12 @@
 
 [<frame> Portamical.Core
 |
-[<static>Strategy]
-[<contract>Identity]
 [<static>Safety]
+[<contract>Identity]
+[<static>Strategy]
 [<contract>TestDataTypes]
-[<static>Factories]
 [<abstract>Identity.Model]
+[<static>Factories]
 [<contract>TestDataTypes.Patterns]
 [<abstract>TestDataTypes.Models]
 [<concrete>TestDataTypes.Models.General]
@@ -23,29 +23,36 @@
 
 // diagram
 
-
-[
-Identity
-] <-- [
-TestDataTypes
-]
-
-[
-Identity
-] <-- [
-Identity.Model
-]
-
 [
 Safety
 ] <-- [
 Identity.Model
 ]
+
 [
-Strategy
+Identity.Model
 ] <-- [
 TestDataTypes.Models
 ]
+
+[
+Identity
+] <-- [
+Identity.Model
+]
+
+[
+Identity
+] <-- [
+TestDataTypes
+]
+
+[
+Strategy
+] <-- [
+TestDataTypes
+]
+
 
 [
 TestDataTypes
@@ -53,11 +60,6 @@ TestDataTypes
 TestDataTypes.Models
 ]
 
-[
-Identity.Model
-] <-- [
-TestDataTypes.Models
-]
 
 [
 TestDataTypes.Models

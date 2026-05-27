@@ -465,6 +465,56 @@ await ThrowsDetailsAsync(
 
 ---
 
+#### **[3.1.0] - 2026-05-27**
+
+**Added**
+- **`MetadataEquality<TException>(TException, TException, Action<string, string?>)`** - New public synchronous wrapper for exception metadata assertions
+  - Framework-agnostic verification of exception messages and parameter names
+  - Thread-safe synchronous wrapper delegating to `MetadataEqualityAsync` via `ThreadSafeSync`
+  - Supports `ArgumentException`, `ArgumentOutOfRangeException`, `ObjectDisposedException` with intelligent message filtering
+- Comprehensive XML documentation for both `MetadataEqualityAsync` and `MetadataEquality` methods
+  - Detailed remarks explaining selective assertion logic for framework exceptions
+  - Usage examples for TUnit (async) and NUnit (sync) scenarios
+  - Performance notes and thread safety guidance
+
+**Changed**
+- **`MetadataEqualityAsync<TException>(TException, TException, Func<string, string?, ValueTask>)`** - Visibility changed from `private` to `public`
+  - Now accessible for direct use in async test frameworks (TUnit, MSTest 4)
+  - Primary async implementation for exception metadata verification
+  - Intelligently handles framework-generated messages that vary across runtime versions and locales
+  - Skips assertion for:
+    - `ArgumentException` guard clauses: `"The value cannot be an empty string"`, `"'paramName' ('value'...)"`
+    - `ObjectDisposedException` runtime patterns: `"Cannot access a disposed object.\nObject name: 'objectName'"`
+
+**Example Usage**
+
+Async (TUnit, MSTest):
+```csharp
+var expected = new ArgumentException("Invalid value", "paramName");
+var actual = new ArgumentException("Invalid value", "paramName");
+
+await PortamicalAssert.MetadataEqualityAsync(
+    expected,
+    actual,
+    async (exp, act) => await Assert.Equal(exp, act));
+```
+
+Sync (NUnit, xUnit):
+```csharp
+var expected = new ArgumentOutOfRangeException("count", "Count must be positive");
+var actual = new ArgumentOutOfRangeException("count", "Count must be positive");
+
+PortamicalAssert.MetadataEquality(
+    expected,
+    actual,
+    (exp, act) => Assert.AreEqual(exp, act));
+```
+
+**Dependencies**
+- Portamical.Core: 2.2.0 (unchanged)
+
+---
+
 ### **[2.0.0] - 2026-03-16**
 
 **Breaking**

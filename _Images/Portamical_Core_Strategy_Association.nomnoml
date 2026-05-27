@@ -1,0 +1,27 @@
+
+#title: Portamical_Core_Strategy_Association
+#direction: down
+
+#.static: fill=#C9DEEF title=center,bold,underline
+#.enum: fill=#e3ccff title=center,bold
+#.contract: fill=#DCE8CF title=center,italic body=left,italic
+
+[<static>EnumValidator
+]
+
+[<enum>ArgsCode
+]
+
+[<contract> ITestData
+]
+
+[<enum>PropsCode
+]
+
+// diagram
+
+[EnumValidator] o-> validates [ArgsCode]
+[ArgsCode] uses <- [ITestData]
+[EnumValidator] o-> validates [PropsCode]
+[PropsCode] -> filter for [ITestData]
+[PropsCode] uses <- [ITestData]

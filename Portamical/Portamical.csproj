@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>3.0.1</Version>
+    <Version>3.1.0</Version>
     <Title>Portamical</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -28,14 +28,26 @@
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; async; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
 
     <!-- Release Notes -->
-    <PackageReleaseNotes>v3.0.1 - 2026-05-01
+    <PackageReleaseNotes>v3.1.0 - 2026-05-15
 
 Added
-- Null parameter validation to async assertion methods (`DoesNotThrowAsync(Func&lt;Task&gt;`, `Func&lt;string, ValueTask&gt;)`, `ThrowsDetailsAsync&lt;TException&gt;(Func&lt;Task&gt;`, `TException, Func&lt;Func&lt;Task&gt;, ValueTask&lt;Exception?&gt;&gt;`, `Func&lt;Type, object, ValueTask&gt;`, `Func&lt;string, string?, ValueTask&gt;`, `Func&lt;string, ValueTask&gt;), CatchExceptionAsync(Func&lt;Task&gt;)`)
-Fixed
-- `DoesNotThrowAsync(Func&lt;Task&gt;, Func&lt;string, ValueTask&gt;)`: Null check now occurs before `CatchExceptionAsync(Func&lt;Task&gt;)` call
-- `ThrowsDetailsAsync&lt;TException&gt;(Func&lt;Task&gt;, TException, Func&lt;Func&lt;Task&gt;, ValueTask&lt;Exception?&gt;&gt;, Func&lt;Type, object, ValueTask&gt;, Func&lt;string, string?, ValueTask&gt;, Func&lt;string, ValueTask&gt;)`: Added validation for all 5 delegate parameters
-- `CatchExceptionAsync(Func&lt;Task&gt;)`: Added missing attempt parameter validation</PackageReleaseNotes>
+- **MetadataEquality&lt;TException&gt;(TException, TException, Action&lt;string, string?&gt;)** - New public synchronous wrapper for exception metadata assertions
+  - Enables framework-agnostic verification of exception messages and parameter names
+  - Delegates to MetadataEqualityAsync via thread-safe synchronous execution
+  - Supports ArgumentException, ArgumentOutOfRangeException, ObjectDisposedException with intelligent message filtering
+
+Changed
+- **MetadataEqualityAsync&lt;TException&gt;(TException, TException, Func&lt;string, string?, ValueTask&gt;)** - Made public (was private)
+  - Primary async implementation for exception metadata verification
+  - Intelligently handles framework-generated messages that vary across runtime versions
+  - Skips assertion for ArgumentException guard clauses and ObjectDisposedException runtime-specific patterns
+  - Includes comprehensive XML documentation with usage examples
+
+Improved
+- Enhanced XML documentation for both MetadataEqualityAsync and MetadataEquality methods
+  - Detailed remarks explaining selective assertion logic for framework exceptions
+  - Usage examples for TUnit (async) and NUnit (sync) scenarios
+  - Performance notes and thread safety guidance</PackageReleaseNotes>
     
     <!-- Package Generation -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
