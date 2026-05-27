@@ -28,7 +28,7 @@
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; async; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
 
     <!-- Release Notes -->
-    <PackageReleaseNotes>v3.1.0 - 2026-05-15
+    <PackageReleaseNotes>v3.1.0 - 2026-05-27
 
 Added
 - **MetadataEquality&lt;TException&gt;(TException, TException, Action&lt;string, string?&gt;)** - New public synchronous wrapper for exception metadata assertions

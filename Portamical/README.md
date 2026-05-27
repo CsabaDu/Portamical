@@ -23,7 +23,7 @@ dotnet add package Portamical
 
 ## What's New
 
-### **Version 3.1.0 (2026-05-15)**
+### **Version 3.1.0 (2026-05-27)**
 
 ***Exception Metadata Assertion API***
 
