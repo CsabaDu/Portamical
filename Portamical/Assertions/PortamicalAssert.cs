@@ -429,6 +429,8 @@ public abstract class PortamicalAssert
         Func<string, string?, ValueTask> assertEqualityAsync)
     where TException : notnull, Exception
     {
+        _ = NotNull(assertEqualityAsync, nameof(assertEqualityAsync));
+
         const string ArgumentExceptionGuardMessageStart = "The value cannot be an empty string";
         const string ObjectDisposedExceptionGuardMessageStart = "Cannot access a disposed object.\nObject name: '";
 

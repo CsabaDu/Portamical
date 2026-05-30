@@ -1223,7 +1223,7 @@ public class PortamicalAssertTests
             (e, a) => calls.Add($"{e}={a}"),
             msg => throw new InvalidOperationException(msg));
 
-        // Should assert both message and paramName
+        // Should assert both message and wrongParamName
         Assert.IsGreaterThanOrEqualTo(calls.Count, 2);
         var callsText = string.Join(Environment.NewLine, calls);
         AssertContainsOrdinal(callsText, "test message");
@@ -1245,7 +1245,7 @@ public class PortamicalAssertTests
             (e, a) => calls.Add($"{e}={a}"),
             msg => throw new InvalidOperationException(msg));
 
-        // Should assert message only (paramName is null)
+        // Should assert message only (wrongParamName is null)
         Assert.IsGreaterThanOrEqualTo(calls.Count, 1);
         var callsText = string.Join(Environment.NewLine, calls);
         AssertContainsOrdinal(callsText, "test message");
@@ -1289,7 +1289,7 @@ public class PortamicalAssertTests
             (e, a) => calls.Add($"{e}={a}"),
             msg => throw new InvalidOperationException(msg));
 
-        // Should assert paramName but skip guard message that starts with 'paramName' ('actualValue')
+        // Should assert wrongParamName but skip guard message that starts with 'wrongParamName' ('actualValue')
         var callsText = string.Join(Environment.NewLine, calls);
         AssertContainsOrdinal(callsText, paramName);
     }
@@ -1719,6 +1719,390 @@ public class PortamicalAssertTests
 
         Assert.AreEqual(typeof(ArgumentException), capturedExpected);
         Assert.AreEqual(typeof(ArgumentException), capturedActual);
+    }
+
+    #endregion
+
+    #region MetadataEqualityAsync
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_nullAssertEqualityAsync_throwsArgumentNullException()
+        => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
+            async () => await PortamicalAssert.MetadataEqualityAsync(
+                new ArgumentException("test"),
+                new ArgumentException("test"),
+                null!));
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_argumentException_assertsMessageAndParamName()
+    {
+        var calls = new List<string>();
+        string testParam = "testParam";
+        var expected = new ArgumentException("Test message", testParam);
+        var actual = new ArgumentException("Test message", testParam);
+
+        await PortamicalAssert.MetadataEqualityAsync(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            });
+
+        Assert.HasCount(2, calls);
+        // ArgumentException.Message includes parameter name: "Test message (Parameter 'testParam')"
+        AssertContainsOrdinal(calls[0], "Test message");
+        Assert.AreEqual("testParam=testParam", calls[1]);
+    }
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_argumentExceptionWithoutParamName_assertsMessageOnly()
+    {
+        var calls = new List<string>();
+        var expected = new ArgumentException("Test message");
+        var actual = new ArgumentException("Test message");
+
+        await PortamicalAssert.MetadataEqualityAsync(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            });
+
+        // Only message assertion, no ParamName
+        Assert.HasCount(1, calls);
+        Assert.AreEqual("Test message=Test message", calls[0]);
+    }
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_argumentExceptionGuardMessage_skipsMessageAssertion()
+    {
+        var calls = new List<string>();
+        var paramName = "param";
+        var expected = new ArgumentException("The value cannot be an empty string", paramName);
+        var actual = new ArgumentException("The value cannot be an empty string", paramName);
+
+        await PortamicalAssert.MetadataEqualityAsync(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            });
+
+        // Should only assert ParamName, skip guard message
+        Assert.HasCount(1, calls);
+        Assert.AreEqual("param=param", calls[0]);
+    }
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_argumentOutOfRangeException_assertsCustomMessage()
+    {
+        var calls = new List<string>();
+        var paramName = "count";
+        var expected = new ArgumentOutOfRangeException(paramName, 5, "Must be positive");
+        var actual = new ArgumentOutOfRangeException(paramName, 5, "Must be positive");
+
+        await PortamicalAssert.MetadataEqualityAsync(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            });
+
+        // Custom message is asserted along with ParamName
+        Assert.HasCount(2, calls);
+        AssertContainsOrdinal(calls[0], "Must be positive");
+        Assert.AreEqual("count=count", calls[1]);
+    }
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_objectDisposedException_assertsFrameworkMessage()
+    {
+        var calls = new List<string>();
+        var resourceName = "resource";
+        var expected = new ObjectDisposedException(resourceName);
+        var actual = new ObjectDisposedException(resourceName);
+
+        await PortamicalAssert.MetadataEqualityAsync(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            });
+
+        // Framework-generated message is asserted
+        Assert.HasCount(1, calls);
+        AssertContainsOrdinal(calls[0], "Cannot access a disposed object");
+    }
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_objectDisposedExceptionCustomMessage_assertsMessage()
+    {
+        var calls = new List<string>();
+        var resourceName = "resource";
+        var expected = new ObjectDisposedException(resourceName, "Custom disposal message");
+        var actual = new ObjectDisposedException(resourceName, "Custom disposal message");
+
+        await PortamicalAssert.MetadataEqualityAsync(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            });
+
+        // Should assert custom message
+        Assert.HasCount(1, calls);
+        AssertContainsOrdinal(calls[0], "Custom disposal message");
+    }
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_invalidOperationException_assertsMessage()
+    {
+        var calls = new List<string>();
+        var expected = new InvalidOperationException("Operation failed");
+        var actual = new InvalidOperationException("Operation failed");
+
+        await PortamicalAssert.MetadataEqualityAsync(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            });
+
+        Assert.HasCount(1, calls);
+        Assert.AreEqual("Operation failed=Operation failed", calls[0]);
+    }
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_argumentNullException_assertsMessageAndParamName()
+    {
+        var calls = new List<string>();
+        var paramName = "parameter";
+        var expected = new ArgumentNullException(paramName);
+        var actual = new ArgumentNullException(paramName);
+
+        await PortamicalAssert.MetadataEqualityAsync(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            });
+
+        // ArgumentNullException derives from ArgumentException - asserts both message and ParamName
+        Assert.HasCount(2, calls);
+        AssertContainsOrdinal(calls[0], "parameter");
+        Assert.AreEqual("parameter=parameter", calls[1]);
+    }
+
+    [TestMethod]
+    public async Task MetadataEqualityAsync_exceptionWithNullMessage_doesNotAssert()
+    {
+        var calls = new List<string>();
+        var expected = new Exception();
+        var actual = new Exception();
+
+        await PortamicalAssert.MetadataEqualityAsync(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                calls.Add($"{e}={a}");
+                return ValueTask.CompletedTask;
+            });
+
+        // Message is "Exception of type 'System.Exception' was thrown." (not null but framework-generated)
+        Assert.HasCount(1, calls);
+    }
+
+    #endregion
+
+    #region MetadataEquality
+
+    [TestMethod]
+    public void MetadataEquality_nullAssertEquality_throwsArgumentNullException()
+        => Assert.ThrowsExactly<ArgumentNullException>(
+            () => PortamicalAssert.MetadataEquality(
+                new ArgumentException("test"),
+                new ArgumentException("test"),
+                null!));
+
+    [TestMethod]
+    public void MetadataEquality_argumentException_assertsMessageAndParamName()
+    {
+        var calls = new List<string>();
+        var paramName = "syncParam";
+        var expected = new ArgumentException("Sync test message", paramName);
+        var actual = new ArgumentException("Sync test message", paramName);
+
+        PortamicalAssert.MetadataEquality(
+            expected,
+            actual,
+            (e, a) => calls.Add($"{e}={a}"));
+
+        Assert.HasCount(2, calls);
+        // ArgumentException.Message includes parameter name
+        AssertContainsOrdinal(calls[0], "Sync test message");
+        Assert.AreEqual("syncParam=syncParam", calls[1]);
+    }
+
+    [TestMethod]
+    public void MetadataEquality_argumentExceptionWithoutParamName_assertsMessageOnly()
+    {
+        var calls = new List<string>();
+        var expected = new ArgumentException("Sync test");
+        var actual = new ArgumentException("Sync test");
+
+        PortamicalAssert.MetadataEquality(
+            expected,
+            actual,
+            (e, a) => calls.Add($"{e}={a}"));
+
+        Assert.HasCount(1, calls);
+        Assert.AreEqual("Sync test=Sync test", calls[0]);
+    }
+
+    [TestMethod]
+    public void MetadataEquality_argumentExceptionGuardMessage_skipsMessageAssertion()
+    {
+        var calls = new List<string>();
+        var paramName = "syncParam";
+        var expected = new ArgumentException("The value cannot be an empty string", paramName);
+        var actual = new ArgumentException("The value cannot be an empty string", paramName);
+
+        PortamicalAssert.MetadataEquality(
+            expected,
+            actual,
+            (e, a) => calls.Add($"{e}={a}"));
+
+        // Should only assert ParamName
+        Assert.HasCount(1, calls);
+        Assert.AreEqual("syncParam=syncParam", calls[0]);
+    }
+
+    [TestMethod]
+    public void MetadataEquality_argumentOutOfRangeException_assertsCustomMessage()
+    {
+        var calls = new List<string>();
+        var paramName = "index";
+        var expected = new ArgumentOutOfRangeException(paramName, 10, "Index out of bounds");
+        var actual = new ArgumentOutOfRangeException(paramName, 10, "Index out of bounds");
+
+        PortamicalAssert.MetadataEquality(
+            expected,
+            actual,
+            (e, a) => calls.Add($"{e}={a}"));
+
+        // Custom message is asserted along with ParamName
+        Assert.HasCount(2, calls);
+        AssertContainsOrdinal(calls[0], "Index out of bounds");
+        Assert.AreEqual("index=index", calls[1]);
+    }
+
+    [TestMethod]
+    public void MetadataEquality_objectDisposedException_assertsFrameworkMessage()
+    {
+        var calls = new List<string>();
+        var expected = new ObjectDisposedException("syncResource");
+        var actual = new ObjectDisposedException("syncResource");
+
+        PortamicalAssert.MetadataEquality(
+            expected,
+            actual,
+            (e, a) => calls.Add($"{e}={a}"));
+
+        // Framework-generated message is asserted
+        Assert.HasCount(1, calls);
+        AssertContainsOrdinal(calls[0], "Cannot access a disposed object");
+    }
+
+    [TestMethod]
+    public void MetadataEquality_objectDisposedExceptionCustomMessage_assertsMessage()
+    {
+        var calls = new List<string>();
+        var expected = new ObjectDisposedException("syncResource", "Sync disposal message");
+        var actual = new ObjectDisposedException("syncResource", "Sync disposal message");
+
+        PortamicalAssert.MetadataEquality(
+            expected,
+            actual,
+            (e, a) => calls.Add($"{e}={a}"));
+
+        Assert.HasCount(1, calls);
+        AssertContainsOrdinal(calls[0], "Sync disposal message");
+    }
+
+    [TestMethod]
+    public void MetadataEquality_invalidOperationException_assertsMessage()
+    {
+        var calls = new List<string>();
+        var expected = new InvalidOperationException("Sync operation failed");
+        var actual = new InvalidOperationException("Sync operation failed");
+
+        PortamicalAssert.MetadataEquality(
+            expected,
+            actual,
+            (e, a) => calls.Add($"{e}={a}"));
+
+        Assert.HasCount(1, calls);
+        Assert.AreEqual("Sync operation failed=Sync operation failed", calls[0]);
+    }
+
+    [TestMethod]
+    public void MetadataEquality_argumentNullException_assertsMessageAndParamName()
+    {
+        var calls = new List<string>();
+        var paramName = "syncParameter";
+        var expected = new ArgumentNullException(paramName);
+        var actual = new ArgumentNullException(paramName);
+
+        PortamicalAssert.MetadataEquality(
+            expected,
+            actual,
+            (e, a) => calls.Add($"{e}={a}"));
+
+        // ArgumentNullException derives from ArgumentException - asserts both message and ParamName
+        Assert.HasCount(2, calls);
+        AssertContainsOrdinal(calls[0], "syncParameter");
+        Assert.AreEqual("syncParameter=syncParameter", calls[1]);
+    }
+
+    [TestMethod]
+    public void MetadataEquality_delegatesCallsAssertEquality()
+    {
+        var wrongParamName = "wrongParam";
+        var paramName = "param";
+        var expected = new ArgumentException("Test", paramName);
+        var actual = new ArgumentException("Different", wrongParamName);
+        bool wasCalledForMessage = false;
+        bool wasCalledForParamName = false;
+
+        PortamicalAssert.MetadataEquality(
+            expected,
+            actual,
+            (e, a) =>
+            {
+                // ArgumentException.Message includes parameter name, so check if it contains the base message
+                if (e.Contains("Test")) wasCalledForMessage = true;
+                if (e == "param") wasCalledForParamName = true;
+            });
+
+        Assert.IsTrue(wasCalledForMessage);
+        Assert.IsTrue(wasCalledForParamName);
     }
 
     #endregion
