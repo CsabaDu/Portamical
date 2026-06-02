@@ -188,10 +188,14 @@ where TResult : notnull
     protected string GetExpectedResult(string? expectedString)
     {
         var resultPrefix = GetResultPrefix();
-        var expected = DefaultExpectedString()
+        var expected = defaultExpectedString()
             .FallbackIfNullOrWhiteSpace(expectedString, nameof(GetExpected));
 
         return $"{resultPrefix} {expected}";
+
+        #region Local methods
+        string defaultExpectedString() => Expected.GetType().ToString();
+        #endregion
     }
 
     /// <summary>
@@ -216,14 +220,6 @@ where TResult : notnull
     /// </remarks>
     protected static string GetValidResultPrefix(string resultPrefix)
     => ResultsString.FallbackIfNullOrWhiteSpace(resultPrefix, nameof(GetResultPrefix));
-
-    /// <summary>
-    /// Gets the default string representation of the expected value's type when the value's ToString() is null or whitespace.
-    /// </summary>
-    /// <returns>
-    /// The fully qualified type name of <see cref="Expected"/>.
-    /// </returns>
-    private string DefaultExpectedString() => Expected.GetType().ToString();
 
     /// <summary>
     /// Converts the test data to a parameter array with optional trimming of the expected value.
