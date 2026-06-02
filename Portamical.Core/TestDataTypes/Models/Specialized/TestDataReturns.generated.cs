@@ -16,15 +16,15 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// <summary>
 /// Test data implementation for return-value tests with 1 additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
-public class TestDataReturns<TStruct, T1>
-: TestDataReturns<TStruct>
-where TStruct : struct
+public class TestDataReturns<TResult, T1>
+: TestDataReturns<TResult>
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         T1? arg1)
     : base(definition, expected)
     {
@@ -44,16 +44,16 @@ where TStruct : struct
 /// <summary>
 /// Test data implementation for return-value tests with 2 additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
-public class TestDataReturns<TStruct, T1, T2>
-: TestDataReturns<TStruct, T1>
-where TStruct : struct
+public class TestDataReturns<TResult, T1, T2>
+: TestDataReturns<TResult, T1>
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         T1? arg1, T2? arg2)
     : base(definition, expected, arg1)
     {
@@ -73,17 +73,17 @@ where TStruct : struct
 /// <summary>
 /// Test data implementation for return-value tests with 3 additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
-public class TestDataReturns<TStruct, T1, T2, T3>
-: TestDataReturns<TStruct, T1, T2>
-where TStruct : struct
+public class TestDataReturns<TResult, T1, T2, T3>
+: TestDataReturns<TResult, T1, T2>
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         T1? arg1, T2? arg2, T3? arg3)
     : base(definition, expected, arg1, arg2)
     {
@@ -103,18 +103,18 @@ where TStruct : struct
 /// <summary>
 /// Test data implementation for return-value tests with 4 additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
 /// <typeparam name="T4">The type of the fourth test argument.</typeparam>
-public class TestDataReturns<TStruct, T1, T2, T3, T4>
-: TestDataReturns<TStruct, T1, T2, T3>
-where TStruct : struct
+public class TestDataReturns<TResult, T1, T2, T3, T4>
+: TestDataReturns<TResult, T1, T2, T3>
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         T1? arg1, T2? arg2, T3? arg3, T4? arg4)
     : base(definition, expected, arg1, arg2, arg3)
     {
@@ -134,19 +134,19 @@ where TStruct : struct
 /// <summary>
 /// Test data implementation for return-value tests with 5 additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
 /// <typeparam name="T4">The type of the fourth test argument.</typeparam>
 /// <typeparam name="T5">The type of the fifth test argument.</typeparam>
-public class TestDataReturns<TStruct, T1, T2, T3, T4, T5>
-: TestDataReturns<TStruct, T1, T2, T3, T4>
-where TStruct : struct
+public class TestDataReturns<TResult, T1, T2, T3, T4, T5>
+: TestDataReturns<TResult, T1, T2, T3, T4>
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5)
     : base(definition, expected, arg1, arg2, arg3, arg4)
     {
@@ -166,20 +166,20 @@ where TStruct : struct
 /// <summary>
 /// Test data implementation for return-value tests with 6 additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
 /// <typeparam name="T4">The type of the fourth test argument.</typeparam>
 /// <typeparam name="T5">The type of the fifth test argument.</typeparam>
 /// <typeparam name="T6">The type of the sixth test argument.</typeparam>
-public class TestDataReturns<TStruct, T1, T2, T3, T4, T5, T6>
-: TestDataReturns<TStruct, T1, T2, T3, T4, T5>
-where TStruct : struct
+public class TestDataReturns<TResult, T1, T2, T3, T4, T5, T6>
+: TestDataReturns<TResult, T1, T2, T3, T4, T5>
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5, T6? arg6)
     : base(definition, expected, arg1, arg2, arg3, arg4, arg5)
     {
@@ -199,7 +199,7 @@ where TStruct : struct
 /// <summary>
 /// Test data implementation for return-value tests with 7 additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
@@ -207,13 +207,13 @@ where TStruct : struct
 /// <typeparam name="T5">The type of the fifth test argument.</typeparam>
 /// <typeparam name="T6">The type of the sixth test argument.</typeparam>
 /// <typeparam name="T7">The type of the seventh test argument.</typeparam>
-public class TestDataReturns<TStruct, T1, T2, T3, T4, T5, T6, T7>
-: TestDataReturns<TStruct, T1, T2, T3, T4, T5, T6>
-where TStruct : struct
+public class TestDataReturns<TResult, T1, T2, T3, T4, T5, T6, T7>
+: TestDataReturns<TResult, T1, T2, T3, T4, T5, T6>
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5, T6? arg6, T7? arg7)
     : base(definition, expected, arg1, arg2, arg3, arg4, arg5, arg6)
     {
@@ -233,7 +233,7 @@ where TStruct : struct
 /// <summary>
 /// Test data implementation for return-value tests with 8 additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
@@ -242,13 +242,13 @@ where TStruct : struct
 /// <typeparam name="T6">The type of the sixth test argument.</typeparam>
 /// <typeparam name="T7">The type of the seventh test argument.</typeparam>
 /// <typeparam name="T8">The type of the eighth test argument.</typeparam>
-public class TestDataReturns<TStruct, T1, T2, T3, T4, T5, T6, T7, T8>
-: TestDataReturns<TStruct, T1, T2, T3, T4, T5, T6, T7>
-where TStruct : struct
+public class TestDataReturns<TResult, T1, T2, T3, T4, T5, T6, T7, T8>
+: TestDataReturns<TResult, T1, T2, T3, T4, T5, T6, T7>
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5, T6? arg6, T7? arg7, T8? arg8)
     : base(definition, expected, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
     {
@@ -268,7 +268,7 @@ where TStruct : struct
 /// <summary>
 /// Test data implementation for return-value tests with 9 additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
@@ -278,13 +278,13 @@ where TStruct : struct
 /// <typeparam name="T7">The type of the seventh test argument.</typeparam>
 /// <typeparam name="T8">The type of the eighth test argument.</typeparam>
 /// <typeparam name="T9">The type of the ninth test argument.</typeparam>
-public class TestDataReturns<TStruct, T1, T2, T3, T4, T5, T6, T7, T8, T9>
-: TestDataReturns<TStruct, T1, T2, T3, T4, T5, T6, T7, T8>
-where TStruct : struct
+public class TestDataReturns<TResult, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+: TestDataReturns<TResult, T1, T2, T3, T4, T5, T6, T7, T8>
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         T1? arg1, T2? arg2, T3? arg3, T4? arg4, T5? arg5, T6? arg6, T7? arg7, T8? arg8, T9? arg9)
     : base(definition, expected, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
     {

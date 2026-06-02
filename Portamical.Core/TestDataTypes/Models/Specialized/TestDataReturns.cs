@@ -7,27 +7,23 @@ using Portamical.Core.TestDataTypes.Patterns;
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
 /// <summary>
-/// Abstract base class for test data that verifies method return values of value types.
+/// Abstract base class for test data that verifies method return values.
 /// </summary>
-/// <typeparam name="TStruct">
-/// The type of the expected return value. Must be a value type (struct).
+/// <typeparam name="TResult">
+/// The type of the expected return value. Must be not null.
 /// </typeparam>
 /// <remarks>
 /// <para>
 /// This class extends <see cref="TestDataExpected{TResult}"/> and implements <see cref="IReturns{TResult}"/>
-/// to provide a foundation for test data types that verify successful execution paths with value-type return values.
+/// to provide a foundation for test data types that verify successful execution paths with return values.
 /// </para>
 /// <para>
-/// <strong>Constraint Rationale:</strong> The <c>struct</c> constraint is intentional and provides three key benefits:
+/// <strong>Constraint Rationale:</strong> The <c>notnull</c> constraint ensures that:
 /// <list type="number">
-///   <item><strong>Non-null guarantee:</strong> Value types cannot be null (without <c>Nullable&lt;T&gt;</c>), ensuring test expectations are always concrete values</item>
-///   <item><strong>Meaningful ToString():</strong> All value types have predictable string representations, crucial for generating readable test case names</item>
-///   <item><strong>Value-based assessment:</strong> Designed for testing methods that return primitive types, structs, and other value types with value-based equality semantics</item>
+///   <item><strong>Non-null guarantee:</strong> The expected return value cannot be null, ensuring test expectations are always concrete values</item>
+///   <item><strong>Meaningful ToString():</strong> Non-null types have predictable string representations, crucial for generating readable test case names</item>
+///   <item><strong>Type flexibility:</strong> Supports both value types and reference types (including strings, objects, custom classes) that are non-null</item>
 /// </list>
-/// </para>
-/// <para>
-/// <strong>For Reference Types:</strong> To test methods that return reference types (strings, objects, custom classes),
-/// use <c>TestDataReturnsRef&lt;TResult&gt;</c> or <c>TestDataReturnsString</c> which handle reference type-specific concerns.
 /// </para>
 /// <para>
 /// <strong>Key Features:</strong>
@@ -80,19 +76,19 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// // Test case name: "Origin() => returns (0, 0)" ✅ Meaningful
 /// </code>
 /// </example>
-public abstract class TestDataReturns<TStruct>
-: TestDataExpected<TStruct>,
-IReturns<TStruct>
-where TStruct : struct
+public abstract class TestDataReturns<TResult>
+: TestDataExpected<TResult>,
+IReturns<TResult>
+where TResult : notnull
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestDataReturns{TStruct}"/> class.
+    /// Initializes a new instance of the <see cref="TestDataReturns{TResult}"/> class.
     /// </summary>
     /// <param name="definition">
     /// The descriptive definition of the test case scenario (left side of "=&gt;").
     /// </param>
     /// <param name="expected">
-    /// The expected return value. Guaranteed to be non-null due to <c>struct</c> constraint.
+    /// The expected return value. Guaranteed to be non-null due to <c>notnull</c> constraint.
     /// </param>
     /// <remarks>
     /// <para>
@@ -102,13 +98,13 @@ where TStruct : struct
     /// deriving custom classes.
     /// </para>
     /// <para>
-    /// <strong>Non-null Guarantee:</strong> The <c>struct</c> constraint ensures <paramref name="expected"/>
+    /// <strong>Non-null Guarantee:</strong> The <c>notnull</c> constraint ensures <paramref name="expected"/>
     /// can never be null, eliminating null-reference concerns in test assertions.
     /// </para>
     /// </remarks>
     private protected TestDataReturns(
         string definition,
-        TStruct expected)
+        TResult expected)
     : base(definition, expected)
     {
     }
@@ -133,10 +129,9 @@ where TStruct : struct
     /// with the string representation of <see cref="TestDataExpected{TResult}.Expected"/>.
     /// </para>
     /// <para>
-    /// <strong>ToString() Guarantee:</strong> The <c>struct</c> constraint ensures that
-    /// <see cref="object.ToString()"/> produces a meaningful string representation, as all value types
-    /// have well-defined <c>ToString()</c> implementations. This creates readable test case names
-    /// like <c>"Add(2,3) =&gt; returns 5"</c> rather than <c>"Add(2,3) =&gt; returns MyNamespace.MyClass"</c>.
+    /// <strong>ToString() Guarantee:</strong> The <c>notnull</c> constraint ensures that
+    /// <see cref="object.ToString()"/> can be safely called on the expected value. This creates readable test case names
+    /// like <c>"Add(2,3) =&gt; returns 5"</c>. For best results, ensure custom types override <c>ToString()</c>.
     /// </para>
     /// </remarks>
     /// <example>

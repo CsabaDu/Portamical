@@ -5,10 +5,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-#nullable enable
-
 using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.Core.TestDataTypes.Models.Specialized;
+
+#nullable enable
 
 namespace Portamical.Core.Factories;
 
@@ -655,6 +655,7 @@ public static class TestDataFactory
     /// <param name="arg5">The fifth test argument value.</param>
     /// <param name="arg6">The sixth test argument value.</param>
     /// <param name="arg7">The seventh test argument value.</param>
+    /// <returns>A new <see cref="TestDataThrows{TException, T1, T2, T3, T4, T5, T6, T7}"/> instance.</returns>
     public static TestDataThrows<TException, T1, T2, T3, T4, T5, T6, T7> CreateTestDataThrows<TException, T1, T2, T3, T4, T5, T6, T7>(
         string definition,
         TException expected,
@@ -687,6 +688,7 @@ public static class TestDataFactory
     /// <param name="arg6">The sixth test argument value.</param>
     /// <param name="arg7">The seventh test argument value.</param>
     /// <param name="arg8">The eighth test argument value.</param>
+    /// <returns>A new <see cref="TestDataThrows{TException, T1, T2, T3, T4, T5, T6, T7, T8}"/> instance.</returns>
     public static TestDataThrows<TException, T1, T2, T3, T4, T5, T6, T7, T8> CreateTestDataThrows<TException, T1, T2, T3, T4, T5, T6, T7, T8>(
         string definition,
         TException expected,
@@ -721,6 +723,7 @@ public static class TestDataFactory
     /// <param name="arg7">The seventh test argument value.</param>
     /// <param name="arg8">The eighth test argument value.</param>
     /// <param name="arg9">The ninth test argument value.</param>
+    /// <returns>A new <see cref="TestDataThrows{TException, T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> instance.</returns>
     public static TestDataThrows<TException, T1, T2, T3, T4, T5, T6, T7, T8, T9> CreateTestDataThrows<TException, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
         string definition,
         TException expected,

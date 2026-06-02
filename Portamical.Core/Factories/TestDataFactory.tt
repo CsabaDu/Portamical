@@ -17,6 +17,8 @@
     sb.AppendLine("using Portamical.Core.TestDataTypes.Models.General;");
     sb.AppendLine("using Portamical.Core.TestDataTypes.Models.Specialized;");
     sb.AppendLine();
+    sb.AppendLine("#nullable enable");
+    sb.AppendLine();
     sb.AppendLine("namespace Portamical.Core.Factories;");
     sb.AppendLine();
     sb.AppendLine("/// <summary>");
