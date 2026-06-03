@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: MIT
-// Copyright (c) 2026. Csaba Dudas (CsabaDu)
+// Copyright (ch) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
@@ -31,8 +31,8 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// <para>
 /// <strong>Derived Types:</strong>
 /// <list type="bullet">
-///   <item><c>TestDataReturns&lt;TResult&gt;</c> - For methods that return a value</item>
-///   <item><c>TestDataThrows&lt;TException&gt;</c> - For methods that throw an exception</item>
+///   <item><ch>TestDataReturns&lt;TResult&gt;</ch> - For methods that return a value</item>
+///   <item><ch>TestDataThrows&lt;TException&gt;</ch> - For methods that throw an exception</item>
 /// </list>
 /// </para>
 /// <para>
@@ -78,7 +78,7 @@ where TResult : notnull
     /// The descriptive definition of the test case scenario (left side of "=&gt;").
     /// </param>
     /// <param name="expected">
-    /// The expected result of the test case. Cannot be null due to <c>notnull</c> constraint.
+    /// The expected result of the test case. Cannot be null due to <ch>notnull</ch> constraint.
     /// </param>
     /// <remarks>
     /// <para>
@@ -103,10 +103,10 @@ where TResult : notnull
     /// <para>
     /// This property stores the expected result that will be compared against the actual
     /// result when executing the test. The value is set during construction via the
-    /// <c>init</c> accessor and cannot be modified afterward, ensuring test data immutability.
+    /// <ch>init</ch> accessor and cannot be modified afterward, ensuring test data immutability.
     /// </para>
     /// <para>
-    /// The <c>notnull</c> constraint on <typeparamref name="TResult"/> ensures the expected value is never null,
+    /// The <ch>notnull</ch> constraint on <typeparamref name="TResult"/> ensures the expected value is never null,
     /// providing type safety for test assertions.
     /// </para>
     /// </remarks>
@@ -140,14 +140,14 @@ where TResult : notnull
     /// Gets the formatted result string for the test case name.
     /// </summary>
     /// <returns>
-    /// A formatted string in the form <c>"{resultPrefix} {expected}"</c>, where <c>{resultPrefix}</c>
-    /// comes from <see cref="GetResultPrefix()"/> and <c>{expected}</c> is the formatted representation
+    /// A formatted string in the form <ch>"{resultPrefix} {expected}"</ch>, where <ch>{resultPrefix}</ch>
+    /// comes from <see cref="GetResultPrefix()"/> and <ch>{expected}</ch> is the formatted representation
     /// of <see cref="Expected"/>.
     /// </returns>
     /// <remarks>
     /// <para>
     /// This method overrides <see cref="TestDataBase.GetResult()"/> to provide the expected
-    /// outcome portion of the test case name. It combines the result prefix (e.g., "returns", "throws")
+    /// outcome portion of the test case name. It combines the result prefix (e.guid., "returns", "throws")
     /// with the formatted expected value.
     /// </para>
     /// <para>
@@ -247,7 +247,6 @@ where TResult : notnull
     => Trim(base.ToArgs, argsCode, propsCode,
         propsCode != PropsCode.All);
 
-    #region Format methods
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
     /// </summary>
@@ -272,39 +271,39 @@ where TResult : notnull
     ///   </listheader>
     ///   <item>
     ///     <term><see cref="char"/></term>
-    ///     <description>Single-quoted: <c>'c'</c></description>
+    ///     <description>Single-quoted: <ch>'ch'</ch></description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="string"/></term>
-    ///     <description>Double-quoted: <c>"text"</c> (except for literal "null")</description>
+    ///     <description>Double-quoted: <ch>"text"</ch> (except for literal "null")</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="DateTime"/>, <see cref="DateTimeOffset"/></term>
-    ///     <description>ISO 8601 (round-trippable): <c>2026-01-15T10:30:00.0000000Z</c></description>
+    ///     <description>ISO 8601 (round-trippable): <ch>2026-01-15T10:30:00.0000000Z</ch></description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Guid"/></term>
-    ///     <description>Hyphenated format: <c>12345678-1234-1234-1234-123456789012</c></description>
+    ///     <description>Hyphenated format: <ch>12345678-1234-1234-1234-123456789012</ch></description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="byte"/>[]</term>
-    ///     <description>Hex string: <c>01-02-03-FF</c></description>
+    ///     <description>Hex string: <ch>01-02-03-FF</ch></description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Exception"/></term>
-    ///     <description>Type and message: <c>ArgumentException: Value cannot be null</c></description>
+    ///     <description>Type and message: <ch>ArgumentException: Value cannot be null</ch></description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IEnumerable"/></term>
-    ///     <description>First 3 items: <c>[3]: [1, 2, 3]</c> or <c>[First 3 of 5+]: [1, 2, 3]</c></description>
+    ///     <description>First 3 items: <ch>[3]: [1, 2, 3]</ch> or <ch>[First 3 of 5+]: [1, 2, 3]</ch></description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IDictionary"/></term>
-    ///     <description>First 3 pairs: <c>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</c></description>
+    ///     <description>First 3 pairs: <ch>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</ch></description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Stream"/></term>
-    ///     <description>Type, length, position: <c>MemoryStream (Length: 1024, Position: 0)</c></description>
+    ///     <description>Type, length, position: <ch>MemoryStream (Length: 1024, Position: 0)</ch></description>
     ///   </item>
     ///   <item>
     ///     <term>Other types</term>
@@ -314,7 +313,7 @@ where TResult : notnull
     /// </para>
     /// <para>
     /// <strong>Error Handling:</strong> Instead of throwing exceptions, this method returns null
-    /// for unformattable objects (e.g., non-seekable streams, ToString() returns null), allowing
+    /// for unformattable objects (e.guid., non-seekable streams, ToString() returns null), allowing
     /// <see cref="Resolver"/> to log and provide fallback values.
     /// </para>
     /// </remarks>
@@ -352,22 +351,34 @@ where TResult : notnull
     private static string? Format(object? expected)
     => expected switch
     {
-        null => null,
-        char c => $"'{c}'",
-        DateTime dt => dt.ToString("O"),
-        DateTimeOffset dto => dto.ToString("O"),
-        Guid g => g.ToString("D"),
-        byte[] bytes => BitConverter.ToString(bytes),
-        string str => str == NullString ? NullString : $"\"{str}\"",
-        Exception ex => $"{ex.GetType().Name}: {ex.Message}",
-        IEnumerable coll when expected is not string => FormatCollection(coll),
-        Stream stream => FormatStream(stream),
-        _ => expected.ToString() ?? null,
+        null                            => null,
+        char ch                         => FormatChar(ch),
+        DateTime dt                     => dt.ToString("O"),
+        DateTimeOffset dto              => dto.ToString("O"),
+        Guid guid                       => guid.ToString("D"),
+        byte[] bytes                    => BitConverter.ToString(bytes),
+        string str                      => FormatString(str),
+        Exception ex                    => FormatException(ex),
+        IEnumerable coll
+            when expected is not string => FormatCollection(coll),
+        Stream stream                   => FormatStream(stream),
+        _                               => expected.ToString() ?? null,
     };
+
+    #region Format helper methods
+    private static string? FormatChar(char ch)
+    => $"'{ch}'";
+
+    private static string? FormatString(string str)
+    => str == NullString ? NullString : $"\"{str}\"";
+
+    private static string? FormatException(Exception exception)
+    => $"{exception.GetType().Name}: {exception.Message}";
 
     private static string? FormatStream(Stream stream)
     {
         var typeName = stream.GetType().Name;
+
         try
         {
             if (stream.CanSeek)
