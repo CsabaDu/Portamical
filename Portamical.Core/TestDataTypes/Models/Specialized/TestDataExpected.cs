@@ -133,6 +133,58 @@ where TResult : notnull
     public object GetExpected()
     => Expected;
 
+    /// <summary>
+    /// Gets the formatted result string for the test case name.
+    /// </summary>
+    /// <returns>
+    /// A formatted string in the form <c>"{resultPrefix} {expected}"</c>, where <c>{resultPrefix}</c>
+    /// comes from <see cref="GetResultPrefix()"/> and <c>{expected}</c> is the formatted representation
+    /// of <see cref="Expected"/>.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This method overrides <see cref="TestDataBase.GetResult()"/> to provide the expected
+    /// outcome portion of the test case name. It combines the result prefix (e.g., "returns", "throws")
+    /// with the formatted expected value.
+    /// </para>
+    /// <para>
+    /// <strong>Fallback Strategy:</strong> Both the result prefix and expected value use
+    /// <see cref="Resolver.FallbackIfNullOrWhiteSpace"/> for null handling:
+    /// <list type="bullet">
+    ///   <item>If <see cref="GetResultPrefix()"/> returns null/whitespace → uses "results (N)" with trace warning</item>
+    ///   <item>If <see cref="Format(object?)"/> returns null → uses type name "TResult (N)" with trace warning</item>
+    /// </list>
+    /// This creates an auditable trail of formatting failures via <see cref="Resolver"/>.
+    /// </para>
+    /// <para>
+    /// <strong>Formatting:</strong> The <see cref="Format(object?)"/> method provides intelligent
+    /// formatting for common types (char, DateTime, Guid, collections, exceptions, etc.) to create
+    /// readable test case names.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Integer expected value
+    /// var intTest = new TestDataReturns&lt;int&gt;("Add(2,3)", 5);
+    /// string result = intTest.GetResult();
+    /// // Returns: "returns 5" ✅
+    /// 
+    /// // String expected value
+    /// var strTest = new TestDataReturns&lt;string&gt;("GetName()", "John");
+    /// string result2 = strTest.GetResult();
+    /// // Returns: "returns \"John\"" ✅
+    /// 
+    /// // Exception expected value
+    /// var exTest = new TestDataThrows&lt;ArgumentException&gt;("Validate(null)", new ArgumentException("Value cannot be null"));
+    /// string result3 = exTest.GetResult();
+    /// // Returns: "throws ArgumentException: Value cannot be null" ✅
+    /// 
+    /// // Collection expected value
+    /// var listTest = new TestDataReturns&lt;List&lt;int&gt;&gt;("GetNumbers()", new List&lt;int&gt; { 1, 2, 3 });
+    /// string result4 = listTest.GetResult();
+    /// // Returns: "returns [3]: [1, 2, 3]" ✅
+    /// </code>
+    /// </example>
     public override sealed string GetResult()
     {
         const string resultsString = "results";
@@ -191,50 +243,163 @@ where TResult : notnull
     => Trim(base.ToArgs, argsCode, propsCode,
         propsCode != PropsCode.All);
 
-    private static string? Format(object expected)
+    /// <summary>
+    /// Formats an object into a human-readable string representation for test case names.
+    /// </summary>
+    /// <param name="expected">The object to format. May be null from recursive calls.</param>
+    /// <returns>
+    /// A formatted string representation suitable for test case names, or <see langword="null"/> if formatting fails.
+    /// Null returns are intentional and signal the caller to use <see cref="Resolver.FallbackIfNullOrWhiteSpace"/> 
+    /// for logging and fallback handling.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Null Handling Strategy:</strong> This method may return null to signal formatting failure.
+    /// The caller (<see cref="GetResult"/>) uses <see cref="Resolver.FallbackIfNullOrWhiteSpace"/> to log
+    /// the failure and provide an indexed fallback label, creating an auditable trail.
+    /// </para>
+    /// <para>
+    /// <strong>Type-Specific Formatting:</strong>
+    /// <list type="table">
+    ///   <listheader>
+    ///     <term>Type</term>
+    ///     <description>Format</description>
+    ///   </listheader>
+    ///   <item>
+    ///     <term><see cref="char"/></term>
+    ///     <description>Single-quoted: <c>'c'</c></description>
+    ///   </item>
+    ///   <item>
+    ///     <term><see cref="string"/></term>
+    ///     <description>Double-quoted: <c>"text"</c> (except for literal "null")</description>
+    ///   </item>
+    ///   <item>
+    ///     <term><see cref="DateTime"/>, <see cref="DateTimeOffset"/></term>
+    ///     <description>ISO 8601 (round-trippable): <c>2026-01-15T10:30:00.0000000Z</c></description>
+    ///   </item>
+    ///   <item>
+    ///     <term><see cref="Guid"/></term>
+    ///     <description>Hyphenated format: <c>12345678-1234-1234-1234-123456789012</c></description>
+    ///   </item>
+    ///   <item>
+    ///     <term><see cref="byte"/>[]</term>
+    ///     <description>Hex string: <c>01-02-03-FF</c></description>
+    ///   </item>
+    ///   <item>
+    ///     <term><see cref="Exception"/></term>
+    ///     <description>Type and message: <c>ArgumentException: Value cannot be null</c></description>
+    ///   </item>
+    ///   <item>
+    ///     <term><see cref="IEnumerable"/></term>
+    ///     <description>First 3 items: <c>[3]: [1, 2, 3]</c> or <c>[First 3 of 5+]: [1, 2, 3]</c></description>
+    ///   </item>
+    ///   <item>
+    ///     <term><see cref="IDictionary"/></term>
+    ///     <description>First 3 pairs: <c>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</c></description>
+    ///   </item>
+    ///   <item>
+    ///     <term><see cref="Stream"/></term>
+    ///     <description>Type, length, position: <c>MemoryStream (Length: 1024, Position: 0)</c></description>
+    ///   </item>
+    ///   <item>
+    ///     <term>Other types</term>
+    ///     <description>Uses <see cref="object.ToString()"/> (returns null if ToString returns null)</description>
+    ///   </item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <strong>Error Handling:</strong> Instead of throwing exceptions, this method returns null
+    /// for unformattable objects (e.g., non-seekable streams, ToString() returns null), allowing
+    /// <see cref="Resolver"/> to log and provide fallback values.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Primitive types
+    /// Format('a')         // Returns: "'a'"
+    /// Format(42)          // Returns: "42"
+    /// Format(true)        // Returns: "True"
+    /// 
+    /// // String handling
+    /// Format("hello")     // Returns: "\"hello\""
+    /// Format("null")      // Returns: "null" (no quotes for literal)
+    /// 
+    /// // DateTime (ISO 8601)
+    /// Format(new DateTime(2026, 1, 15, 10, 30, 0, DateTimeKind.Utc))
+    /// // Returns: "2026-01-15T10:30:00.0000000Z"
+    /// 
+    /// // Collections
+    /// Format(new[] { 1, 2, 3 })           // Returns: "[3]: [1, 2, 3]"
+    /// Format(new[] { 1, 2, 3, 4, 5 })     // Returns: "[First 3 of 5+]: [1, 2, 3]"
+    /// 
+    /// // Dictionaries
+    /// var dict = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2 };
+    /// Format(dict)  // Returns: "[2]: {{\"a\": 1}, {\"b\": 2}}"
+    /// 
+    /// // Exceptions
+    /// Format(new ArgumentException("Invalid"))
+    /// // Returns: "ArgumentException: Invalid"
+    /// 
+    /// // Null (signals failure)
+    /// Format(null)  // Returns: null
+    /// </code>
+    /// </example>
+    private static string? Format(object? expected)
     {
-        if (expected is Exception exception)
+        const string nullString = "null";
+
+        return expected switch
         {
-            return $"{exception.GetType().Name}: {exception.Message}";
-        }
-
-        var expectedType = expected.GetType();
-        var expectedString = expected.ToString();
-
-        if (expectedType.IsValueType)
-        {
-            return expectedString;
-        }
-
-        return formatExpected();
+            null => null,  // Explicit: signal formatting failure for logging
+            char c => $"'{c}'",
+            DateTime dt => dt.ToString("O"),
+            DateTimeOffset dto => dto.ToString("O"),
+            Guid g => g.ToString("D"),
+            byte[] bytes => BitConverter.ToString(bytes),
+            string str => str == nullString ? nullString : $"\"{str}\"",
+            Exception ex => $"{ex.GetType().Name}: {ex.Message}",
+            IEnumerable coll when expected is not string => formatCollection(coll),
+            Stream stream => formatStream(stream),
+            _ => expected.ToString() ?? null,  // Fallback to null if ToString() returns null
+        };
 
         #region Local methods
-        string? formatExpected()
+        static string? formatStream(Stream stream)
         {
-            return expected switch
+            var typeName = stream.GetType().Name;
+            try
             {
-                string str => $"\"{str}\"",
-                IEnumerable enumerable when expected is not string => formatCollection(enumerable),
-                _ => expectedString,
-            };
+                if (stream.CanSeek)
+                {
+                    return $"{typeName} (Length: {stream.Length}, Position: {stream.Position})";
+                }
+                return $"{typeName} (Position: {stream.Position})";
+            }
+            catch
+            {
+                return null;
+            }
         }
 
-        string formatCollection(IEnumerable enumerable)
+        static string? formatCollection(IEnumerable coll)
         {
             const int maxCount = 3;
 
-            var objects = enumerable.Cast<object>();
-            var count = objects.Count();
-            var items = objects.Take(maxCount).Select(Format);
-            var prefix = count > maxCount ? $"[First {maxCount} of {count}]: " : $"[{count}]: ";
+            var materializedObjects = coll.Cast<object?>().Take(maxCount + 1).ToList();
+            var count = materializedObjects.Count;
+            var hasMore = count > maxCount;
 
-            if (enumerable is IDictionary dict)
+            var items = materializedObjects.Take(maxCount).Select(item => Format(item) ?? nullString);
+            var prefix = hasMore ? $"First {maxCount} of {count}+" : $"{count}";
+
+            if (coll is IDictionary dict)
             {
-                items = dict.Cast<DictionaryEntry>().Take(maxCount).Select(
-                    kvp => $"{{{Format(kvp.Key)}: {Format(kvp.Value ?? string.Empty)}}}");
+                var dictItems = dict.Cast<DictionaryEntry>().Take(maxCount).Select(
+                    kvp => $"{{{Format(kvp.Key) ?? nullString}: {Format(kvp.Value) ?? nullString}}}");
+                return $"[{prefix}]: {{{string.Join(", ", dictItems)}}}";
             }
 
-            return $"{prefix}{string.Join(", ", items)}";
+            return $"[{prefix}]: [{string.Join(", ", items)}]";
         }
         #endregion
     }
