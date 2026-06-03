@@ -421,6 +421,7 @@ where TResult : notnull
                 var type = item.GetType();
                 var key = type.GetProperty("Key")?.GetValue(item);
                 var value = type.GetProperty("Value")?.GetValue(item);
+
                 return $"{{{Format(key) ?? NullString}: {Format(value) ?? NullString}}}";
             }
         });
