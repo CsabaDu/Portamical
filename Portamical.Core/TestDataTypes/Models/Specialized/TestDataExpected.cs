@@ -247,6 +247,7 @@ where TResult : notnull
     => Trim(base.ToArgs, argsCode, propsCode,
         propsCode != PropsCode.All);
 
+    #region Format methods
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
     /// </summary>
@@ -364,8 +365,7 @@ where TResult : notnull
         _ => expected.ToString() ?? null,
     };
 
-    #region Format helper methods
-    static string? FormatStream(Stream stream)
+    private static string? FormatStream(Stream stream)
     {
         var typeName = stream.GetType().Name;
         try
@@ -383,14 +383,20 @@ where TResult : notnull
         }
     }
 
-    static string? FormatCollection(IEnumerable coll)
+    private static string? FormatCollection(IEnumerable coll)
     {
-        var materializedObjects = coll.Cast<object?>().Take(MaxCount + 1).ToList();
+        var materializedObjects = coll.Cast<object?>()
+            .Take(MaxCount + 1)
+            .ToList();
         var count = materializedObjects.Count;
         var hasMore = count > MaxCount;
 
-        var items = materializedObjects.Take(MaxCount).Select(item => Format(item) ?? NullString);
-        var prefix = hasMore ? $"First {MaxCount} of {count}+" : $"{count}";
+        var items = materializedObjects
+            .Take(MaxCount)
+            .Select(item => Format(item) ?? NullString);
+        var prefix = hasMore ?
+            $"First {MaxCount} of {count}+"
+            : $"{count}";
 
         if (coll is IDictionary dict)
         {
@@ -400,7 +406,7 @@ where TResult : notnull
         return $"[{prefix}]: [{string.Join(", ", items)}]";
     }
 
-    static string? FormatDictionary(IDictionary dict, string? prefix)
+    private static string? FormatDictionary(IDictionary dict, string? prefix)
     {
         var dictItems = dict.Cast<object>().Take(MaxCount).Select(item =>
         {
