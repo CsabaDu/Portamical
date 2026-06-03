@@ -124,70 +124,9 @@ where TException : Exception
     {
     }
 
-    private const string ThrowsString = "throws";
-
     /// <inheritdoc/>
     public override sealed string GetResultPrefix()
-    => GetValidResultPrefix(ThrowsString);
-
-    /// <summary>
-    /// Gets the formatted result string for the test case name.
-    /// </summary>
-    /// <returns>
-    /// A formatted string in the form <c>"throws {exceptionType}"</c>, where <c>{exceptionType}</c>
-    /// is the name of the exception type (without namespace) from <see cref="TestDataExpected{TResult}.Expected"/>.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This method overrides <see cref="TestDataBase.GetResult()"/> to provide the expected
-    /// outcome portion of the test case name for exception tests. It calls 
-    /// <see cref="TestDataExpected{TResult}.GetExpectedResult(string?)"/> with the exception type name
-    /// (via <see cref="Type.Name"/>) rather than the full exception details.
-    /// </para>
-    /// <para>
-    /// <strong>Type Name vs ToString():</strong> This method uses <see cref="Type.Name"/> instead of
-    /// <see cref="Exception.ToString()"/> to produce concise test case names. 
-    /// <see cref="Exception.ToString()"/> includes the full type name, message, and stack trace,
-    /// which would be too verbose for test case naming.
-    /// </para>
-    /// <para>
-    /// <strong>Example:</strong> For <c>Expected = new ArgumentException("Invalid input", "param")</c>,
-    /// this returns <c>"throws ArgumentException"</c>, resulting in a test case name like
-    /// <c>"Validate(null) =&gt; throws ArgumentException"</c>.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// // ArgumentException
-    /// var argTest = new TestDataThrows&lt;ArgumentException&gt;(
-    ///     "Validate(null)", 
-    ///     new ArgumentException("Value cannot be null", "input"));
-    /// string result = argTest.GetResult();
-    /// // Returns: "throws ArgumentException" ✅ Concise
-    /// // NOT: "throws System.ArgumentException: Value cannot be null (Parameter 'input')" ❌ Too verbose
-    /// 
-    /// // InvalidOperationException
-    /// var invalidOpTest = new TestDataThrows&lt;InvalidOperationException&gt;(
-    ///     "Operation when closed", 
-    ///     new InvalidOperationException("Cannot perform operation on closed object"));
-    /// string result2 = invalidOpTest.GetResult();
-    /// // Returns: "throws InvalidOperationException" ✅ Concise
-    /// 
-    /// // Custom exception
-    /// public class CustomException : Exception
-    /// {
-    ///     public CustomException(string message) : base(message) { }
-    /// }
-    /// 
-    /// var customTest = new TestDataThrows&lt;CustomException&gt;(
-    ///     "Custom scenario", 
-    ///     new CustomException("Custom error"));
-    /// string result3 = customTest.GetResult();
-    /// // Returns: "throws CustomException" ✅ Works with any Exception-derived type
-    /// </code>
-    /// </example>
-    public override sealed string GetResult()
-    => GetExpectedResult(Expected.GetType().Name);
+    => "throws";
 
     /// <inheritdoc/>
     public override sealed object?[] ToArgs(

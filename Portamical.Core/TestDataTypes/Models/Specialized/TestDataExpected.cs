@@ -4,6 +4,7 @@
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
+using System.Collections;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
@@ -56,7 +57,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 ///     
 ///     public override string GetResult()
 ///     {
-///         return GetExpectedResult(Expected?.ToString());
+///         return GetResult(Expected?.ToString());
 ///         // Result: "returns 5" or "returns hello"
 ///     }
 /// }
@@ -91,8 +92,6 @@ where TResult : notnull
         Expected = expected;
         TestCaseName = CreateTestCaseName();
     }
-
-    private const string ResultsString = "results";
 
     /// <summary>
     /// Gets the expected outcome of the test case.
@@ -134,6 +133,19 @@ where TResult : notnull
     public object GetExpected()
     => Expected;
 
+    public override sealed string GetResult()
+    {
+        const string resultsString = "results";
+
+        var resultPrefix = resultsString
+            .FallbackIfNullOrWhiteSpace(GetResultPrefix(), nameof(GetResultPrefix));
+        var expected = Expected.GetType().ToString()
+            .FallbackIfNullOrWhiteSpace(Format(Expected), nameof(GetExpected));
+
+        return $"{resultPrefix} {expected}";
+    }
+
+
     /// <summary>
     /// Converts the test data to an argument array by extending the base arguments with the expected value.
     /// </summary>
@@ -152,74 +164,6 @@ where TResult : notnull
     /// </remarks>
     protected override object?[] ToObjectArray(ArgsCode argsCode)
     => Extend(base.ToObjectArray, argsCode, Expected);
-
-    /// <summary>
-    /// Formats the expected result with the result prefix for display in test case names.
-    /// </summary>
-    /// <param name="expectedString">
-    /// The string representation of the expected value. Can be null or whitespace.
-    /// </param>
-    /// <returns>
-    /// A formatted string in the form <c>"{resultPrefix} {expected}"</c>, where
-    /// <c>{resultPrefix}</c> comes from <see cref="GetResultPrefix()"/> and
-    /// <c>{expected}</c> is validated via <see cref="Resolver.FallbackIfNullOrWhiteSpace"/>.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// If <paramref name="expectedString"/> is null or whitespace, a fallback value
-    /// <c>"expected (N)"</c> is generated with a unique index for tracing.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// // TestDataReturns with expected = 5
-    /// var result = GetExpectedResult("5");
-    /// // Returns: "returns 5"
-    /// 
-    /// // TestDataThrows with expected = ArgumentException
-    /// var result = GetExpectedResult("ArgumentException");
-    /// // Returns: "throws ArgumentException"
-    /// 
-    /// // Null expected (fallback)
-    /// var result = GetExpectedResult(null);
-    /// // Returns: "returns expected (1)" (with trace warning)
-    /// </code>
-    /// </example>
-    protected string GetExpectedResult(string? expectedString)
-    {
-        var resultPrefix = GetResultPrefix();
-        var expected = defaultExpectedString()
-            .FallbackIfNullOrWhiteSpace(expectedString, nameof(GetExpected));
-
-        return $"{resultPrefix} {expected}";
-
-        #region Local methods
-        string defaultExpectedString() => Expected.GetType().ToString();
-        #endregion
-    }
-
-    /// <summary>
-    /// Validates and returns the result prefix, falling back to "results" if null or whitespace.
-    /// </summary>
-    /// <param name="resultPrefix">
-    /// The result prefix to validate (e.g., "returns", "throws").
-    /// </param>
-    /// <returns>
-    /// The validated <paramref name="resultPrefix"/>, or <c>"results (N)"</c> if null/whitespace.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This helper method ensures that derived classes always return a valid result prefix.
-    /// If <paramref name="resultPrefix"/> is null or whitespace, a fallback value
-    /// <c>"results (N)"</c> is generated with a unique index and a trace warning is logged.
-    /// </para>
-    /// <para>
-    /// <strong>Note:</strong> This method has a confusing name (same as abstract method).
-    /// Consider renaming to <c>ValidateResultPrefix</c> or <c>EnsureResultPrefix</c> for clarity.
-    /// </para>
-    /// </remarks>
-    protected static string GetValidResultPrefix(string resultPrefix)
-    => ResultsString.FallbackIfNullOrWhiteSpace(resultPrefix, nameof(GetResultPrefix));
 
     /// <summary>
     /// Converts the test data to a parameter array with optional trimming of the expected value.
@@ -246,4 +190,52 @@ where TResult : notnull
         PropsCode propsCode)
     => Trim(base.ToArgs, argsCode, propsCode,
         propsCode != PropsCode.All);
+
+    private static string? Format(object expected)
+    {
+        if (expected is Exception exception)
+        {
+            return $"{exception.GetType().Name}: {exception.Message}";
+        }
+
+        var expectedType = expected.GetType();
+        var expectedString = expected.ToString();
+
+        if (expectedType.IsValueType)
+        {
+            return expectedString;
+        }
+
+        return formatExpected();
+
+        #region Local methods
+        string? formatExpected()
+        {
+            return expected switch
+            {
+                string str => $"\"{str}\"",
+                IEnumerable enumerable when expected is not string => formatCollection(enumerable),
+                _ => expectedString,
+            };
+        }
+
+        string formatCollection(IEnumerable enumerable)
+        {
+            const int maxCount = 3;
+
+            var objects = enumerable.Cast<object>();
+            var count = objects.Count();
+            var items = objects.Take(maxCount).Select(Format);
+            var prefix = count > maxCount ? $"[First {maxCount} of {count}]: " : $"[{count}]: ";
+
+            if (enumerable is IDictionary dict)
+            {
+                items = dict.Cast<DictionaryEntry>().Take(maxCount).Select(
+                    kvp => $"{{{Format(kvp.Key)}: {Format(kvp.Value ?? string.Empty)}}}");
+            }
+
+            return $"{prefix}{string.Join(", ", items)}";
+        }
+        #endregion
+    }
 }

@@ -53,7 +53,7 @@ public interface IExpected
     /// </returns>
     /// <remarks>
     /// <para>
-    /// This prefix is used to construct the test case name in the format:
+    /// This prefix is used to construct the test case name in the formatExpected:
     /// <c>"{scenario} =&gt; {prefix} {expected}"</c>
     /// </para>
     /// <para>

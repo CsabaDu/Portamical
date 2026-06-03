@@ -26,7 +26,7 @@ namespace Portamical.Core.Identity;
 /// <strong>Thread Safety:</strong> Implementations should be immutable to ensure thread safety.
 /// </para>
 /// <example>
-/// Typical display name format:
+/// Typical display name formatExpected:
 /// <code>"Login with invalid credentials => throws AuthenticationException"</code>
 /// </example>
 /// </remarks>

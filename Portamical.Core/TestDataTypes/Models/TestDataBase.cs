@@ -127,7 +127,7 @@ public abstract class TestDataBase(string definition)
     /// When implemented in a derived class, returns the result of the operation as a string.
     /// </summary>
     /// <returns>
-    /// A string that represents the result of the operation. The meaning and format of the result are defined by the
+    /// A string that represents the result of the operation. The meaning and formatExpected of the result are defined by the
     /// derived class implementation.
     /// </returns>
     public abstract string GetResult();

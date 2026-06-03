@@ -3,6 +3,8 @@
 
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
+using System.Collections;
+using System.Runtime.InteropServices.ObjectiveC;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
@@ -45,7 +47,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// var intTest = new TestDataReturns&lt;int, int, int&gt;
 /// {
 ///     TestCaseName = "Add(2,3) =&gt; returns 5",
-///     Expected = 5,  // Guaranteed non-null
+///     expected = 5,  // Guaranteed non-null
 ///     Arg1 = 2,
 ///     Arg2 = 3
 /// };
@@ -55,7 +57,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// var boolTest = new TestDataReturns&lt;bool, string&gt;
 /// {
 ///     TestCaseName = "IsValid(input) =&gt; returns True",
-///     Expected = true,  // Guaranteed non-null
+///     expected = true,  // Guaranteed non-null
 ///     Arg1 = "input"
 /// };
 /// // Test case name: "IsValid(input) => returns True" ✅ Meaningful
@@ -71,7 +73,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// var pointTest = new TestDataReturns&lt;Point&gt;
 /// {
 ///     TestCaseName = "Origin() =&gt; returns (0, 0)",
-///     Expected = new Point { X = 0, Y = 0 }  // Guaranteed non-null
+///     expected = new Point { X = 0, Y = 0 }  // Guaranteed non-null
 /// };
 /// // Test case name: "Origin() => returns (0, 0)" ✅ Meaningful
 /// </code>
@@ -109,63 +111,9 @@ where TResult : notnull
     {
     }
 
-    private const string ReturnsString = "returns";
-
     /// <inheritdoc/>
     public override sealed string GetResultPrefix()
-    => GetValidResultPrefix(ReturnsString);
-
-    /// <summary>
-    /// Gets the formatted result string for the test case name.
-    /// </summary>
-    /// <returns>
-    /// A formatted string in the form <c>"returns {expected}"</c>, where <c>{expected}</c>
-    /// is the string representation of the <see cref="TestDataExpected{TResult}.Expected"/> value.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This method overrides <see cref="TestDataBase.GetResult()"/> to provide the expected
-    /// outcome portion of the test case name. It calls <see cref="TestDataExpected{TResult}.GetExpectedResult(string?)"/>
-    /// with the string representation of <see cref="TestDataExpected{TResult}.Expected"/>.
-    /// </para>
-    /// <para>
-    /// <strong>ToString() Guarantee:</strong> The <c>notnull</c> constraint ensures that
-    /// <see cref="object.ToString()"/> can be safely called on the expected value. This creates readable test case names
-    /// like <c>"Add(2,3) =&gt; returns 5"</c>. For best results, ensure custom types override <c>ToString()</c>.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// // Integer expected value
-    /// var intTest = new TestDataReturns&lt;int&gt;("Add(2,3)", 5);
-    /// string result = intTest.GetResult();
-    /// // Returns: "returns 5" ✅ Meaningful
-    /// 
-    /// // Boolean expected value
-    /// var boolTest = new TestDataReturns&lt;bool&gt;("IsValid(input)", true);
-    /// string result2 = boolTest.GetResult();
-    /// // Returns: "returns True" ✅ Meaningful
-    /// 
-    /// // DateTime expected value
-    /// var dateTest = new TestDataReturns&lt;DateTime&gt;("Now()", new DateTime(2026, 1, 15));
-    /// string result3 = dateTest.GetResult();
-    /// // Returns: "returns 1/15/2026 12:00:00 AM" ✅ Meaningful
-    /// 
-    /// // Custom struct with ToString() override
-    /// public struct Point
-    /// {
-    ///     public int X { get; init; }
-    ///     public int Y { get; init; }
-    ///     public override string ToString() =&gt; $"({X}, {Y})";
-    /// }
-    /// 
-    /// var pointTest = new TestDataReturns&lt;Point&gt;("Origin()", new Point { X = 0, Y = 0 });
-    /// string result4 = pointTest.GetResult();
-    /// // Returns: "returns (0, 0)" ✅ Meaningful
-    /// </code>
-    /// </example>
-    public override sealed string GetResult()
-    => GetExpectedResult(Expected.ToString());
+    => "returns";
 
     /// <inheritdoc/>
     public override sealed object?[] ToArgs(
