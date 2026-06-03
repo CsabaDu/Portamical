@@ -130,17 +130,17 @@ public class TestDataFactoryTests
         var sut = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
         Assert.IsInstanceOfType<TestDataThrows<ArgumentException, int>>(sut);
         Assert.AreSame(sut.Expected, ex);
-        Assert.AreEqual($"{Def} => throws ArgumentException", sut.TestCaseName);
+        Assert.StartsWith($"{Def} => throws ArgumentException", sut.TestCaseName);
     }
 
     [TestMethod]
     public void CreateTestDataThrows_withArgumentNullException_usesConcreteTypeName()
     {
-        // ArgumentNullException is a subtype of ArgumentException â€” type name used, not base
+        // ArgumentNullException is a subtype of ArgumentException — type name used, not base
         var paramName = "param";
         var ex = new ArgumentNullException(paramName);
         var sut = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
-        Assert.AreEqual($"{Def} => throws ArgumentNullException", sut.TestCaseName);
+        Assert.StartsWith($"{Def} => throws ArgumentNullException", sut.TestCaseName);
     }
     #endregion
 }

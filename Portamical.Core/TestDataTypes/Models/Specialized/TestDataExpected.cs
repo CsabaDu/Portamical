@@ -68,6 +68,9 @@ public abstract class TestDataExpected<TResult>
 IExpected<TResult>
 where TResult : notnull
 {
+    private const string NullString = "null";
+    private const int MaxCount = 3;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TestDataExpected{TResult}"/> class.
     /// </summary>
@@ -346,64 +349,78 @@ where TResult : notnull
     /// </code>
     /// </example>
     private static string? Format(object? expected)
+    => expected switch
     {
-        const string nullString = "null";
+        null => null,
+        char c => $"'{c}'",
+        DateTime dt => dt.ToString("O"),
+        DateTimeOffset dto => dto.ToString("O"),
+        Guid g => g.ToString("D"),
+        byte[] bytes => BitConverter.ToString(bytes),
+        string str => str == NullString ? NullString : $"\"{str}\"",
+        Exception ex => $"{ex.GetType().Name}: {ex.Message}",
+        IEnumerable coll when expected is not string => FormatCollection(coll),
+        Stream stream => FormatStream(stream),
+        _ => expected.ToString() ?? null,
+    };
 
-        return expected switch
+    #region Format helper methods
+    static string? FormatStream(Stream stream)
+    {
+        var typeName = stream.GetType().Name;
+        try
         {
-            null => null,
-            char c => $"'{c}'",
-            DateTime dt => dt.ToString("O"),
-            DateTimeOffset dto => dto.ToString("O"),
-            Guid g => g.ToString("D"),
-            byte[] bytes => BitConverter.ToString(bytes),
-            string str => str == nullString ? nullString : $"\"{str}\"",
-            Exception ex => $"{ex.GetType().Name}: {ex.Message}",
-            IEnumerable coll when expected is not string => formatCollection(coll),
-            Stream stream => formatStream(stream),
-            _ => expected.ToString() ?? null,
-        };
-
-        #region Local methods
-        static string? formatStream(Stream stream)
-        {
-            var typeName = stream.GetType().Name;
-            try
+            if (stream.CanSeek)
             {
-                if (stream.CanSeek)
-                {
-                    return $"{typeName} (Length: {stream.Length}, Position: {stream.Position})";
-                }
+                return $"{typeName} (Length: {stream.Length}, Position: {stream.Position})";
+            }
 
-                return $"{typeName} (Position: {stream.Position})";
-            }
-            catch
-            {
-                return null;
-            }
+            return $"{typeName} (Position: {stream.Position})";
         }
-
-        static string? formatCollection(IEnumerable coll)
+        catch
         {
-            const int maxCount = 3;
-
-            var materializedObjects = coll.Cast<object?>().Take(maxCount + 1).ToList();
-            var count = materializedObjects.Count;
-            var hasMore = count > maxCount;
-
-            var items = materializedObjects.Take(maxCount).Select(item => Format(item) ?? nullString);
-            var prefix = hasMore ? $"First {maxCount} of {count}+" : $"{count}";
-
-            if (coll is IDictionary dict)
-            {
-                var dictItems = dict.Cast<DictionaryEntry>().Take(maxCount).Select(
-                    kvp => $"{{{Format(kvp.Key) ?? nullString}: {Format(kvp.Value) ?? nullString}}}");
-
-                return $"[{prefix}]: {{{string.Join(", ", dictItems)}}}";
-            }
-
-            return $"[{prefix}]: [{string.Join(", ", items)}]";
+            return null;
         }
-        #endregion
     }
+
+    static string? FormatCollection(IEnumerable coll)
+    {
+        var materializedObjects = coll.Cast<object?>().Take(MaxCount + 1).ToList();
+        var count = materializedObjects.Count;
+        var hasMore = count > MaxCount;
+
+        var items = materializedObjects.Take(MaxCount).Select(item => Format(item) ?? NullString);
+        var prefix = hasMore ? $"First {MaxCount} of {count}+" : $"{count}";
+
+        if (coll is IDictionary dict)
+        {
+            return FormatDictionary(dict, prefix);
+        }
+
+        return $"[{prefix}]: [{string.Join(", ", items)}]";
+    }
+
+    static string? FormatDictionary(IDictionary dict, string? prefix)
+    {
+        var dictItems = dict.Cast<object>().Take(MaxCount).Select(item =>
+        {
+            // Handle both DictionaryEntry (from non-generic IDictionary) and KeyValuePair<,> (from Dictionary<,>)
+            if (item is DictionaryEntry de)
+            {
+                return $"{{{Format(de.Key) ?? NullString}: {Format(de.Value) ?? NullString}}}";
+            }
+            else
+            {
+                // Use reflection to access Key and Value properties from KeyValuePair<,>
+                var type = item.GetType();
+                var key = type.GetProperty("Key")?.GetValue(item);
+                var value = type.GetProperty("Value")?.GetValue(item);
+                return $"{{{Format(key) ?? NullString}: {Format(value) ?? NullString}}}";
+            }
+        });
+
+        return $"[{prefix}]: {{{string.Join(", ", dictItems)}}}";
+    }
+
+    #endregion
 }
