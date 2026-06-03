@@ -187,12 +187,13 @@ where TResult : notnull
     /// </example>
     public override sealed string GetResult()
     {
-        const string resultsString = "results";
+        const string defaultResultPrefix = "results";
+        var resultPrefix = defaultResultPrefix.FallbackIfNullOrWhiteSpace(
+            GetResultPrefix(), nameof(GetResultPrefix));
 
-        var resultPrefix = resultsString
-            .FallbackIfNullOrWhiteSpace(GetResultPrefix(), nameof(GetResultPrefix));
-        var expected = Expected.GetType().ToString()
-            .FallbackIfNullOrWhiteSpace(Format(Expected), nameof(GetExpected));
+        var defaultExpected = Expected.GetType().ToString();
+        var expected = defaultExpected.FallbackIfNullOrWhiteSpace(
+            Format(Expected), nameof(GetExpected));
 
         return $"{resultPrefix} {expected}";
     }
@@ -350,7 +351,7 @@ where TResult : notnull
 
         return expected switch
         {
-            null => null,  // Explicit: signal formatting failure for logging
+            null => null,
             char c => $"'{c}'",
             DateTime dt => dt.ToString("O"),
             DateTimeOffset dto => dto.ToString("O"),
@@ -360,7 +361,7 @@ where TResult : notnull
             Exception ex => $"{ex.GetType().Name}: {ex.Message}",
             IEnumerable coll when expected is not string => formatCollection(coll),
             Stream stream => formatStream(stream),
-            _ => expected.ToString() ?? null,  // Fallback to null if ToString() returns null
+            _ => expected.ToString() ?? null,
         };
 
         #region Local methods
@@ -373,6 +374,7 @@ where TResult : notnull
                 {
                     return $"{typeName} (Length: {stream.Length}, Position: {stream.Position})";
                 }
+
                 return $"{typeName} (Position: {stream.Position})";
             }
             catch
@@ -396,6 +398,7 @@ where TResult : notnull
             {
                 var dictItems = dict.Cast<DictionaryEntry>().Take(maxCount).Select(
                     kvp => $"{{{Format(kvp.Key) ?? nullString}: {Format(kvp.Value) ?? nullString}}}");
+
                 return $"[{prefix}]: {{{string.Join(", ", dictItems)}}}";
             }
 
