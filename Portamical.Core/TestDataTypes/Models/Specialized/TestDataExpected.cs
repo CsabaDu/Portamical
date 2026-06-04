@@ -68,6 +68,7 @@ public abstract class TestDataExpected<TResult>
 IExpected<TResult>
 where TResult : notnull
 {
+    private const string DefaultResultPrefix = "results";
     private const string NullString = "null";
     private const int MaxCount = 3;
 
@@ -190,8 +191,7 @@ where TResult : notnull
     /// </example>
     public override sealed string GetResult()
     {
-        const string defaultResultPrefix = "results";
-        var resultPrefix = defaultResultPrefix.FallbackIfNullOrWhiteSpace(
+        var resultPrefix = DefaultResultPrefix.FallbackIfNullOrWhiteSpace(
             GetResultPrefix(), nameof(GetResultPrefix));
 
         var defaultExpected = Expected.GetType().ToString();
