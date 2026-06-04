@@ -423,7 +423,7 @@ where TResult : notnull
 
     private static string? Format(IDictionary dict, string? prefix)
     {
-        var dictItems = dict.Cast<object>().Take(MaxCount).Select(item =>
+        var items = dict.Cast<object>().Take(MaxCount).Select(item =>
         {
             // Handle both DictionaryEntry (from non-generic IDictionary) and KeyValuePair<,> (from Dictionary<,>)
             if (item is DictionaryEntry de)
@@ -441,7 +441,7 @@ where TResult : notnull
             }
         });
 
-        return $"[{prefix}]: {{{string.Join(", ", dictItems)}}}";
+        return $"[{prefix}]: {{{string.Join(", ", items)}}}";
     }
 
     #endregion
