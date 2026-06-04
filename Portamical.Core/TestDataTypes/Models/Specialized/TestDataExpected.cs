@@ -352,30 +352,33 @@ where TResult : notnull
     => expected switch
     {
         null                            => null,
-        char ch                         => FormatChar(ch),
-        DateTime dt                     => dt.ToString("O"),
-        DateTimeOffset dto              => dto.ToString("O"),
-        Guid guid                       => guid.ToString("D"),
-        byte[] bytes                    => BitConverter.ToString(bytes),
-        string str                      => FormatString(str),
-        Exception ex                    => FormatException(ex),
+        char ch                         => Format(ch),
+        DateTime dt                     => Format(dt.ToString, "O"),
+        DateTimeOffset dto              => Format(dto.ToString, "O"),
+        Guid guid                       => Format(guid.ToString, "D"),
+        byte[] bytes                    => Format(BitConverter.ToString, bytes),
+        string str                      => Format(str),
+        Exception ex                    => Format(ex),
         IEnumerable coll
-            when expected is not string => FormatCollection(coll),
-        Stream stream                   => FormatStream(stream),
+            when expected is not string => Format(coll),
+        Stream stream                   => Format(stream),
         _                               => expected.ToString() ?? null,
     };
 
     #region Format helper methods
-    private static string? FormatChar(char ch)
+    private static string? Format<T>(Func<T, string?> toString, T context)
+    => toString(context);
+
+    private static string? Format(char ch)
     => $"'{ch}'";
 
-    private static string? FormatString(string str)
+    private static string? Format(string str)
     => str == NullString ? NullString : $"\"{str}\"";
 
-    private static string? FormatException(Exception exception)
+    private static string? Format(Exception exception)
     => $"{exception.GetType().Name}: {exception.Message}";
 
-    private static string? FormatStream(Stream stream)
+    private static string? Format(Stream stream)
     {
         var typeName = stream.GetType().Name;
 
@@ -394,30 +397,31 @@ where TResult : notnull
         }
     }
 
-    private static string? FormatCollection(IEnumerable coll)
+    private static string? Format(IEnumerable coll)
     {
-        var materializedObjects = coll.Cast<object?>()
+        var materializedObjects = coll
+            .Cast<object?>()
             .Take(MaxCount + 1)
             .ToList();
         var count = materializedObjects.Count;
         var hasMore = count > MaxCount;
-
-        var items = materializedObjects
-            .Take(MaxCount)
-            .Select(item => Format(item) ?? NullString);
         var prefix = hasMore ?
             $"First {MaxCount} of {count}+"
             : $"{count}";
 
         if (coll is IDictionary dict)
         {
-            return FormatDictionary(dict, prefix);
+            return Format(dict, prefix);
         }
+
+        var items = materializedObjects
+            .Take(MaxCount)
+            .Select(item => Format(item) ?? NullString);
 
         return $"[{prefix}]: [{string.Join(", ", items)}]";
     }
 
-    private static string? FormatDictionary(IDictionary dict, string? prefix)
+    private static string? Format(IDictionary dict, string? prefix)
     {
         var dictItems = dict.Cast<object>().Take(MaxCount).Select(item =>
         {
