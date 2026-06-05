@@ -5,6 +5,7 @@ using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
@@ -305,6 +306,10 @@ where TResult : notnull
     ///     <description>Type and message: <c>ArgumentException: Value cannot be null</c> (via <c>Format(Exception)</c>)</description>
     ///   </item>
     ///   <item>
+    ///     <term><see cref="Type"/></term>
+    ///     <description>C#-friendly type name: <c>int</c>, <c>List&lt;string&gt;</c>, <c>int?</c>, <c>int[]</c> (via <c>Format(Type)</c>)</description>
+    ///   </item>
+    ///   <item>
     ///     <term><see cref="IEnumerable"/></term>
     ///     <description>First <see cref="MaxCount"/> (3) items: <c>[3]: [1, 2, 3]</c> or <c>[First 3 of 5+]: [1, 2, 3]</c> (via <c>Format(IEnumerable)</c>)</description>
     ///   </item>
@@ -359,6 +364,13 @@ where TResult : notnull
     /// Format(new ArgumentException("Invalid"))
     /// // Returns: "ArgumentException: Invalid"
     /// 
+    /// // Type objects
+    /// Format(typeof(int))                          // Returns: "int"
+    /// Format(typeof(List&lt;string&gt;))                 // Returns: "List&lt;string&gt;"
+    /// Format(typeof(Dictionary&lt;int, string&gt;))      // Returns: "Dictionary&lt;int, string&gt;"
+    /// Format(typeof(int?))                         // Returns: "int?"
+    /// Format(typeof(int[]))                        // Returns: "int[]"
+    /// 
     /// // Null (signals failure)
     /// Format(null)  // Returns: null
     /// </code>
@@ -395,6 +407,86 @@ where TResult : notnull
 
     private static string? Format(Exception exception)
     => $"{exception.GetType().Name}: {exception.Message}";
+
+    /// <summary>
+    /// Formats a <see cref="Type"/> into a C#-friendly type name.
+    /// </summary>
+    /// <param name="type">The type to format.</param>
+    /// <returns>
+    /// A C#-friendly type name using aliases (e.g., "int" instead of "Int32"), 
+    /// with generic parameters (e.g., "List&lt;string&gt;"), array notation (e.g., "int[]"),
+    /// and nullable syntax (e.g., "int?").
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Type Name Transformations:</strong>
+    /// <list type="bullet">
+    ///   <item><strong>Primitives:</strong> Uses C# aliases (int, string, bool, etc.) instead of BCL names (Int32, String, Boolean)</item>
+    ///   <item><strong>Generics:</strong> Formats with angle brackets: List&lt;T&gt;, Dictionary&lt;TKey, TValue&gt;</item>
+    ///   <item><strong>Arrays:</strong> Uses bracket notation: int[], string[,], etc.</item>
+    ///   <item><strong>Nullable:</strong> Uses ? syntax: int?, bool?, etc.</item>
+    ///   <item><strong>Nested Generics:</strong> Recursively formats: Dictionary&lt;string, List&lt;int&gt;&gt;</item>
+    /// </list>
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// Format(typeof(int))                          // "int"
+    /// Format(typeof(string))                       // "string"
+    /// Format(typeof(List&lt;int&gt;))                    // "List&lt;int&gt;"
+    /// Format(typeof(Dictionary&lt;string, int&gt;))      // "Dictionary&lt;string, int&gt;"
+    /// Format(typeof(int?))                         // "int?"
+    /// Format(typeof(int[]))                        // "int[]"
+    /// Format(typeof(int[,]))                       // "int[,]"
+    /// Format(typeof(List&lt;int?&gt;))                   // "List&lt;int?&gt;"
+    /// </code>
+    /// </example>
+    private static string? Format(Type type)
+    {
+        // Handle arrays
+        if (type.IsArray)
+        {
+            var elementType = type.GetElementType();
+            if (elementType is null)
+            {
+                return type.Name;
+            }
+
+            var rank = type.GetArrayRank();
+            var commas = rank > 1 ? new string(',', rank - 1) : string.Empty;
+            return $"{Format(elementType)}[{commas}]";
+        }
+
+        // Handle Nullable<T>
+        var underlyingType = Nullable.GetUnderlyingType(type);
+        if (underlyingType is not null)
+        {
+            return $"{Format(underlyingType)}?";
+        }
+
+        // Handle generic types
+        if (type.IsGenericType)
+        {
+            var genericTypeDef = type.GetGenericTypeDefinition();
+            var typeName = genericTypeDef.Name;
+
+            // Remove the `N suffix (e.g., List`1 -> List)
+            var backtickIndex = typeName.IndexOf('`');
+            if (backtickIndex > 0)
+            {
+                typeName = typeName[..backtickIndex];
+            }
+
+            // Format generic arguments
+            var genericArgs = type.GetGenericArguments();
+            var formattedArgs = string.Join(", ", genericArgs.Select(t => Format(t) ?? t.Name));
+
+            return $"{typeName}<{formattedArgs}>";
+        }
+
+        // Use C# type aliases for primitive types
+        return GetCSharpAlias(type);
+    }
 
     private static string? Format(Stream stream)
     {
@@ -519,4 +611,34 @@ where TResult : notnull
         return true;
     }
 
+
+    /// <summary>
+    /// Gets the C# type alias for common BCL types.
+    /// </summary>
+    /// <param name="type">The type to get an alias for.</param>
+    /// <returns>The C# alias (e.g., "int") if available; otherwise, <see cref="Type.Name"/>.</returns>
+    /// <remarks>
+    /// Maps BCL type names to their C# keywords for improved readability.
+    /// </remarks>
+    private static string GetCSharpAlias(Type type)
+    => type.FullName switch
+    {
+        "System.Boolean" => "bool",
+        "System.Byte" => "byte",
+        "System.SByte" => "sbyte",
+        "System.Char" => "char",
+        "System.Decimal" => "decimal",
+        "System.Double" => "double",
+        "System.Single" => "float",
+        "System.Int32" => "int",
+        "System.UInt32" => "uint",
+        "System.Int64" => "long",
+        "System.UInt64" => "ulong",
+        "System.Int16" => "short",
+        "System.UInt16" => "ushort",
+        "System.Object" => "object",
+        "System.String" => "string",
+        "System.Void" => "void",
+        _ => type.Name
+    };
 }
