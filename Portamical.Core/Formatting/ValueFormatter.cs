@@ -194,7 +194,7 @@ public static class ValueFormatter
         IEnumerable coll
             when expected is not string => Format(coll),
         Stream stream                   => Format(stream),
-        _ => expected.ToString() ?? null,
+        _                               => expected.ToString() ?? null,
     };
 
     #region Formatter methods
