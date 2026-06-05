@@ -160,13 +160,6 @@ namespace Portamical.MSTest.Assertions;
 /// <seealso cref="Microsoft.VisualStudio.TestTools.UnitTesting.Assert"/>
 public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
 {
-    /// <summary>
-    /// Prevents external instantiation. This class provides only static methods.
-    /// </summary>
-    protected PortamicalAssert()
-    {
-    }
-
     #region AssertMultiple
     /// <summary>
     /// Executes multiple assertions. <strong>Note:</strong> MSTest does not support assertion
@@ -523,5 +516,5 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         catchException: CatchException,
         assertIsType: IsTypeOf,
         assertEquality: AssertEquality<string>(),
-        assertFail: Assert.Fail);
+        assertFail: Assert.Fail!);
 }
