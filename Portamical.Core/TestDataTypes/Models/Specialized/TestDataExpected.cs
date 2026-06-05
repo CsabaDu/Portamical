@@ -297,6 +297,10 @@ where TResult : notnull
     ///     <description>Hex string: <c>01-02-03-FF</c> (via <c>Format&lt;T&gt;(Func, T)</c> with <see cref="BitConverter.ToString"/>)</description>
     ///   </item>
     ///   <item>
+    ///     <term><see cref="KeyValuePair{TKey, TValue}"/></term>
+    ///     <description>Key-value pair: <c>{key: value}</c> (via <c>Format&lt;TKey, TValue&gt;(KeyValuePair)</c>)</description>
+    ///   </item>
+    ///   <item>
     ///     <term><see cref="Exception"/></term>
     ///     <description>Type and message: <c>ArgumentException: Value cannot be null</c> (via <c>Format(Exception)</c>)</description>
     ///   </item>
@@ -343,6 +347,10 @@ where TResult : notnull
     /// Format(new[] { 1, 2, 3 })           // Returns: "[3]: [1, 2, 3]"
     /// Format(new[] { 1, 2, 3, 4, 5 })     // Returns: "[First 3 of 5+]: [1, 2, 3]"
     /// 
+    /// // KeyValuePair
+    /// Format(new KeyValuePair&lt;string, int&gt;("age", 30))  // Returns: "{\"age\": 30}"
+    /// Format(new KeyValuePair&lt;int, string&gt;(1, "first")) // Returns: "{1: \"first\"}"
+    /// 
     /// // Dictionaries
     /// var dict = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2 };
     /// Format(dict)  // Returns: "[2]: {{\"a\": 1}, {\"b\": 2}}"
@@ -366,6 +374,9 @@ where TResult : notnull
         Guid guid                       => Format(guid.ToString, "D"),
         byte[] bytes                    => Format(BitConverter.ToString, bytes),
         Exception ex                    => Format(ex),
+        // KeyValuePair must be checked before IEnumerable (since KVP implements IEnumerable in some contexts)
+        _ when IsKeyValuePair(expected, out var key, out var value)
+                                        => Format(key, value),
         IEnumerable coll
             when expected is not string => Format(coll),
         Stream stream                   => Format(stream),
@@ -435,7 +446,7 @@ where TResult : notnull
             // Handle both DictionaryEntry (from non-generic IDictionary) and KeyValuePair<,> (from Dictionary<,>)
             if (item is DictionaryEntry de)
             {
-                return $"{{{Format(de.Key) ?? NullString}: {Format(de.Value) ?? NullString}}}";
+                return Format(de.Key, de.Value);
             }
             else
             {
@@ -444,12 +455,68 @@ where TResult : notnull
                 var key = type.GetProperty("Key")?.GetValue(item);
                 var value = type.GetProperty("Value")?.GetValue(item);
 
-                return $"{{{Format(key) ?? NullString}: {Format(value) ?? NullString}}}";
+                return Format(key, value);
             }
         });
 
         return $"[{prefix}]: {{{string.Join(", ", items)}}}";
     }
 
+    /// <summary>
+    /// Formats a KeyValuePair's key and value into a readable string.
+    /// </summary>
+    /// <param name="key">The key object (may be null for reference types).</param>
+    /// <param name="value">The value object (may be null for reference types).</param>
+    /// <returns>A formatted string in the form <c>"{key: value}"</c>.</returns>
+    /// <remarks>
+    /// Recursively calls <see cref="Format(object?)"/> for both key and value to ensure
+    /// consistent formatting (e.g., strings are quoted, chars are single-quoted, etc.).
+    /// </remarks>
+    private static string? Format(object? key, object? value)
+    {
+        var formattedKey = Format(key) ?? NullString;
+        var formattedValue = Format(value) ?? NullString;
+
+        return $"{{{formattedKey}: {formattedValue}}}";
+    }
+
     #endregion
+
+
+    /// <summary>
+    /// Checks if an object is a KeyValuePair and extracts its key and value.
+    /// </summary>
+    /// <param name="obj">The object to check.</param>
+    /// <param name="key">The extracted key, or null if not a KeyValuePair.</param>
+    /// <param name="value">The extracted value, or null if not a KeyValuePair.</param>
+    /// <returns><see langword="true"/> if the object is a KeyValuePair; otherwise, <see langword="false"/>.</returns>
+    /// <remarks>
+    /// Uses reflection to handle KeyValuePair&lt;,&gt; generically since we can't pattern match on open generic types.
+    /// This approach avoids creating overloads for every possible TKey/TValue combination.
+    /// </remarks>
+    private static bool IsKeyValuePair(object? obj, out object? key, out object? value)
+    {
+        key = null;
+        value = null;
+
+        if (obj is null)
+        {
+            return false;
+        }
+
+        var type = obj.GetType();
+
+        // Check if type is KeyValuePair<,>
+        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
+        {
+            return false;
+        }
+
+        // Extract Key and Value properties
+        key = type.GetProperty("Key")?.GetValue(obj);
+        value = type.GetProperty("Value")?.GetValue(obj);
+
+        return true;
+    }
+
 }
