@@ -6,11 +6,11 @@ Define test data **once** and consume it across test frameworks using adapter pa
 
 ---
 
-## What's New in v3.2.0 (Preview)
+## What's New in v3.2.0
 
 **Breaking Architectural Improvements + Intelligent Formatting**
 
-This preview introduces significant enhancements to the test data type hierarchy and adds intelligent value formatting for readable test case names.
+This version introduces significant enhancements to the test data type hierarchy and adds intelligent value formatting for readable test case names.
 
 🚨 ### Breaking Changes
 
@@ -73,11 +73,7 @@ This preview introduces significant enhancements to the test data type hierarchy
 ## Install
 
 ```bash
-# Preview release
-dotnet add package Portamical.Core --version 3.2.0-preview
-
-# Stable release (for production)
-dotnet add package Portamical.Core --version 2.2.0
+dotnet add package Portamical.Core --version 3.2.0
 ```
 
 > You will typically also install a Portamical adapter package for your test framework (xUnit / MSTest / NUnit).
@@ -427,7 +423,6 @@ dotnet build
 ## Links
 
 - **GitHub:** https://github.com/CsabaDu/Portamical
-- **v3.2.0 Preview Branch:** https://github.com/CsabaDu/Portamical/tree/POC_NotnullReturns
 - **Documentation:** https://github.com/CsabaDu/Portamical/blob/master/README.md
 - **Issues:** https://github.com/CsabaDu/Portamical/issues
 
@@ -454,7 +449,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
-### **v3.2.0-preview** (Current)
+### **v3.2.0** (Current)
 
 **Breaking Changes:**
 - Changed `TestDataReturns<TStruct>` → `TestDataReturns<TResult>` with `notnull` constraint
