@@ -52,7 +52,7 @@ public static class ValueFormatter
     /// </para>
     /// <para>
     /// <strong>Implementation:</strong> Uses pattern matching to dispatch to type-specific overloaded
-    /// helper methods. Each specialized <c>Format</c> overload handles formatting for a particular
+    /// helper methods. Each specialized <c>FormatItems</c> overload handles formatting for a particular
     /// type or type family (e.g., <c>Format(char)</c>, <c>Format(string)</c>, <c>Format(IEnumerable)</c>).
     /// This design separates concerns and improves maintainability.
     /// </para>
@@ -362,7 +362,7 @@ public static class ValueFormatter
 
             // Format generic arguments
             var genericArgs = type.GetGenericArguments();
-            var formattedArgs = string.Join(", ", genericArgs.Select(t => Format(t) ?? t.Name));
+            var formattedArgs = FormatItems(genericArgs.Select(t => Format(t) ?? t.Name));
 
             return $"{typeName}<{formattedArgs}>";
         }
@@ -480,7 +480,7 @@ public static class ValueFormatter
             .Take(MaxCount)
             .Select(item => Format(item) ?? NullString);
 
-        return $"[{prefix}]: [{string.Join(", ", items)}]";
+        return $"[{prefix}]: [{FormatItems(items)}]";
     }
 
     /// <summary>
@@ -536,7 +536,7 @@ public static class ValueFormatter
             }
         });
 
-        return $"[{prefix}]: {{{string.Join(", ", items)}}}";
+        return $"[{prefix}]: {{{FormatItems(items)}}}";
     }
 
     /// <summary>
@@ -597,12 +597,47 @@ public static class ValueFormatter
             items.Add(Format(item) ?? NullString);
         }
 
-        return $"({string.Join(", ", items)})";
+        return $"({FormatItems(items)})";
     }
 
     #endregion
 
     #region Format helper methods
+
+    /// <summary>
+    /// Joins a collection of pre-formatted string items into a comma-separated string.
+    /// </summary>
+    /// <param name="items">The collection of formatted string items to join. May contain null elements.</param>
+    /// <returns>A comma-separated string representation of the items, or an empty string if the collection is empty.</returns>
+    /// <remarks>
+    /// <para>
+    /// This helper method is used internally to join pre-formatted items into a single string
+    /// for collections, tuples, and dictionaries. It assumes that the items have already been
+    /// formatted through <see cref="Format(object?)"/> or other specialized formatters.
+    /// </para>
+    /// <para>
+    /// <strong>Usage Context:</strong> Called by <see cref="Format(IEnumerable)"/>, 
+    /// <see cref="Format(IDictionary, string?)"/>, <see cref="Format(ITuple)"/>, and
+    /// <see cref="Format(Type)"/> to combine pre-formatted elements into their final string representation.
+    /// </para>
+    /// <para>
+    /// <strong>Null Handling:</strong> Accepts nullable strings (<c>string?</c>) in the input collection. 
+    /// Null items are passed to <see cref="string.Join(string, IEnumerable{string})"/> which treats them 
+    /// as empty strings in the output.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Internal usage examples (items are already formatted)
+    /// FormatItems(new[] { "'a'", "\"test\"", "42" })  // Returns: "'a', \"test\", 42"
+    /// FormatItems(new[] { "1", "2", "3" })            // Returns: "1, 2, 3"
+    /// FormatItems(new[] { "null", "\"x\"" })          // Returns: "null, \"x\""
+    /// FormatItems(Array.Empty&lt;string&gt;())             // Returns: ""
+    /// FormatItems(new string?[] { "a", null, "b" })   // Returns: "a, , b"
+    /// </code>
+    /// </example>
+    private static string? FormatItems(IEnumerable<string?> items)
+    => string.Join(", ", items);
 
     /// <summary>
     /// Checks if an object is a KeyValuePair and extracts its key and value.
