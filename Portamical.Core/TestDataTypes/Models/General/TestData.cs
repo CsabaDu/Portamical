@@ -44,7 +44,7 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// </remarks>
 /// <example>
 /// <code>
-/// // Custom result format
+/// // Custom result formatExpected
 /// public class MyTestData : TestData
 /// {
 ///     public MyTestData(string definition, string result, string arg)
@@ -62,17 +62,17 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// // Usage with custom result
 /// var test = new MyTestData(
 ///     "Process complex data",
-///     "succeeds with warnings",  // ✅ Custom format
+///     "succeeds with warnings",  // ✅ Custom formatExpected
 ///     "input.json");
 /// // Test case name: "Process complex data => succeeds with warnings"
 /// 
 /// // Compare with TestDataReturns (constrained):
 /// var returnsTest = new TestDataReturns&lt;int&gt;("Add(2,3)", 5);
-/// // Test case name: "Add(2,3) => returns 5"  ✅ Fixed format
+/// // Test case name: "Add(2,3) => returns 5"  ✅ Fixed formatExpected
 /// 
 /// // Compare with TestDataThrows (constrained):
 /// var throwsTest = new TestDataThrows&lt;ArgumentException&gt;("Validate(null)", new ArgumentException());
-/// // Test case name: "Validate(null) => throws ArgumentException"  ✅ Fixed format
+/// // Test case name: "Validate(null) => throws ArgumentException"  ✅ Fixed formatExpected
 /// </code>
 /// </example>
 public abstract class TestData
@@ -102,7 +102,7 @@ public abstract class TestData
     /// This provides stronger immutability than an <c>init</c> property.
     /// </para>
     /// <para>
-    /// <strong>Result Formatting:</strong> Unlike specialized classes that format results automatically
+    /// <strong>Result Formatting:</strong> Unlike specialized classes that formatExpected results automatically
     /// (e.g., "returns {value}"), this class uses the result exactly as provided. This allows
     /// complete control over test case name formatting.
     /// </para>
@@ -139,7 +139,6 @@ public abstract class TestData
     }
 
     private readonly string _result;
-    private const string ResultString = "result";
 
     #region Properties
     /// <summary>
@@ -153,7 +152,11 @@ public abstract class TestData
     /// </summary>
     /// <returns>A string containing the result. If the result is null or empty, a fallback value is returned instead.</returns>
     public override sealed string GetResult()
-    => ResultString.FallbackIfNullOrWhiteSpace(_result, nameof(GetResult));
+    {
+        const string resultString = "result";
+
+        return resultString.FallbackIfNullOrWhiteSpace(_result, nameof(GetResult));
+    }
 
     /// <summary>
     /// Returns an array of argument values based on the specified argument and property codes.

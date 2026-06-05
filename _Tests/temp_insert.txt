@@ -1,0 +1,42 @@
+
+	#region TestDataExpected — ToArgs with PropsCode
+	[TestMethod]
+	public void testDataExpected_toArgs_properties_all_returnsTestCaseName_expected_andArg1()
+	{
+		var sut = new TestDataExpectedString(Def, "hello", "input");
+		var args = sut.ToArgs(ArgsCode.Properties, PropsCode.All);
+		Assert.HasCount(3, args);
+		Assert.AreEqual(sut.TestCaseName, args[0]);
+		Assert.AreEqual("hello", args[1]);
+		Assert.AreEqual("input", args[2]);
+	}
+
+	[TestMethod]
+	public void testDataExpected_toArgs_properties_trimTestCaseName_removesTestCaseName_keepsExpected()
+	{
+		var sut = new TestDataExpectedString(Def, "hello", "input");
+		var args = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName);
+		Assert.HasCount(2, args);
+		Assert.AreEqual("hello", args[0]);
+		Assert.AreEqual("input", args[1]);
+	}
+
+	[TestMethod]
+	public void testDataExpected_toArgs_properties_trimReturnsExpected_removesTestCaseName_removesExpected()
+	{
+		var sut = new TestDataExpectedString(Def, "hello", "input");
+		var args = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimReturnsExpected);
+		Assert.HasCount(1, args);
+		Assert.AreEqual("input", args[0]);
+	}
+
+	[TestMethod]
+	public void testDataExpected_toArgs_properties_trimThrowsExpected_removesTestCaseName_removesExpected()
+	{
+		var sut = new TestDataExpectedString(Def, "hello", "input");
+		var args = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimThrowsExpected);
+		Assert.HasCount(1, args);
+		Assert.AreEqual("input", args[0]);
+	}
+	#endregion
+

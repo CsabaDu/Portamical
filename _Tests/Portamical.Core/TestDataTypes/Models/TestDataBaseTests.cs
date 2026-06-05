@@ -18,21 +18,21 @@ public class TestDataBaseTests
 
     #region GetDefinition
     [TestMethod]
-    public void getDefinition_returnsDefinitionString()
+    public void GetDefinition_returnsDefinitionString()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 1);
         Assert.AreEqual(Def, sut.GetDefinition());
     }
 
     [TestMethod]
-    public void getDefinition_forTestDataReturns_returnsDefinitionString()
+    public void GetDefinition_forTestDataReturns_returnsDefinitionString()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
         Assert.AreEqual(Def, sut.GetDefinition());
     }
 
     [TestMethod]
-    public void getDefinition_forTestDataThrows_returnsDefinitionString()
+    public void GetDefinition_forTestDataThrows_returnsDefinitionString()
     {
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
         Assert.AreEqual(Def, sut.GetDefinition());
@@ -41,7 +41,7 @@ public class TestDataBaseTests
 
     #region ToArgs single-arg overload (uses PropsCode.TrimTestCaseName by default)
     [TestMethod]
-    public void toArgs_instance_singleArgOverload_equals_twoArgVersion_withAnyPropsCode()
+    public void ToArgs_instance_singleArgOverload_equals_twoArgVersion_withAnyPropsCode()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 42);
         var oneArg = sut.ToArgs(ArgsCode.Instance);
@@ -54,7 +54,7 @@ public class TestDataBaseTests
     }
 
     [TestMethod]
-    public void toArgs_properties_singleArgOverload_usesTrimTestCaseName()
+    public void ToArgs_properties_singleArgOverload_usesTrimTestCaseName()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 42);
         var oneArg = sut.ToArgs(ArgsCode.Properties);
@@ -67,7 +67,7 @@ public class TestDataBaseTests
     }
 
     [TestMethod]
-    public void toArgs_properties_singleArgOverload_forReturns_usesTrimTestCaseName()
+    public void ToArgs_properties_singleArgOverload_forReturns_usesTrimTestCaseName()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 42);
         var oneArg = sut.ToArgs(ArgsCode.Properties);
@@ -84,7 +84,7 @@ public class TestDataBaseTests
 
     #region Invalid enum argument validation
     [TestMethod]
-    public void toArgs_properties_withUndefinedPropsCode_throwsInvalidEnumArgumentException()
+    public void ToArgs_properties_withUndefinedPropsCode_throwsInvalidEnumArgumentException()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 1);
         Assert.ThrowsExactly<InvalidEnumArgumentException>(
@@ -92,7 +92,7 @@ public class TestDataBaseTests
     }
 
     [TestMethod]
-    public void toArgs_withUndefinedArgsCode_throwsInvalidEnumArgumentException()
+    public void ToArgs_withUndefinedArgsCode_throwsInvalidEnumArgumentException()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 1);
         Assert.ThrowsExactly<InvalidEnumArgumentException>(

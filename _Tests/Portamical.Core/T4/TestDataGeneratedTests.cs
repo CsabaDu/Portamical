@@ -18,7 +18,7 @@ public class TestDataGeneratedTests
 
     #region MaxArity = 9
     [TestMethod]
-    public void maxArity_allNineOverloads_canBeCreated()
+    public void MaxArity_allNineOverloads_canBeCreated()
     {
         Assert.IsNotNull(TestDataFactory.CreateTestData<int>(Def, Result, 1));
         Assert.IsNotNull(TestDataFactory.CreateTestData<int, int>(Def, Result, 1, 2));
@@ -34,14 +34,14 @@ public class TestDataGeneratedTests
 
     #region TypeParams (correct concrete generic type per arity)
     [TestMethod]
-    public void arity1_isInstanceOf_testDataT1()
+    public void Arity1_isInstanceOf_testDataT1()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 1);
         Assert.IsInstanceOfType<TestData<int>>(sut);
     }
 
     [TestMethod]
-    public void arity9_isInstanceOf_testDataT1ToT9()
+    public void Arity9_isInstanceOf_testDataT1ToT9()
     {
         var sut = TestDataFactory.CreateTestData<int, int, int, int, int, int, int, int, int>(
             Def, Result, 1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -51,7 +51,7 @@ public class TestDataGeneratedTests
 
     #region ArgsList (each ArgN property stores its corresponding constructor argument)
     [TestMethod]
-    public void arity9_allArgNProperties_haveExpectedValues()
+    public void Arity9_allArgNProperties_haveExpectedValues()
     {
         var sut = TestDataFactory.CreateTestData<int, int, int, int, int, int, int, int, int>(
             Def, Result, 1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -70,14 +70,14 @@ public class TestDataGeneratedTests
 
     #region BaseArgsList (each class passes prior args to its base class constructor)
     [TestMethod]
-    public void arity2_isInstanceOf_arity1()
+    public void Arity2_isInstanceOf_arity1()
     {
         var sut = TestDataFactory.CreateTestData<int, string>(Def, Result, 1, "a");
         Assert.IsInstanceOfType<TestData<int>>(sut);
     }
 
     [TestMethod]
-    public void arity2_arg1_isAccessibleFromBaseClass()
+    public void Arity2_arg1_isAccessibleFromBaseClass()
     {
         var sut = TestDataFactory.CreateTestData<int, string>(Def, Result, 42, "hello");
         Assert.AreEqual(42, sut.Arg1);    // Arg1 lives on TestData<T1> (base class)
@@ -85,7 +85,7 @@ public class TestDataGeneratedTests
     }
 
     [TestMethod]
-    public void arity9_isInstanceOf_arity1()
+    public void Arity9_isInstanceOf_arity1()
     {
         var sut = TestDataFactory.CreateTestData<int, int, int, int, int, int, int, int, int>(
             Def, Result, 1, 2, 3, 4, 5, 6, 7, 8, 9);

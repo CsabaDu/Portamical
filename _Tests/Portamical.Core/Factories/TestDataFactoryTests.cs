@@ -21,14 +21,14 @@ public class TestDataFactoryTests
 
     #region CreateTestData — null argument handling
     [TestMethod]
-    public void createTestData_withNullReferenceArg1_setsArg1ToNull()
+    public void CreateTestData_withNullReferenceArg1_setsArg1ToNull()
     {
         var sut = TestDataFactory.CreateTestData<string>(Def, Result, null);
         Assert.IsNull(sut.Arg1);
     }
 
     [TestMethod]
-    public void createTestData_withNullArg1_andNonNullArg2_setsPropertiesCorrectly()
+    public void CreateTestData_withNullArg1_andNonNullArg2_setsPropertiesCorrectly()
     {
         var sut = TestDataFactory.CreateTestData<string, int>(Def, Result, null, 99);
         Assert.IsNull(sut.Arg1);
@@ -38,7 +38,7 @@ public class TestDataFactoryTests
 
     #region CreateTestData — independent instances (no caching)
     [TestMethod]
-    public void createTestData_calledTwice_withSameArgs_returnsDifferentInstances()
+    public void CreateTestData_calledTwice_withSameArgs_returnsDifferentInstances()
     {
         var a = TestDataFactory.CreateTestData<int>(Def, Result, 1);
         var b = TestDataFactory.CreateTestData<int>(Def, Result, 1);
@@ -48,7 +48,7 @@ public class TestDataFactoryTests
 
     #region CreateTestData — non-int generic types
     [TestMethod]
-    public void createTestData_withBoolArg_setsArg1Correctly()
+    public void CreateTestData_withBoolArg_setsArg1Correctly()
     {
         var sut = TestDataFactory.CreateTestData<bool>(Def, Result, true);
         Assert.IsInstanceOfType<TestData<bool>>(sut);
@@ -56,7 +56,7 @@ public class TestDataFactoryTests
     }
 
     [TestMethod]
-    public void createTestData_withDoubleArg_setsArg1Correctly()
+    public void CreateTestData_withDoubleArg_setsArg1Correctly()
     {
         var sut = TestDataFactory.CreateTestData<double>(Def, Result, 3.14);
         Assert.IsInstanceOfType<TestData<double>>(sut);
@@ -66,7 +66,7 @@ public class TestDataFactoryTests
 
     #region CreateTestDataReturns — null argument handling
     [TestMethod]
-    public void createTestDataReturns_withNullReferenceArg1_setsArg1ToNull()
+    public void CreateTestDataReturns_withNullReferenceArg1_setsArg1ToNull()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, string>(Def, 5, null);
         Assert.IsNull(sut.Arg1);
@@ -75,7 +75,7 @@ public class TestDataFactoryTests
 
     #region CreateTestDataReturns — independent instances
     [TestMethod]
-    public void createTestDataReturns_calledTwice_withSameArgs_returnsDifferentInstances()
+    public void CreateTestDataReturns_calledTwice_withSameArgs_returnsDifferentInstances()
     {
         var a = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
         var b = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
@@ -85,7 +85,7 @@ public class TestDataFactoryTests
 
     #region CreateTestDataReturns — non-int struct types
     [TestMethod]
-    public void createTestDataReturns_withBoolExpected_setsExpectedAndTestCaseName()
+    public void CreateTestDataReturns_withBoolExpected_setsExpectedAndTestCaseName()
     {
         var sut = TestDataFactory.CreateTestDataReturns<bool, int>(Def, true, 1);
         Assert.IsInstanceOfType<TestDataReturns<bool, int>>(sut);
@@ -94,7 +94,7 @@ public class TestDataFactoryTests
     }
 
     [TestMethod]
-    public void createTestDataReturns_withDoubleExpected_formatsTestCaseName()
+    public void CreateTestDataReturns_withDoubleExpected_formatsTestCaseName()
     {
         var sut = TestDataFactory.CreateTestDataReturns<double, int>(Def, 3.14, 1);
         Assert.AreEqual(3.14, sut.Expected);
@@ -104,7 +104,7 @@ public class TestDataFactoryTests
 
     #region CreateTestDataThrows — null argument handling
     [TestMethod]
-    public void createTestDataThrows_withNullReferenceArg1_setsArg1ToNull()
+    public void CreateTestDataThrows_withNullReferenceArg1_setsArg1ToNull()
     {
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, string>(Def, new InvalidOperationException(), null);
         Assert.IsNull(sut.Arg1);
@@ -113,7 +113,7 @@ public class TestDataFactoryTests
 
     #region CreateTestDataThrows — independent instances
     [TestMethod]
-    public void createTestDataThrows_calledTwice_withSameArgs_returnsDifferentInstances()
+    public void CreateTestDataThrows_calledTwice_withSameArgs_returnsDifferentInstances()
     {
         var ex = new InvalidOperationException();
         var a = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
@@ -124,22 +124,23 @@ public class TestDataFactoryTests
 
     #region CreateTestDataThrows — exception subtypes
     [TestMethod]
-    public void createTestDataThrows_withArgumentException_setsExpectedAndTestCaseName()
+    public void CreateTestDataThrows_withArgumentException_setsExpectedAndTestCaseName()
     {
         var ex = new ArgumentException("bad value");
         var sut = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
         Assert.IsInstanceOfType<TestDataThrows<ArgumentException, int>>(sut);
         Assert.AreSame(sut.Expected, ex);
-        Assert.AreEqual($"{Def} => throws ArgumentException", sut.TestCaseName);
+        Assert.StartsWith($"{Def} => throws ArgumentException", sut.TestCaseName);
     }
 
     [TestMethod]
-    public void createTestDataThrows_withArgumentNullException_usesConcreteTypeName()
+    public void CreateTestDataThrows_withArgumentNullException_usesConcreteTypeName()
     {
-        // ArgumentNullException is a subtype of ArgumentException — type name used, not base
-        var ex = new ArgumentNullException("param");
+        // ArgumentNullException is a subtype of ArgumentException � type name used, not base
+        var paramName = "param";
+        var ex = new ArgumentNullException(paramName);
         var sut = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
-        Assert.AreEqual($"{Def} => throws ArgumentNullException", sut.TestCaseName);
+        Assert.StartsWith($"{Def} => throws ArgumentNullException", sut.TestCaseName);
     }
     #endregion
 }

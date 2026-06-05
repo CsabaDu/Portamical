@@ -18,7 +18,7 @@ public class TestDataReturnsGeneratedTests
 
     #region MaxArity = 9
     [TestMethod]
-    public void maxArity_allNineOverloads_canBeCreated()
+    public void MaxArity_allNineOverloads_canBeCreated()
     {
         Assert.IsNotNull(TestDataFactory.CreateTestDataReturns<int, int>(Def, Expected, 1));
         Assert.IsNotNull(TestDataFactory.CreateTestDataReturns<int, int, int>(Def, Expected, 1, 2));
@@ -34,14 +34,14 @@ public class TestDataReturnsGeneratedTests
 
     #region TypeParams (correct concrete generic type per arity)
     [TestMethod]
-    public void arity1_isInstanceOf_testDataReturnsStructT1()
+    public void Arity1_isInstanceOf_testDataReturnsStructT1()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, Expected, 1);
         Assert.IsInstanceOfType<TestDataReturns<int, int>>(sut);
     }
 
     [TestMethod]
-    public void arity9_isInstanceOf_testDataReturnsStructT1ToT9()
+    public void Arity9_isInstanceOf_testDataReturnsStructT1ToT9()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int, int, int, int, int, int, int, int, int>(
             Def, Expected, 1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -51,7 +51,7 @@ public class TestDataReturnsGeneratedTests
 
     #region ArgsList (each ArgN property stores its corresponding constructor argument)
     [TestMethod]
-    public void arity9_expectedAndAllArgNProperties_haveExpectedValues()
+    public void Arity9_expectedAndAllArgNProperties_haveExpectedValues()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int, int, int, int, int, int, int, int, int>(
             Def, Expected, 1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -71,14 +71,14 @@ public class TestDataReturnsGeneratedTests
 
     #region BaseArgsList (each class passes prior args to its base class constructor)
     [TestMethod]
-    public void arity2_isInstanceOf_arity1()
+    public void Arity2_isInstanceOf_arity1()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, string, bool>(Def, Expected, "a", true);
         Assert.IsInstanceOfType<TestDataReturns<int, string>>(sut);
     }
 
     [TestMethod]
-    public void arity2_arg1_isAccessibleFromBaseClass()
+    public void Arity2_arg1_isAccessibleFromBaseClass()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, string, bool>(Def, Expected, "hello", true);
         Assert.AreEqual("hello", sut.Arg1);    // Arg1 lives on TestDataReturns<TStruct, T1> (base)
@@ -86,7 +86,7 @@ public class TestDataReturnsGeneratedTests
     }
 
     [TestMethod]
-    public void arity9_isInstanceOf_arity1()
+    public void Arity9_isInstanceOf_arity1()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int, int, int, int, int, int, int, int, int>(
             Def, Expected, 1, 2, 3, 4, 5, 6, 7, 8, 9);

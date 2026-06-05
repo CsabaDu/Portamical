@@ -9,6 +9,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+#nullable enable
+
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
 
@@ -19,8 +21,8 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
     string typeParams     = TypeParams(n);
     string prevTypeParams = n > 1 ? TypeParams(n - 1) : "";
     string baseClass      = n == 1
-        ? "TestDataReturns<TStruct>"
-        : $"TestDataReturns<TStruct, {prevTypeParams}>";
+        ? "TestDataReturns<TResult>"
+        : $"TestDataReturns<TResult, {prevTypeParams}>";
     string ctorParams     = CtorParams(n);
     string baseCtorArgs   = n == 1
         ? "definition, expected"
@@ -30,17 +32,17 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// <summary>
 /// Test data implementation for return-value tests with <#= n #> additional argument(s).
 /// </summary>
-/// <inheritdoc cref="TestDataReturns{TStruct}"/>
+/// <inheritdoc cref="TestDataReturns{TResult}"/>
 <# for (int i = 1; i <= n; i++) { #>
 /// <typeparam name="T<#= i #>">The type of the <#= Ordinals[i] #> test argument.</typeparam>
 <# } #>
-public class TestDataReturns<TStruct, <#= typeParams #>>
+public class TestDataReturns<TResult, <#= typeParams #>>
 : <#= baseClass #>
-where TStruct : struct
+where TResult : notnull
 {
     internal TestDataReturns(
         string definition,
-        TStruct expected,
+        TResult expected,
         <#= ctorParams #>)
     : base(<#= baseCtorArgs #>)
     {

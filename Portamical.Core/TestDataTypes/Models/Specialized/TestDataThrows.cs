@@ -23,11 +23,17 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// <list type="number">
 ///   <item><strong>Type safety:</strong> Only throwable types are allowed, preventing compilation with non-exception types</item>
 ///   <item><strong>Exception hierarchy support:</strong> Supports the entire .NET exception hierarchy, including custom exceptions</item>
-///   <item><strong>Exception-specific operations:</strong> Enables access to <see cref="Exception"/> members like <see cref="Exception.Message"/> and <see cref="Type.Name"/> for concise test case names</item>
+///   <item><strong>Exception-specific formatting:</strong> Enables access to <see cref="Exception"/> members for concise test case names via the base class formatting</item>
 /// </list>
 /// </para>
 /// <para>
-/// <strong>Counterpart:</strong> This class is the exception-testing counterpart to <see cref="TestDataReturns{TStruct}"/>,
+/// <strong>Result Formatting:</strong> This class provides the result prefix "throws" via <see cref="GetResultPrefix()"/>.
+/// The base class <see cref="TestDataExpected{TResult}.GetResult"/> combines this prefix with the formatted
+/// exception to create test case names like: <c>"Validate(null) =&gt; throws ArgumentException: Value cannot be null"</c>.
+/// The base class Format method specifically handles exceptions by showing type name and message.
+/// </para>
+/// <para>
+/// <strong>Counterpart:</strong> This class is the exception-testing counterpart to <see cref="TestDataReturns{TResult}"/>,
 /// which handles return value testing. Together, they provide comprehensive test data capabilities for both
 /// success paths (returns) and failure paths (throws).
 /// </para>
@@ -36,7 +42,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// <list type="bullet">
 ///   <item>Implements <see cref="IThrows{TException}"/> marker interface for type discrimination</item>
 ///   <item>Returns "throws" as the result prefix via <see cref="GetResultPrefix()"/></item>
-///   <item>Formats expected exception as "throws {exceptionType}" via <see cref="GetResult()"/> using <see cref="Type.Name"/></item>
+///   <item>Inherits intelligent exception formatting from base class: "ExceptionType: Message"</item>
 ///   <item>Supports trimming of expected exception via <see cref="PropsCode.TrimThrowsExpected"/></item>
 /// </list>
 /// </para>
@@ -50,19 +56,19 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// // Testing ArgumentException
 /// var argTest = new TestDataThrows&lt;ArgumentException, string&gt;
 /// {
-///     TestCaseName = "Validate(null) =&gt; throws ArgumentException",
+///     TestCaseName = "Validate(null) =&gt; throws ArgumentException: Value cannot be null",
 ///     Expected = new ArgumentException("Value cannot be null", "input"),
 ///     Arg1 = null
 /// };
-/// // Test case name: "Validate(null) => throws ArgumentException"
+/// // Formatted: "Validate(null) => throws ArgumentException: Value cannot be null" ✅
 /// 
 /// // Testing InvalidOperationException
 /// var invalidOpTest = new TestDataThrows&lt;InvalidOperationException&gt;
 /// {
-///     TestCaseName = "Operation when closed =&gt; throws InvalidOperationException",
+///     TestCaseName = "Operation when closed =&gt; throws InvalidOperationException: Cannot perform operation on closed object",
 ///     Expected = new InvalidOperationException("Cannot perform operation on closed object")
 /// };
-/// // Test case name: "Operation when closed => throws InvalidOperationException"
+/// // Shows exception type and message ✅
 /// 
 /// // Testing custom exception
 /// public class ValidationException : Exception
@@ -72,11 +78,11 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// 
 /// var customTest = new TestDataThrows&lt;ValidationException, int&gt;
 /// {
-///     TestCaseName = "Validate(-1) =&gt; throws ValidationException",
+///     TestCaseName = "Validate(-1) =&gt; throws ValidationException: Value must be positive",
 ///     Expected = new ValidationException("Value must be positive"),
 ///     Arg1 = -1
 /// };
-/// // Test case name: "Validate(-1) => throws ValidationException"
+/// // Custom exceptions formatted the same way ✅
 /// </code>
 /// </example>
 public abstract class TestDataThrows<TException>
@@ -124,72 +130,51 @@ where TException : Exception
     {
     }
 
-    private const string ThrowsString = "throws";
-
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the result prefix for exception throwing test cases.
+    /// </summary>
+    /// <returns>The string "throws".</returns>
+    /// <remarks>
+    /// <para>
+    /// This method provides the distinguishing prefix for exception test cases. The base class
+    /// <see cref="TestDataExpected{TResult}.GetResult"/> combines this prefix with the formatted
+    /// exception to create complete test case names.
+    /// </para>
+    /// <para>
+    /// <strong>Example:</strong> For a test with <c>Expected = new ArgumentException("Invalid")</c>,
+    /// the base class generates: <c>"throws ArgumentException: Invalid"</c> by combining this prefix
+    /// with the formatted exception.
+    /// </para>
+    /// </remarks>
     public override sealed string GetResultPrefix()
-    => GetValidResultPrefix(ThrowsString);
+    => "throws";
 
     /// <summary>
-    /// Gets the formatted result string for the test case name.
+    /// Converts the test data to a parameter array with optional trimming of the expected exception.
     /// </summary>
+    /// <param name="argsCode">Determines whether to include the instance itself or its properties.</param>
+    /// <param name="propsCode">Specifies which properties to include when using <see cref="ArgsCode.Properties"/>.</param>
     /// <returns>
-    /// A formatted string in the form <c>"throws {exceptionType}"</c>, where <c>{exceptionType}</c>
-    /// is the name of the exception type (without namespace) from <see cref="TestDataExpected{TResult}.Expected"/>.
+    /// A parameter array, with the first element (expected exception) removed when
+    /// <paramref name="propsCode"/> is <see cref="PropsCode.TrimThrowsExpected"/>.
     /// </returns>
     /// <remarks>
     /// <para>
-    /// This method overrides <see cref="TestDataBase.GetResult()"/> to provide the expected
-    /// outcome portion of the test case name for exception tests. It calls 
-    /// <see cref="TestDataExpected{TResult}.GetExpectedResult(string?)"/> with the exception type name
-    /// (via <see cref="Type.Name"/>) rather than the full exception details.
+    /// This method overrides <see cref="TestDataExpected{TResult}.ToArgs"/> to provide specialized
+    /// trimming logic for exception tests. When <see cref="PropsCode.TrimThrowsExpected"/> is specified,
+    /// the expected exception is excluded from the argument array, which is useful when the test
+    /// framework expects only the method arguments (not the expected exception).
     /// </para>
     /// <para>
-    /// <strong>Type Name vs ToString():</strong> This method uses <see cref="Type.Name"/> instead of
-    /// <see cref="Exception.ToString()"/> to produce concise test case names. 
-    /// <see cref="Exception.ToString()"/> includes the full type name, message, and stack trace,
-    /// which would be too verbose for test case naming.
-    /// </para>
-    /// <para>
-    /// <strong>Example:</strong> For <c>Expected = new ArgumentException("Invalid input", "param")</c>,
-    /// this returns <c>"throws ArgumentException"</c>, resulting in a test case name like
-    /// <c>"Validate(null) =&gt; throws ArgumentException"</c>.
+    /// <strong>Trimming Logic:</strong>
+    /// <list type="bullet">
+    ///   <item><see cref="PropsCode.All"/> - Keeps expected exception (no trim)</item>
+    ///   <item><see cref="PropsCode.TrimTestCaseName"/> - Keeps expected exception (no trim)</item>
+    ///   <item><see cref="PropsCode.TrimReturnsExpected"/> - Keeps expected exception (no trim, wrong type)</item>
+    ///   <item><see cref="PropsCode.TrimThrowsExpected"/> - Removes expected exception (trim) ✅</item>
+    /// </list>
     /// </para>
     /// </remarks>
-    /// <example>
-    /// <code>
-    /// // ArgumentException
-    /// var argTest = new TestDataThrows&lt;ArgumentException&gt;(
-    ///     "Validate(null)", 
-    ///     new ArgumentException("Value cannot be null", "input"));
-    /// string result = argTest.GetResult();
-    /// // Returns: "throws ArgumentException" ✅ Concise
-    /// // NOT: "throws System.ArgumentException: Value cannot be null (Parameter 'input')" ❌ Too verbose
-    /// 
-    /// // InvalidOperationException
-    /// var invalidOpTest = new TestDataThrows&lt;InvalidOperationException&gt;(
-    ///     "Operation when closed", 
-    ///     new InvalidOperationException("Cannot perform operation on closed object"));
-    /// string result2 = invalidOpTest.GetResult();
-    /// // Returns: "throws InvalidOperationException" ✅ Concise
-    /// 
-    /// // Custom exception
-    /// public class CustomException : Exception
-    /// {
-    ///     public CustomException(string message) : base(message) { }
-    /// }
-    /// 
-    /// var customTest = new TestDataThrows&lt;CustomException&gt;(
-    ///     "Custom scenario", 
-    ///     new CustomException("Custom error"));
-    /// string result3 = customTest.GetResult();
-    /// // Returns: "throws CustomException" ✅ Works with any Exception-derived type
-    /// </code>
-    /// </example>
-    public override sealed string GetResult()
-    => GetExpectedResult(Expected.GetType().Name);
-
-    /// <inheritdoc/>
     public override sealed object?[] ToArgs(
         ArgsCode argsCode,
         PropsCode propsCode)

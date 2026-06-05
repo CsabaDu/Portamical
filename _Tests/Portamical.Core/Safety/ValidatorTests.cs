@@ -8,6 +8,8 @@ namespace Tests.Portamical.Core.Safety;
 [TestClass]
 public sealed class ValidatorTests
 {
+    private static readonly int[] s_testArray = [1, 2, 3];
+
     // NotNull
 
     [TestMethod]
@@ -65,7 +67,7 @@ public sealed class ValidatorTests
     [TestMethod]
     public void NotNullOrEmpty_arrayInput_returnsSameInstance()
     {
-        int[] array = [1, 2, 3];
+        int[] array = s_testArray;
 
         var result = Validator.NotNullOrEmpty(array, nameof(array));
 
@@ -79,7 +81,7 @@ public sealed class ValidatorTests
 
         var result = Validator.NotNullOrEmpty(source, nameof(source));
 
-        CollectionAssert.AreEqual(new[] { 1, 2, 3 }, result);
+        CollectionAssert.AreEqual(s_testArray, result);
     }
 
     [TestMethod]

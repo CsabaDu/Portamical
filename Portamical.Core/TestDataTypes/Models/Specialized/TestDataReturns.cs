@@ -7,34 +7,37 @@ using Portamical.Core.TestDataTypes.Patterns;
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
 /// <summary>
-/// Abstract base class for test data that verifies method return values of value types.
+/// Abstract base class for test data that verifies method return values.
 /// </summary>
-/// <typeparam name="TStruct">
-/// The type of the expected return value. Must be a value type (struct).
+/// <typeparam name="TResult">
+/// The type of the expected return value. Must be not null.
 /// </typeparam>
 /// <remarks>
 /// <para>
 /// This class extends <see cref="TestDataExpected{TResult}"/> and implements <see cref="IReturns{TResult}"/>
-/// to provide a foundation for test data types that verify successful execution paths with value-type return values.
+/// to provide a foundation for test data types that verify successful execution paths with return values.
 /// </para>
 /// <para>
-/// <strong>Constraint Rationale:</strong> The <c>struct</c> constraint is intentional and provides three key benefits:
+/// <strong>Constraint Rationale:</strong> The <c>notnull</c> constraint ensures that:
 /// <list type="number">
-///   <item><strong>Non-null guarantee:</strong> Value types cannot be null (without <c>Nullable&lt;T&gt;</c>), ensuring test expectations are always concrete values</item>
-///   <item><strong>Meaningful ToString():</strong> All value types have predictable string representations, crucial for generating readable test case names</item>
-///   <item><strong>Value-based assessment:</strong> Designed for testing methods that return primitive types, structs, and other value types with value-based equality semantics</item>
+///   <item><strong>Non-null guarantee:</strong> The expected return value cannot be null, ensuring test expectations are always concrete values</item>
+///   <item><strong>Meaningful formatting:</strong> Non-null types can be formatted reliably by the base class for readable test case names</item>
+///   <item><strong>Type flexibility:</strong> Supports both value types and reference types (including strings, objects, custom classes) that are non-null</item>
 /// </list>
 /// </para>
 /// <para>
-/// <strong>For Reference Types:</strong> To test methods that return reference types (strings, objects, custom classes),
-/// use <c>TestDataReturnsRef&lt;TResult&gt;</c> or <c>TestDataReturnsString</c> which handle reference type-specific concerns.
+/// <strong>Result Formatting:</strong> This class provides the result prefix "returns" via <see cref="GetResultPrefix()"/>.
+/// The base class <see cref="TestDataExpected{TResult}.GetResult"/> combines this prefix with the formatted
+/// <see cref="TestDataExpected{TResult}.Expected"/> value to create test case names like:
+/// <c>"Add(2,3) =&gt; returns 5"</c> or <c>"GetName() =&gt; returns \"John\""</c>.
+/// See <see cref="TestDataExpected{TResult}"/> for details on type-specific formatting (char, DateTime, collections, etc.).
 /// </para>
 /// <para>
 /// <strong>Key Features:</strong>
 /// <list type="bullet">
 ///   <item>Implements <see cref="IReturns{TResult}"/> marker interface for type discrimination</item>
 ///   <item>Returns "returns" as the result prefix via <see cref="GetResultPrefix()"/></item>
-///   <item>Formats expected value as "returns {value}" via <see cref="GetResult()"/> using <see cref="object.ToString()"/></item>
+///   <item>Inherits intelligent formatting from base class for char, DateTime, Guid, collections, exceptions, etc.</item>
 ///   <item>Supports trimming of expected value via <see cref="PropsCode.TrimReturnsExpected"/></item>
 /// </list>
 /// </para>
@@ -53,46 +56,47 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 ///     Arg1 = 2,
 ///     Arg2 = 3
 /// };
-/// // Test case name: "Add(2,3) => returns 5" ✅ Meaningful
+/// // Test case name: "Add(2,3) => returns 5" ✅
 /// 
-/// // Testing boolean return values
-/// var boolTest = new TestDataReturns&lt;bool, string&gt;
+/// // Testing string return values (with quotes in formatted output)
+/// var strTest = new TestDataReturns&lt;string, string&gt;
 /// {
-///     TestCaseName = "IsValid(input) =&gt; returns True",
-///     Expected = true,  // Guaranteed non-null
-///     Arg1 = "input"
+///     TestCaseName = "GetName(\"John\") =&gt; returns \"John\"",
+///     Expected = "John",  // Guaranteed non-null
+///     Arg1 = "John"
 /// };
-/// // Test case name: "IsValid(input) => returns True" ✅ Meaningful
+/// // Test case name: "GetName(\"John\") => returns \"John\"" ✅
 /// 
-/// // Testing custom struct return values
-/// public struct Point
+/// // Testing DateTime return values (ISO 8601 format)
+/// var dateTest = new TestDataReturns&lt;DateTime&gt;
 /// {
-///     public int X { get; init; }
-///     public int Y { get; init; }
-///     public override string ToString() =&gt; $"({X}, {Y})";
-/// }
-/// 
-/// var pointTest = new TestDataReturns&lt;Point&gt;
-/// {
-///     TestCaseName = "Origin() =&gt; returns (0, 0)",
-///     Expected = new Point { X = 0, Y = 0 }  // Guaranteed non-null
+///     TestCaseName = "Now() =&gt; returns 2026-01-15T10:30:00.0000000Z",
+///     Expected = new DateTime(2026, 1, 15, 10, 30, 0, DateTimeKind.Utc)
 /// };
-/// // Test case name: "Origin() => returns (0, 0)" ✅ Meaningful
+/// // Formatted with ISO 8601 for precision ✅
+/// 
+/// // Testing collection return values
+/// var listTest = new TestDataReturns&lt;List&lt;int&gt;&gt;
+/// {
+///     TestCaseName = "GetNumbers() =&gt; returns [3]: [1, 2, 3]",
+///     Expected = new List&lt;int&gt; { 1, 2, 3 }  // Formatted by base class
+/// };
+/// // Shows count and items ✅
 /// </code>
 /// </example>
-public abstract class TestDataReturns<TStruct>
-: TestDataExpected<TStruct>,
-IReturns<TStruct>
-where TStruct : struct
+public abstract class TestDataReturns<TResult>
+: TestDataExpected<TResult>,
+IReturns<TResult>
+where TResult : notnull
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestDataReturns{TStruct}"/> class.
+    /// Initializes a new instance of the <see cref="TestDataReturns{TResult}"/> class.
     /// </summary>
     /// <param name="definition">
     /// The descriptive definition of the test case scenario (left side of "=&gt;").
     /// </param>
     /// <param name="expected">
-    /// The expected return value. Guaranteed to be non-null due to <c>struct</c> constraint.
+    /// The expected return value. Guaranteed to be non-null due to <c>notnull</c> constraint.
     /// </param>
     /// <remarks>
     /// <para>
@@ -102,77 +106,61 @@ where TStruct : struct
     /// deriving custom classes.
     /// </para>
     /// <para>
-    /// <strong>Non-null Guarantee:</strong> The <c>struct</c> constraint ensures <paramref name="expected"/>
+    /// <strong>Non-null Guarantee:</strong> The <c>notnull</c> constraint ensures <paramref name="expected"/>
     /// can never be null, eliminating null-reference concerns in test assertions.
     /// </para>
     /// </remarks>
     private protected TestDataReturns(
         string definition,
-        TStruct expected)
+        TResult expected)
     : base(definition, expected)
     {
     }
 
-    private const string ReturnsString = "returns";
-
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the result prefix for return value test cases.
+    /// </summary>
+    /// <returns>The string "returns".</returns>
+    /// <remarks>
+    /// <para>
+    /// This method provides the distinguishing prefix for return value test cases. The base class
+    /// <see cref="TestDataExpected{TResult}.GetResult"/> combines this prefix with the formatted
+    /// <see cref="TestDataExpected{TResult}.Expected"/> value to create complete test case names.
+    /// </para>
+    /// <para>
+    /// <strong>Example:</strong> For a test with <c>Expected = 5</c>, the base class generates:
+    /// <c>"returns 5"</c> by combining this prefix with the formatted value.
+    /// </para>
+    /// </remarks>
     public override sealed string GetResultPrefix()
-    => GetValidResultPrefix(ReturnsString);
+    => "returns";
 
     /// <summary>
-    /// Gets the formatted result string for the test case name.
+    /// Converts the test data to a parameter array with optional trimming of the expected return value.
     /// </summary>
+    /// <param name="argsCode">Determines whether to include the instance itself or its properties.</param>
+    /// <param name="propsCode">Specifies which properties to include when using <see cref="ArgsCode.Properties"/>.</param>
     /// <returns>
-    /// A formatted string in the form <c>"returns {expected}"</c>, where <c>{expected}</c>
-    /// is the string representation of the <see cref="TestDataExpected{TResult}.Expected"/> value.
+    /// A parameter array, with the first element (expected return value) removed when
+    /// <paramref name="propsCode"/> is <see cref="PropsCode.TrimReturnsExpected"/>.
     /// </returns>
     /// <remarks>
     /// <para>
-    /// This method overrides <see cref="TestDataBase.GetResult()"/> to provide the expected
-    /// outcome portion of the test case name. It calls <see cref="TestDataExpected{TResult}.GetExpectedResult(string?)"/>
-    /// with the string representation of <see cref="TestDataExpected{TResult}.Expected"/>.
+    /// This method overrides <see cref="TestDataExpected{TResult}.ToArgs"/> to provide specialized
+    /// trimming logic for return value tests. When <see cref="PropsCode.TrimReturnsExpected"/> is specified,
+    /// the expected return value is excluded from the argument array, which is useful when the test
+    /// framework expects only the method arguments (not the expected result).
     /// </para>
     /// <para>
-    /// <strong>ToString() Guarantee:</strong> The <c>struct</c> constraint ensures that
-    /// <see cref="object.ToString()"/> produces a meaningful string representation, as all value types
-    /// have well-defined <c>ToString()</c> implementations. This creates readable test case names
-    /// like <c>"Add(2,3) =&gt; returns 5"</c> rather than <c>"Add(2,3) =&gt; returns MyNamespace.MyClass"</c>.
+    /// <strong>Trimming Logic:</strong>
+    /// <list type="bullet">
+    ///   <item><see cref="PropsCode.All"/> - Keeps expected value (no trim)</item>
+    ///   <item><see cref="PropsCode.TrimTestCaseName"/> - Keeps expected value (no trim)</item>
+    ///   <item><see cref="PropsCode.TrimReturnsExpected"/> - Removes expected value (trim) ✅</item>
+    ///   <item><see cref="PropsCode.TrimThrowsExpected"/> - Keeps expected value (no trim, wrong type)</item>
+    /// </list>
     /// </para>
     /// </remarks>
-    /// <example>
-    /// <code>
-    /// // Integer expected value
-    /// var intTest = new TestDataReturns&lt;int&gt;("Add(2,3)", 5);
-    /// string result = intTest.GetResult();
-    /// // Returns: "returns 5" ✅ Meaningful
-    /// 
-    /// // Boolean expected value
-    /// var boolTest = new TestDataReturns&lt;bool&gt;("IsValid(input)", true);
-    /// string result2 = boolTest.GetResult();
-    /// // Returns: "returns True" ✅ Meaningful
-    /// 
-    /// // DateTime expected value
-    /// var dateTest = new TestDataReturns&lt;DateTime&gt;("Now()", new DateTime(2026, 1, 15));
-    /// string result3 = dateTest.GetResult();
-    /// // Returns: "returns 1/15/2026 12:00:00 AM" ✅ Meaningful
-    /// 
-    /// // Custom struct with ToString() override
-    /// public struct Point
-    /// {
-    ///     public int X { get; init; }
-    ///     public int Y { get; init; }
-    ///     public override string ToString() =&gt; $"({X}, {Y})";
-    /// }
-    /// 
-    /// var pointTest = new TestDataReturns&lt;Point&gt;("Origin()", new Point { X = 0, Y = 0 });
-    /// string result4 = pointTest.GetResult();
-    /// // Returns: "returns (0, 0)" ✅ Meaningful
-    /// </code>
-    /// </example>
-    public override sealed string GetResult()
-    => GetExpectedResult(Expected.ToString());
-
-    /// <inheritdoc/>
     public override sealed object?[] ToArgs(
         ArgsCode argsCode,
         PropsCode propsCode)
