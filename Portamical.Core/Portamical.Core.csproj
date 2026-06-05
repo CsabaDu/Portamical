@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>2.2.0</Version>
+    <Version>3.2.0</Version>
     <Title>Portamical.Core</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -25,10 +25,10 @@
 
     <!-- Repository -->
     <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical.Core</RepositoryUrl>
-    <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3;</PackageTags>
+    <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
 
     <!-- Release Notes -->
-    <PackageReleaseNotes>v2.2.0: Performance optimizations via AggressiveInlining in hot path methods. 5x faster null validation (NotNull, NotNullOrEmpty), 4x faster enum validation (Defined), 3-5x faster string conversions (ToString, implicit operator). Zero-allocation success paths maintained. Fully backward compatible - no code changes required.</PackageReleaseNotes>
+    <PackageReleaseNotes>v3.2.0: BREAKING - TestDataReturns&lt;TStruct&gt; → TestDataReturns&lt;TResult&gt; with notnull constraint, now supports reference types (strings, collections, custom classes). NEW - Portamical.Core.Formatting.ValueFormatter class for intelligent type-specific formatting: char 'a', string "text", DateTime ISO 8601, collections [3]: [1, 2, 3], exceptions ArgumentException: message, tuples (1, 2, 3), Type int/List&lt;string&gt;/int[], and more. All T4 files include #nullable enable. Enhanced XML documentation. See README for migration guide and full feature list.</PackageReleaseNotes>
 
     <!-- Package Generation -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
