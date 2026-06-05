@@ -37,7 +37,6 @@ where TTestData : notnull, ITestData
     }
 }
 
-
 /// <summary>
 /// Exposes Portamical test data to TUnit through an asynchronous data-source attribute.
 /// </summary>

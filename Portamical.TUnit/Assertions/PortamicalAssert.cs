@@ -196,225 +196,225 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     public static ValueTask Fail()
     => Fail(null);
 
-    /// <summary>
-    /// Verifies that the specified action does not throw an exception using TUnit's assertion framework.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This method wraps the base class's async-first
-    /// <see cref="Portamical.Assertions.PortamicalAssert.DoesNotThrowAsync(Action, Func{string, ValueTask})"/>
-    /// method and automatically provides TUnit's assertion failure handling.
-    /// </para>
-    /// <para>
-    /// <strong>Performance:</strong> Returns <c>default(ValueTask)</c> when no exception is thrown,
-    /// resulting in zero allocation for successful assertions.
-    /// </para>
-    /// <para>
-    /// <strong>When to Use:</strong>
-    /// </para>
-    /// <list type="bullet">
-    ///   <item>Verifying that operations complete without throwing exceptions</item>
-    ///   <item>Testing "happy path" scenarios where no errors are expected</item>
-    ///   <item>Validating guard clause logic that should allow valid inputs</item>
-    /// </list>
-    /// </remarks>
-    /// <param name="attempt">The action to execute and verify for the absence of exceptions. Cannot be null.</param>
-    /// <returns>
-    /// A <see cref="ValueTask"/> that completes when the assertion finishes.
-    /// Returns <c>default(ValueTask)</c> (zero allocation) on success.
-    /// </returns>
-    /// <exception cref="AssertionException">Thrown when the action throws an exception.</exception>
-    /// <example>
-    /// <code>
-    /// [Test]
-    /// public async Task Calculate_ValidInput_NoException()
-    /// {
-    ///     await PortamicalAssert.DoesNotThrow(() => calculator.Add(2, 3));
-    /// }
-    /// 
-    /// [Test]
-    /// public async Task Initialize_NormalConditions_NoException()
-    /// {
-    ///     var service = new MyService();
-    ///     await PortamicalAssert.DoesNotThrow(() => service.Initialize());
-    /// }
-    /// 
-    /// [Test]
-    /// public async Task ProcessData_ValidInput_Completes()
-    /// {
-    ///     // Zero allocation when successful
-    ///     await PortamicalAssert.DoesNotThrow(() => 
-    ///     {
-    ///         processor.Process(validData);
-    ///         processor.Save();
-    ///     });
-    /// }
-    /// </code>
-    /// </example>
-    public static ValueTask DoesNotThrow(Action attempt)
-    => DoesNotThrowAsync(
-        attempt,
-        assertFailAsync: Fail);
+    ///// <summary>
+    ///// Verifies that the specified action does not throw an exception using TUnit's assertion framework.
+    ///// </summary>
+    ///// <remarks>
+    ///// <para>
+    ///// This method wraps the base class's async-first
+    ///// <see cref="Portamical.Assertions.PortamicalAssert.DoesNotThrowAsync(Action, Func{string, ValueTask})"/>
+    ///// method and automatically provides TUnit's assertion failure handling.
+    ///// </para>
+    ///// <para>
+    ///// <strong>Performance:</strong> Returns <c>default(ValueTask)</c> when no exception is thrown,
+    ///// resulting in zero allocation for successful assertions.
+    ///// </para>
+    ///// <para>
+    ///// <strong>When to Use:</strong>
+    ///// </para>
+    ///// <list type="bullet">
+    /////   <item>Verifying that operations complete without throwing exceptions</item>
+    /////   <item>Testing "happy path" scenarios where no errors are expected</item>
+    /////   <item>Validating guard clause logic that should allow valid inputs</item>
+    ///// </list>
+    ///// </remarks>
+    ///// <param name="attempt">The action to execute and verify for the absence of exceptions. Cannot be null.</param>
+    ///// <returns>
+    ///// A <see cref="ValueTask"/> that completes when the assertion finishes.
+    ///// Returns <c>default(ValueTask)</c> (zero allocation) on success.
+    ///// </returns>
+    ///// <exception cref="AssertionException">Thrown when the action throws an exception.</exception>
+    ///// <example>
+    ///// <code>
+    ///// [Test]
+    ///// public async Task Calculate_ValidInput_NoException()
+    ///// {
+    /////     await PortamicalAssert.DoesNotThrow(() => calculator.Add(2, 3));
+    ///// }
+    ///// 
+    ///// [Test]
+    ///// public async Task Initialize_NormalConditions_NoException()
+    ///// {
+    /////     var service = new MyService();
+    /////     await PortamicalAssert.DoesNotThrow(() => service.Initialize());
+    ///// }
+    ///// 
+    ///// [Test]
+    ///// public async Task ProcessData_ValidInput_Completes()
+    ///// {
+    /////     // Zero allocation when successful
+    /////     await PortamicalAssert.DoesNotThrow(() => 
+    /////     {
+    /////         processor.Process(validData);
+    /////         processor.Save();
+    /////     });
+    ///// }
+    ///// </code>
+    ///// </example>
+    //public static ValueTask DoesNotThrow(Action attempt)
+    //=> DoesNotThrowAsync(
+    //    attempt,
+    //    assertFailAsync: Fail);
 
-    /// <summary>
-    /// Executes the specified action and verifies that it throws an exception of the expected type
-    /// with matching details using TUnit's assertion framework.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This method wraps the base class's async-first
-    /// <see cref="Portamical.Assertions.PortamicalAssert.ThrowsDetailsAsync{TException}"/>
-    /// method and automatically provides TUnit-specific assertion delegates.
-    /// </para>
-    /// <para>
-    /// <strong>Selective Assertion Pattern:</strong> Properties are only asserted if set (non-null) in the
-    /// expected exception. Use null values to skip assertions for properties that are implementation details:
-    /// </para>
-    /// <list type="bullet">
-    ///   <item>
-    ///     <strong>Message:</strong> Set to non-null to assert message equality. Set to null to skip.
-    ///   </item>
-    ///   <item>
-    ///     <strong>ParamName (ArgumentException):</strong> Set to non-null to assert parameter name equality.
-    ///     Set to null to skip.
-    ///   </item>
-    /// </list>
-    /// <para>
-    /// See <see cref="Portamical.Assertions.PortamicalAssert"/> base class documentation for details
-    /// on the selective assertion pattern.
-    /// </para>
-    /// <para>
-    /// <strong>When to Use:</strong>
-    /// </para>
-    /// <list type="bullet">
-    ///   <item>Testing guard clauses and input validation</item>
-    ///   <item>Verifying error handling behavior</item>
-    ///   <item>Asserting specific error messages or parameter names</item>
-    ///   <item>Testing exception-based control flow</item>
-    /// </list>
-    /// </remarks>
-    /// <typeparam name="TException">
-    /// The type of exception expected to be thrown by the action. Must be a non-null reference type
-    /// derived from Exception.
-    /// </typeparam>
-    /// <param name="attempt">
-    /// The action to execute, which is expected to throw an exception of type TException. Cannot be null.
-    /// </param>
-    /// <param name="expected">
-    /// The expected exception instance, used as a reference for type and detail comparisons.
-    /// Set <c>Message</c> or <c>ParamName</c> (for ArgumentException) to null to skip those assertions.
-    /// Cannot be null.
-    /// </param>
-    /// <returns>
-    /// A <see cref="ValueTask{TResult}"/> containing the actual exception of type TException that was
-    /// thrown by the action and verified to match the expected details.
-    /// </returns>
-    /// <exception cref="AssertionException">
-    /// Thrown when:
-    /// <list type="bullet">
-    ///   <item>No exception is thrown when one was expected</item>
-    ///   <item>The thrown exception type doesn't match the expected type</item>
-    ///   <item>The exception message doesn't match (when expected.Message is non-null)</item>
-    ///   <item>The ParamName doesn't match (when expected is ArgumentException with non-null ParamName)</item>
-    /// </list>
-    /// </exception>
-    /// <example>
-    /// <para><strong>Full Validation (Type + Message + ParamName):</strong></para>
-    /// <code>
-    /// [Test]
-    /// public async Task GetUser_NullId_ThrowsArgumentNull()
-    /// {
-    ///     var expected = new ArgumentNullException("userId", "User ID cannot be null");
-    ///     
-    ///     var actual = await PortamicalAssert.ThrowsDetails(
-    ///         () => userService.GetUser(null!),
-    ///         expected);
-    ///     
-    ///     // All properties validated: Type, Message, ParamName
-    ///     await Assert.That(actual.ParamName).IsEqualTo("userId");
-    /// }
-    /// </code>
-    /// 
-    /// <para><strong>Type-Only Validation (Skip Message):</strong></para>
-    /// <code>
-    /// [Test]
-    /// public async Task Process_InvalidState_ThrowsInvalidOperation()
-    /// {
-    ///     // Set message to null to skip message assertion
-    ///     var expected = new InvalidOperationException(message: null);
-    ///     
-    ///     var actual = await PortamicalAssert.ThrowsDetails(
-    ///         () => processor.ProcessInvalid(),
-    ///         expected);
-    ///     
-    ///     // Only exception type is validated
-    ///     await Assert.That(actual).IsNotNull();
-    /// }
-    /// </code>
-    /// 
-    /// <para><strong>ArgumentException Without ParamName Validation:</strong></para>
-    /// <code>
-    /// [Test]
-    /// public async Task Validate_EmptyString_ThrowsArgument()
-    /// {
-    ///     // ParamName is null, so it won't be asserted
-    ///     var expected = new ArgumentException("Value cannot be empty", paramName: null);
-    ///     
-    ///     var actual = await PortamicalAssert.ThrowsDetails(
-    ///         () => validator.Validate(""),
-    ///         expected);
-    ///     
-    ///     // Only type and message validated, ParamName skipped
-    ///     await Assert.That(actual.Message).Contains("cannot be empty");
-    /// }
-    /// </code>
-    /// 
-    /// <para><strong>Multiple Exception Properties:</strong></para>
-    /// <code>
-    /// [Test]
-    /// public async Task ParseValue_InvalidFormat_ThrowsFormatException()
-    /// {
-    ///     var expected = new FormatException("Invalid number format: 'abc'");
-    ///     
-    ///     var actual = await PortamicalAssert.ThrowsDetails(
-    ///         () => parser.Parse("abc"),
-    ///         expected);
-    ///     
-    ///     await Assert.That(actual.Message).IsEqualTo(expected.Message);
-    /// }
-    /// </code>
-    /// </example>
-    public static ValueTask<TException> ThrowsDetails<TException>(
-        Action attempt,
-        TException expected)
-    where TException : notnull, Exception
-    => ThrowsDetailsAsync(
-        attempt,
-        expected,
-        catchException: CatchException,
-        assertIsTypeAsync: (expectedType, actual) =>
-        {
-            var actualType = actual.GetType();
+    ///// <summary>
+    ///// Executes the specified action and verifies that it throws an exception of the expected type
+    ///// with matching details using TUnit's assertion framework.
+    ///// </summary>
+    ///// <remarks>
+    ///// <para>
+    ///// This method wraps the base class's async-first
+    ///// <see cref="Portamical.Assertions.PortamicalAssert.ThrowsDetailsAsync{TException}"/>
+    ///// method and automatically provides TUnit-specific assertion delegates.
+    ///// </para>
+    ///// <para>
+    ///// <strong>Selective Assertion Pattern:</strong> Properties are only asserted if set (non-null) in the
+    ///// expected exception. Use null values to skip assertions for properties that are implementation details:
+    ///// </para>
+    ///// <list type="bullet">
+    /////   <item>
+    /////     <strong>Message:</strong> Set to non-null to assert message equality. Set to null to skip.
+    /////   </item>
+    /////   <item>
+    /////     <strong>ParamName (ArgumentException):</strong> Set to non-null to assert parameter name equality.
+    /////     Set to null to skip.
+    /////   </item>
+    ///// </list>
+    ///// <para>
+    ///// See <see cref="Portamical.Assertions.PortamicalAssert"/> base class documentation for details
+    ///// on the selective assertion pattern.
+    ///// </para>
+    ///// <para>
+    ///// <strong>When to Use:</strong>
+    ///// </para>
+    ///// <list type="bullet">
+    /////   <item>Testing guard clauses and input validation</item>
+    /////   <item>Verifying error handling behavior</item>
+    /////   <item>Asserting specific error messages or parameter names</item>
+    /////   <item>Testing exception-based control flow</item>
+    ///// </list>
+    ///// </remarks>
+    ///// <typeparam name="TException">
+    ///// The type of exception expected to be thrown by the action. Must be a non-null reference type
+    ///// derived from Exception.
+    ///// </typeparam>
+    ///// <param name="attempt">
+    ///// The action to execute, which is expected to throw an exception of type TException. Cannot be null.
+    ///// </param>
+    ///// <param name="expected">
+    ///// The expected exception instance, used as a reference for type and detail comparisons.
+    ///// Set <c>Message</c> or <c>ParamName</c> (for ArgumentException) to null to skip those assertions.
+    ///// Cannot be null.
+    ///// </param>
+    ///// <returns>
+    ///// A <see cref="ValueTask{TResult}"/> containing the actual exception of type TException that was
+    ///// thrown by the action and verified to match the expected details.
+    ///// </returns>
+    ///// <exception cref="AssertionException">
+    ///// Thrown when:
+    ///// <list type="bullet">
+    /////   <item>No exception is thrown when one was expected</item>
+    /////   <item>The thrown exception type doesn't match the expected type</item>
+    /////   <item>The exception message doesn't match (when expected.Message is non-null)</item>
+    /////   <item>The ParamName doesn't match (when expected is ArgumentException with non-null ParamName)</item>
+    ///// </list>
+    ///// </exception>
+    ///// <example>
+    ///// <para><strong>Full Validation (Type + Message + ParamName):</strong></para>
+    ///// <code>
+    ///// [Test]
+    ///// public async Task GetUser_NullId_ThrowsArgumentNull()
+    ///// {
+    /////     var expected = new ArgumentNullException("userId", "User ID cannot be null");
+    /////     
+    /////     var actual = await PortamicalAssert.ThrowsDetails(
+    /////         () => userService.GetUser(null!),
+    /////         expected);
+    /////     
+    /////     // All properties validated: Type, Message, ParamName
+    /////     await Assert.That(actual.ParamName).IsEqualTo("userId");
+    ///// }
+    ///// </code>
+    ///// 
+    ///// <para><strong>Type-Only Validation (Skip Message):</strong></para>
+    ///// <code>
+    ///// [Test]
+    ///// public async Task Process_InvalidState_ThrowsInvalidOperation()
+    ///// {
+    /////     // Set message to null to skip message assertion
+    /////     var expected = new InvalidOperationException(message: null);
+    /////     
+    /////     var actual = await PortamicalAssert.ThrowsDetails(
+    /////         () => processor.ProcessInvalid(),
+    /////         expected);
+    /////     
+    /////     // Only exception type is validated
+    /////     await Assert.That(actual).IsNotNull();
+    ///// }
+    ///// </code>
+    ///// 
+    ///// <para><strong>ArgumentException Without ParamName Validation:</strong></para>
+    ///// <code>
+    ///// [Test]
+    ///// public async Task Validate_EmptyString_ThrowsArgument()
+    ///// {
+    /////     // ParamName is null, so it won't be asserted
+    /////     var expected = new ArgumentException("Value cannot be empty", paramName: null);
+    /////     
+    /////     var actual = await PortamicalAssert.ThrowsDetails(
+    /////         () => validator.Validate(""),
+    /////         expected);
+    /////     
+    /////     // Only type and message validated, ParamName skipped
+    /////     await Assert.That(actual.Message).Contains("cannot be empty");
+    ///// }
+    ///// </code>
+    ///// 
+    ///// <para><strong>Multiple Exception Properties:</strong></para>
+    ///// <code>
+    ///// [Test]
+    ///// public async Task ParseValue_InvalidFormat_ThrowsFormatException()
+    ///// {
+    /////     var expected = new FormatException("Invalid number format: 'abc'");
+    /////     
+    /////     var actual = await PortamicalAssert.ThrowsDetails(
+    /////         () => parser.Parse("abc"),
+    /////         expected);
+    /////     
+    /////     await Assert.That(actual.Message).IsEqualTo(expected.Message);
+    ///// }
+    ///// </code>
+    ///// </example>
+    //public static ValueTask<TException> ThrowsDetails<TException>(
+    //    Action attempt,
+    //    TException expected)
+    //where TException : notnull, Exception
+    //=> ThrowsDetailsAsync(
+    //    attempt,
+    //    expected,
+    //    catchException: CatchException,
+    //    assertIsTypeAsync: (expectedType, actual) =>
+    //    {
+    //        var actualType = actual.GetType();
 
-            if (actualType != expectedType)
-            {
-                return Fail(GetNotExpectedTypeExceptionThrownMessage(expectedType, actualType));
-            }
+    //        if (actualType != expectedType)
+    //        {
+    //            return Fail(GetNotExpectedTypeExceptionThrownMessage(expectedType, actualType));
+    //        }
 
-            return default;  // Zero allocation success
-        },
-        assertEqualityAsync: (expectedValue, actualValue) =>
-        {
-            if (!Equals(expectedValue, actualValue))
-            {
-                return Fail(GetNotExpectedValueMessage(
-                    expectedValue ?? "null",
-                    actualValue));
-            }
+    //        return default;  // Zero allocation success
+    //    },
+    //    assertEqualityAsync: (expectedValue, actualValue) =>
+    //    {
+    //        if (!Equals(expectedValue, actualValue))
+    //        {
+    //            return Fail(GetNotExpectedValueMessage(
+    //                expectedValue ?? "null",
+    //                actualValue));
+    //        }
 
-            return default;  // Zero allocation success
-        },
-        assertFailAsync: Fail);
+    //        return default;  // Zero allocation success
+    //    },
+    //    assertFailAsync: Fail);
 
     /// <summary>
     /// Verifies value equality using a custom equality comparer.
