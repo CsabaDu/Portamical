@@ -565,6 +565,13 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
+#### **[3.2.0] - 2025-06-05**
+
+**Updated**
+- Portamical.Core dependency to v3.2.0
+
+---
+
 ### **[2.0.0] - 2026-03-16**
 
 **Breaking**

@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>3.1.0</Version>
+    <Version>3.2.0</Version>
     <Title>Portamical</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -28,26 +28,12 @@
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; async; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
 
     <!-- Release Notes -->
-    <PackageReleaseNotes>v3.1.0 - 2026-05-27
+    <PackageReleaseNotes>v3.2.0 - 2025-06-05
 
-Added
-- **MetadataEquality&lt;TException&gt;(TException, TException, Action&lt;string, string?&gt;)** - New public synchronous wrapper for exception metadata assertions
-  - Enables framework-agnostic verification of exception messages and parameter names
-  - Delegates to MetadataEqualityAsync via thread-safe synchronous execution
-  - Supports ArgumentException, ArgumentOutOfRangeException, ObjectDisposedException with intelligent message filtering
-
-Changed
-- **MetadataEqualityAsync&lt;TException&gt;(TException, TException, Func&lt;string, string?, ValueTask&gt;)** - Made public (was private)
-  - Primary async implementation for exception metadata verification
-  - Intelligently handles framework-generated messages that vary across runtime versions
-  - Skips assertion for ArgumentException guard clauses and ObjectDisposedException runtime-specific patterns
-  - Includes comprehensive XML documentation with usage examples
-
-Improved
-- Enhanced XML documentation for both MetadataEqualityAsync and MetadataEquality methods
-  - Detailed remarks explaining selective assertion logic for framework exceptions
-  - Usage examples for TUnit (async) and NUnit (sync) scenarios
-  - Performance notes and thread safety guidance</PackageReleaseNotes>
+Updated
+- **Portamical.Core dependency updated to v3.2.0**
+  - Maintains compatibility with latest Portamical.Core features and improvements
+  - No breaking changes or API modifications in this release</PackageReleaseNotes>
     
     <!-- Package Generation -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -70,7 +56,7 @@ Improved
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical.Core" Version="2.2.0" />
+    <PackageReference Include="Portamical.Core" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
