@@ -139,7 +139,6 @@ public abstract class TestData
     }
 
     private readonly string _result;
-    private const string ResultString = "result";
 
     #region Properties
     /// <summary>
@@ -153,7 +152,11 @@ public abstract class TestData
     /// </summary>
     /// <returns>A string containing the result. If the result is null or empty, a fallback value is returned instead.</returns>
     public override sealed string GetResult()
-    => ResultString.FallbackIfNullOrWhiteSpace(_result, nameof(GetResult));
+    {
+        const string resultString = "result";
+
+        return resultString.FallbackIfNullOrWhiteSpace(_result, nameof(GetResult));
+    }
 
     /// <summary>
     /// Returns an array of argument values based on the specified argument and property codes.
