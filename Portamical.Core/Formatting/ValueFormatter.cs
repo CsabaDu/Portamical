@@ -184,8 +184,10 @@ public static class ValueFormatter
         Exception ex                    => Format(ex),
         // KeyValuePair must be checked before IEnumerable
         // (since KVP implements IEnumerable in some contexts)
-        _ when IsKeyValuePair(expected, out var key, out var value)
-                                        => Format(key, value),
+        _ when IsKeyValuePair(
+            expected,
+            out var key,
+            out var value)              => Format(key, value),
         // ITuple (Tuple/ValueTuple) must be checked before IEnumerable
         // (since tuples implement IEnumerable)
         ITuple tuple                    => Format(tuple),

@@ -188,8 +188,7 @@ where TResult : notnull
     /// </example>
     public override sealed string GetResult()
     {
-       const string defaultResultPrefix = "results";
-
+        const string defaultResultPrefix = "results";
         var resultPrefix = defaultResultPrefix.FallbackIfNullOrWhiteSpace(
             GetResultPrefix(), nameof(GetResultPrefix));
 
@@ -199,25 +198,6 @@ where TResult : notnull
 
         return $"{resultPrefix} {expected}";
     }
-
-    /// <summary>
-    /// Converts the test data to an argument array by extending the base arguments with the expected value.
-    /// </summary>
-    /// <param name="argsCode">Determines whether to include the instance itself or its properties.</param>
-    /// <returns>
-    /// An array containing:
-    /// <list type="bullet">
-    ///   <item>The test data instance itself when <see cref="ArgsCode.Instance"/></item>
-    ///   <item>The base properties plus <see cref="Expected"/> when <see cref="ArgsCode.Properties"/></item>
-    /// </list>
-    /// </returns>
-    /// <remarks>
-    /// This method overrides <see cref="TestDataBase.ToObjectArray(ArgsCode)"/> to add the
-    /// <see cref="Expected"/> value to the argument array using the
-    /// <see cref="TestDataBase.Extend{T}(Func{ArgsCode, object?[]}, ArgsCode, T?)"/> helper.
-    /// </remarks>
-    protected override object?[] ToObjectArray(ArgsCode argsCode)
-    => Extend(base.ToObjectArray, argsCode, Expected);
 
     /// <summary>
     /// Converts the test data to a parameter array with optional trimming of the expected value.
@@ -244,4 +224,23 @@ where TResult : notnull
         PropsCode propsCode)
     => Trim(base.ToArgs, argsCode, propsCode,
         propsCode != PropsCode.All);
+
+    /// <summary>
+    /// Converts the test data to an argument array by extending the base arguments with the expected value.
+    /// </summary>
+    /// <param name="argsCode">Determines whether to include the instance itself or its properties.</param>
+    /// <returns>
+    /// An array containing:
+    /// <list type="bullet">
+    ///   <item>The test data instance itself when <see cref="ArgsCode.Instance"/></item>
+    ///   <item>The base properties plus <see cref="Expected"/> when <see cref="ArgsCode.Properties"/></item>
+    /// </list>
+    /// </returns>
+    /// <remarks>
+    /// This method overrides <see cref="TestDataBase.ToObjectArray(ArgsCode)"/> to add the
+    /// <see cref="Expected"/> value to the argument array using the
+    /// <see cref="TestDataBase.Extend{T}(Func{ArgsCode, object?[]}, ArgsCode, T?)"/> helper.
+    /// </remarks>
+    protected override object?[] ToObjectArray(ArgsCode argsCode)
+    => Extend(base.ToObjectArray, argsCode, Expected);
 }
