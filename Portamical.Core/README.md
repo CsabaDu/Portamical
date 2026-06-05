@@ -8,11 +8,11 @@ Define test data **once** and consume it across test frameworks using adapter pa
 
 ## What's New in v3.2.0
 
-**Breaking Architectural Improvements + Intelligent Formatting**
+🚨 **Breaking Architectural Improvements + Intelligent Formatting**
 
 This version introduces significant enhancements to the test data type hierarchy and adds intelligent value formatting for readable test case names.
 
-🚨 ### Breaking Changes
+### Breaking Changes
 
 1. **TestDataReturns Type Constraint Relaxation**
    - **Changed:** `TestDataReturns<TStruct>` → `TestDataReturns<TResult>` with `notnull` constraint
