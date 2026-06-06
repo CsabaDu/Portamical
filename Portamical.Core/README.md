@@ -47,7 +47,8 @@ This version introduces significant enhancements to the test data type hierarchy
    - **Automatic formatting** for char, string, DateTime, Guid, collections, exceptions, tuples, and more
    - **Readable test case names** without manual string conversion
 
-   **Supported Formats:**
+   **Supported Formats:**  
+
    | Type | Format Example |
    |------|----------------|
    | `char` | `'a'` (single-quoted) |
