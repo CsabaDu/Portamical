@@ -186,13 +186,15 @@ Portamical.Core/
 ├── Factories/              # Factory methods for test data creation
 ├── Formatting/             # ⭐ NEW: Value formatting utilities
 │   └── ValueFormatter.cs   # Intelligent type-specific formatting
-├── Identity/               # Identity and equality contracts (INamedCase)
+├── Identity/               # Test case identity and equality contracts
+│   ├── INamedCase.cs       # Core interface for test case naming and equality
+│   └── Model               # Abstract base with equality comparer and display name creation (NamedCase)
 ├── Safety/                 # Validation utilities (Validator, Resolver)
 ├── Strategy/               # Strategy enums (ArgsCode, PropsCode)
 └── TestDataTypes/          # Core test data domain
     ├── ITestData.cs        # Base test data contract
     ├── Models/             # Concrete implementations
-    │   ├── General/        # TestData<T1...T9>
+    │   ├── General/        # TestData
     │   └── Specialized/    # TestDataReturns, TestDataThrows, TestDataExpected
     └── Patterns/           # Domain-specific marker interfaces
         ├── IExpected.cs    # Base for tests with expected outcomes
