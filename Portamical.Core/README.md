@@ -449,7 +449,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
-### **v3.2.0** (2026-06-05)
+### **Version 3.2.0** (2026-06-05)
 
 **Breaking Changes:**
 - Changed `TestDataReturns<TStruct>` → `TestDataReturns<TResult>` with `notnull` constraint
@@ -472,7 +472,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
-##### **v3.2.1** (Current: 2026-06-06)
+##### **Version 3.2.1** (Current: 2026-06-06)
 
 **Documentation:**
 - Enhanced XML documentation for `ValueFormatter` class with comprehensive method-level docs
