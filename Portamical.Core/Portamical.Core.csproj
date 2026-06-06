@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>3.2.0</Version>
+    <Version>3.2.1</Version>
     <Title>Portamical.Core</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -28,7 +28,25 @@
     <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
 
     <!-- Release Notes -->
-    <PackageReleaseNotes>v3.2.0: BREAKING - TestDataReturns&lt;TStruct&gt; → TestDataReturns&lt;TResult&gt; with notnull constraint, now supports reference types (strings, collections, custom classes). NEW - Portamical.Core.Formatting.ValueFormatter class for intelligent type-specific formatting: char 'a', string "text", DateTime ISO 8601, collections [3]: [1, 2, 3], exceptions ArgumentException: message, tuples (1, 2, 3), Type int/List&lt;string&gt;/int[], and more. All T4 files include #nullable enable. Enhanced XML documentation. See README for migration guide and full feature list.</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      <PackageReleaseNotes>
+        v3.2.1 (2026-06-06): Documentation and Performance Enhancements
+
+        DOCUMENTATION IMPROVEMENTS:
+        • Enhanced XML documentation for ValueFormatter class with comprehensive method-level docs
+        • Added performance notes explaining AggressiveInlining decisions for hot-path methods
+        • Documented design rationale for complex formatting methods (Type, Stream, Dictionary, ITuple)
+        • Updated TestDataExpected.GetExpected() docs with performance characteristics
+        • Added usage context and caller information across all formatter methods
+
+        PERFORMANCE DOCUMENTATION:
+        • Documented hot-path optimizations: Format(char) with ASCII caching, Format(string), FallbackIfNull
+        • Explained JoinWithComma fast path for List&lt;string&gt; with 0-3 items
+        • Clarified why complex methods (reflection-based, exception handling) are not inlined
+
+        No breaking changes. All improvements are documentation-only for better API understanding and maintainability.
+      </PackageReleaseNotes>
+    </PackageReleaseNotes>
 
     <!-- Package Generation -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>

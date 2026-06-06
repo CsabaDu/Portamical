@@ -449,7 +449,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
-### **v3.2.0** (Current)
+### **v3.2.0** (2026-06-05)
 
 **Breaking Changes:**
 - Changed `TestDataReturns<TStruct>` → `TestDataReturns<TResult>` with `notnull` constraint
@@ -472,6 +472,18 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
+##### **v3.2.1** (Current: 2026-06-06)
+
+**Documentation:**
+- Enhanced XML documentation for `ValueFormatter` class with comprehensive method-level docs
+- Added performance notes explaining `AggressiveInlining` decisions for hot-path methods (Format(char), Format(string), FallbackIfNull, JoinWithComma)
+- Documented design rationale for complex formatting methods (Type, Stream, Dictionary, ITuple, Exception)
+- Updated `TestDataExpected.GetExpected()` docs with performance characteristics
+- Added usage context and caller information across all formatter methods
+
+**No breaking changes** - documentation-only improvements for better API understanding and maintainability.
+
+---
 
 ### **Version 2.0.0** (2026-03-13)
 

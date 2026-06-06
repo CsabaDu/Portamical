@@ -4,6 +4,7 @@
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
+using System.Runtime.CompilerServices;
 using static Portamical.Core.Formatting.ValueFormatter;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
@@ -127,9 +128,17 @@ where TResult : notnull
     /// The <see cref="Expected"/> value as an <see cref="object"/>.
     /// </returns>
     /// <remarks>
+    /// <para>
     /// This method implements <see cref="IExpected.GetExpected()"/> by returning the
     /// strongly-typed <see cref="Expected"/> property as an object.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// to eliminate method call overhead. This is a hot path method called by every test framework
+    /// adapter during test execution.
+    /// </para>
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public object GetExpected()
     => Expected;
 
