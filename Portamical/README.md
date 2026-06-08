@@ -574,10 +574,19 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-##### **Version 3.2.1 (Current: 2026-06-06)**
+##### **Version 3.2.1 (2026-06-06)**
 
 **Updated**
 - Portamical.Core dependency updated to v3.2.1
+  - Maintains compatibility with latest Portamical.Core features and improvements
+  - No breaking changes or API modifications in this release
+
+---
+
+##### **Version 3.2.2 (Current: 2026-06-08)**
+
+**Updated**
+- Portamical.Core dependency updated to v3.2.2
   - Maintains compatibility with latest Portamical.Core features and improvements
   - No breaking changes or API modifications in this release
 
