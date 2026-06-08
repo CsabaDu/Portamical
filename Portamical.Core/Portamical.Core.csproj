@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>3.2.1</Version>
+    <Version>3.2.2</Version>
     <Title>Portamical.Core</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -29,23 +29,21 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      <PackageReleaseNotes>
-        v3.2.1 (2026-06-06): Documentation and Performance Enhancements
+      v3.2.2 (2026-06-08) - JoinWithComma Empty Collection Bugfix
 
-        DOCUMENTATION IMPROVEMENTS:
-        • Enhanced XML documentation for ValueFormatter class with comprehensive method-level docs
-        • Added performance notes explaining AggressiveInlining decisions for hot-path methods
-        • Documented design rationale for complex formatting methods (Type, Stream, Dictionary, ITuple)
-        • Updated TestDataExpected.GetExpected() docs with performance characteristics
-        • Added usage context and caller information across all formatter methods
+      Bug Fixes
+      - ValueFormatter.JoinWithComma: Fixed incorrect return value for empty collections
+      - Empty collections now correctly return empty string (`""`) instead of `"null"`
+      - Distinguishes between empty collection and collection with single null item
+      - Aligns behavior with `string.Join(", ", items)` semantics
 
-        PERFORMANCE DOCUMENTATION:
-        • Documented hot-path optimizations: Format(char) with ASCII caching, Format(string), FallbackIfNull
-        • Explained JoinWithComma fast path for List&lt;string&gt; with 0-3 items
-        • Clarified why complex methods (reflection-based, exception handling) are not inlined
+      No Breaking Changes
+      This is a patch release that fixes a bug in internal formatting behavior. Existing code continues to work as expected, with improved correctness for edge cases.
 
-        No breaking changes. All improvements are documentation-only for better API understanding and maintainability.
-      </PackageReleaseNotes>
+      Impact
+      - Tuple formatting: `Format(ValueTuple.Create())` now produces `"()"` instead of `"(null)"`
+      - Empty array formatting: `Format(Array.Empty&lt;int&gt;())` now produces `"[0]: []"` instead of `"[0]: [null]"`
+      - Generic type formatting with no type parameters (edge case) improved
     </PackageReleaseNotes>
 
     <!-- Package Generation -->

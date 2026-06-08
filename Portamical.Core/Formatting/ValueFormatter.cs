@@ -694,7 +694,10 @@ public static class ValueFormatter
     /// Joins a collection of pre-formatted string items into a comma-separated string.
     /// </summary>
     /// <param name="items">The collection of formatted string items to join. May contain null elements.</param>
-    /// <returns>A comma-separated string representation of the items, or an empty string if the collection is empty.</returns>
+    /// <returns>
+    /// A comma-separated string representation of the items. Returns an empty string for empty collections,
+    /// distinguishing them from collections containing a single null element (which returns <c>"null"</c>).
+    /// </returns>
     /// <remarks>
     /// <para>
     /// This helper method is used internally to join pre-formatted items into a single string
@@ -708,8 +711,8 @@ public static class ValueFormatter
     /// </para>
     /// <para>
     /// <strong>Null Handling:</strong> Accepts nullable strings (<c>string?</c>) in the input collection. 
-    /// Null items are passed to <see cref="string.Join(string, IEnumerable{string})"/> which treats them 
-    /// as empty strings in the output.
+    /// Null items are converted to <c>"null"</c> via <see cref="FallbackIfNull(string?)"/>, ensuring
+    /// clear distinction between empty collections and collections with null elements.
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -721,22 +724,23 @@ public static class ValueFormatter
     /// <example>
     /// <code>
     /// // Internal usage examples (items are already formatted)
+    /// JoinWithComma(Array.Empty&lt;string&gt;())             // Returns: "" (empty, not "null")
+    /// JoinWithComma(new string?[] { null })          // Returns: "null" (one null element)
     /// JoinWithComma(new[] { "'a'", "\"test\"", "42" })  // Returns: "'a', \"test\", 42"
     /// JoinWithComma(new[] { "1", "2", "3" })            // Returns: "1, 2, 3"
     /// JoinWithComma(new[] { "null", "\"x\"" })          // Returns: "null, \"x\""
-    /// JoinWithComma(Array.Empty&lt;string&gt;())             // Returns: ""
-    /// JoinWithComma(new string?[] { "a", null, "b" })   // Returns: "a, , b"
+    /// JoinWithComma(new string?[] { "a", null, "b" })   // Returns: "a, null, b"
     /// </code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? JoinWithComma(IEnumerable<string?> items)
     {
-        // Fast path for common case: List<string> with 1-3 items
+        // Fast path for common case: List<string> with 0-3 items
         if (items is List<string?> list)
         {
             return list.Count switch
             {
-                0 => NullString,
+                0 => string.Empty,
                 1 => FallbackIfNull(list[0]),
                 2 => $"{FallbackIfNull(list[0])}, {FallbackIfNull(list[1])}",
                 3 => $"{FallbackIfNull(list[0])}, {FallbackIfNull(list[1])}, {FallbackIfNull(list[2])}",

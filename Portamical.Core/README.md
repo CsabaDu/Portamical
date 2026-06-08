@@ -475,7 +475,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
-##### **Version 3.2.1** (Current: 2026-06-06)
+##### **Version 3.2.1** (2026-06-06)
 
 **Documentation:**
 - Enhanced XML documentation for `ValueFormatter` class with comprehensive method-level docs
@@ -485,6 +485,24 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 - Added usage context and caller information across all formatter methods
 
 **No breaking changes** - documentation-only improvements for better API understanding and maintainability.
+
+---
+
+##### **Version 3.2.2** (Current: 2026-06-08)
+
+**Bug Fixes**
+- **ValueFormatter.JoinWithComma**: Fixed incorrect return value for empty collections
+- Empty collections now correctly return empty string (`""`) instead of `"null"`
+- Distinguishes between empty collection and collection with single null item
+- Aligns behavior with `string.Join(", ", items)` semantics
+
+**No Breaking Changes**
+This is a patch release that fixes a bug in internal formatting behavior. Existing code continues to work as expected, with improved correctness for edge cases.
+
+**Impact**
+- Tuple formatting: `Format(ValueTuple.Create())` now produces `"()"` instead of `"(null)"`
+- Empty array formatting: `Format(Array.Empty<int>())` now produces `"[0]: []"` instead of `"[0]: [null]"`
+- Generic type formatting with no type parameters (edge case) improved
 
 ---
 

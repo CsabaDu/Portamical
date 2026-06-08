@@ -308,11 +308,35 @@ public class ValueFormatterTests
     }
 
     [TestMethod]
+    public void Format_withEmptyArray_returnsZeroCount()
+    {
+        var array = Array.Empty<int>();
+        var result = ValueFormatter.Format(array);
+        Assert.AreEqual("[0]: []", result);
+    }
+
+    [TestMethod]
     public void Format_withSingleItemCollection_returnsCountAndItem()
     {
         var list = new List<int> { 42 };
         var result = ValueFormatter.Format(list);
         Assert.AreEqual("[1]: [42]", result);
+    }
+
+    [TestMethod]
+    public void Format_withSingleNullItemCollection_returnsCountAndNull()
+    {
+        var list = new List<string?> { null };
+        var result = ValueFormatter.Format(list);
+        Assert.AreEqual("[1]: [null]", result);
+    }
+
+    [TestMethod]
+    public void Format_withTwoItemCollection_returnsCountAndBothItems()
+    {
+        var list = new List<int> { 1, 2 };
+        var result = ValueFormatter.Format(list);
+        Assert.AreEqual("[2]: [1, 2]", result);
     }
 
     [TestMethod]
@@ -361,6 +385,75 @@ public class ValueFormatterTests
         var list = new List<string?> { "a", null, "c" };
         var result = ValueFormatter.Format(list);
         Assert.AreEqual("[3]: [\"a\", null, \"c\"]", result);
+    }
+
+    [TestMethod]
+    public void Format_withCollectionOfTwoNulls_formatsBothAsNull()
+    {
+        var list = new List<string?> { null, null };
+        var result = ValueFormatter.Format(list);
+        Assert.AreEqual("[2]: [null, null]", result);
+    }
+
+    [TestMethod]
+    public void Format_withCollectionOfThreeNulls_formatsAllAsNull()
+    {
+        var list = new List<string?> { null, null, null };
+        var result = ValueFormatter.Format(list);
+        Assert.AreEqual("[3]: [null, null, null]", result);
+    }
+    #endregion
+
+    #region JoinWithComma Edge Cases - Empty vs Single Null
+    [TestMethod]
+    public void Format_emptyCollection_distinguishedFromSingleNullElement()
+    {
+        var emptyList = new List<string?>();
+        var singleNullList = new List<string?> { null };
+
+        var emptyResult = ValueFormatter.Format(emptyList);
+        var nullResult = ValueFormatter.Format(singleNullList);
+
+        // Empty collection returns empty brackets
+        Assert.AreEqual("[0]: []", emptyResult);
+
+        // Single null element returns "null" inside brackets
+        Assert.AreEqual("[1]: [null]", nullResult);
+
+        // Verify they are different
+        Assert.AreNotEqual(emptyResult, nullResult);
+    }
+
+    [TestMethod]
+    public void Format_emptyTuple_returnsEmptyParens()
+    {
+        var tuple = ValueTuple.Create();
+        var result = ValueFormatter.Format(tuple);
+        Assert.AreEqual("()", result);
+    }
+
+    [TestMethod]
+    public void Format_tupleWithSingleNull_returnsNullInParens()
+    {
+        var tuple = ValueTuple.Create<string?>(null);
+        var result = ValueFormatter.Format(tuple);
+        Assert.AreEqual("(null)", result);
+    }
+
+    [TestMethod]
+    public void Format_tupleWithTwoNulls_returnsNullsInParens()
+    {
+        var tuple = (default(string), default(string));
+        var result = ValueFormatter.Format(tuple);
+        Assert.AreEqual("(null, null)", result);
+    }
+
+    [TestMethod]
+    public void Format_tupleWithThreeNulls_returnsNullsInParens()
+    {
+        var tuple = (default(string), default(string), default(string));
+        var result = ValueFormatter.Format(tuple);
+        Assert.AreEqual("(null, null, null)", result);
     }
     #endregion
 
