@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>3.2.2</Version>
+    <Version>3.3.0</Version>
     <Title>Portamical.Core</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -29,21 +29,21 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v3.2.2 (2026-06-08) - JoinWithComma Empty Collection Bugfix
+      v3.3.0 (2026-01-15)
 
-      Bug Fixes
-      - ValueFormatter.JoinWithComma: Fixed incorrect return value for empty collections
-      - Empty collections now correctly return empty string (`""`) instead of `"null"`
-      - Distinguishes between empty collection and collection with single null item
-      - Aligns behavior with `string.Join(", ", items)` semantics
+      Added:
+      - Delegate formatting support in ValueFormatter.Format() method
+        • Formats Func&lt;T&gt;, Action&lt;T&gt;, Predicate&lt;T&gt;, and custom delegate types
+        • Distinguishes between named methods (e.g., "WriteLine") and anonymous lambdas
+        • Output format: "DelegateType (methodName)" or "DelegateType (anonymous)"
+        • Examples: "Func&lt;int, string&gt; (anonymous)", "Action&lt;string&gt; (WriteLine)"
 
-      No Breaking Changes
-      This is a patch release that fixes a bug in internal formatting behavior. Existing code continues to work as expected, with improved correctness for edge cases.
+      Improved:
+      - Optimized pattern matching in ValueFormatter (removed redundant string check)
 
-      Impact
-      - Tuple formatting: `Format(ValueTuple.Create())` now produces `"()"` instead of `"(null)"`
-      - Empty array formatting: `Format(Array.Empty&lt;int&gt;())` now produces `"[0]: []"` instead of `"[0]: [null]"`
-      - Generic type formatting with no type parameters (edge case) improved
+      Documentation:
+      - Added comprehensive XML documentation for delegate formatting
+      - Added delegate examples to Format() method documentation
     </PackageReleaseNotes>
 
     <!-- Package Generation -->

@@ -74,7 +74,7 @@ This version introduces significant enhancements to the test data type hierarchy
 ## Install
 
 ```bash
-dotnet add package Portamical.Core --version 3.2.0
+dotnet add package Portamical.Core
 ```
 
 > You will typically also install a Portamical adapter package for your test framework (xUnit / MSTest / NUnit).
@@ -206,10 +206,10 @@ Portamical.Core/
 
 | Layer | Role | Example Types |
 |-------|------|--------------|
-| **Base Interfaces** | Universal access across all test types | `ITestData`, `INamedCase` |
-| **Markers** | Intent discovery & pattern matching | `IExpected`, `IReturns`, `IThrows` |
-| **Generic Constraints** | Compile-time type safety | `IExpected<TResult>`, `IReturns<TResult>`, `IThrows<TException>` |
-| **Concrete Implementations** | Type-safe operations with context | `TestData<T1...T9>`, `TestDataReturns<TResult, T1...T9>`, `TestDataThrows<TException, T1...T9>` |
+| **Identity** | Test case naming, equality & deduplication | `ITestData` |
+| **Core Abstraction** | Universal access across all test types | `INamedCase`, `NamedCase` |
+| **Pattern Markers** | Intent discovery, pattern matching & compile-time type safety | Marker interfaces: `IExpected`, `IReturns`, `IThrows`; Generic constraints: `IExpected<TResult>`, `IReturns<TResult>`, `IThrows<TException>` |
+| **Specializations** | Type-safe operations with context | `TestData<T1...T9>`, `TestDataReturns<TResult, T1...T9>`, `TestDataThrows<TException, T1...T9>` |
 
 ---
 
@@ -505,6 +505,27 @@ This is a patch release that fixes a bug in internal formatting behavior. Existi
 - Generic type formatting with no type parameters (edge case) improved
 
 ---
+
+#### **Version 3.3.0 - Current** (2026-06-08)
+
+**Added**
+- Delegate formatting support in `ValueFormatter.Format()` method
+  - Formats `Func<T>`, `Action<T>`, `Predicate<T>`, and custom delegates
+  - Distinguishes between named methods (e.g., `WriteLine`) and anonymous lambdas
+  - Output format: `"DelegateType (methodName)"` or `"DelegateType (anonymous)"`
+  - Examples:
+    - `Func<int, string> (anonymous)` for lambda expressions
+    - `Action<string> (WriteLine)` for method references
+
+**Improved**
+- Removed redundant `when expected is not string` clause in pattern matching
+  (no behavior change - optimization only)
+
+**Documentation**
+- Added comprehensive XML documentation for delegate formatting
+- Added delegate examples to `Format()` method documentation
+
+--
 
 ### **Version 2.0.0** (2026-03-13)
 
