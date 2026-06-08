@@ -175,10 +175,13 @@ public static class ValueFormatter
     public static string? Format(object? expected)
     => expected switch
     {
+        // string, ITuple (Tuple/ValueTuple) and KeyValuePair
+        // must be checked before IEnumerable
+        // (since these implement IEnumerable)
+        // IDictionary is checked separately in Format(IEnumerable)
+        // to delegate to Format(IDictionary, string?)
         null                            => null,
         char ch                         => Format(ch),
-        // string must be checked before IEnumerable
-        // (since string implements IEnumerable)
         string str                      => Format(str),
         Type type                       => Format(type),
         DateTime dt                     => Format(dt.ToString, "O"),
@@ -186,14 +189,10 @@ public static class ValueFormatter
         Guid guid                       => Format(guid.ToString, "D"),
         byte[] bytes                    => Format(BitConverter.ToString, bytes),
         Exception ex                    => Format(ex),
-        // KeyValuePair must be checked before IEnumerable
-        // (since KVP implements IEnumerable in some contexts)
         _ when IsKeyValuePair(
             expected,
             out var key,
             out var value)              => Format(key, value),
-        // ITuple (Tuple/ValueTuple) must be checked before IEnumerable
-        // (since tuples implement IEnumerable)
         ITuple tuple                    => Format(tuple),
         IEnumerable coll                => Format(coll),
         Stream stream                   => Format(stream),
