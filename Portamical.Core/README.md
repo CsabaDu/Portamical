@@ -45,7 +45,7 @@ This version introduces significant enhancements to the test data type hierarchy
 2. **Intelligent Value Formatting (ValueFormatter)**
    - **NEW:** `Portamical.Core.Formatting.ValueFormatter` class for type-specific formatting
    - **Automatic formatting** for char, string, DateTime, Guid, collections, exceptions, tuples, and more
-   - **Readable test case names** without manual string conversion
+   - **Readable test case names** without manual string conversion  
 
    **Supported Formats:**  
 
