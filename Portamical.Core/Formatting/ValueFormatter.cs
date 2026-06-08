@@ -177,6 +177,8 @@ public static class ValueFormatter
     {
         null                            => null,
         char ch                         => Format(ch),
+        // string must be checked before IEnumerable
+        // (since string implements IEnumerable)
         string str                      => Format(str),
         Type type                       => Format(type),
         DateTime dt                     => Format(dt.ToString, "O"),
@@ -193,8 +195,7 @@ public static class ValueFormatter
         // ITuple (Tuple/ValueTuple) must be checked before IEnumerable
         // (since tuples implement IEnumerable)
         ITuple tuple                    => Format(tuple),
-        IEnumerable coll
-            when expected is not string => Format(coll),
+        IEnumerable coll                => Format(coll),
         Stream stream                   => Format(stream),
         _                               => expected.ToString() ?? null,
     };
