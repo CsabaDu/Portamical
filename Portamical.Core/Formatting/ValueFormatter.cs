@@ -102,6 +102,10 @@ public static class ValueFormatter
     ///     <description>C#-friendly type name: <c>int</c>, <c>List&lt;string&gt;</c>, <c>int?</c>, <c>int[]</c> (via <c>Format(Type)</c>)</description>
     ///   </item>
     ///   <item>
+    ///     <term><see cref="Delegate"/></term>
+    ///     <description>Type and method name: <c>Func&lt;int, string&gt; (MethodName)</c> or <c>Action (anonymous)</c> (via <c>Format(Delegate)</c>)</description>
+    ///   </item>
+    ///   <item>
     ///     <term><see cref="IEnumerable"/></term>
     ///     <description>First <see cref="MaxCount"/> (3) items: <c>[3]: [1, 2, 3]</c> or <c>[First 3 of 5+]: [1, 2, 3]</c> (via <c>Format(IEnumerable)</c>)</description>
     ///   </item>
@@ -168,6 +172,12 @@ public static class ValueFormatter
     /// Format(typeof(int?))                         // Returns: "int?"
     /// Format(typeof(int[]))                        // Returns: "int[]"
     /// 
+    /// // Delegates
+    /// Func&lt;int, string&gt; func = x => x.ToString();
+    /// Format(func)                                 // Returns: "Func&lt;int, string&gt; (anonymous)"
+    /// Action&lt;string&gt; action = Console.WriteLine;
+    /// Format(action)                               // Returns: "Action&lt;string&gt; (WriteLine)"
+    /// 
     /// // Null (signals failure)
     /// Format(null)  // Returns: null
     /// </code>
@@ -194,6 +204,7 @@ public static class ValueFormatter
             out var key,
             out var value)              => Format(key, value),
         ITuple tuple                    => Format(tuple),
+        Delegate del                    => Format(del),
         IEnumerable coll                => Format(coll),
         Stream stream                   => Format(stream),
         _                               => expected.ToString() ?? null,
@@ -326,6 +337,65 @@ public static class ValueFormatter
     /// </example>
     private static string? Format(Exception exception)
     => $"{exception.GetType().Name}: {exception.Message}";
+
+    /// <summary>
+    /// Formats a <see cref="Delegate"/> showing its type and method name.
+    /// </summary>
+    /// <param name="del">The delegate to format.</param>
+    /// <returns>
+    /// A string in the form <c>"DelegateType (MethodName)"</c> for named methods,
+    /// or <c>"DelegateType (anonymous)"</c> for anonymous methods and lambdas.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// Formats delegates (including <see cref="Func{TResult}"/>, <see cref="Action"/>, 
+    /// and custom delegate types) into readable strings suitable for test case names.
+    /// The output includes the delegate's type with generic parameters formatted using
+    /// <see cref="Format(Type)"/> for C#-friendly type names.
+    /// </para>
+    /// <para>
+    /// <strong>Method Name Detection:</strong> Distinguishes between:
+    /// <list type="bullet">
+    ///   <item><strong>Named methods:</strong> Shows the actual method name (e.g., <c>WriteLine</c>, <c>ToString</c>)</item>
+    ///   <item><strong>Anonymous methods/lambdas:</strong> Shows <c>"anonymous"</c> for compiler-generated names</item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// because delegate formatting involves type formatting and string operations. Delegate
+    /// formatting is infrequent compared to primitive types.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Anonymous lambda
+    /// Func&lt;int, string&gt; func = x => x.ToString();
+    /// Format(func)  // Returns: "Func&lt;int, string&gt; (anonymous)"
+    /// 
+    /// // Named method reference
+    /// Action&lt;string&gt; action = Console.WriteLine;
+    /// Format(action)  // Returns: "Action&lt;string&gt; (WriteLine)"
+    /// 
+    /// // Simple Action
+    /// Action simple = () => Console.WriteLine("test");
+    /// Format(simple)  // Returns: "Action (anonymous)"
+    /// 
+    /// // Custom delegate
+    /// Predicate&lt;int&gt; pred = IsPositive;
+    /// Format(pred)  // Returns: "Predicate&lt;int&gt; (IsPositive)"
+    /// </code>
+    /// </example>
+    private static string? Format(Delegate del)
+    {
+        var delegateType = Format(del.GetType());
+        var methodName = del.Method.Name;
+
+        // Detect compiler-generated names for anonymous methods/lambdas
+        var isAnonymous = methodName.Contains('<') || methodName.Contains('>') || methodName.StartsWith("lambda_");
+        var displayName = isAnonymous ? "anonymous" : methodName;
+
+        return $"{delegateType} ({displayName})";
+    }
 
     /// <summary>
     /// Formats a <see cref="Type"/> into a C#-friendly type name.
