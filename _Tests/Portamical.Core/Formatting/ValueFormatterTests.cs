@@ -222,6 +222,131 @@ public class ValueFormatterTests
     }
     #endregion
 
+    #region Format(Delegate)
+    [TestMethod]
+    public void Format_withAnonymousLambda_returnsTypeAndAnonymous()
+    {
+        Func<int, string> func = x => x.ToString();
+        var result = ValueFormatter.Format(func);
+        Assert.Contains("Func<int, string>", result!);
+        Assert.Contains("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withNamedMethodReference_returnsTypeAndMethodName()
+    {
+        Action<string> action = Console.WriteLine;
+        var result = ValueFormatter.Format(action);
+        Assert.Contains("Action<string>", result!);
+        Assert.Contains("WriteLine", result!);
+        Assert.DoesNotContain("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withSimpleActionLambda_returnsTypeAndAnonymous()
+    {
+        Action simple = () => Console.WriteLine("test");
+        var result = ValueFormatter.Format(simple);
+        Assert.Contains("Action", result!);
+        Assert.Contains("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withFuncNamedMethod_returnsTypeAndMethodName()
+    {
+        Func<int, string> func = ConvertIntToString;
+        var result = ValueFormatter.Format(func);
+        Assert.Contains("Func<int, string>", result!);
+        Assert.Contains("ConvertIntToString", result!);
+        Assert.DoesNotContain("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withPredicateLambda_returnsTypeAndAnonymous()
+    {
+        Predicate<int> pred = x => x > 0;
+        var result = ValueFormatter.Format(pred);
+        Assert.Contains("Predicate<int>", result!);
+        Assert.Contains("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withPredicateNamedMethod_returnsTypeAndMethodName()
+    {
+        Predicate<int> pred = IsPositive;
+        var result = ValueFormatter.Format(pred);
+        Assert.Contains("Predicate<int>", result!);
+        Assert.Contains("IsPositive", result!);
+        Assert.DoesNotContain("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withMulticastDelegate_returnsTypeAndMethodName()
+    {
+        Action action = TestMethod;
+        var result = ValueFormatter.Format(action);
+        Assert.Contains("Action", result!);
+        Assert.Contains("TestMethod", result!);
+    }
+
+    [TestMethod]
+    public void Format_withActionOfTwoParams_returnsTypeAndAnonymous()
+    {
+        Action<int, string> action = (x, s) => Console.WriteLine($"{x}: {s}");
+        var result = ValueFormatter.Format(action);
+        Assert.Contains("Action<int, string>", result!);
+        Assert.Contains("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withFuncOfThreeParams_returnsTypeAndAnonymous()
+    {
+        Func<int, string, bool, string> func = (x, s, b) => $"{x}-{s}-{b}";
+        var result = ValueFormatter.Format(func);
+        Assert.Contains("Func<int, string, bool, string>", result!);
+        Assert.Contains("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withCustomDelegate_returnsTypeAndMethodName()
+    {
+        Comparison<int> comparison = CompareInts;
+        var result = ValueFormatter.Format(comparison);
+        Assert.Contains("Comparison<int>", result!);
+        Assert.Contains("CompareInts", result!);
+    }
+
+    [TestMethod]
+    public void Format_withEventHandler_returnsTypeAndAnonymous()
+    {
+        EventHandler handler = (sender, e) => Console.WriteLine("Event fired");
+        var result = ValueFormatter.Format(handler);
+        Assert.Contains("EventHandler", result!);
+        Assert.Contains("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withLocalFunction_returnsTypeAndAnonymous()
+    {
+        static string LocalFunc(int x) => x.ToString();
+        Func<int, string> func = LocalFunc;
+        var result = ValueFormatter.Format(func);
+        Assert.Contains("Func<int, string>", result!);
+        // Local functions are compiler-generated and appear as anonymous
+        Assert.Contains("anonymous", result!);
+    }
+
+
+    // Helper methods for delegate tests
+    private static bool IsPositive(int x) => x > 0;
+    private static void TestMethod()
+    {
+        // Intentionally empty - used as a named method reference for delegate formatting tests
+    }
+    private static string ConvertIntToString(int x) => x.ToString();
+    private static int CompareInts(int x, int y) => x.CompareTo(y);
+    #endregion
+
     #region Format(KeyValuePair)
     [TestMethod]
     public void Format_withKeyValuePairStringInt_returnsFormattedPair()
