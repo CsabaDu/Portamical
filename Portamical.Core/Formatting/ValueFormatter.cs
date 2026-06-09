@@ -862,13 +862,13 @@ public static class ValueFormatter
         }
 
         // Extract Key and Value properties
-        key = getValue("Key");
-        value = getValue("Value");
+        key = getPropertyValue("Key");
+        value = getPropertyValue("Value");
 
         return true;
 
         #region Local methods
-        object? getValue(string propertyName)
+        object? getPropertyValue(string propertyName)
         => type.GetProperty(propertyName)?.GetValue(obj);
         #endregion
     }
