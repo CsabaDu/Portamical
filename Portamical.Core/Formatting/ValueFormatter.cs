@@ -34,6 +34,7 @@ public static class ValueFormatter
 {
     private const string NullString = "null";
     private const int MaxCount = 3;
+    // Cache common char formats (ASCII printable)
     private static readonly string[] CharFormats =
         [.. Enumerable.Range(32, 95).Select(i => $"'{(char)i}'")];
 
@@ -185,11 +186,11 @@ public static class ValueFormatter
     public static string? Format(object? expected)
     => expected switch
     {
-        // string, ITuple (Tuple/ValueTuple) and KeyValuePair
+        // - string, ITuple (Tuple/ValueTuple) and KeyValuePair
         // must be checked before IEnumerable
-        // (since these implement IEnumerable)
-        // IDictionary is checked separately in Format(IEnumerable)
-        // to delegate to Format(IDictionary, string?)
+        // (since these implement or may implement IEnumerable).
+        // - IDictionary is checked separately in Format(IEnumerable)
+        // to delegate to Format(IDictionary, string?).
         null                            => null,
         char ch                         => Format(ch),
         string str                      => Format(str),
@@ -199,8 +200,7 @@ public static class ValueFormatter
         Guid guid                       => Format(guid.ToString, "D"),
         byte[] bytes                    => Format(BitConverter.ToString, bytes),
         Exception ex                    => Format(ex),
-        _ when IsKeyValuePair(
-            expected,
+        _ when IsKeyValuePair(expected,
             out var key,
             out var value)              => Format(key, value),
         ITuple tuple                    => Format(tuple),
@@ -210,7 +210,7 @@ public static class ValueFormatter
         _                               => expected.ToString() ?? null,
     };
 
-    #region Formatter methods
+    #region Private formatter methods
     /// <summary>
     /// Formats an object by invoking a provided formatting function.
     /// </summary>
@@ -258,7 +258,6 @@ public static class ValueFormatter
     /// Format('\u0041') // Returns: "'A'" (cached)
     /// </code>
     /// </example>
-    // Cache common char formats (ASCII printable)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? Format(char ch)
     {
@@ -337,6 +336,80 @@ public static class ValueFormatter
     /// </example>
     private static string? Format(Exception exception)
     => $"{exception.GetType().Name}: {exception.Message}";
+
+    /// <summary>
+    /// Formats a KeyValuePair's key and value into a readable string.
+    /// </summary>
+    /// <param name="key">The key object (may be null for reference types).</param>
+    /// <param name="value">The value object (may be null for reference types).</param>
+    /// <returns>A formatted string in the form <c>"{key: value}"</c>.</returns>
+    /// <remarks>
+    /// <para>
+    /// Recursively calls <see cref="Format(object?)"/> for both key and value to ensure
+    /// consistent formatting (e.g., strings are quoted, chars are single-quoted, etc.).
+    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <c>"null"</c>.
+    /// </para>
+    /// <para>
+    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// because it calls recursive formatting and string interpolation. KeyValuePair formatting
+    /// is typically part of dictionary/collection formatting rather than a standalone hot path.
+    /// </para>
+    /// </remarks>
+    private static string? Format(object? key, object? value)
+    {
+        var formattedKey = FallbackIfNull(Format(key));
+        var formattedValue = FallbackIfNull(Format(value));
+
+        return $"{{{formattedKey}: {formattedValue}}}";
+    }
+
+    /// <summary>
+    /// Formats a <see cref="Tuple"/> or <see cref="ValueTuple"/> into a human-readable string.
+    /// </summary>
+    /// <param name="tuple">The tuple to format (accessed via <see cref="ITuple"/> interface).</param>
+    /// <returns>A formatted string in the form <c>"(item1, item2, ...)"</c>.</returns>
+    /// <remarks>
+    /// <para>
+    /// Uses the <see cref="ITuple"/> interface to access tuple elements generically,
+    /// supporting both <see cref="Tuple"/> (reference type) and <see cref="ValueTuple"/> (value type)
+    /// of any arity (1-8+ elements, including nested tuples).
+    /// </para>
+    /// <para>
+    /// Recursively calls <see cref="Format(object?)"/> for each element to ensure
+    /// consistent formatting across all types (strings quoted, dates in ISO 8601, etc.).
+    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <c>"null"</c>.
+    /// </para>
+    /// <para>
+    /// <strong>Why use ITuple instead of Tuple.ToString()?</strong>
+    /// While <see cref="Tuple.ToString"/> produces <c>(item1, item2)</c> output,
+    /// this method applies our custom formatting rules recursively. For example,
+    /// strings are double-quoted, chars are single-quoted, and dates use ISO 8601 format.
+    /// </para>
+    /// <para>
+    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// due to the loop and recursive formatting. Tuple formatting is not a hot path in typical usage.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// Format((1, 2, 3))                    // Returns: "(1, 2, 3)"
+    /// Format(("hello", 'a', true))         // Returns: "(\"hello\", 'a', True)"
+    /// Format(Tuple.Create(1, "test"))     // Returns: "(1, \"test\")"
+    /// Format(("date", DateTime.UtcNow))    // Returns: "(\"date\", 2026-01-15T10:30:00.0000000Z)"
+    /// </code>
+    /// </example>
+    private static string? Format(ITuple tuple)
+    {
+        var items = new List<string>(tuple.Length);
+
+        for (int i = 0; i < tuple.Length; i++)
+        {
+            var item = tuple[i];
+            items.Add(FallbackIfNull(Format(item)));
+        }
+
+        return $"({JoinWithComma(items)})";
+    }
 
     /// <summary>
     /// Formats a <see cref="Delegate"/> showing its type and method name.
@@ -483,62 +556,6 @@ public static class ValueFormatter
     }
 
     /// <summary>
-    /// Formats a <see cref="Stream"/> showing its type, length, and current position.
-    /// </summary>
-    /// <param name="stream">The stream to format.</param>
-    /// <returns>
-    /// A string showing the stream's type name, length (if seekable), and current position;
-    /// or <see langword="null"/> if accessing stream properties throws an exception.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Seekable Streams:</strong> Includes both <see cref="Stream.Length"/> and <see cref="Stream.Position"/>.
-    /// </para>
-    /// <para>
-    /// <strong>Non-Seekable Streams:</strong> Includes only <see cref="Stream.Position"/> (length unavailable).
-    /// </para>
-    /// <para>
-    /// <strong>Error Handling:</strong> Returns <see langword="null"/> if accessing stream properties
-    /// throws an exception (e.g., disposed stream, network stream with disconnected socket).
-    /// This allows callers to use fallback formatting via <see cref="Resolver.FallbackIfNullOrWhiteSpace"/>.
-    /// </para>
-    /// <para>
-    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because it contains exception handling and conditional logic. Stream formatting is not a hot path.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// var ms = new MemoryStream(new byte[1024]);
-    /// Format(ms)  // Returns: "MemoryStream (Length: 1024, Position: 0)"
-    /// 
-    /// var ns = new NetworkStream(socket);
-    /// Format(ns)  // Returns: "NetworkStream (Position: 0)"
-    /// 
-    /// disposedStream.Dispose();
-    /// Format(disposedStream)  // Returns: null (exception caught)
-    /// </code>
-    /// </example>
-    private static string? Format(Stream stream)
-    {
-        var typeName = stream.GetType().Name;
-
-        try
-        {
-            if (stream.CanSeek)
-            {
-                return $"{typeName} (Length: {stream.Length}, Position: {stream.Position})";
-            }
-
-            return $"{typeName} (Position: {stream.Position})";
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    /// <summary>
     /// Formats an <see cref="IEnumerable"/> collection showing the first <see cref="MaxCount"/> items.
     /// </summary>
     /// <param name="coll">The collection to format.</param>
@@ -660,77 +677,59 @@ public static class ValueFormatter
     }
 
     /// <summary>
-    /// Formats a KeyValuePair's key and value into a readable string.
+    /// Formats a <see cref="Stream"/> showing its type, length, and current position.
     /// </summary>
-    /// <param name="key">The key object (may be null for reference types).</param>
-    /// <param name="value">The value object (may be null for reference types).</param>
-    /// <returns>A formatted string in the form <c>"{key: value}"</c>.</returns>
+    /// <param name="stream">The stream to format.</param>
+    /// <returns>
+    /// A string showing the stream's type name, length (if seekable), and current position;
+    /// or <see langword="null"/> if accessing stream properties throws an exception.
+    /// </returns>
     /// <remarks>
     /// <para>
-    /// Recursively calls <see cref="Format(object?)"/> for both key and value to ensure
-    /// consistent formatting (e.g., strings are quoted, chars are single-quoted, etc.).
-    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <c>"null"</c>.
+    /// <strong>Seekable Streams:</strong> Includes both <see cref="Stream.Length"/> and <see cref="Stream.Position"/>.
+    /// </para>
+    /// <para>
+    /// <strong>Non-Seekable Streams:</strong> Includes only <see cref="Stream.Position"/> (length unavailable).
+    /// </para>
+    /// <para>
+    /// <strong>Error Handling:</strong> Returns <see langword="null"/> if accessing stream properties
+    /// throws an exception (e.g., disposed stream, network stream with disconnected socket).
+    /// This allows callers to use fallback formatting via <see cref="Resolver.FallbackIfNullOrWhiteSpace"/>.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because it calls recursive formatting and string interpolation. KeyValuePair formatting
-    /// is typically part of dictionary/collection formatting rather than a standalone hot path.
-    /// </para>
-    /// </remarks>
-    private static string? Format(object? key, object? value)
-    {
-        var formattedKey = FallbackIfNull(Format(key));
-        var formattedValue = FallbackIfNull(Format(value));
-
-        return $"{{{formattedKey}: {formattedValue}}}";
-    }
-
-    /// <summary>
-    /// Formats a <see cref="Tuple"/> or <see cref="ValueTuple"/> into a human-readable string.
-    /// </summary>
-    /// <param name="tuple">The tuple to format (accessed via <see cref="ITuple"/> interface).</param>
-    /// <returns>A formatted string in the form <c>"(item1, item2, ...)"</c>.</returns>
-    /// <remarks>
-    /// <para>
-    /// Uses the <see cref="ITuple"/> interface to access tuple elements generically,
-    /// supporting both <see cref="Tuple"/> (reference type) and <see cref="ValueTuple"/> (value type)
-    /// of any arity (1-8+ elements, including nested tuples).
-    /// </para>
-    /// <para>
-    /// Recursively calls <see cref="Format(object?)"/> for each element to ensure
-    /// consistent formatting across all types (strings quoted, dates in ISO 8601, etc.).
-    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <c>"null"</c>.
-    /// </para>
-    /// <para>
-    /// <strong>Why use ITuple instead of Tuple.ToString()?</strong>
-    /// While <see cref="Tuple.ToString"/> produces <c>(item1, item2)</c> output,
-    /// this method applies our custom formatting rules recursively. For example,
-    /// strings are double-quoted, chars are single-quoted, and dates use ISO 8601 format.
-    /// </para>
-    /// <para>
-    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// due to the loop and recursive formatting. Tuple formatting is not a hot path in typical usage.
+    /// because it contains exception handling and conditional logic. Stream formatting is not a hot path.
     /// </para>
     /// </remarks>
     /// <example>
     /// <code>
-    /// Format((1, 2, 3))                    // Returns: "(1, 2, 3)"
-    /// Format(("hello", 'a', true))         // Returns: "(\"hello\", 'a', True)"
-    /// Format(Tuple.Create(1, "test"))     // Returns: "(1, \"test\")"
-    /// Format(("date", DateTime.UtcNow))    // Returns: "(\"date\", 2026-01-15T10:30:00.0000000Z)"
+    /// var ms = new MemoryStream(new byte[1024]);
+    /// Format(ms)  // Returns: "MemoryStream (Length: 1024, Position: 0)"
+    /// 
+    /// var ns = new NetworkStream(socket);
+    /// Format(ns)  // Returns: "NetworkStream (Position: 0)"
+    /// 
+    /// disposedStream.Dispose();
+    /// Format(disposedStream)  // Returns: null (exception caught)
     /// </code>
     /// </example>
-    private static string? Format(ITuple tuple)
+    private static string? Format(Stream stream)
     {
-        var items = new List<string>(tuple.Length);
+        var typeName = stream.GetType().Name;
 
-        for (int i = 0; i < tuple.Length; i++)
+        try
         {
-            var item = tuple[i];
-            items.Add(FallbackIfNull(Format(item)));
-        }
+            if (stream.CanSeek)
+            {
+                return $"{typeName} (Length: {stream.Length}, Position: {stream.Position})";
+            }
 
-        return $"({JoinWithComma(items)})";
+            return $"{typeName} (Position: {stream.Position})";
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     #endregion
