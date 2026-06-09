@@ -862,10 +862,15 @@ public static class ValueFormatter
         }
 
         // Extract Key and Value properties
-        key = type.GetProperty("Key")?.GetValue(obj);
-        value = type.GetProperty("Value")?.GetValue(obj);
+        key = getValue("Key");
+        value = getValue("Value");
 
         return true;
+
+        #region Local methods
+        object? getValue(string propertyName)
+        => type.GetProperty(propertyName)?.GetValue(obj);
+        #endregion
     }
 
     /// <summary>
