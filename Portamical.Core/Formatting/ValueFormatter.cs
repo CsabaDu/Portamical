@@ -987,23 +987,23 @@ public static class ValueFormatter
     private static string GetCSharpAlias(Type type)
     => type.FullName switch
     {
-        "System.Boolean" => "bool",
-        "System.Byte" => "byte",
-        "System.SByte" => "sbyte",
-        "System.Char" => "char",
-        "System.Decimal" => "decimal",
-        "System.Double" => "double",
-        "System.Single" => "float",
-        "System.Int32" => "int",
-        "System.UInt32" => "uint",
-        "System.Int64" => "long",
-        "System.UInt64" => "ulong",
-        "System.Int16" => "short",
-        "System.UInt16" => "ushort",
-        "System.Object" => "object",
-        "System.String" => "string",
-        "System.Void" => "void",
-        _ => type.Name
+        "System.Boolean"    => "bool",
+        "System.Byte"       => "byte",
+        "System.SByte"      => "sbyte",
+        "System.Char"       => "char",
+        "System.Decimal"    => "decimal",
+        "System.Double"     => "double",
+        "System.Single"     => "float",
+        "System.Int32"      => "int",
+        "System.UInt32"     => "uint",
+        "System.Int64"      => "long",
+        "System.UInt64"     => "ulong",
+        "System.Int16"      => "short",
+        "System.UInt16"     => "ushort",
+        "System.Object"     => "object",
+        "System.String"     => "string",
+        "System.Void"       => "void",
+        _                   => type.Name
     };
 
     #endregion
