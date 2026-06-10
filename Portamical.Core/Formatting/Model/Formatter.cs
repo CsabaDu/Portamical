@@ -111,6 +111,62 @@ public abstract class Formatter : IFormatter
     public static string FallbackIfNull(string? str)
     => str ?? NullString;
 
+    /// <summary>
+    /// Creates a zero-allocation string by concatenating three parts: base, separator, and appendix.
+    /// </summary>
+    /// <param name="totalLength">The exact total length of the final string (must equal baseString.Length + separator.Length + appendix.Length).</param>
+    /// <param name="baseString">The first part of the string (prefix).</param>
+    /// <param name="separator">The middle part separating the base from the appendix.</param>
+    /// <param name="appendix">The final part of the string (suffix).</param>
+    /// <returns>A newly created string containing all three parts concatenated in order.</returns>
+    /// <remarks>
+    /// <para>
+    /// This helper method provides zero-allocation string assembly for three-part patterns
+    /// using <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/>.
+    /// It eliminates intermediate allocations from string interpolation, concatenation operators,
+    /// or <see cref="StringBuilder"/> for this common fixed-layout pattern.
+    /// </para>
+    /// <para>
+    /// <strong>Usage Pattern:</strong> Primarily used to construct test case names and formatted output
+    /// where a base string (e.g., class/method name) is followed by a separator (e.g., <c>" - "</c>)
+    /// and an appendix (e.g., formatted parameter values). The caller is responsible for pre-calculating
+    /// <paramref name="totalLength"/> to match the combined length of all three parts.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Uses <see cref="CopyAsSpan(string, Span{char}, int)"/> to perform
+    /// efficient span-based character copying without intermediate allocations. The static lambda ensures
+    /// no closure allocations, and the tuple state captures all three string references for the copy operation.
+    /// This approach is faster and more memory-efficient than string concatenation or interpolation for
+    /// multi-part strings where lengths are known in advance.
+    /// </para>
+    /// <para>
+    /// <strong>Safety:</strong> The caller must ensure <paramref name="totalLength"/> exactly matches
+    /// <c>baseString.Length + separator.Length + appendix.Length</c>. Providing an incorrect length
+    /// will cause <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/> to throw
+    /// an exception if the span is too small, or produce a string with uninitialized characters if too large.
+    /// </para>
+    /// <para>
+    /// <strong>Used By:</strong> <see cref="TestDataBase"/> (for test case name formatting),
+    /// <see cref="JoinWithComma(IEnumerable{string?})"/> (for two-item list fast path), and potentially
+    /// other formatters requiring three-part string assembly.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Typical usage: "TestMethod - param1, param2"
+    /// var baseStr = "TestMethod";
+    /// var sep = " - ";
+    /// var app = "param1, param2";
+    /// var totalLen = baseStr.Length + sep.Length + app.Length; // 14 + 3 + 13 = 30
+    /// 
+    /// var testCaseName = CreateSeparatedString(totalLen, baseStr, sep, app);
+    /// // Result: "TestMethod - param1, param2"
+    /// 
+    /// // Another example: "Class.Method: value"
+    /// var result = CreateSeparatedString(18, "Class.Method", ": ", "value");
+    /// // Result: "Class.Method: value"
+    /// </code>
+    /// </example>
     public static string CreateSeparatedString(
         int totalLength,
         string baseString,
@@ -133,9 +189,68 @@ public abstract class Formatter : IFormatter
             CopyAsSpan(app, span, index);
         });
 
+    /// <summary>
+    /// Copies a string's characters into a <see cref="Span{T}"/> at the specified starting index.
+    /// </summary>
+    /// <param name="part">The source string whose characters will be copied.</param>
+    /// <param name="span">The destination character span to copy into.</param>
+    /// <param name="index">The zero-based starting index in the destination span where copying begins.</param>
+    /// <remarks>
+    /// <para>
+    /// This helper method is a core building block for zero-allocation string construction
+    /// throughout the formatter infrastructure. It enables efficient string assembly by directly
+    /// copying character data into pre-allocated span buffers created by <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/>.
+    /// </para>
+    /// <para>
+    /// <strong>Usage Pattern:</strong> Called within <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/>
+    /// lambda expressions to copy string fragments into their final positions in the output buffer.
+    /// Eliminates intermediate string allocations from interpolation, concatenation, or <see cref="StringBuilder"/> usage.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// to eliminate method call overhead. Uses <see cref="MemoryExtensions.AsSpan(string)"/> for
+    /// zero-allocation conversion and <see cref="Span{T}.Slice(int)"/> (via range syntax <c>[index..]</c>)
+    /// for efficient offset calculation. The JIT compiler can optimize span operations into efficient
+    /// memory copy instructions (e.g., <c>memcpy</c> intrinsics on modern CPUs).
+    /// </para>
+    /// <para>
+    /// <strong>Safety:</strong> The caller is responsible for ensuring that:
+    /// <list type="bullet">
+    ///   <item>The destination <paramref name="span"/> has sufficient capacity starting at <paramref name="index"/>.</item>
+    ///   <item>The range <c>[index, index + part.Length)</c> does not exceed <c>span.Length</c>.</item>
+    /// </list>
+    /// Violating these preconditions will throw an exception from <see cref="ReadOnlySpan{T}.CopyTo(Span{T})"/>.
+    /// </para>
+    /// <para>
+    /// <strong>Used By:</strong> <see cref="CreateSeparatedString(int, string, string, string)"/>,
+    /// <see cref="JoinWithComma(IEnumerable{string?})"/>, and various <c>ValueFormatter.Format</c> overloads
+    /// for strings, key-value pairs, delegates, types (arrays, nullable, generics), and other composite types.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Typical usage inside string.Create:
+    /// var part1 = "Hello";
+    /// var part2 = "World";
+    /// var totalLength = part1.Length + 1 + part2.Length; // "Hello World"
+    /// 
+    /// var result = string.Create(totalLength, (part1, part2), static (span, state) =>
+    /// {
+    ///     var (p1, p2) = state;
+    ///     
+    ///     CopyAsSpan(p1, span, 0);           // Copy "Hello" at index 0
+    ///     span[p1.Length] = ' ';             // Write space at index 5
+    ///     CopyAsSpan(p2, span, p1.Length + 1); // Copy "World" at index 6
+    /// });
+    /// // result: "Hello World"
+    /// </code>
+    /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void CopyAsSpan(string part, Span<char> span, int index)
-    => part.AsSpan().CopyTo(span[index..]);
+    {
+        var partSpan = part.AsSpan();
+        partSpan.CopyTo(span[index..]);
+    }
 
     /// <summary>
     /// Joins a collection of pre-formatted string items into a comma-separated string.
