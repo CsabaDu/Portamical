@@ -820,8 +820,8 @@ public static class ValueFormatter
         return joinWithComma(items);
 
         #region Local methods
-        static string joinWithComma(IEnumerable<string?> items)
-        => string.Join(", ", items);
+        static string joinWithComma(IEnumerable<string?> strings)
+        => string.Join(", ", strings);
         #endregion
     }
 
