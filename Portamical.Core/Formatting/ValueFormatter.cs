@@ -193,8 +193,8 @@ public static class ValueFormatter
     /// Format(Tuple.Create('a', "test"))             // Returns: "('a', \"test\")"
     /// 
     /// // Dictionaries
-    /// var dict = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2 };
-    /// Format(dict)  // Returns: "[2]: {{\"a\": 1}, {\"b\": 2}}"
+    /// var dictionary = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2 };
+    /// Format(dictionary)  // Returns: "[2]: {{\"a\": 1}, {\"b\": 2}}"
     /// 
     /// // Exceptions
     /// Format(new ArgumentException("Invalid"))
@@ -356,7 +356,10 @@ public static class ValueFormatter
 
         // Zero-allocation string building: "str"
         var totalLength = 2 + str.Length; // Two quote characters + string content
-        return string.Create(totalLength, str, static (span, state) =>
+        return string.Create(
+            totalLength,
+            str,
+            static (span, state) =>
         {
             span[0] = '"';
             CopyAsSpan(state, span, 1);
@@ -421,7 +424,10 @@ public static class ValueFormatter
 
         // Zero-allocation string building: {key: value}
         var totalLength = 4 + formattedKey.Length + formattedValue.Length; // "{", ": ", "}"
-        return string.Create(totalLength, (formattedKey, formattedValue), static (span, state) =>
+        return string.Create(
+            totalLength,
+            (formattedKey, formattedValue),
+            static (span, state) =>
         {
             var (k, v) = state;
             var index = 0;
@@ -476,9 +482,10 @@ public static class ValueFormatter
     /// </example>
     private static string? Format(ITuple tuple)
     {
-        var items = new List<string>(tuple.Length);
+        var length = tuple.Length;
+        var items = new List<string>(length);
 
-        for (int i = 0; i < tuple.Length; i++)
+        for (int i = 0; i < length; i++)
         {
             var item = tuple[i];
             items.Add(FallbackIfNull(Format(item)));
@@ -545,7 +552,10 @@ public static class ValueFormatter
 
         // Zero-allocation string building: DelegateType (displayName)
         var totalLength = delegateType!.Length + 3 + displayName.Length; // " (", ")"
-        return string.Create(totalLength, (delegateType, displayName), static (span, state) =>
+        return string.Create(
+            totalLength,
+            (delegateType, displayName),
+            static (span, state) =>
         {
             var (type, name) = state;
             var index = 0;
@@ -619,7 +629,10 @@ public static class ValueFormatter
             {
                 // Zero-allocation string building: elementType[]
                 var totalLength = formattedElement.Length + 2; // "[]"
-                return string.Create(totalLength, formattedElement, static (span, state) =>
+                return string.Create(
+                    totalLength,
+                    formattedElement,
+                    static (span, state) =>
                 {
                     CopyAsSpan(state, span, 0);
                     span[^2] = '[';
@@ -631,7 +644,10 @@ public static class ValueFormatter
                 // Zero-allocation string building: elementType[,,,]
                 var commaCount = rank - 1;
                 var totalLength = formattedElement.Length + 2 + commaCount; // "[" + commas + "]"
-                return string.Create(totalLength, (formattedElement, commaCount), static (span, state) =>
+                return string.Create(
+                    totalLength,
+                    (formattedElement, commaCount),
+                    static (span, state) =>
                 {
                     var (element, count) = state;
                     CopyAsSpan(element, span, 0);
@@ -657,7 +673,10 @@ public static class ValueFormatter
 
             // Zero-allocation string building: underlyingType?
             var totalLength = formattedUnderlying.Length + 1; // "?"
-            return string.Create(totalLength, formattedUnderlying, static (span, state) =>
+            return string.Create(
+                totalLength,
+                formattedUnderlying,
+                static (span, state) =>
             {
                 CopyAsSpan(state, span, 0);
                 span[^1] = '?';
@@ -683,7 +702,10 @@ public static class ValueFormatter
 
             // Zero-allocation string building: TypeName<args>
             var totalLength = typeName.Length + 2 + formattedArgs.Length; // "<", ">"
-            return string.Create(totalLength, (typeName, formattedArgs), static (span, state) =>
+            return string.Create(
+                totalLength,
+                (typeName, formattedArgs),
+                static (span, state) =>
             {
                 var (name, args) = state;
                 var index = 0;
@@ -753,9 +775,9 @@ public static class ValueFormatter
             $"First {MaxCount} of {count}+"
             : $"{count}";
 
-        if (coll is IDictionary dict)
+        if (coll is IDictionary dictionary)
         {
-            return Format(dict, prefix);
+            return Format(dictionary, prefix);
         }
 
         var items = materializedObjects
@@ -768,7 +790,7 @@ public static class ValueFormatter
     /// <summary>
     /// Formats an <see cref="IDictionary"/> showing the first <see cref="MaxCount"/> key-value pairs.
     /// </summary>
-    /// <param name="dict">The dictionary to format.</param>
+    /// <param name="dictionary">The dictionary to format.</param>
     /// <param name="prefix">A prefix string describing the count (e.g., <c>"3"</c> or <c>"First 3 of 5+"</c>).</param>
     /// <returns>
     /// A string in the form <c>"[prefix]: {{key1: value1}, {key2: value2}, {key3: value3}}"</c>.
@@ -795,16 +817,19 @@ public static class ValueFormatter
     /// </remarks>
     /// <example>
     /// <code>
-    /// var dict = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2, ["c"] = 3 };
-    /// Format(dict, "3")  // Returns: "[3]: {{\"a\": 1}, {\"b\": 2}, {\"c\": 3}}"
+    /// var dictionary = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2, ["c"] = 3 };
+    /// Format(dictionary, "3")  // Returns: "[3]: {{\"a\": 1}, {\"b\": 2}, {\"c\": 3}}"
     /// 
     /// var largeDict = new Dictionary&lt;int, string&gt; { [1] = "one", [2] = "two", [3] = "three", [4] = "four" };
     /// Format(largeDict, "First 3 of 4+")  // Returns: "[First 3 of 4+]: {{1: \"one\"}, {2: \"two\"}, {3: \"three\"}}"
     /// </code>
     /// </example>
-    private static string? Format(IDictionary dict, string? prefix)
+    private static string? Format(IDictionary dictionary, string? prefix)
     {
-        var items = dict.Cast<object>().Take(MaxCount).Select(item =>
+        var items = dictionary
+            .Cast<object>()
+            .Take(MaxCount)
+            .Select(item =>
         {
             // Handle both DictionaryEntry (from non-generic IDictionary) and KeyValuePair<,> (from Dictionary<,>)
             if (item is DictionaryEntry de)
@@ -815,8 +840,7 @@ public static class ValueFormatter
             {
                 // Use reflection to access Key and Value properties from KeyValuePair<,>
                 var type = item.GetType();
-                var key = type.GetProperty("Key")?.GetValue(item);
-                var value = type.GetProperty("Value")?.GetValue(item);
+                var (key, value) = GetKvpPropValues(type, item);   
 
                 return Format(key, value);
             }
@@ -885,6 +909,23 @@ public static class ValueFormatter
 
     #region Format helper methods
 
+    private static (object? key, object? value) GetKvpPropValues(Type type, object kvp)
+    {
+        var key = getPropertyValue("Key");
+        var value = getPropertyValue("Value");
+
+        return (key, value);
+
+        #region Local methods
+        object? getPropertyValue(string propertyName)
+        {
+            var propertyInfo = type.GetProperty(propertyName);
+            return propertyInfo?.GetValue(kvp);
+        }
+        #endregion
+
+    }
+
     /// <summary>
     /// Checks if an object is a KeyValuePair and extracts its key and value.
     /// </summary>
@@ -922,15 +963,10 @@ public static class ValueFormatter
         }
 
         // Extract Key and Value properties
-        key = getPropertyValue("Key");
-        value = getPropertyValue("Value");
+
+        (key, value) = GetKvpPropValues(type, obj);
 
         return true;
-
-        #region Local methods
-        object? getPropertyValue(string propertyName)
-        => type.GetProperty(propertyName)?.GetValue(obj);
-        #endregion
     }
 
     /// <summary>
