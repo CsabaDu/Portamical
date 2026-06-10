@@ -69,7 +69,7 @@ public static class ValueFormatter
     /// </para>
     /// </remarks>
     public static readonly IReadOnlyDictionary<Type, IFormatter> Registry =
-        new Dictionary<Type, IFormatter> { };
+        new Dictionary<Type, IFormatter>();
 
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
