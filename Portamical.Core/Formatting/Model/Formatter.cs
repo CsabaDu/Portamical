@@ -343,7 +343,8 @@ public abstract class Formatter : IFormatter
             #endregion
         }
 
-        return joinWithComma(items); // Fallback for non-List<string?> collections
+        // Fallback for non-List<string?> collections
+        return joinWithComma(items);
 
         #region Local methods
         string joinWithComma(IEnumerable<string?> strings)
