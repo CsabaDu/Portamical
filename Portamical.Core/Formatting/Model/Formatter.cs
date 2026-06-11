@@ -179,14 +179,14 @@ public abstract class Formatter : IFormatter
         {
             var (b, sep, app) = state;
 
-            var index = 0;
-            CopyAsSpan(b, span, index);
+            var i = 0;
+            CopyAsSpan(b, span, i);
 
-            index = b.Length;
-            CopyAsSpan(sep, span, index);
+            i = b.Length;
+            CopyAsSpan(sep, span, i);
 
-            index += sep.Length;
-            CopyAsSpan(app, span, index);
+            i += sep.Length;
+            CopyAsSpan(app, span, i);
         });
 
     /// <summary>
