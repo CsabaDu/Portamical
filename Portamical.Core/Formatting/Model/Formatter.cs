@@ -335,7 +335,8 @@ public abstract class Formatter : IFormatter
                 return createResult(item3);
             }
 
-            return joinWithComma(list); // Fallback to standard join for more than 3 items
+            // Fallback to standard join for more than 3 items
+            return joinWithComma(list);
 
             #region Local methods
             string createResult(string item)
@@ -348,7 +349,7 @@ public abstract class Formatter : IFormatter
 
         #region Local methods
         string joinWithComma(IEnumerable<string?> strings)
-        => string.Join(separator, strings);
+        => string.Join(separator, strings.Select(FallbackIfNull));
         #endregion
     }
 }
