@@ -313,27 +313,19 @@ public abstract class Formatter : IFormatter
             var item1 = FallbackIfNull(list[0]);
             result = item1;
 
-            if (count == 1)
-            {
-                return result;
-            }
+            if (count == 1) return result;
 
             var item2 = FallbackIfNull(list[1]);
             var totalLength = item1.Length + sepLength + item2.Length;
             result = createResult(item2);
 
-            if (count == 2)
-            {
-                return result;
-            }
+            if (count == 2) return result;
 
             var item3 = FallbackIfNull(list[2]);
             totalLength += sepLength + item3.Length;
+            result = createResult(item3);
 
-            if (count == 3)
-            {
-                return createResult(item3);
-            }
+            if (count == 3) return result;
 
             // Fallback to standard join for more than 3 items
             return joinWithComma(list);
