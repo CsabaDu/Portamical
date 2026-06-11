@@ -190,11 +190,11 @@ public abstract class Formatter : IFormatter
         });
 
     /// <summary>
-    /// Copies a string's characters into a <see cref="Span{T}"/> at the specified starting index.
+    /// Copies a string's characters into a <see cref="Span{T}"/> at the specified starting i.
     /// </summary>
     /// <param name="insert">The source string whose characters will be copied.</param>
     /// <param name="baseSpan">The destination character baseSpan to copy into.</param>
-    /// <param name="index">The zero-based starting index in the destination baseSpan where copying begins.</param>
+    /// <param name="index">The zero-based starting i in the destination baseSpan where copying begins.</param>
     /// <remarks>
     /// <para>
     /// This helper method is a core building block for zero-allocation string construction
@@ -209,7 +209,7 @@ public abstract class Formatter : IFormatter
     /// <para>
     /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/>
     /// to eliminate method call overhead. Uses <see cref="MemoryExtensions.AsSpan(string)"/> for
-    /// zero-allocation conversion and <see cref="Span{T}.Slice(int)"/> (via range syntax <c>[index..]</c>)
+    /// zero-allocation conversion and <see cref="Span{T}.Slice(int)"/> (via range syntax <c>[i..]</c>)
     /// for efficient offset calculation. The JIT compiler can optimize baseSpan operations into efficient
     /// memory copy instructions (e.g., <c>memcpy</c> intrinsics on modern CPUs).
     /// </para>
@@ -217,7 +217,7 @@ public abstract class Formatter : IFormatter
     /// <strong>Safety:</strong> The caller is responsible for ensuring that:
     /// <list type="bullet">
     ///   <item>The destination <paramref name="baseSpan"/> has sufficient capacity starting at <paramref name="index"/>.</item>
-    ///   <item>The range <c>[index, index + insert.Length)</c> does not exceed <c>baseSpan.Length</c>.</item>
+    ///   <item>The range <c>[i, i + insert.Length)</c> does not exceed <c>baseSpan.Length</c>.</item>
     /// </list>
     /// Violating these preconditions will throw an exception from <see cref="ReadOnlySpan{T}.CopyTo(Span{T})"/>.
     /// </para>
@@ -238,9 +238,9 @@ public abstract class Formatter : IFormatter
     /// {
     ///     var (p1, p2) = state;
     ///     
-    ///     CopyAsSpan(p1, baseSpan, 0);           // Copy "Hello" at index 0
-    ///     baseSpan[p1.Length] = ' ';             // Write space at index 5
-    ///     CopyAsSpan(p2, baseSpan, p1.Length + 1); // Copy "World" at index 6
+    ///     CopyAsSpan(p1, baseSpan, 0);           // Copy "Hello" at i 0
+    ///     baseSpan[p1.Length] = ' ';             // Write space at i 5
+    ///     CopyAsSpan(p2, baseSpan, p1.Length + 1); // Copy "World" at i 6
     /// });
     /// // result: "Hello World"
     /// </code>
@@ -251,6 +251,7 @@ public abstract class Formatter : IFormatter
         var insertSpan = insert.AsSpan();
         insertSpan.CopyTo(baseSpan[index..]);
     }
+        const string separator = ", ";
 
     /// <summary>
     /// Joins a collection of pre-formatted string items into a comma-separated string.
@@ -298,50 +299,56 @@ public abstract class Formatter : IFormatter
     /// </example>
     public static string JoinWithComma(IEnumerable<string?> items)
     {
-        const string separator = ", ";
-
-        // Fast path for common case: List<string> with 0-3 items
-        if (items is List<string?> list)
+        if (!items.GetEnumerator().MoveNext())
         {
-            int sepLength = separator.Length;
-
-            int count = list.Count;
-            string result = string.Empty;
-
-            if (count == 0) return result;
-
-            var item1 = FallbackIfNull(list[0]);
-            result = item1;
-
-            if (count == 1) return result;
-
-            var item2 = FallbackIfNull(list[1]);
-            var totalLength = item1.Length + sepLength + item2.Length;
-            result = createResult(item2);
-
-            if (count == 2) return result;
-
-            var item3 = FallbackIfNull(list[2]);
-            totalLength += sepLength + item3.Length;
-            result = createResult(item3);
-
-            if (count == 3) return result;
-
-            // Fallback to standard join for more than 3 items
-            return joinWithComma(list);
-
-            #region Local methods
-            string createResult(string item)
-            => CreateSeparatedString(totalLength, result, separator, item);
-            #endregion
+            return string.Empty;
         }
 
-        // Fallback for non-List<string?> collections
-        return joinWithComma(items);
+        if (items is List<string?> list)
+        {
+            return JoinWithComma(list);
+        }
+
+        return JoinWithSeparator(items);
+    }
+
+    private static string JoinWithComma(IList<string?> list)
+    {
+        // Fast path for common case: List<string> with 1-3 items
+        var count = list.Count;
+        var i = 0;
+        var result = getIndexedItem();
+
+        if (isCountEqualToIncrementedIndex()) return result;
+
+        var separatorLength = separator.Length;
+        var totalLength = result.Length;
+
+        while (i <= 3)
+        {
+            var item = getIndexedItem();
+            totalLength += separatorLength + item.Length;
+            result = CreateSeparatedString(
+                totalLength,
+                result,
+                separator,
+                item);
+
+            if (isCountEqualToIncrementedIndex()) return result;
+        }
+
+        // Fallback to standard join for more than 3 items
+        return JoinWithSeparator(list);
 
         #region Local methods
-        string joinWithComma(IEnumerable<string?> strings)
-        => string.Join(separator, strings.Select(FallbackIfNull));
+        string getIndexedItem()
+        => FallbackIfNull(list[i]);
+
+        bool isCountEqualToIncrementedIndex()
+        => count == ++i;
         #endregion
     }
+
+    private static string JoinWithSeparator(IEnumerable<string?> strings)
+    => string.Join(separator, strings.Select(FallbackIfNull));
 }

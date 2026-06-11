@@ -234,10 +234,10 @@ public static class ValueFormatter
         return expected switch
         {
             // - string, ITuple (Tuple/ValueTuple) and KeyValuePair
-            // must be checked before IEnumerable
-            // (since these implement or may implement IEnumerable).
+            //   must be checked before IEnumerable
+            //   (since these implement or may implement IEnumerable).
             // - IDictionary is checked separately in Format(IEnumerable)
-            // to delegate to Format(IDictionary, string?).
+            //   to delegate to Format(IDictionary, string?).
             char ch                 => Format(ch),
             string str              => Format(str),
             Type type               => Format(type),
