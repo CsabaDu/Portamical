@@ -221,11 +221,14 @@ public static class ValueFormatter
     {
         if (expected is null) return null;
 
-        var expectedType = expected.GetType();
-
-        if (Registry.TryGetValue(expectedType, out var formatter))
+        if (Registry.Count > 0)
         {
-            return formatter.Format(expected);
+            var expectedType = expected.GetType();
+
+            if (Registry.TryGetValue(expectedType, out var formatter))
+            {
+                return formatter.Format(expected);
+            }
         }
 
         return expected switch

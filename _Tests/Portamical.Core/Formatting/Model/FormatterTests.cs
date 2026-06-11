@@ -12,6 +12,7 @@ namespace Tests.Portamical.Core.Formatting.Model;
 public class FormatterTests
 {
     #region Constants
+#pragma warning disable MSTEST0032 // Review or remove the assertion as its condition is known to be always true
     [TestMethod]
     public void NullString_hasCorrectValue()
     {
@@ -23,6 +24,7 @@ public class FormatterTests
     {
         Assert.AreEqual(3, Formatter.MaxCount);
     }
+#pragma warning restore MSTEST0032
     #endregion
 
     #region FallbackIfNull
@@ -355,9 +357,9 @@ public class FormatterTests
         var items = new HashSet<string?> { "alpha", "beta", "gamma" };
         var result = Formatter.JoinWithComma(items);
         // Order may vary with HashSet, just check all items are present
-        Assert.IsTrue(result.Contains("alpha"));
-        Assert.IsTrue(result.Contains("beta"));
-        Assert.IsTrue(result.Contains("gamma"));
+        Assert.Contains("alpha", result);
+        Assert.Contains("beta", result);
+        Assert.Contains("gamma", result);
         Assert.AreEqual(2, result.Count(c => c == ','));
     }
     #endregion
