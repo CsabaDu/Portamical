@@ -315,31 +315,31 @@ public static string JoinWithComma(IEnumerable<string?> items)
 
     private static string JoinWithComma(IList<string?> list)
     {
-        // Fast path for common case: List<string> with 1-3 items
-        var count = list.Count;
-        var i = 0;
-        var result = getIndexedItem();
+// Fast path for common case: List<string> with 1-4 items
+var count = list.Count;
+var i = 0;
+var result = getIndexedItem();
 
-        if (isCountEqualToIncrementedIndex()) return result;
+if (isCountEqualToIncrementedIndex()) return result;
 
-        var separatorLength = Separator.Length;
-        var totalLength = result.Length;
+var separatorLength = Separator.Length;
+var totalLength = result.Length;
 
-        while (i <= 3)
-        {
-            var item = getIndexedItem();
-            totalLength += separatorLength + item.Length;
-            result = CreateSeparatedString(
-                totalLength,
-                result,
-                Separator,
-                item);
+while (i <= 3)
+{
+    var item = getIndexedItem();
+    totalLength += separatorLength + item.Length;
+    result = CreateSeparatedString(
+        totalLength,
+        result,
+        Separator,
+        item);
 
-            if (isCountEqualToIncrementedIndex()) return result;
-        }
+    if (isCountEqualToIncrementedIndex()) return result;
+}
 
-        // Fallback to standard join for more than 3 items
-        return JoinWithSeparator(list);
+// Fallback to standard join for more than 4 items
+return JoinWithSeparator(list);
 
         #region Local methods
         string getIndexedItem()
