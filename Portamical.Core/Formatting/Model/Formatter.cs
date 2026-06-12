@@ -44,6 +44,8 @@ public abstract class Formatter : IFormatter
     /// </remarks>
     public const int MaxCount = 3;
 
+    private const string Separator = ", ";
+
     /// <summary>
     /// Formats an object into a human-readable string representation.
     /// </summary>
@@ -112,9 +114,9 @@ public abstract class Formatter : IFormatter
     => str ?? NullString;
 
     /// <summary>
-    /// Creates a zero-allocation string by concatenating three parts: base, separator, and insert.
+    /// Creates a zero-allocation string by concatenating three parts: base, Separator, and insert.
     /// </summary>
-    /// <param name="totalLength">The exact total length of the final string (must equal baseString.Length + separator.Length + insert.Length).</param>
+    /// <param name="totalLength">The exact total length of the final string (must equal baseString.Length + Separator.Length + insert.Length).</param>
     /// <param name="baseString">The first insert of the string (prefix).</param>
     /// <param name="separator">The middle insert separating the base from the insert.</param>
     /// <param name="appendix">The final insert of the string (suffix).</param>
@@ -128,7 +130,7 @@ public abstract class Formatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Usage Pattern:</strong> Primarily used to construct test case names and formatted output
-    /// where a base string (e.g., class/method name) is followed by a separator (e.g., <c>" - "</c>)
+    /// where a base string (e.g., class/method name) is followed by a Separator (e.g., <c>" - "</c>)
     /// and an insert (e.g., formatted parameter values). The caller is responsible for pre-calculating
     /// <paramref name="totalLength"/> to match the combined length of all three parts.
     /// </para>
@@ -141,7 +143,7 @@ public abstract class Formatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Safety:</strong> The caller must ensure <paramref name="totalLength"/> exactly matches
-    /// <c>baseString.Length + separator.Length + insert.Length</c>. Providing an incorrect length
+    /// <c>baseString.Length + Separator.Length + insert.Length</c>. Providing an incorrect length
     /// will cause <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/> to throw
     /// an exception if the baseSpan is too small, or produce a string with uninitialized characters if too large.
     /// </para>
@@ -251,7 +253,6 @@ public abstract class Formatter : IFormatter
         var insertSpan = insert.AsSpan();
         insertSpan.CopyTo(baseSpan[index..]);
     }
-        const string separator = ", ";
 
     /// <summary>
     /// Joins a collection of pre-formatted string items into a comma-separated string.
@@ -321,7 +322,7 @@ public abstract class Formatter : IFormatter
 
         if (isCountEqualToIncrementedIndex()) return result;
 
-        var separatorLength = separator.Length;
+        var separatorLength = Separator.Length;
         var totalLength = result.Length;
 
         while (i <= 3)
@@ -331,7 +332,7 @@ public abstract class Formatter : IFormatter
             result = CreateSeparatedString(
                 totalLength,
                 result,
-                separator,
+                Separator,
                 item);
 
             if (isCountEqualToIncrementedIndex()) return result;
@@ -350,5 +351,5 @@ public abstract class Formatter : IFormatter
     }
 
     private static string JoinWithSeparator(IEnumerable<string?> strings)
-    => string.Join(separator, strings.Select(FallbackIfNull));
+    => string.Join(Separator, strings.Select(FallbackIfNull));
 }
