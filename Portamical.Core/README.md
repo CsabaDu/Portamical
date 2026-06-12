@@ -506,17 +506,18 @@ This is a patch release that fixes a bug in internal formatting behavior. Existi
 
 ---
 
-#### **Version 3.3.0 - Current** (2026-06-12)
+#### **Version 3.3.0 - Current** (2026-06-13)
 
-**Extensibility & Performance Release**
+**Extensibility, Performance & Documentation Release**
 
-This version introduces a powerful extensibility model and significant performance improvements through span-based optimizations.
+This version introduces a powerful extensibility model, significant performance improvements through span-based optimizations, and comprehensive documentation enhancements across the test data type hierarchy.
 
 **Breaking Changes**
 - **Formatter Architecture Refactoring**
   - Extracted shared formatting logic from `ValueFormatter` into a new base class `Formatter`
-  - **Impact:** Internal restructuring only - public API surface unchanged
-  - **Migration:** No code changes required - all existing APIs continue to work
+  - Helper methods (`FallbackIfNull`, `JoinWithComma`) moved to `Formatter` base class
+  - **Impact:** Code using `using static Portamical.Core.Formatting.ValueFormatter;` may need updating
+  - **Migration:** Change to `using static Portamical.Core.Formatting.Model.Formatter;` for helper access
 
 **Added**
 - **Custom Formatter Registry**
@@ -527,12 +528,14 @@ This version introduces a powerful extensibility model and significant performan
 - **IFormatter Interface**
   - New extensibility contract for custom formatter implementations
   - Type-safe formatting abstraction
-  - Supports both generic and non-generic formatter patterns
+  - Supports both generic (`IFormatter<T>`) and non-generic (`IFormatter`) patterns
 
 - **Formatter Base Class**
   - Shared utilities: `NullString`, `MaxCount`, `Separator` constants
   - `FallbackIfNull(string?)`: Null-to-"null" conversion
   - `JoinWithComma(IEnumerable<string?>)`: Optimized comma-separated list building
+  - `CreateSeparatedString(string, string, string)`: Zero-allocation concatenation helper
+  - `CopyAsSpan(string)`: Span-based string copying utility
   - Other span-based helpers for zero-allocation string operations
 
 - **Delegate Formatting**
@@ -544,26 +547,64 @@ This version introduces a powerful extensibility model and significant performan
 
 **Performance**
 - **Span-Based String Building**
-  - `Formatter.JoinWithComma()` now uses `string.Create<TState>()` for 2-3 item joins
+  - `Formatter.JoinWithComma()`: 66-75% fewer allocations for 2-3 item collections using `string.Create<TState>()`
+  - `ValueFormatter.Format(string)`: Direct span write for quoted strings
+  - `ValueFormatter.Format(object?, object?)`: Zero-copy key-value pair formatting
+  - `ValueFormatter.Format(Delegate)`: Allocation-free delegate name construction
+  - `ValueFormatter.Format(Type)`: Span-based array/nullable/generic formatting
   - `Span<char>`-based construction eliminates intermediate allocations
-  - Zero-allocation success paths preserved
-  - Particularly beneficial in hot-path test case name generation
+  - Zero-allocation success paths preserved throughout hot paths
+  - Particularly beneficial in test case name generation (tuples, type arguments, small collections)
+  - `CreateSeparatedString`: Shared by ValueFormatter and TestDataBase for zero-copy concatenation
 
 **Improved**
-- Removed redundant pattern-matching clauses (optimization only, no behavior change)
+- Optimized pattern matching in ValueFormatter (removed redundant string check)
+- Extracted `GetKvpPropValues` helper for KeyValuePair property access
+- Simplified `TestDataBase.CreateTestCaseName()` using CreateSeparatedString helper
 - Enhanced null-handling consistency across all formatters
+- Reduced GC pressure in hot paths
 
 **Documentation**
-- Comprehensive XML documentation for `IFormatter` contract
-- Added extensibility examples to `ValueFormatter` documentation
-- Performance notes for span-based optimization paths
-- Delegate formatting examples in method documentation
+- **ValueFormatter**: Comprehensive XML documentation
+  - Detailed type-specific formatting table for 12+ types
+  - Formatter registration API fully documented
+  - Performance characteristics and thread-safety notes
+  - Extensive examples for all formatting scenarios
+- **TestDataExpected**: Enhanced XML documentation
+  - Comprehensive Format() method documentation with type table
+  - GetResult() documentation with fallback strategy details
+  - Null handling strategy explanation
+  - Integration with Resolver.FallbackIfNullOrWhiteSpace documented
+- **TestDataReturns**: Updated XML comments
+  - Clarified base class formatting (not ToString)
+  - Added references to Format() method
+  - Improved examples with actual formatted output
+  - Enhanced GetResultPrefix() and ToArgs() documentation
+- **TestDataThrows**: Updated XML comments for consistency
+  - Exception formatting via base class clarified
+  - Fixed incorrect type reference (TStruct ? TResult)
+  - Enhanced examples showing exception type and message
+  - Improved GetResultPrefix() and ToArgs() documentation
+- **IFormatter and Formatter**: Added comprehensive XML docs
+- Created PERFORMANCE_STRING_CREATE_OPTIMIZATION.md with detailed benchmarks
+- Updated all method docs to reflect "expectedType" terminology
+
+**T4 Template Fixes**
+- All T4 templates now include `#nullable enable` directives
+  - `TestDataExpected.tt`, `TestDataReturns.tt`, `TestDataThrows.tt`
+  - Ensures CS8669 compiler warnings are suppressed
+  - Regenerated all `.generated.cs` files with proper nullable context
+
+**Testing**
+- Added 433 lines of tests for Formatter base class
+- Added 217 lines of tests for custom formatter registry
+- Added test parallelization control and cleanup for registry tests
 
 #### Migration from v3.2.x
-- Fully backward compatible - no API changes
-- Existing `ValueFormatter.Format()` calls work unchanged
-- Custom formatters can be added via `Registry` (optional)
-- Performance improvements apply automatically
+- **Using statements**: Change `using static Portamical.Core.Formatting.ValueFormatter;` to `using static Portamical.Core.Formatting.Model.Formatter;` (for FallbackIfNull, JoinWithComma access)
+- **Custom formatters**: Implement `IFormatter<T>` and register in `ValueFormatter.Registry` (optional)
+- **Existing code**: All existing `ValueFormatter.Format()` calls work unchanged
+- **Performance improvements**: Apply automatically without code changes
 
 ---
 

@@ -29,7 +29,7 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v3.3.0 (2026-01-15) - Extensibility &amp; Performance Release
+      v3.3.0 (2026-06-13) - Extensibility, Performance &amp; Documentation Release
 
       BREAKING CHANGES:
       - ValueFormatter refactored to use Formatter base class
@@ -68,9 +68,29 @@
 
       Documentation:
       - Added comprehensive XML documentation for IFormatter and Formatter
+      - Added comprehensive XML documentation for ValueFormatter
+        • Detailed type-specific formatting table for 12+ types
+        • Formatter registration API fully documented
+        • Performance characteristics and thread-safety notes
+        • Extensive examples for all formatting scenarios
+      - Enhanced TestDataExpected XML documentation
+        • Comprehensive Format() method documentation with type table
+        • GetResult() documentation with fallback strategy details
+        • Null handling strategy and integration with Resolver documented
+      - Updated TestDataReturns and TestDataThrows XML comments
+        • Clarified base class formatting (not ToString)
+        • Fixed incorrect type references
+        • Improved examples with actual formatted output
+        • Enhanced GetResultPrefix() and ToArgs() documentation
       - Added delegate formatting examples to Format() method documentation
       - Created PERFORMANCE_STRING_CREATE_OPTIMIZATION.md with detailed benchmarks
       - Updated all method docs to reflect "expectedType" terminology
+
+      T4 Template Fixes:
+      - All T4 templates now include #nullable enable directives
+        • TestDataExpected.tt, TestDataReturns.tt, TestDataThrows.tt
+        • Ensures CS8669 compiler warnings are suppressed
+        • Regenerated all .generated.cs files with proper nullable context
 
       Testing:
       - Added 433 lines of tests for Formatter base class
