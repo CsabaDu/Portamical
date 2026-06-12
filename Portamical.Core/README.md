@@ -488,7 +488,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
-##### **Version 3.2.2** (Current: 2026-06-08)
+##### **Version 3.2.2** (2026-06-08)
 
 **Bug Fixes**
 - **ValueFormatter.JoinWithComma**: Fixed incorrect return value for empty collections
@@ -506,26 +506,66 @@ This is a patch release that fixes a bug in internal formatting behavior. Existi
 
 ---
 
-#### **Version 3.3.0 - Current** (2026-06-08)
+#### **Version 3.3.0 - Current** (2026-66-12)
+
+?? **Extensibility & Performance Release**
+
+This version introduces a powerful extensibility model and significant performance improvements through span-based optimizations.
+
+**Breaking Changes**
+- **Formatter Architecture Refactoring**
+  - Extracted shared formatting logic from `ValueFormatter` into a new base class `Formatter`
+  - **Impact:** Internal restructuring only - public API surface unchanged
+  - **Migration:** No code changes required - all existing APIs continue to work
 
 **Added**
-- Delegate formatting support in `ValueFormatter.Format()` method
-  - Formats `Func<T>`, `Action<T>`, `Predicate<T>`, and custom delegates
-  - Distinguishes between named methods (e.g., `WriteLine`) and anonymous lambdas
-  - Output format: `"DelegateType (methodName)"` or `"DelegateType (anonymous)"`
+- **Custom Formatter Registry**
+  - `ValueFormatter.Registry`: Register custom `IFormatter` implementations for specific types
+  - Registry-based lookup executes **before** built-in pattern matching
+  - Enables domain-specific formatting without modifying core library
+
+- **IFormatter Interface**
+  - New extensibility contract for custom formatter implementations
+  - Type-safe formatting abstraction
+  - Supports both generic and non-generic formatter patterns
+
+- **Formatter Base Class**
+  - Shared utilities: `NullString`, `MaxCount`, `Separator` constants
+  - `FallbackIfNull(string?)`: Null-to-"null" conversion
+  - `JoinWithComma(IEnumerable<string?>)`: Optimized comma-separated list building
+  - Other span-based helpers for zero-allocation string operations
+
+- **Delegate Formatting**
+  - Formats `Func<>`, `Action<>`, `Predicate<>`, and custom delegate types
+  - Distinguishes named methods from anonymous lambdas
   - Examples:
     - `Func<int, string> (anonymous)` for lambda expressions
     - `Action<string> (WriteLine)` for method references
 
+**Performance**
+- **Span-Based String Building**
+  - `Formatter.JoinWithComma()` now uses `string.Create<TState>()` for 2-3 item joins
+  - `Span<char>`-based construction eliminates intermediate allocations
+  - Zero-allocation success paths preserved
+  - Particularly beneficial in hot-path test case name generation
+
 **Improved**
-- Removed redundant `when expected is not string` clause in pattern matching
-  (no behavior change - optimization only)
+- Removed redundant pattern-matching clauses (optimization only, no behavior change)
+- Enhanced null-handling consistency across all formatters
 
 **Documentation**
-- Added comprehensive XML documentation for delegate formatting
-- Added delegate examples to `Format()` method documentation
+- Comprehensive XML documentation for `IFormatter` contract
+- Added extensibility examples to `ValueFormatter` documentation
+- Performance notes for span-based optimization paths
+- Delegate formatting examples in method documentation
 
---
+#### Migration from v3.2.x
+- ? **Fully backward compatible** - no API changes
+- ? Existing `ValueFormatter.Format()` calls work unchanged
+- ? Custom formatters can be added via `Registry` (optional)
+- ? Performance improvements apply automatically
+
+---
 
 ### **Version 2.0.0** (2026-03-13)
 
