@@ -506,9 +506,9 @@ This is a patch release that fixes a bug in internal formatting behavior. Existi
 
 ---
 
-#### **Version 3.3.0 - Current** (2026-66-12)
+#### **Version 3.3.0 - Current** (2026-06-12)
 
-?? **Extensibility & Performance Release**
+**Extensibility & Performance Release**
 
 This version introduces a powerful extensibility model and significant performance improvements through span-based optimizations.
 
