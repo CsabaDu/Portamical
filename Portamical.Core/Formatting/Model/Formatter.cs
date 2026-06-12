@@ -290,12 +290,12 @@ public abstract class Formatter : IFormatter
     /// <example>
     /// <code>
     /// // Internal usage examples (items are already formatted)
-    /// JoinWithComma(Array.Empty&lt;string&gt;())             // Returns: "" (empty, not "null")
-    /// JoinWithComma(new string?[] { null })          // Returns: "null" (one null element)
-    /// JoinWithComma(new[] { "'a'", "\"test\"", "42" })  // Returns: "'a', \"test\", 42"
-    /// JoinWithComma(new[] { "1", "2", "3" })            // Returns: "1, 2, 3"
-    /// JoinWithComma(new[] { "null", "\"x\"" })          // Returns: "null, \"x\""
-    /// JoinWithComma(new string?[] { "a", null, "b" })   // Returns: "a, null, b"
+    /// JoinWithSeparator(Array.Empty&lt;string&gt;())             // Returns: "" (empty, not "null")
+    /// JoinWithSeparator(new string?[] { null })          // Returns: "null" (one null element)
+    /// JoinWithSeparator(new[] { "'a'", "\"test\"", "42" })  // Returns: "'a', \"test\", 42"
+    /// JoinWithSeparator(new[] { "1", "2", "3" })            // Returns: "1, 2, 3"
+    /// JoinWithSeparator(new[] { "null", "\"x\"" })          // Returns: "null, \"x\""
+    /// JoinWithSeparator(new string?[] { "a", null, "b" })   // Returns: "a, null, b"
     /// </code>
     /// </example>
     public static string JoinWithComma(IEnumerable<string?> items)
@@ -308,7 +308,7 @@ public abstract class Formatter : IFormatter
 
         if (items is IList<string?> list)
         {
-            return JoinWithComma(list);
+            return JoinWithSeparator(list);
         }
 
         return JoinWithSeparator(items);
@@ -316,7 +316,7 @@ public abstract class Formatter : IFormatter
 
     #region Private helpers
 
-    private static string JoinWithComma(IList<string?> list)
+    private static string JoinWithSeparator(IList<string?> list)
     {
         // Fast path for common case: List<string> with 1-4 items
         var count = list.Count;
@@ -342,7 +342,7 @@ public abstract class Formatter : IFormatter
         }
 
         // Fallback to standard join for more than 4 items
-        return JoinWithSeparator(list);
+        return JoinWithSeparator((IEnumerable<string?>)list);
 
         #region Local methods
         string getIndexedItem()
