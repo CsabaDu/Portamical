@@ -280,11 +280,11 @@ Portamical.Core/
 ├── Factories/              # Factory methods for test data creation
 ├── Formatting/             # ⭐ NEW: Value formatting utilities
 │   ├── IFormatter.cs       # Extensibility contract for custom formatters
-│   ├── Model/Formatter.cs  # Abstract base with shared formatting utilities
+│   ├── Model/              # Abstract base with shared formatting utilities
 │   └── ValueFormatter.cs   # Intelligent type-specific formatting
 ├── Identity/               # Test case identity and equality contracts
 │   ├── INamedCase.cs       # Core interface for test case naming and equality
-│   └── Model/NamedCase     # Abstract base with equality comparer and display name creation (NamedCase)
+│   └── Model/              # Abstract base with equality comparer and display name creation (NamedCase)
 ├── Safety/                 # Validation utilities (Validator, Resolver)
 ├── Strategy/               # Strategy enums (ArgsCode, PropsCode)
 └── TestDataTypes/          # Core test data domain
