@@ -30,21 +30,6 @@ public abstract class Formatter : IFormatter
     public const string NullString = "null";
 
     /// <summary>
-    /// The maximum number of items to include when formatting collections, tuples, and dictionaries.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Limits collection output to the first 3 items to keep formatted strings concise and readable.
-    /// When collections exceed this limit, output is truncated with a prefix like <c>"First 3 of 5+"</c>.
-    /// </para>
-    /// <para>
-    /// This value balances readability with diagnostic usefulness, providing enough context without
-    /// overwhelming test case names or log output with large collections.
-    /// </para>
-    /// </remarks>
-    public const int MaxCount = 3;
-
-    /// <summary>
     /// Formats an object into a human-readable string representation.
     /// </summary>
     /// <param name="value">The object to format. Must not be null.</param>
@@ -322,7 +307,7 @@ public abstract class Formatter : IFormatter
 
     private static string JoinWithSeparator(IList<string?> list)
     {
-        // Fast path for common case: List<string> with 1-4 items
+        // Fast path for common case: List<string> with 1-3 items
         var count = list.Count;
         var i = 0;
         var result = getIndexedItem();
@@ -331,7 +316,7 @@ public abstract class Formatter : IFormatter
 
         var totalLength = result.Length;
 
-        while (i <= 3)
+        while (i < 3)
         {
             var item = getIndexedItem();
             totalLength += Separator.Length + item.Length;
@@ -344,7 +329,7 @@ public abstract class Formatter : IFormatter
             if (isCountEqualToIncrementedIndex()) return result;
         }
 
-        // Fallback to standard join for more than 4 items
+        // Fallback to standard join for more than 3 items
         return JoinWithSeparator((IEnumerable<string?>)list);
 
         #region Local methods

@@ -20,6 +20,17 @@ public class ValueFormatterTests
         ValueFormatter.ClearFormatters();
     }
 
+    #region Constants
+#pragma warning disable MSTEST0032 // Review or remove the assertion as its condition is known to be always true
+
+    [TestMethod]
+    public void MaxCount_hasCorrectValue()
+    {
+        Assert.AreEqual(3, ValueFormatter.MaxCount);
+    }
+#pragma warning restore MSTEST0032
+    #endregion
+
     #region Format(object?) - Null and Basic Types
     [TestMethod]
     public void Format_withNull_returnsNull()

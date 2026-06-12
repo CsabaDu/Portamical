@@ -19,11 +19,11 @@ public class FormatterTests
         Assert.AreEqual("null", Formatter.NullString);
     }
 
-    [TestMethod]
-    public void MaxCount_hasCorrectValue()
-    {
-        Assert.AreEqual(3, Formatter.MaxCount);
-    }
+    //[TestMethod]
+    //public void MaxCount_hasCorrectValue()
+    //{
+    //    Assert.AreEqual(3, Formatter.MaxCount);
+    //}
 #pragma warning restore MSTEST0032
     #endregion
 

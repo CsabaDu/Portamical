@@ -37,6 +37,21 @@ namespace Portamical.Core.Formatting;
 public static class ValueFormatter
 {
     /// <summary>
+    /// The maximum number of items to include when formatting collections, tuples, and dictionaries.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Limits collection output to the first 3 items to keep formatted strings concise and readable.
+    /// When collections exceed this limit, output is truncated with a prefix like <c>"First 3 of 5+"</c>.
+    /// </para>
+    /// <para>
+    /// This value balances readability with diagnostic usefulness, providing enough context without
+    /// overwhelming test case names or log output with large collections.
+    /// </para>
+    /// </remarks>
+    public const int MaxCount = 3;
+
+    /// <summary>
     /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
     /// </summary>
     /// <remarks>
@@ -75,7 +90,7 @@ public static class ValueFormatter
     /// </para>
     /// </remarks>
     private static readonly ConcurrentDictionary<Type, IFormatter> _registry = new();
-
+    0
     /// <summary>
     /// Gets the internal formatter registry for testing purposes.
     /// </summary>
