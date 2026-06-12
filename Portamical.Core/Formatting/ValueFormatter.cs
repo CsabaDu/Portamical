@@ -90,7 +90,7 @@ public static class ValueFormatter
     /// </para>
     /// </remarks>
     private static readonly ConcurrentDictionary<Type, IFormatter> _registry = new();
-    0
+
     /// <summary>
     /// Gets the internal formatter registry for testing purposes.
     /// </summary>
