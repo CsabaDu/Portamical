@@ -560,10 +560,10 @@ This version introduces a powerful extensibility model and significant performan
 - Delegate formatting examples in method documentation
 
 #### Migration from v3.2.x
-- ? **Fully backward compatible** - no API changes
-- ? Existing `ValueFormatter.Format()` calls work unchanged
-- ? Custom formatters can be added via `Registry` (optional)
-- ? Performance improvements apply automatically
+- Fully backward compatible - no API changes
+- Existing `ValueFormatter.Format()` calls work unchanged
+- Custom formatters can be added via `Registry` (optional)
+- Performance improvements apply automatically
 
 ---
 
