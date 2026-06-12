@@ -44,8 +44,6 @@ public abstract class Formatter : IFormatter
     /// </remarks>
     public const int MaxCount = 3;
 
-    private const string Separator = ", ";
-
     /// <summary>
     /// Formats an object into a human-readable string representation.
     /// </summary>
@@ -89,6 +87,8 @@ public abstract class Formatter : IFormatter
         Func<T, string?> toString,
         T context)
     => toString(context);
+
+    #region Public formatting helper methods
 
     /// <summary>
     /// Provides a fallback string when the input is null, ensuring non-null output.
@@ -314,7 +314,11 @@ public abstract class Formatter : IFormatter
         return JoinWithSeparator(items);
     }
 
+    #endregion
+
     #region Private helpers
+
+    private const string Separator = ", ";
 
     private static string JoinWithSeparator(IList<string?> list)
     {
@@ -325,13 +329,12 @@ public abstract class Formatter : IFormatter
 
         if (isCountEqualToIncrementedIndex()) return result;
 
-        var separatorLength = Separator.Length;
         var totalLength = result.Length;
 
         while (i <= 3)
         {
             var item = getIndexedItem();
-            totalLength += separatorLength + item.Length;
+            totalLength += Separator.Length + item.Length;
             result = CreateSeparatedString(
                 totalLength,
                 result,

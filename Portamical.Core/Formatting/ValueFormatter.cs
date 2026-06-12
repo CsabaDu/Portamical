@@ -77,6 +77,43 @@ public static class ValueFormatter
     private static readonly ConcurrentDictionary<Type, IFormatter> _registry = new();
 
     /// <summary>
+    /// Gets the internal formatter registry for testing purposes.
+    /// </summary>
+    /// <value>A read-only view of the formatter registry.</value>
+    /// <remarks>
+    /// <para>
+    /// <strong>Warning:</strong> This property is exposed primarily for unit testing
+    /// and should not be used in production code. Use the public registration methods
+    /// (<see cref="RegisterFormatter(Type, IFormatter)"/>, <see cref="UnregisterFormatter(Type)"/>, etc.)
+    /// for normal formatter management.
+    /// </para>
+    /// <para>
+    /// <strong>Thread Safety:</strong> The returned dictionary is thread-safe for reads and writes.
+    /// </para>
+    /// </remarks>
+    public static IReadOnlyDictionary<Type, IFormatter> Registry
+    => _registry;
+
+    /// <summary>
+    /// Gets the number of currently registered custom formatters.
+    /// </summary>
+    /// <value>The count of registered formatters.</value>
+    /// <remarks>
+    /// <para>
+    /// <strong>Thread Safety:</strong> This property is thread-safe. However, the count may change
+    /// immediately after reading due to concurrent registrations/unregistrations from other threads.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// int count = ValueFormatter.RegisteredFormatterCount;
+    /// Console.WriteLine($"Custom formatters: {count}");
+    /// </code>
+    /// </example>
+    public static int RegisteredFormatterCount
+    => _registry.Count;
+
+    /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
     /// </summary>
     /// <param name="expected">The object to format. May be null from recursive calls.</param>
@@ -241,23 +278,23 @@ public static class ValueFormatter
             //   (since these implement or may implement IEnumerable).
             // - IDictionary is checked separately in Format(IEnumerable)
             //   to delegate to Format(IDictionary, string?).
-            char ch                 => Format(ch),
-            string str              => Format(str),
-            Type type               => Format(type),
-            DateTime dt             => Format(dt.ToString, "O"),
-            DateTimeOffset dto      => Format(dto.ToString, "O"),
-            Guid guid               => Format(guid.ToString, "D"),
-            byte[] bytes            => Format(BitConverter.ToString, bytes),
-            Exception ex            => Format(ex),
+            char ch => Format(ch),
+            string str => Format(str),
+            Type type => Format(type),
+            DateTime dt => Format(dt.ToString, "O"),
+            DateTimeOffset dto => Format(dto.ToString, "O"),
+            Guid guid => Format(guid.ToString, "D"),
+            byte[] bytes => Format(BitConverter.ToString, bytes),
+            Exception ex => Format(ex),
             _ when IsKeyValuePair(
                 expected,
                 out var key,
-                out var value)      => Format(key, value),
-            ITuple tuple            => Format(tuple),
-            Delegate del            => Format(del),
-            IEnumerable coll        => Format(coll),
-            Stream stream           => Format(stream),
-            _                       => expected.ToString() ?? null,
+                out var value) => Format(key, value),
+            ITuple tuple => Format(tuple),
+            Delegate del => Format(del),
+            IEnumerable coll => Format(coll),
+            Stream stream => Format(stream),
+            _ => expected.ToString() ?? null,
         };
     }
 
@@ -488,46 +525,10 @@ public static class ValueFormatter
     public static void ClearFormatters()
     => _registry.Clear();
 
-    /// <summary>
-    /// Gets the number of currently registered custom formatters.
-    /// </summary>
-    /// <value>The count of registered formatters.</value>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This property is thread-safe. However, the count may change
-    /// immediately after reading due to concurrent registrations/unregistrations from other threads.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// int count = ValueFormatter.RegisteredFormatterCount;
-    /// Console.WriteLine($"Custom formatters: {count}");
-    /// </code>
-    /// </example>
-    public static int RegisteredFormatterCount
-    => _registry.Count;
-
-    /// <summary>
-    /// Gets the internal formatter registry for testing purposes.
-    /// </summary>
-    /// <value>A read-only view of the formatter registry.</value>
-    /// <remarks>
-    /// <para>
-    /// <strong>Warning:</strong> This property is exposed primarily for unit testing
-    /// and should not be used in production code. Use the public registration methods
-    /// (<see cref="RegisterFormatter(Type, IFormatter)"/>, <see cref="UnregisterFormatter(Type)"/>, etc.)
-    /// for normal formatter management.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> The returned dictionary is thread-safe for reads and writes.
-    /// </para>
-    /// </remarks>
-    public static IReadOnlyDictionary<Type, IFormatter> Registry
-    => _registry;
-
     #endregion
 
     #region Private formatter methods
+
     /// <summary>
     /// Formats an object by invoking a provided formatting function.
     /// </summary>
@@ -632,11 +633,11 @@ public static class ValueFormatter
             totalLength,
             str,
             static (span, state) =>
-        {
-            span[0] = '"';
-            CopyAsSpan(state, span, 1);
-            span[^1] = '"';
-        });
+            {
+                span[0] = '"';
+                CopyAsSpan(state, span, 1);
+                span[^1] = '"';
+            });
     }
 
     /// <summary>
@@ -700,21 +701,21 @@ public static class ValueFormatter
             totalLength,
             (formattedKey, formattedValue),
             static (span, state) =>
-        {
-            var (k, v) = state;
-            var index = 0;
+            {
+                var (k, v) = state;
+                var index = 0;
 
-            span[index++] = '{';
-            CopyAsSpan(k, span, index);
+                span[index++] = '{';
+                CopyAsSpan(k, span, index);
 
-            index += k.Length;
-            span[index++] = ':';
-            span[index++] = ' ';
+                index += k.Length;
+                span[index++] = ':';
+                span[index++] = ' ';
 
-            CopyAsSpan(v, span, index);
-            index += v.Length;
-            span[index] = '}';
-        });
+                CopyAsSpan(v, span, index);
+                index += v.Length;
+                span[index] = '}';
+            });
     }
 
     /// <summary>
@@ -830,21 +831,21 @@ public static class ValueFormatter
             totalLength,
             (delegateType, displayName),
             static (span, state) =>
-        {
-            var (type, name) = state;
-            var index = 0;
+            {
+                var (type, name) = state;
+                var index = 0;
 
-            CopyAsSpan(type, span, index);
-            index += type.Length;
+                CopyAsSpan(type, span, index);
+                index += type.Length;
 
-            span[index++] = ' ';
-            span[index++] = '(';
+                span[index++] = ' ';
+                span[index++] = '(';
 
-            CopyAsSpan(name, span, index);
-            index += name.Length;
+                CopyAsSpan(name, span, index);
+                index += name.Length;
 
-            span[index] = ')';
-        });
+                span[index] = ')';
+            });
     }
 
     /// <summary>
@@ -890,113 +891,24 @@ public static class ValueFormatter
         // Handle arrays
         if (type.IsArray)
         {
-            var elementType = type.GetElementType();
-            if (elementType is null)
-            {
-                return type.Name;
-            }
-
-            var formattedElement = Format(elementType)!;
-            var rank = type.GetArrayRank();
-
-            if (rank == 1)
-            {
-                // Zero-allocation string building: elementType[]
-                var totalLength = formattedElement.Length + 2; // "[]"
-                return string.Create(
-                    totalLength,
-                    formattedElement,
-                    static (span, state) =>
-                {
-                    CopyAsSpan(state, span, 0);
-                    span[^2] = '[';
-                    span[^1] = ']';
-                });
-            }
-            else
-            {
-                // Zero-allocation string building: elementType[,,,]
-                var commaCount = rank - 1;
-                var totalLength = formattedElement.Length + 2 + commaCount; // "[" + commas + "]"
-                return string.Create(
-                    totalLength,
-                    (formattedElement, commaCount),
-                    static (span, state) =>
-                {
-                    var (element, count) = state;
-                    CopyAsSpan(element, span, 0);
-
-                    var index = element.Length;
-                    span[index++] = '[';
-
-                    for (int i = 0; i < count; i++)
-                    {
-                        span[index++] = ',';
-                    }
-
-                    span[index] = ']';
-                });
-            }
+            return FormatArrayType(type);
         }
 
         // Handle Nullable<T>
         var underlyingType = Nullable.GetUnderlyingType(type);
         if (underlyingType is not null)
         {
-            var formattedUnderlying = Format(underlyingType)!;
-
-            // Zero-allocation string building: underlyingType?
-            var totalLength = formattedUnderlying.Length + 1; // "?"
-            return string.Create(
-                totalLength,
-                formattedUnderlying,
-                static (span, state) =>
-            {
-                CopyAsSpan(state, span, 0);
-                span[^1] = '?';
-            });
+            return FormatUnderlyingType(underlyingType);
         }
 
         // Handle generic types
         if (type.IsGenericType)
         {
-            var genericTypeDef = type.GetGenericTypeDefinition();
-            var typeName = genericTypeDef.Name;
-
-            // Remove the `N suffix (e.g., List`1 -> List)
-            var backtickIndex = typeName.IndexOf('`');
-            if (backtickIndex > 0)
-            {
-                typeName = typeName[..backtickIndex];
-            }
-
-            // Format generic arguments
-            var genericArgs = type.GetGenericArguments();
-            var formattedArgs = JoinWithComma(genericArgs.Select(t => Format(t) ?? t.Name));
-
-            // Zero-allocation string building: TypeName<args>
-            var totalLength = typeName.Length + 2 + formattedArgs.Length; // "<", ">"
-            return string.Create(
-                totalLength,
-                (typeName, formattedArgs),
-                static (span, state) =>
-            {
-                var (name, args) = state;
-                var index = 0;
-
-                CopyAsSpan(name, span, index);
-                index += name.Length;
-
-                span[index++] = '<';
-
-                CopyAsSpan(args, span, index);
-                index += args.Length;
-
-                span[index] = '>';
-            });
+            return FormatGenericType(type);
         }
 
         // Use C# expectedType aliases for primitive types
+        // or fallback to type name for non-primitive types
         return GetCSharpAlias(type);
     }
 
@@ -1104,21 +1016,20 @@ public static class ValueFormatter
             .Cast<object>()
             .Take(MaxCount)
             .Select(item =>
-        {
-            // Handle both DictionaryEntry (from non-generic IDictionary) and KeyValuePair<,> (from Dictionary<,>)
-            if (item is DictionaryEntry de)
             {
-                return Format(de.Key, de.Value);
-            }
-            else
-            {
+                // Handle both DictionaryEntry (from non-generic IDictionary)
+                // and KeyValuePair<,> (from Dictionary<,>)
+                if (item is DictionaryEntry de)
+                {
+                    return Format(de.Key, de.Value);
+                }
+
                 // Use reflection to access Key and Value properties from KeyValuePair<,>
                 var type = item.GetType();
-                var (key, value) = GetKvpPropValues(type, item);   
+                var (key, value) = GetKvpPropValues(type, item);
 
                 return Format(key, value);
-            }
-        });
+            });
 
         return $"[{prefix}]: {{{JoinWithComma(items)}}}";
     }
@@ -1183,6 +1094,7 @@ public static class ValueFormatter
 
     #region Format helper methods
 
+    #region KeyValuePair formatting helpers
     private static (object? key, object? value) GetKvpPropValues(Type type, object kvp)
     {
         var key = getPropertyValue("Key");
@@ -1241,6 +1153,113 @@ public static class ValueFormatter
         return true;
     }
 
+    #endregion
+
+    #region Type formatting helpers
+
+    private static string FormatArrayType(Type type)
+    {
+        var elementType = type.GetElementType();
+        if (elementType is null)
+        {
+            return type.Name;
+        }
+        var formattedElement = Format(elementType)!;
+        var rank = type.GetArrayRank();
+        if (rank == 1)
+        {
+            // Zero-allocation string building: elementType[]
+            var totalLength = formattedElement.Length + 2; // "[]"
+            return string.Create(
+                totalLength,
+                formattedElement,
+                static (span, state) =>
+                {
+                    CopyAsSpan(state, span, 0);
+                    span[^2] = '[';
+                    span[^1] = ']';
+                });
+        }
+        else
+        {
+            // Zero-allocation string building: elementType[,,,]
+            var commaCount = rank - 1;
+            var totalLength = formattedElement.Length + 2 + commaCount; // "[" + commas + "]"
+            return string.Create(
+                totalLength,
+                (formattedElement, commaCount),
+                static (span, state) =>
+                {
+                    var (element, count) = state;
+                    CopyAsSpan(element, span, 0);
+
+                    var index = element.Length;
+                    span[index++] = '[';
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        span[index++] = ',';
+                    }
+
+                    span[index] = ']';
+                });
+        }
+    }
+
+    private static string FormatUnderlyingType(Type underlyingType)
+    {
+        var formattedUnderlying = Format(underlyingType)!;
+
+        // Zero-allocation string building: underlyingType?
+        var totalLength = formattedUnderlying.Length + 1; // "?"
+        return string.Create(
+            totalLength,
+            formattedUnderlying,
+            static (span, state) =>
+            {
+                CopyAsSpan(state, span, 0);
+                span[^1] = '?';
+            });
+    }
+
+    private static string FormatGenericType(Type type)
+    {
+        var genericTypeDef = type.GetGenericTypeDefinition();
+        var typeName = genericTypeDef.Name;
+
+        // Remove the `N suffix (e.g., List`1 -> List)
+        var backtickIndex = typeName.IndexOf('`');
+        if (backtickIndex > 0)
+        {
+            typeName = typeName[..backtickIndex];
+        }
+
+        // Format generic arguments
+        var genericArgs = type.GetGenericArguments();
+        var formattedArgs = JoinWithComma(genericArgs.Select(t => Format(t) ?? t.Name));
+
+        // Zero-allocation string building: TypeName<args>
+        var totalLength = typeName.Length + 2 + formattedArgs.Length; // "<", ">"
+        return string.Create(
+            totalLength,
+            (typeName, formattedArgs),
+            static (span, state) =>
+            {
+                var (name, args) = state;
+                var index = 0;
+
+                CopyAsSpan(name, span, index);
+                index += name.Length;
+
+                span[index++] = '<';
+
+                CopyAsSpan(args, span, index);
+                index += args.Length;
+
+                span[index] = '>';
+            });
+    }
+
     /// <summary>
     /// Gets the C# expectedType alias for common BCL types.
     /// </summary>
@@ -1259,24 +1278,26 @@ public static class ValueFormatter
     private static string GetCSharpAlias(Type type)
     => type.FullName switch
     {
-        "System.Boolean"    => "bool",
-        "System.Byte"       => "byte",
-        "System.SByte"      => "sbyte",
-        "System.Char"       => "char",
-        "System.Decimal"    => "decimal",
-        "System.Double"     => "double",
-        "System.Single"     => "float",
-        "System.Int32"      => "int",
-        "System.UInt32"     => "uint",
-        "System.Int64"      => "long",
-        "System.UInt64"     => "ulong",
-        "System.Int16"      => "short",
-        "System.UInt16"     => "ushort",
-        "System.Object"     => "object",
-        "System.String"     => "string",
-        "System.Void"       => "void",
-        _                   => type.Name
+        "System.Boolean" => "bool",
+        "System.Byte" => "byte",
+        "System.SByte" => "sbyte",
+        "System.Char" => "char",
+        "System.Decimal" => "decimal",
+        "System.Double" => "double",
+        "System.Single" => "float",
+        "System.Int32" => "int",
+        "System.UInt32" => "uint",
+        "System.Int64" => "long",
+        "System.UInt64" => "ulong",
+        "System.Int16" => "short",
+        "System.UInt16" => "ushort",
+        "System.Object" => "object",
+        "System.String" => "string",
+        "System.Void" => "void",
+        _ => type.Name
     };
+
+    #endregion
 
     #endregion
 }
