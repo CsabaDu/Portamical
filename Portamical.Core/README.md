@@ -6,6 +6,94 @@ Define test data **once** and consume it across test frameworks using adapter pa
 
 ---
 
+## What's New in v3.3.0
+
+**Extensibility, Performance & Documentation Release**
+
+This version introduces a powerful extensibility model through custom formatters, significant performance improvements via span-based optimizations, and comprehensive documentation enhancements across the test data type hierarchy.
+
+### Breaking Changes
+
+1. **Formatter Architecture Refactoring**
+   - **Extracted:** Shared formatting logic from `ValueFormatter` into new `Formatter` base class
+   - **Moved:** Helper methods (`FallbackIfNull`, `JoinWithComma`) to `Formatter` base class
+   - **Impact:** Code using `using static Portamical.Core.Formatting.ValueFormatter;` may need updating
+   - **Migration:** Change to `using static Portamical.Core.Formatting.Model.Formatter;` for helper access
+
+### New Features
+
+1. **Custom Formatter Registry** ??
+   ```csharp
+   // Register custom formatter for your domain types
+   public class ProductIdFormatter : IFormatter<ProductId>
+   {
+       public string Format(ProductId value) => $"PROD-{value.Id:D6}";
+   }
+
+   // Register it globally
+   ValueFormatter.Registry[typeof(ProductId)] = new ProductIdFormatter();
+
+   // Now all test cases format ProductId automatically
+   var test = CreateTestDataReturns(
+       definition: "Get product by ID",
+       expected: productResult,
+       arg1: new ProductId(42));
+   // TestCaseName: "Get product by ID => returns PROD-000042" ?
+   ```
+
+2. **IFormatter Interface & Formatter Base Class**
+   - **`IFormatter<T>`**: Type-safe extensibility contract for custom formatters
+   - **`Formatter`**: Shared utilities for all formatters
+     - `FallbackIfNull(string?)`: Null-to-"null" conversion
+     - `JoinWithComma(IEnumerable<string?>)`: Optimized comma-separated list building
+     - `CreateSeparatedString(string, string, string)`: Zero-allocation concatenation
+     - Span-based helpers for high-performance string operations
+
+3. **Delegate Formatting** ??
+   ```csharp
+   // Distinguishes named methods from anonymous lambdas
+   Func<int, string> lambda = x => x.ToString();
+   // Formats as: "Func<int, string> (anonymous)"
+
+   Action<string> method = Console.WriteLine;
+   // Formats as: "Action<string> (WriteLine)"
+   ```
+
+### Performance Improvements ?
+
+- **Span-Based String Building**
+  - `Formatter.JoinWithComma()`: 66-75% fewer allocations for 2-3 item collections
+  - `ValueFormatter.Format()`: Zero-copy operations throughout hot paths
+  - `string.Create<TState>()`: Eliminates intermediate allocations
+  - Particularly beneficial in test case name generation (tuples, type arguments, small collections)
+
+### Enhanced Documentation ??
+
+- **ValueFormatter**: Comprehensive XML documentation with formatting table for 12+ types
+- **TestDataExpected, TestDataReturns, TestDataThrows**: Enhanced XML comments with detailed examples
+- **IFormatter & Formatter**: Complete API documentation
+- **T4 Templates**: All templates now include `#nullable enable` directives
+  - `TestDataExpected.tt` ? **NEW**
+  - `TestDataReturns.tt`
+  - `TestDataThrows.tt`
+
+### Migration from v3.2.x
+
+```csharp
+// Before (v3.2.x)
+using static Portamical.Core.Formatting.ValueFormatter;
+
+// After (v3.3.0)
+using static Portamical.Core.Formatting.Model.Formatter;
+```
+
+All existing `ValueFormatter.Format()` calls work unchanged. Performance improvements apply automatically.
+
+---
+
+<details>
+<summary><strong>What's New in v3.2.0</strong> (Click to expand)</summary>
+
 ## What's New in v3.2.0
 
 🚨 **Breaking Architectural Improvements + Intelligent Formatting**
@@ -68,6 +156,12 @@ This version introduces significant enhancements to the test data type hierarchy
    - All T4-generated files now include `#nullable enable` directives
    - Improved XML documentation completeness
    - Added missing `<returns>` tags in factory methods
+   - **NEW:** `TestDataExpected.tt` template for generating `TestDataExpected<TResult, T1...T9>` classes
+     - Completes the T4 template trio alongside `TestDataReturns.tt` and `TestDataThrows.tt`
+     - Generates 9 generic variants (1-9 type parameters) for flexible test data composition
+     - Integrated into verification scripts (`verify-generated.ps1` and `verify-generated.sh`)
+
+</details>
 
 ---
 
@@ -185,10 +279,12 @@ public sealed class ValidationCases
 Portamical.Core/
 ├── Factories/              # Factory methods for test data creation
 ├── Formatting/             # ⭐ NEW: Value formatting utilities
+│   ├── IFormatter.cs       # Extensibility contract for custom formatters
+│   ├── Model/Formatter.cs  # Abstract base with shared formatting utilities
 │   └── ValueFormatter.cs   # Intelligent type-specific formatting
 ├── Identity/               # Test case identity and equality contracts
 │   ├── INamedCase.cs       # Core interface for test case naming and equality
-│   └── Model               # Abstract base with equality comparer and display name creation (NamedCase)
+│   └── Model/NamedCase     # Abstract base with equality comparer and display name creation (NamedCase)
 ├── Safety/                 # Validation utilities (Validator, Resolver)
 ├── Strategy/               # Strategy enums (ArgsCode, PropsCode)
 └── TestDataTypes/          # Core test data domain
