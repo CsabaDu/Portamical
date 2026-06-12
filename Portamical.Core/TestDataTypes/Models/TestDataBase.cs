@@ -5,6 +5,7 @@ using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using System.Runtime.CompilerServices;
+using static Portamical.Core.Formatting.Model.Formatter;
 
 namespace Portamical.Core.TestDataTypes.Models;
 
@@ -156,27 +157,11 @@ public abstract class TestDataBase(string definition)
             Separator.Length +
             result.Length;
 
-        return string.Create(
+        return CreateSeparatedString(
             totalLength,
-            (def, Separator, result),
-            static (span, state) =>
-            {
-                var (d, s, r) = state;
-
-                var index = 0;
-                copy(d, span, index);
-
-                index = d.Length;
-                copy(s, span, index);
-
-                index += s.Length;
-                copy(r, span, index);
-            });
-
-        #region Local method
-        static void copy(string part, Span<char> span, int index)
-        => part.AsSpan().CopyTo(span[index..]);
-        #endregion
+            def,
+            Separator,
+            result);
     }
 
     /// <summary>

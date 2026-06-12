@@ -29,21 +29,59 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v3.3.0 (2026-01-15)
+      v3.3.0 (2026-01-15) - Extensibility &amp; Performance Release
+
+      BREAKING CHANGES:
+      - ValueFormatter refactored to use Formatter base class
+      - Helper methods (FallbackIfNull, JoinWithComma) moved to Formatter base class
 
       Added:
+      - IFormatter interface for custom formatter implementations
+        • IFormatter (non-generic) for object formatting
+        • IFormatter&lt;T&gt; (generic) for type-safe formatting
+      - Formatter abstract base class with shared formatting utilities
+        • Constants: NullString, MaxCount, Separator
+        • Helpers: FallbackIfNull, JoinWithComma, CreateSeparatedString, CopyAsSpan
+      - Custom formatter registry in ValueFormatter
+        • Static Registry property for registering custom formatters by Type
+        • Format() checks registry before built-in pattern matching
+        • Enables extensibility without modifying ValueFormatter source
       - Delegate formatting support in ValueFormatter.Format() method
         • Formats Func&lt;T&gt;, Action&lt;T&gt;, Predicate&lt;T&gt;, and custom delegate types
         • Distinguishes between named methods (e.g., "WriteLine") and anonymous lambdas
         • Output format: "DelegateType (methodName)" or "DelegateType (anonymous)"
-        • Examples: "Func&lt;int, string&gt; (anonymous)", "Action&lt;string&gt; (WriteLine)"
+
+      Performance Optimizations:
+      - Zero-allocation string building using string.Create() with Span&lt;char&gt;
+        • JoinWithComma: 66-75% fewer allocations for 2-3 item collections
+        • Format(string): Direct span write for quoted strings
+        • Format(object?, object?): Zero-copy key-value pair formatting
+        • Format(Delegate): Allocation-free delegate name construction
+        • Format(Type): Span-based array/nullable/generic formatting
+      - Reduced GC pressure in hot paths (tuples, type arguments, small collections)
+      - CreateSeparatedString: Shared by ValueFormatter and TestDataBase for zero-copy concatenation
 
       Improved:
       - Optimized pattern matching in ValueFormatter (removed redundant string check)
+      - Extracted GetKvpPropValues helper for KeyValuePair property access
+      - Simplified TestDataBase.CreateTestCaseName() using CreateSeparatedString helper
 
       Documentation:
-      - Added comprehensive XML documentation for delegate formatting
-      - Added delegate examples to Format() method documentation
+      - Added comprehensive XML documentation for IFormatter and Formatter
+      - Added delegate formatting examples to Format() method documentation
+      - Created PERFORMANCE_STRING_CREATE_OPTIMIZATION.md with detailed benchmarks
+      - Updated all method docs to reflect "expectedType" terminology
+
+      Testing:
+      - Added 433 lines of tests for Formatter base class
+      - Added 217 lines of tests for custom formatter registry
+      - Added test parallelization control and cleanup for registry tests
+
+      Migration Guide:
+      - Change: using static Portamical.Core.Formatting.ValueFormatter; 
+        To: using static Portamical.Core.Formatting.Model.Formatter;
+        (for FallbackIfNull, JoinWithComma access)
+      - Custom formatters: Implement IFormatter&lt;T&gt; and register in ValueFormatter.Registry
     </PackageReleaseNotes>
 
     <!-- Package Generation -->

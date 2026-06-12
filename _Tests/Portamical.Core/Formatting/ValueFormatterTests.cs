@@ -10,8 +10,17 @@ namespace Tests.Portamical.Core.Formatting;
 /// Unit tests for <see cref="ValueFormatter"/> static formatting methods.
 /// </summary>
 [TestClass]
+[DoNotParallelize] // Registry is a shared static resource; tests must run sequentially
 public class ValueFormatterTests
 {
+    [TestCleanup]
+    public void Cleanup()
+    {
+        // Ensure registry is clean after each test to prevent test interference
+        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
+        registry.Clear();
+    }
+
     #region Format(object?) - Null and Basic Types
     [TestMethod]
     public void Format_withNull_returnsNull()
@@ -19,7 +28,217 @@ public class ValueFormatterTests
         var result = ValueFormatter.Format(null);
         Assert.IsNull(result);
     }
+    #endregion
 
+    #region Format(object?) - Custom Registry Formatters
+    [TestMethod]
+    public void Format_withEmptyRegistry_usesDefaultFormatting()
+    {
+        // Arrange: Registry.Count should be 0 initially
+        var obj = new CustomType { Value = 42 };
+
+        // Act
+        var result = ValueFormatter.Format(obj);
+
+        // Assert: Should use default ToString()
+        Assert.AreEqual("CustomType:42", result);
+    }
+
+    [TestMethod]
+    public void Format_withRegisteredFormatter_usesCustomFormatter()
+    {
+        // Arrange: Cast to mutable dictionary to register a custom formatter
+        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
+        var customFormatter = new CustomTypeFormatter();
+
+        try
+        {
+            registry[typeof(CustomType)] = customFormatter;
+
+            var obj = new CustomType { Value = 42 };
+
+            // Act
+            var result = ValueFormatter.Format(obj);
+
+            // Assert: Should use custom formatter
+            Assert.AreEqual("Custom:42", result);
+        }
+        finally
+        {
+            // Cleanup: Remove the registered formatter
+            registry.Remove(typeof(CustomType));
+        }
+    }
+
+    [TestMethod]
+    public void Format_withRegisteredFormatterReturningNull_returnsNull()
+    {
+        // Arrange
+        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
+        var nullFormatter = new NullReturningFormatter();
+
+        try
+        {
+            registry[typeof(CustomType)] = nullFormatter;
+            var obj = new CustomType { Value = 42 };
+
+            // Act
+            var result = ValueFormatter.Format(obj);
+
+            // Assert: Custom formatter returns null
+            Assert.IsNull(result);
+        }
+        finally
+        {
+            registry.Remove(typeof(CustomType));
+        }
+    }
+
+    [TestMethod]
+    public void Format_withRegistryCountZero_skipsRegistryLookup()
+    {
+        // Arrange: Ensure registry is empty
+        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
+        registry.Clear();
+
+        var obj = new CustomType { Value = 99 };
+
+        // Act
+        var result = ValueFormatter.Format(obj);
+
+        // Assert: Should use default ToString() without registry lookup
+        Assert.AreEqual("CustomType:99", result);
+    }
+
+    [TestMethod]
+    public void Format_withUnregisteredType_fallsBackToDefaultFormatting()
+    {
+        // Arrange: Register a formatter for one type
+        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
+        var customFormatter = new CustomTypeFormatter();
+
+        try
+        {
+            registry[typeof(CustomType)] = customFormatter;
+
+            var obj = new AnotherCustomType { Name = "Test" };
+
+            // Act
+            var result = ValueFormatter.Format(obj);
+
+            // Assert: Should fall back to default ToString()
+            Assert.AreEqual("Another:Test", result);
+        }
+        finally
+        {
+            registry.Remove(typeof(CustomType));
+        }
+    }
+
+    [TestMethod]
+    public void Format_withMultipleRegisteredTypes_usesCorrectFormatter()
+    {
+        // Arrange
+        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
+        var customFormatter = new CustomTypeFormatter();
+        var anotherFormatter = new AnotherTypeFormatter();
+
+        try
+        {
+            registry[typeof(CustomType)] = customFormatter;
+            registry[typeof(AnotherCustomType)] = anotherFormatter;
+
+            var obj1 = new CustomType { Value = 42 };
+            var obj2 = new AnotherCustomType { Name = "Test" };
+
+            // Act
+            var result1 = ValueFormatter.Format(obj1);
+            var result2 = ValueFormatter.Format(obj2);
+
+            // Assert
+            Assert.AreEqual("Custom:42", result1);
+            Assert.AreEqual("Another_Custom:Test", result2);
+        }
+        finally
+        {
+            registry.Remove(typeof(CustomType));
+            registry.Remove(typeof(AnotherCustomType));
+        }
+    }
+
+    [TestMethod]
+    public void Format_withRegisteredFormatterForBuiltInType_overridesDefault()
+    {
+        // Arrange: Register a custom formatter for string
+        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
+        var stringFormatter = new CustomStringFormatter();
+
+        try
+        {
+            registry[typeof(string)] = stringFormatter;
+
+            // Act
+            var result = ValueFormatter.Format("hello");
+
+            // Assert: Should use custom formatter instead of default double-quoting
+            Assert.AreEqual("[hello]", result);
+        }
+        finally
+        {
+            registry.Remove(typeof(string));
+        }
+    }
+
+    // Test helper types
+    private class CustomType
+    {
+        public int Value { get; set; }
+        public override string ToString() => $"CustomType:{Value}";
+    }
+
+    private class AnotherCustomType
+    {
+        public string Name { get; set; } = string.Empty;
+        public override string ToString() => $"Another:{Name}";
+    }
+
+    private class CustomTypeFormatter : IFormatter
+    {
+        public string? Format(object value)
+        {
+            if (value is CustomType custom)
+                return $"Custom:{custom.Value}";
+            return null;
+        }
+    }
+
+    private class AnotherTypeFormatter : IFormatter
+    {
+        public string? Format(object value)
+        {
+            if (value is AnotherCustomType another)
+                return $"Another_Custom:{another.Name}";
+            return null;
+        }
+    }
+
+    private class NullReturningFormatter : IFormatter
+    {
+        public string? Format(object value) => null;
+    }
+
+    private class CustomStringFormatter : IFormatter
+    {
+        public string? Format(object value)
+        {
+            if (value is string str)
+                return $"[{str}]";
+            return null;
+        }
+    }
+    #endregion
+
+    #region Format(object?) - Basic Types
     [TestMethod]
     public void Format_withInt_returnsToString()
     {
