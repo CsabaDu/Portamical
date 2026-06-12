@@ -300,7 +300,8 @@ public abstract class Formatter : IFormatter
     /// </example>
 public static string JoinWithComma(IEnumerable<string?> items)
 {
-    if (items is ICollection<string?> collection && collection.Count == 0)
+    if (items is ICollection<string?> collection &&
+        collection.Count == 0)
     {
         return string.Empty;
     }
