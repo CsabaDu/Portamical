@@ -298,20 +298,20 @@ public abstract class Formatter : IFormatter
     /// JoinWithComma(new string?[] { "a", null, "b" })   // Returns: "a, null, b"
     /// </code>
     /// </example>
-    public static string JoinWithComma(IEnumerable<string?> items)
+public static string JoinWithComma(IEnumerable<string?> items)
+{
+    if (items is ICollection<string?> collection && collection.Count == 0)
     {
-        if (!items.GetEnumerator().MoveNext())
-        {
-            return string.Empty;
-        }
-
-        if (items is List<string?> list)
-        {
-            return JoinWithComma(list);
-        }
-
-        return JoinWithSeparator(items);
+        return string.Empty;
     }
+
+    if (items is IList<string?> list)
+    {
+        return JoinWithComma(list);
+    }
+
+    return JoinWithSeparator(items);
+}
 
     private static string JoinWithComma(IList<string?> list)
     {
