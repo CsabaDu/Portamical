@@ -294,22 +294,22 @@ public static class ValueFormatter
             // - IDictionary is checked separately in Format(IEnumerable)
             //   to delegate to Format(IDictionary, string?).
             char ch => Format(ch),
-            string str => Format(str),
-            Type type => Format(type),
-            DateTime dt => Format(dt.ToString, "O"),
-            DateTimeOffset dto => Format(dto.ToString, "O"),
-            Guid guid => Format(guid.ToString, "D"),
-            byte[] bytes => Format(BitConverter.ToString, bytes),
-            Exception ex => Format(ex),
+            string str              => Format(str),
+            Type type               => Format(type),
+            DateTime dt             => Format(dt.ToString, "O"),
+            DateTimeOffset dto      => Format(dto.ToString, "O"),
+            Guid guid               => Format(guid.ToString, "D"),
+            byte[] bytes            => Format(BitConverter.ToString, bytes),
+            Exception ex            => Format(ex),
             _ when IsKeyValuePair(
                 expected,
                 out var key,
-                out var value) => Format(key, value),
-            ITuple tuple => Format(tuple),
-            Delegate del => Format(del),
-            IEnumerable coll => Format(coll),
-            Stream stream => Format(stream),
-            _ => expected.ToString() ?? null,
+                out var value)      => Format(key, value),
+            ITuple tuple            => Format(tuple),
+            Delegate del            => Format(del),
+            IEnumerable coll        => Format(coll),
+            Stream stream           => Format(stream),
+            _                       => expected.ToString() ?? null,
         };
     }
 
