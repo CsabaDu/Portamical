@@ -22,7 +22,7 @@ This version introduces a powerful extensibility model through custom formatters
 
 ### New Features
 
-1. **Custom Formatter Registry** ??
+1. **Custom Formatter Registry**
    ```csharp
    // Register custom formatter for your domain types
    public class ProductIdFormatter : IFormatter<ProductId>
@@ -49,7 +49,7 @@ This version introduces a powerful extensibility model through custom formatters
      - `CreateSeparatedString(string, string, string)`: Zero-allocation concatenation
      - Span-based helpers for high-performance string operations
 
-3. **Delegate Formatting** ??
+3. **Delegate Formatting**
    ```csharp
    // Distinguishes named methods from anonymous lambdas
    Func<int, string> lambda = x => x.ToString();
@@ -59,7 +59,7 @@ This version introduces a powerful extensibility model through custom formatters
    // Formats as: "Action<string> (WriteLine)"
    ```
 
-### Performance Improvements ?
+### Performance Improvements
 
 - **Span-Based String Building**
   - `Formatter.JoinWithComma()`: 66-75% fewer allocations for 2-3 item collections
@@ -67,7 +67,7 @@ This version introduces a powerful extensibility model through custom formatters
   - `string.Create<TState>()`: Eliminates intermediate allocations
   - Particularly beneficial in test case name generation (tuples, type arguments, small collections)
 
-### Enhanced Documentation ??
+### Enhanced Documentation
 
 - **ValueFormatter**: Comprehensive XML documentation with formatting table for 12+ types
 - **TestDataExpected, TestDataReturns, TestDataThrows**: Enhanced XML comments with detailed examples
