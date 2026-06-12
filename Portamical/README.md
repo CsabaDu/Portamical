@@ -435,7 +435,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
-### **Version 3.0.0 (2026-04-25)**
+### **Version 3.0.0** (2026-04-25)
 
 ***API Cleanup***
 
@@ -496,7 +496,7 @@ await ThrowsDetailsAsync(
 
 ---
 
-##### **Version 3.0.1 (2026-05-01)**
+##### **Version 3.0.1** (2026-05-01)
 
 **Added**
 - Null parameter validation to async assertion methods (`DoesNotThrowAsync(Func<Task>`, `Func<string, ValueTask>)`, `ThrowsDetailsAsync<TException>(Func<Task>`, `TException, Func<Func<Task>, ValueTask<Exception?>>`, `Func<Type, object, ValueTask>`, `Func<string, string?, ValueTask>`, `Func<string, ValueTask>), CatchExceptionAsync(Func<Task>)`)
@@ -515,7 +515,7 @@ await ThrowsDetailsAsync(
 
 ---
 
-#### **Version 3.1.0 (2026-05-27)**
+#### **Version 3.1.0** (2026-05-27)
 
 **Added**
 - **`MetadataEquality<TException>(TException, TException, Action<string, string?>)`** - New public synchronous wrapper for exception metadata assertions
@@ -565,7 +565,7 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-#### **Version 3.2.0 (2025-06-05)**
+#### **Version 3.2.0** (2025-06-05)
 
 **Updated**
 - Portamical.Core dependency to v3.2.0
@@ -574,7 +574,7 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-##### **Version 3.2.1 (2026-06-06)**
+##### **Version 3.2.1** (2026-06-06)
 
 **Updated**
 - Portamical.Core dependency updated to v3.2.1
@@ -583,7 +583,7 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-##### **Version 3.2.2 (Current: 2026-06-08)**
+##### **Version 3.2.2** (2026-06-08)
 
 **Updated**
 - Portamical.Core dependency updated to v3.2.2
@@ -592,7 +592,7 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-##### **Version 3.3.0 (Current: 2026-06-12)**
+##### **Version 3.3.0 - Current** (2026-06-12)
 
 **Updated**
 - Portamical.Core dependency updated to v3.3.0
@@ -601,7 +601,7 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-### **Version 2.0.0 (2026-03-16)**
+### **Version 2.0.0** (2026-03-16)
 
 **Breaking**
 - Removed `TestBase.ResetLogCounter()` → use `Resolver.ResetLogCounter()`
@@ -622,21 +622,21 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-##### **Version 2.0.1 (2026-03-20)**
+##### **Version 2.0.1** (2026-03-20)
 
 **Documentation Update**
 - Breaking changes description corrected
 
 ---
 
-##### **Version 2.0.2 (2026-04-02)**
+##### **Version 2.0.2** (2026-04-02)
 
 **Changed**
 - Updated Portamical.Core dependency: 2.0.0 → 2.0.1
 
 ---
 
-#### **Version 2.1.0 (2026-04-20)**
+#### **Version 2.1.0** (2026-04-20)
 
 **Added**
 - Generic `Equality<T>()` method with custom comparison delegate
@@ -658,14 +658,14 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-##### **Version 2.1.1 (2026-04-21)**
+##### **Version 2.1.1** (2026-04-21)
 
 **Added**
 - `GetNotExpectedValueMessage()` protected helper method
 
 ---
 
-#### **Version 2.2.0 (2026-04-22)**
+#### **Version 2.2.0** (2026-04-22)
 
 **Added**
 - Async-first assertion architecture using `ValueTask`
@@ -683,14 +683,14 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-##### **Version 2.2.1 (2026-04-23)**
+##### **Version 2.2.1** (2026-04-23)
 
 **Changed**
 - Portamical.Core dependency 2.0.1 → 2.2.0
 
 ---
 
-#### **Version 2.3.0 (2026-04-25)**
+#### **Version 2.3.0** (2026-04-25)
 
 ***Async-First Architecture Completed***
 
@@ -743,7 +743,7 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-### **Version 1.0.0 (2026-03-06)**
+### **Version 1.0.0** (2026-03-06)
 
 - Initial release
 - Framework-agnostic converters
@@ -753,14 +753,14 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-##### **Version 1.0.1 (2026-03-07)**
+##### **Version 1.0.1** (2026-03-07)
 
 - Moved xunit.runner.json from Portamical to xUnit adapter packages
 - Improved GlobalUsings.cs organization
 
 ---
 
-##### **Version 1.0.2 (2026-03-08)**
+##### **Version 1.0.2** (2026-03-08)
 
 - Implemented standard `IDisposable` pattern in `Portamical.TestBases.TestBase`
 
