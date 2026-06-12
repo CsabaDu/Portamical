@@ -298,49 +298,51 @@ public abstract class Formatter : IFormatter
     /// JoinWithComma(new string?[] { "a", null, "b" })   // Returns: "a, null, b"
     /// </code>
     /// </example>
-public static string JoinWithComma(IEnumerable<string?> items)
-{
-    if (items is ICollection<string?> collection &&
-        collection.Count == 0)
+    public static string JoinWithComma(IEnumerable<string?> items)
     {
-        return string.Empty;
+        if (items is ICollection<string?> collection &&
+            collection.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        if (items is IList<string?> list)
+        {
+            return JoinWithComma(list);
+        }
+
+        return JoinWithSeparator(items);
     }
 
-    if (items is IList<string?> list)
-    {
-        return JoinWithComma(list);
-    }
-
-    return JoinWithSeparator(items);
-}
+    #region Private helpers
 
     private static string JoinWithComma(IList<string?> list)
     {
-// Fast path for common case: List<string> with 1-4 items
-var count = list.Count;
-var i = 0;
-var result = getIndexedItem();
+        // Fast path for common case: List<string> with 1-4 items
+        var count = list.Count;
+        var i = 0;
+        var result = getIndexedItem();
 
-if (isCountEqualToIncrementedIndex()) return result;
+        if (isCountEqualToIncrementedIndex()) return result;
 
-var separatorLength = Separator.Length;
-var totalLength = result.Length;
+        var separatorLength = Separator.Length;
+        var totalLength = result.Length;
 
-while (i <= 3)
-{
-    var item = getIndexedItem();
-    totalLength += separatorLength + item.Length;
-    result = CreateSeparatedString(
-        totalLength,
-        result,
-        Separator,
-        item);
+        while (i <= 3)
+        {
+            var item = getIndexedItem();
+            totalLength += separatorLength + item.Length;
+            result = CreateSeparatedString(
+                totalLength,
+                result,
+                Separator,
+                item);
 
-    if (isCountEqualToIncrementedIndex()) return result;
-}
+            if (isCountEqualToIncrementedIndex()) return result;
+        }
 
-// Fallback to standard join for more than 4 items
-return JoinWithSeparator(list);
+        // Fallback to standard join for more than 4 items
+        return JoinWithSeparator(list);
 
         #region Local methods
         string getIndexedItem()
@@ -353,4 +355,6 @@ return JoinWithSeparator(list);
 
     private static string JoinWithSeparator(IEnumerable<string?> strings)
     => string.Join(Separator, strings.Select(FallbackIfNull));
+
+    #endregion
 }
