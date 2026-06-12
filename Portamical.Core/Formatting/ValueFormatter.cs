@@ -546,12 +546,14 @@ public static class ValueFormatter
     /// </example>
     private static string? Format(Delegate del)
     {
+        const string anonymousMethodName = "anonymous";
+        const string lambdaPrefix = "lambda_";
         var delegateType = Format(del.GetType());
         var methodName = del.Method.Name;
 
         // Detect compiler-generated names for anonymous methods/lambdas
-        var isAnonymous = methodName.Contains('<') || methodName.Contains('>') || methodName.StartsWith("lambda_");
-        var displayName = isAnonymous ? "anonymous" : methodName;
+        var isAnonymous = methodName.Contains('<') || methodName.Contains('>') || methodName.StartsWith(lambdaPrefix);
+        var displayName = isAnonymous ? anonymousMethodName : methodName;
 
         // Zero-allocation string building: DelegateType (displayName)
         var totalLength = delegateType!.Length + 3 + displayName.Length; // " (", ")"
@@ -959,13 +961,11 @@ public static class ValueFormatter
 
         var type = obj.GetType();
 
-        // Check if expectedType is KeyValuePair<,>
-        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
+        if (!type.IsGenericType ||
+            type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
         {
             return false;
         }
-
-        // Extract Key and Value properties
 
         (key, value) = GetKvpPropValues(type, obj);
 
