@@ -507,6 +507,24 @@ public static class ValueFormatter
     public static int RegisteredFormatterCount
     => _registry.Count;
 
+    /// <summary>
+    /// Gets the internal formatter registry for testing purposes.
+    /// </summary>
+    /// <value>A read-only view of the formatter registry.</value>
+    /// <remarks>
+    /// <para>
+    /// <strong>Warning:</strong> This property is exposed primarily for unit testing
+    /// and should not be used in production code. Use the public registration methods
+    /// (<see cref="RegisterFormatter(Type, IFormatter)"/>, <see cref="UnregisterFormatter(Type)"/>, etc.)
+    /// for normal formatter management.
+    /// </para>
+    /// <para>
+    /// <strong>Thread Safety:</strong> The returned dictionary is thread-safe for reads and writes.
+    /// </para>
+    /// </remarks>
+    public static IReadOnlyDictionary<Type, IFormatter> Registry
+    => _registry;
+
     #endregion
 
     #region Private formatter methods

@@ -17,8 +17,7 @@ public class ValueFormatterTests
     public void Cleanup()
     {
         // Ensure registry is clean after each test to prevent test interference
-        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
-        registry.Clear();
+        ValueFormatter.ClearFormatters();
     }
 
     #region Format(object?) - Null and Basic Types
@@ -47,13 +46,12 @@ public class ValueFormatterTests
     [TestMethod]
     public void Format_withRegisteredFormatter_usesCustomFormatter()
     {
-        // Arrange: Cast to mutable dictionary to register a custom formatter
-        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
+        // Arrange: Register a custom formatter using public API
         var customFormatter = new CustomTypeFormatter();
 
         try
         {
-            registry[typeof(CustomType)] = customFormatter;
+            ValueFormatter.RegisterFormatter<CustomType>(customFormatter);
 
             var obj = new CustomType { Value = 42 };
 
@@ -66,7 +64,7 @@ public class ValueFormatterTests
         finally
         {
             // Cleanup: Remove the registered formatter
-            registry.Remove(typeof(CustomType));
+            ValueFormatter.UnregisterFormatter<CustomType>();
         }
     }
 
@@ -74,12 +72,11 @@ public class ValueFormatterTests
     public void Format_withRegisteredFormatterReturningNull_returnsNull()
     {
         // Arrange
-        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
         var nullFormatter = new NullReturningFormatter();
 
         try
         {
-            registry[typeof(CustomType)] = nullFormatter;
+            ValueFormatter.RegisterFormatter<CustomType>(nullFormatter);
             var obj = new CustomType { Value = 42 };
 
             // Act
@@ -90,7 +87,7 @@ public class ValueFormatterTests
         }
         finally
         {
-            registry.Remove(typeof(CustomType));
+            ValueFormatter.UnregisterFormatter<CustomType>();
         }
     }
 
@@ -98,8 +95,7 @@ public class ValueFormatterTests
     public void Format_withRegistryCountZero_skipsRegistryLookup()
     {
         // Arrange: Ensure registry is empty
-        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
-        registry.Clear();
+        ValueFormatter.ClearFormatters();
 
         var obj = new CustomType { Value = 99 };
 
@@ -114,12 +110,11 @@ public class ValueFormatterTests
     public void Format_withUnregisteredType_fallsBackToDefaultFormatting()
     {
         // Arrange: Register a formatter for one type
-        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
         var customFormatter = new CustomTypeFormatter();
 
         try
         {
-            registry[typeof(CustomType)] = customFormatter;
+            ValueFormatter.RegisterFormatter<CustomType>(customFormatter);
 
             var obj = new AnotherCustomType { Name = "Test" };
 
@@ -131,7 +126,7 @@ public class ValueFormatterTests
         }
         finally
         {
-            registry.Remove(typeof(CustomType));
+            ValueFormatter.UnregisterFormatter<CustomType>();
         }
     }
 
@@ -139,14 +134,13 @@ public class ValueFormatterTests
     public void Format_withMultipleRegisteredTypes_usesCorrectFormatter()
     {
         // Arrange
-        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
         var customFormatter = new CustomTypeFormatter();
         var anotherFormatter = new AnotherTypeFormatter();
 
         try
         {
-            registry[typeof(CustomType)] = customFormatter;
-            registry[typeof(AnotherCustomType)] = anotherFormatter;
+            ValueFormatter.RegisterFormatter<CustomType>(customFormatter);
+            ValueFormatter.RegisterFormatter<AnotherCustomType>(anotherFormatter);
 
             var obj1 = new CustomType { Value = 42 };
             var obj2 = new AnotherCustomType { Name = "Test" };
@@ -161,8 +155,8 @@ public class ValueFormatterTests
         }
         finally
         {
-            registry.Remove(typeof(CustomType));
-            registry.Remove(typeof(AnotherCustomType));
+            ValueFormatter.UnregisterFormatter<CustomType>();
+            ValueFormatter.UnregisterFormatter<AnotherCustomType>();
         }
     }
 
@@ -170,12 +164,11 @@ public class ValueFormatterTests
     public void Format_withRegisteredFormatterForBuiltInType_overridesDefault()
     {
         // Arrange: Register a custom formatter for string
-        var registry = (Dictionary<Type, IFormatter>)ValueFormatter.Registry;
         var stringFormatter = new CustomStringFormatter();
 
         try
         {
-            registry[typeof(string)] = stringFormatter;
+            ValueFormatter.RegisterFormatter<string>(stringFormatter);
 
             // Act
             var result = ValueFormatter.Format("hello");
@@ -185,7 +178,7 @@ public class ValueFormatterTests
         }
         finally
         {
-            registry.Remove(typeof(string));
+            ValueFormatter.UnregisterFormatter<string>();
         }
     }
 
@@ -1174,6 +1167,468 @@ public class ValueFormatterTests
     private class CustomObject
     {
         public override string ToString() => "CustomObject";
+    }
+    #endregion
+
+    #region Formatter Registration API Tests
+#pragma warning disable CA2263 // Prefer generic overload - Intentionally testing non-generic overload
+    [TestMethod]
+    public void RegisterFormatter_withValidTypeAndFormatter_returnsTrue()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+
+        try
+        {
+            // Act
+            var result = ValueFormatter.RegisterFormatter(typeof(CustomType), formatter);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(ValueFormatter.IsFormatterRegistered<CustomType>());
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+        }
+    }
+#pragma warning restore CA2263
+
+    [TestMethod]
+    public void RegisterFormatter_generic_withValidFormatter_returnsTrue()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+
+        try
+        {
+            // Act
+            var result = ValueFormatter.RegisterFormatter<CustomType>(formatter);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(ValueFormatter.IsFormatterRegistered<CustomType>());
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+        }
+    }
+
+    [TestMethod]
+    public void RegisterFormatter_withAlreadyRegisteredType_returnsFalse()
+    {
+        // Arrange
+        var formatter1 = new CustomTypeFormatter();
+        var formatter2 = new CustomTypeFormatter();
+
+        try
+        {
+            ValueFormatter.RegisterFormatter<CustomType>(formatter1);
+
+            // Act - Try to register again
+            var result = ValueFormatter.RegisterFormatter<CustomType>(formatter2);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+        }
+    }
+
+    [TestMethod]
+    public void RegisterFormatter_withNullType_throwsArgumentNullException()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+
+        // Act & Assert
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            ValueFormatter.RegisterFormatter(null!, formatter));
+    }
+
+    [TestMethod]
+    public void RegisterFormatter_withNullFormatter_throwsArgumentNullException()
+    {
+        // Act & Assert
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            ValueFormatter.RegisterFormatter(typeof(CustomType), null!));
+    }
+
+    [TestMethod]
+    public void RegisterFormatter_generic_withNullFormatter_throwsArgumentNullException()
+    {
+        // Act & Assert
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            ValueFormatter.RegisterFormatter<CustomType>(null!));
+    }
+
+#pragma warning disable CA2263 // Prefer generic overload - Intentionally testing non-generic overload
+    [TestMethod]
+    public void UnregisterFormatter_withRegisteredType_returnsTrue()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+        ValueFormatter.RegisterFormatter(typeof(CustomType), formatter);
+
+        // Act
+        var result = ValueFormatter.UnregisterFormatter<CustomType>();
+
+        // Assert
+        Assert.IsTrue(result);
+        Assert.IsFalse(ValueFormatter.IsFormatterRegistered<CustomType>());
+    }
+#pragma warning restore CA2263
+
+    [TestMethod]
+    public void UnregisterFormatter_generic_withRegisteredType_returnsTrue()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+        ValueFormatter.RegisterFormatter<CustomType>(formatter);
+
+        // Act
+        var result = ValueFormatter.UnregisterFormatter<CustomType>();
+
+        // Assert
+        Assert.IsTrue(result);
+        Assert.IsFalse(ValueFormatter.IsFormatterRegistered<CustomType>());
+    }
+
+    [TestMethod]
+    public void UnregisterFormatter_withUnregisteredType_returnsFalse()
+    {
+        // Act
+        var result = ValueFormatter.UnregisterFormatter<CustomType>();
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void UnregisterFormatter_withNullType_throwsArgumentNullException()
+    {
+        // Act & Assert
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            ValueFormatter.UnregisterFormatter(null!));
+    }
+
+#pragma warning disable CA2263 // Prefer generic overload - Intentionally testing non-generic overload
+    [TestMethod]
+    public void IsFormatterRegistered_withRegisteredType_returnsTrue()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+
+        try
+        {
+            ValueFormatter.RegisterFormatter(typeof(CustomType), formatter);
+
+            // Act
+            var result = ValueFormatter.IsFormatterRegistered<CustomType>();
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+        }
+    }
+#pragma warning restore CA2263
+
+    [TestMethod]
+    public void IsFormatterRegistered_generic_withRegisteredType_returnsTrue()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+
+        try
+        {
+            ValueFormatter.RegisterFormatter<CustomType>(formatter);
+
+            // Act
+            var result = ValueFormatter.IsFormatterRegistered<CustomType>();
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+        }
+    }
+
+#pragma warning disable CA2263 // Prefer generic overload - Intentionally testing non-generic overload
+    [TestMethod]
+    public void IsFormatterRegistered_withUnregisteredType_returnsFalse()
+    {
+        // Act
+        var result = ValueFormatter.IsFormatterRegistered(typeof(CustomType));
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+#pragma warning restore CA2263
+
+    [TestMethod]
+    public void IsFormatterRegistered_generic_withUnregisteredType_returnsFalse()
+    {
+        // Act
+        var result = ValueFormatter.IsFormatterRegistered<CustomType>();
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsFormatterRegistered_withNullType_throwsArgumentNullException()
+    {
+        // Act & Assert
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            ValueFormatter.IsFormatterRegistered(null!));
+    }
+
+    [TestMethod]
+    public void ClearFormatters_removesAllRegisteredFormatters()
+    {
+        // Arrange
+        var formatter1 = new CustomTypeFormatter();
+        var formatter2 = new AnotherTypeFormatter();
+        ValueFormatter.RegisterFormatter<CustomType>(formatter1);
+        ValueFormatter.RegisterFormatter<AnotherCustomType>(formatter2);
+
+        // Act
+        ValueFormatter.ClearFormatters();
+
+        // Assert
+        Assert.IsFalse(ValueFormatter.IsFormatterRegistered<CustomType>());
+        Assert.IsFalse(ValueFormatter.IsFormatterRegistered<AnotherCustomType>());
+        Assert.AreEqual(0, ValueFormatter.RegisteredFormatterCount);
+    }
+
+    [TestMethod]
+    public void ClearFormatters_whenRegistryEmpty_doesNotThrow()
+    {
+        // Arrange
+        ValueFormatter.ClearFormatters();
+
+        // Act & Assert - Should not throw
+        ValueFormatter.ClearFormatters();
+        Assert.AreEqual(0, ValueFormatter.RegisteredFormatterCount);
+    }
+
+    [TestMethod]
+    public void RegisteredFormatterCount_withNoFormatters_returnsZero()
+    {
+        // Arrange
+        ValueFormatter.ClearFormatters();
+
+        // Act
+        var count = ValueFormatter.RegisteredFormatterCount;
+
+        // Assert
+        Assert.AreEqual(0, count);
+    }
+
+    [TestMethod]
+    public void RegisteredFormatterCount_withOneFormatter_returnsOne()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+
+        try
+        {
+            ValueFormatter.RegisterFormatter<CustomType>(formatter);
+
+            // Act
+            var count = ValueFormatter.RegisteredFormatterCount;
+
+            // Assert
+            Assert.AreEqual(1, count);
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+        }
+    }
+
+    [TestMethod]
+    public void RegisteredFormatterCount_withMultipleFormatters_returnsCorrectCount()
+    {
+        // Arrange
+        var formatter1 = new CustomTypeFormatter();
+        var formatter2 = new AnotherTypeFormatter();
+        var formatter3 = new CustomStringFormatter();
+
+        try
+        {
+            ValueFormatter.RegisterFormatter<CustomType>(formatter1);
+            ValueFormatter.RegisterFormatter<AnotherCustomType>(formatter2);
+            ValueFormatter.RegisterFormatter<string>(formatter3);
+
+            // Act
+            var count = ValueFormatter.RegisteredFormatterCount;
+
+            // Assert
+            Assert.AreEqual(3, count);
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+            ValueFormatter.UnregisterFormatter<AnotherCustomType>();
+            ValueFormatter.UnregisterFormatter<string>();
+        }
+    }
+
+    [TestMethod]
+    public void RegisteredFormatterCount_afterUnregister_decrements()
+    {
+        // Arrange
+        var formatter1 = new CustomTypeFormatter();
+        var formatter2 = new AnotherTypeFormatter();
+
+        try
+        {
+            ValueFormatter.RegisterFormatter<CustomType>(formatter1);
+            ValueFormatter.RegisterFormatter<AnotherCustomType>(formatter2);
+            var initialCount = ValueFormatter.RegisteredFormatterCount;
+
+            // Act
+            ValueFormatter.UnregisterFormatter<CustomType>();
+            var finalCount = ValueFormatter.RegisteredFormatterCount;
+
+            // Assert
+            Assert.AreEqual(2, initialCount);
+            Assert.AreEqual(1, finalCount);
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<AnotherCustomType>();
+        }
+    }
+
+    [TestMethod]
+    public void Registry_returnsNonNullDictionary()
+    {
+        // Act
+        var registry = ValueFormatter.Registry;
+
+        // Assert
+        Assert.IsNotNull(registry);
+    }
+
+    [TestMethod]
+    public void Registry_afterRegistration_containsRegisteredType()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+
+        try
+        {
+            ValueFormatter.RegisterFormatter<CustomType>(formatter);
+
+            // Act
+            var registry = ValueFormatter.Registry;
+
+            // Assert
+            Assert.IsTrue(registry.ContainsKey(typeof(CustomType)));
+            Assert.AreSame(formatter, registry[typeof(CustomType)]);
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+        }
+    }
+
+    [TestMethod]
+    public void Registry_afterUnregistration_doesNotContainType()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+        ValueFormatter.RegisterFormatter<CustomType>(formatter);
+        ValueFormatter.UnregisterFormatter<CustomType>();
+
+        // Act
+        var registry = ValueFormatter.Registry;
+
+        // Assert
+        Assert.IsFalse(registry.ContainsKey(typeof(CustomType)));
+    }
+
+    [TestMethod]
+    public void Registry_afterClear_isEmpty()
+    {
+        // Arrange
+        var formatter1 = new CustomTypeFormatter();
+        var formatter2 = new AnotherTypeFormatter();
+        ValueFormatter.RegisterFormatter<CustomType>(formatter1);
+        ValueFormatter.RegisterFormatter<AnotherCustomType>(formatter2);
+        ValueFormatter.ClearFormatters();
+
+        // Act
+        var registry = ValueFormatter.Registry;
+
+        // Assert
+        Assert.IsEmpty(registry);
+    }
+
+    [TestMethod]
+    public void FormatterRegistration_threadSafety_handlesMultipleThreads()
+    {
+        // Arrange
+        var formatter = new CustomTypeFormatter();
+        var tasks = new List<Task<bool>>();
+        var threadCount = 10;
+
+        try
+        {
+            // Act - Multiple threads trying to register the same type
+            for (int i = 0; i < threadCount; i++)
+            {
+                tasks.Add(Task.Run(() =>
+                    ValueFormatter.RegisterFormatter<CustomType>(formatter)));
+            }
+
+            Task.WaitAll(tasks.ToArray());
+
+            // Assert - Only one should succeed
+            var successCount = tasks.Count(t => t.Result);
+            Assert.AreEqual(1, successCount);
+            Assert.AreEqual(1, ValueFormatter.RegisteredFormatterCount);
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+        }
+    }
+
+    [TestMethod]
+    public void FormatterUnregistration_afterRegistration_allowsReregistration()
+    {
+        // Arrange
+        var formatter1 = new CustomTypeFormatter();
+        var formatter2 = new CustomTypeFormatter();
+
+        try
+        {
+            // Act - Register, unregister, then register again
+            var firstReg = ValueFormatter.RegisterFormatter<CustomType>(formatter1);
+            var unreg = ValueFormatter.UnregisterFormatter<CustomType>();
+            var secondReg = ValueFormatter.RegisterFormatter<CustomType>(formatter2);
+
+            // Assert
+            Assert.IsTrue(firstReg);
+            Assert.IsTrue(unreg);
+            Assert.IsTrue(secondReg);
+            Assert.IsTrue(ValueFormatter.IsFormatterRegistered<CustomType>());
+        }
+        finally
+        {
+            ValueFormatter.UnregisterFormatter<CustomType>();
+        }
     }
     #endregion
 }
