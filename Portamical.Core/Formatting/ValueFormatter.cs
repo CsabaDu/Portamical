@@ -1000,67 +1000,6 @@ public static class ValueFormatter
     }
 
     /// <summary>
-    /// Formats an <see cref="IDictionary"/> showing the first <see cref="MaxCount"/> key-value pairs.
-    /// </summary>
-    /// <param name="dictionary">The dictionary to format.</param>
-    /// <param name="prefix">A prefix string describing the count (e.g., <ch>"3"</ch> or <ch>"First 3 of 5+"</ch>).</param>
-    /// <returns>
-    /// A string in the form <ch>"[prefix]: {{key1: value1}, {key2: value2}, {key3: value3}}"</ch>.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Dictionary Entry Handling:</strong> Supports both <see cref="DictionaryEntry"/> (non-generic)
-    /// and <see cref="KeyValuePair{TKey,TValue}"/> (generic) via reflection. This enables formatting
-    /// of both <ch>IDictionary</ch> and <ch>IDictionary&lt;TKey, TValue&gt;</ch> implementations.
-    /// </para>
-    /// <para>
-    /// <strong>Recursive Formatting:</strong> Keys and values are formatted via <see cref="Format(object?, object?)"/>
-    /// which recursively applies expectedType-specific formatting rules.
-    /// </para>
-    /// <para>
-    /// <strong>Reflection Usage:</strong> For generic <ch>Dictionary&lt;TKey, TValue&gt;</ch>, uses reflection
-    /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> expectedType,
-    /// avoiding the need for multiple overloads for every possible key/value expectedType combination.
-    /// </para>
-    /// <para>
-    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// due to reflection usage and complexity. Dictionary formatting is not a hot path.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// var dictionary = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2, ["ch"] = 3 };
-    /// Format(dictionary, "3")  // Returns: "[3]: {{\"a\": 1}, {\"b\": 2}, {\"ch\": 3}}"
-    /// 
-    /// var largeDict = new Dictionary&lt;int, string&gt; { [1] = "one", [2] = "two", [3] = "three", [4] = "four" };
-    /// Format(largeDict, "First 3 of 4+")  // Returns: "[First 3 of 4+]: {{1: \"one\"}, {2: \"two\"}, {3: \"three\"}}"
-    /// </code>
-    /// </example>
-    private static string? FormatDictionary(IDictionary dictionary, string? prefix)
-    {
-        var items = dictionary
-            .Cast<object>()
-            .Take(MaxCount)
-            .Select(item =>
-            {
-                // Handle both DictionaryEntry (from non-generic IDictionary)
-                // and KeyValuePair<,> (from Dictionary<,>)
-                if (item is DictionaryEntry de)
-                {
-                    return Format(de.Key, de.Value);
-                }
-
-                // Use reflection to access Key and Value properties from KeyValuePair<,>
-                var type = item.GetType();
-                var (key, value) = GetKvpPropValues(type, item);
-
-                return Format(key, value);
-            });
-
-        return $"[{prefix}]: {{{JoinWithComma(items)}}}";
-    }
-
-    /// <summary>
     /// Formats a <see cref="Stream"/> showing its expectedType, length, and current position.
     /// </summary>
     /// <param name="stream">The stream to format.</param>
@@ -1121,6 +1060,7 @@ public static class ValueFormatter
     #region Format helper methods
 
     #region KeyValuePair formatting helpers
+
     private static (object? key, object? value) GetKvpPropValues(Type type, object kvp)
     {
         var key = getPropertyValue("Key");
@@ -1177,6 +1117,67 @@ public static class ValueFormatter
         (key, value) = GetKvpPropValues(type, obj);
 
         return true;
+    }
+
+    /// <summary>
+    /// Formats an <see cref="IDictionary"/> showing the first <see cref="MaxCount"/> key-value pairs.
+    /// </summary>
+    /// <param name="dictionary">The dictionary to format.</param>
+    /// <param name="prefix">A prefix string describing the count (e.g., <ch>"3"</ch> or <ch>"First 3 of 5+"</ch>).</param>
+    /// <returns>
+    /// A string in the form <ch>"[prefix]: {{key1: value1}, {key2: value2}, {key3: value3}}"</ch>.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Dictionary Entry Handling:</strong> Supports both <see cref="DictionaryEntry"/> (non-generic)
+    /// and <see cref="KeyValuePair{TKey,TValue}"/> (generic) via reflection. This enables formatting
+    /// of both <ch>IDictionary</ch> and <ch>IDictionary&lt;TKey, TValue&gt;</ch> implementations.
+    /// </para>
+    /// <para>
+    /// <strong>Recursive Formatting:</strong> Keys and values are formatted via <see cref="Format(object?, object?)"/>
+    /// which recursively applies expectedType-specific formatting rules.
+    /// </para>
+    /// <para>
+    /// <strong>Reflection Usage:</strong> For generic <ch>Dictionary&lt;TKey, TValue&gt;</ch>, uses reflection
+    /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> expectedType,
+    /// avoiding the need for multiple overloads for every possible key/value expectedType combination.
+    /// </para>
+    /// <para>
+    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// due to reflection usage and complexity. Dictionary formatting is not a hot path.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var dictionary = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2, ["ch"] = 3 };
+    /// Format(dictionary, "3")  // Returns: "[3]: {{\"a\": 1}, {\"b\": 2}, {\"ch\": 3}}"
+    /// 
+    /// var largeDict = new Dictionary&lt;int, string&gt; { [1] = "one", [2] = "two", [3] = "three", [4] = "four" };
+    /// Format(largeDict, "First 3 of 4+")  // Returns: "[First 3 of 4+]: {{1: \"one\"}, {2: \"two\"}, {3: \"three\"}}"
+    /// </code>
+    /// </example>
+    private static string? FormatDictionary(IDictionary dictionary, string? prefix)
+    {
+        var items = dictionary
+            .Cast<object>()
+            .Take(MaxCount)
+            .Select(item =>
+            {
+                // Handle both DictionaryEntry (from non-generic IDictionary)
+                // and KeyValuePair<,> (from Dictionary<,>)
+                if (item is DictionaryEntry de)
+                {
+                    return Format(de.Key, de.Value);
+                }
+
+                // Use reflection to access Key and Value properties from KeyValuePair<,>
+                var type = item.GetType();
+                var (key, value) = GetKvpPropValues(type, item);
+
+                return Format(key, value);
+            });
+
+        return $"[{prefix}]: {{{JoinWithComma(items)}}}";
     }
 
     #endregion
