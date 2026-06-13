@@ -646,10 +646,10 @@ public static class ValueFormatter
             str,
             static (span, state) =>
             {
-                var insertChar = '"';
-                span[0] = insertChar;
+                var ch = '"';
+                span[0] = ch;
                 CopyAsSpan(state, span, 1);
-                span[^1] = insertChar;
+                span[^1] = ch;
             });
     }
 
@@ -729,19 +729,19 @@ public static class ValueFormatter
             {
                 var (k, v) = state;
 
-                var insertChar = '{';
+                var ch = '{';
                 var index = 0;
-                span = InsertCharAndIncrement(span, insertChar, index, out index);
+                span = InsertCharAndIncrement(span, ch, index, out index);
 
-                insertChar = ':';
-                span = CopyAndInsertChar(k, span, insertChar, index, out index);
+                ch = ':';
+                span = CopyAndInsertChar(k, span, ch, index, out index);
 
                 index++;
-                insertChar = ' ';
-                span = InsertCharAndIncrement(span, insertChar, index, out index);
+                ch = ' ';
+                span = InsertCharAndIncrement(span, ch, index, out index);
 
-                insertChar = '}';
-                _ = CopyAndInsertChar(v, span, insertChar, index, out index);
+                ch = '}';
+                _ = CopyAndInsertChar(v, span, ch, index, out index);
             });
     }
 
@@ -861,16 +861,16 @@ public static class ValueFormatter
             {
                 var (type, name) = state;
 
-                var insertChar = ' ';
+                var ch = ' ';
                 var index = 0;
-                span = CopyAndInsertChar(type, span, insertChar, index, out index);
+                span = CopyAndInsertChar(type, span, ch, index, out index);
 
                 index++;
-                insertChar = '(';
-                span = InsertCharAndIncrement(span, insertChar, index, out index);
+                ch = '(';
+                span = InsertCharAndIncrement(span, ch, index, out index);
 
-                insertChar = ')';
-                _ = CopyAndInsertChar(name, span, insertChar, index, out index);
+                ch = ')';
+                _ = CopyAndInsertChar(name, span, ch, index, out index);
             });
     }
 
@@ -1219,8 +1219,8 @@ public static class ValueFormatter
                 {
                     var (element, count) = state;
 
-                    var insertChar = '[';
-                    span = CopyAndInsertChar(element, span, insertChar, 0, out var index);
+                    var ch = '[';
+                    span = CopyAndInsertChar(element, span, ch, 0, out var index);
 
                     index++;
 
@@ -1275,13 +1275,13 @@ public static class ValueFormatter
             {
                 var (name, args) = state;
 
-                var insertChar = '<';
+                var ch = '<';
                 var index = 0;
-                span = CopyAndInsertChar(name, span, insertChar, index, out index);
+                span = CopyAndInsertChar(name, span, ch, index, out index);
 
-                insertChar = '>';
+                ch = '>';
                 index++;
-                _ = CopyAndInsertChar(args, span, insertChar, index, out index);
+                _ = CopyAndInsertChar(args, span, ch, index, out index);
             });
     }
 
