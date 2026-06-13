@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.Formatting;
 using Portamical.Core.Formatting.Model;
 
 namespace Tests.Portamical.Core.Formatting.Model;
@@ -56,38 +57,6 @@ public class FormatterTests
     {
         var result = Formatter.FallbackIfNull("   ");
         Assert.AreEqual("   ", result);
-    }
-    #endregion
-
-    #region Format<T> (generic)
-    [TestMethod]
-    public void Format_withFunc_invokesFunction()
-    {
-        var result = Formatter.Format(x => x.ToString(), 42);
-        Assert.AreEqual("42", result);
-    }
-
-    [TestMethod]
-    public void Format_withFuncReturningNull_returnsNull()
-    {
-        var result = Formatter.Format<object?>(x => null, new object());
-        Assert.IsNull(result);
-    }
-
-    [TestMethod]
-    public void Format_withDateTimeToString_formatsCorrectly()
-    {
-        var dt = new DateTime(2026, 1, 15, 10, 30, 45, DateTimeKind.Utc);
-        var result = Formatter.Format(dt.ToString, "O");
-        Assert.AreEqual("2026-01-15T10:30:45.0000000Z", result);
-    }
-
-    [TestMethod]
-    public void Format_withGuidToString_formatsCorrectly()
-    {
-        var guid = new Guid("12345678-1234-1234-1234-123456789012");
-        var result = Formatter.Format(guid.ToString, "D");
-        Assert.AreEqual("12345678-1234-1234-1234-123456789012", result);
     }
     #endregion
 
@@ -429,5 +398,327 @@ public class FormatterTests
             return value.ToString()?.ToUpper();
         }
     }
+    #endregion
+
+    #region Formatter<T> - Type Safety Tests
+    [TestMethod]
+    public void FormatterT_Format_withMatchingType_delegatesToTypeSafeMethod()
+    {
+        var formatter = new TestFormatterInt();
+        var result = formatter.Format(42);
+        Assert.AreEqual("INT:42", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_FormatObject_withMatchingType_callsTypeSafeMethod()
+    {
+        var formatter = new TestFormatterInt();
+        object value = 42;
+        var result = formatter.Format(value);
+        Assert.AreEqual("INT:42", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_FormatObject_withNonMatchingType_returnsNull()
+    {
+        var formatter = new TestFormatterInt();
+        object value = "not an int";
+        var result = formatter.Format(value);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void FormatterT_FormatObject_withNullForValueType_returnsNull()
+    {
+        var formatter = new TestFormatterInt();
+        var result = formatter.Format(null!);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void FormatterT_FormatObject_withNullForReferenceType_callsTypeSafeMethod()
+    {
+        var formatter = new TestFormatterString();
+        var result = formatter.Format(null!);
+        Assert.AreEqual("null", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_FormatObject_withBoxedValueType_unboxesAndFormats()
+    {
+        var formatter = new TestFormatterInt();
+        object boxed = 123;
+        var result = formatter.Format(boxed);
+        Assert.AreEqual("INT:123", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_Format_withDerivedType_worksCorrectly()
+    {
+        var formatter = new TestFormatterException();
+        var exception = new ArgumentException("test");
+        var result = formatter.Format(exception);
+        Assert.AreEqual("EX:System.ArgumentException", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_FormatObject_withDerivedType_worksCorrectly()
+    {
+        var formatter = new TestFormatterException();
+        object exception = new InvalidOperationException("test");
+        var result = formatter.Format(exception);
+        Assert.AreEqual("EX:System.InvalidOperationException", result);
+    }
+    #endregion
+
+    #region Formatter<T> - IFormatter Interface Compliance
+    [TestMethod]
+    public void FormatterT_implementsIFormatter()
+    {
+        var formatter = new TestFormatterInt();
+        Assert.IsInstanceOfType<IFormatter>(formatter);
+    }
+
+    [TestMethod]
+    public void FormatterT_implementsIFormatterT()
+    {
+        var formatter = new TestFormatterInt();
+        Assert.IsInstanceOfType<IFormatter<int>>(formatter);
+    }
+
+    [TestMethod]
+    public void FormatterT_IFormatterFormat_callsTypeSafeMethod()
+    {
+        IFormatter formatter = new TestFormatterInt();
+        object value = 99;
+        var result = formatter.Format(value);
+        Assert.AreEqual("INT:99", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_IFormatterTFormat_callsTypeSafeMethod()
+    {
+        IFormatter<int> formatter = new TestFormatterInt();
+        var result = formatter.Format(55);
+        Assert.AreEqual("INT:55", result);
+    }
+    #endregion
+
+    #region Formatter<T> - Base Class Utility Usage
+    [TestMethod]
+    public void FormatterT_canUseBaseClassConstants()
+    {
+        var formatter = new TestFormatterWithBaseUtils();
+        var result = formatter.Format(null);
+        Assert.AreEqual("null", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_canUseFallbackIfNull()
+    {
+        var formatter = new TestFormatterWithBaseUtils();
+        var result = formatter.Format("test");
+        Assert.AreEqual("VALUE:test", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_canUseJoinWithComma()
+    {
+        var formatter = new TestFormatterList();
+        var result = formatter.Format(["a", "b", "c"]);
+        Assert.AreEqual("LIST:[a, b, c]", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_canUseCreateSeparatedString()
+    {
+        var formatter = new TestFormatterWithSeparator();
+        var result = formatter.Format(("key", "value"));
+        Assert.AreEqual("key => value", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_canUseCopyAsSpan()
+    {
+        var formatter = new TestFormatterWithSpan();
+        var result = formatter.Format("test");
+        Assert.AreEqual("PREFIX:test", result);
+    }
+    #endregion
+
+    #region Formatter<T> - Nullable Type Handling
+    [TestMethod]
+    public void FormatterT_withNullableValueType_handlesNull()
+    {
+        var formatter = new TestFormatterNullableInt();
+        var result = formatter.Format(null);
+        Assert.AreEqual("null", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_withNullableValueType_handlesValue()
+    {
+        var formatter = new TestFormatterNullableInt();
+        var result = formatter.Format(42);
+        Assert.AreEqual("NULLABLE:42", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_withNullableValueType_objectOverloadHandlesNull()
+    {
+        // When null is passed as object?, the pattern matching fails for nullable value types
+        // because null (object?) is not the same as null (int?)
+        var formatter = new TestFormatterNullableInt();
+        var result = formatter.Format((object?)null!);
+        Assert.IsNull(result); // Returns null due to type mismatch, not "null" string
+    }
+
+    [TestMethod]
+    public void FormatterT_withNullableValueType_objectOverloadHandlesBoxedValue()
+    {
+        var formatter = new TestFormatterNullableInt();
+        object? value = 99;
+        var result = formatter.Format(value);
+        Assert.AreEqual("NULLABLE:99", result);
+    }
+    #endregion
+
+    #region Formatter<T> - Edge Cases
+    [TestMethod]
+    public void FormatterT_withStructType_handlesCorrectly()
+    {
+        var formatter = new TestFormatterGuid();
+        var guid = Guid.NewGuid();
+        var result = formatter.Format(guid);
+        Assert.IsTrue(result?.StartsWith("GUID:"));
+    }
+
+    [TestMethod]
+    public void FormatterT_withEnumType_handlesCorrectly()
+    {
+        var formatter = new TestFormatterEnum();
+        var result = formatter.Format(DayOfWeek.Monday);
+        Assert.AreEqual("ENUM:Monday", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_withInterfaceType_handlesImplementations()
+    {
+        var formatter = new TestFormatterEnumerable();
+        var list = new List<int> { 1, 2, 3 };
+        var result = formatter.Format(list);
+        Assert.AreEqual("ENUMERABLE:3", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_withAbstractType_handlesDerivedTypes()
+    {
+        var formatter = new TestFormatterStream();
+        var stream = new MemoryStream();
+        var result = formatter.Format(stream);
+        Assert.AreEqual("STREAM:System.IO.MemoryStream", result);
+    }
+
+    [TestMethod]
+    public void FormatterT_formatMethodNotOverridable_isSealed()
+    {
+        // This test verifies at compile-time that Format(object) is sealed
+        // and cannot be overridden by derived classes
+        var formatter = new TestFormatterInt();
+        var method = formatter.GetType().GetMethod("Format", [typeof(object)]);
+        Assert.IsNotNull(method);
+        Assert.IsTrue(method!.IsFinal); // Sealed methods are marked as Final in reflection
+    }
+    #endregion
+
+    #region Formatter<T> Test Implementations
+
+    private class TestFormatterInt : Formatter<int>
+    {
+        public override string Format(int value) => $"INT:{value}";
+    }
+
+    private class TestFormatterString : Formatter<string?>
+    {
+        public override string Format(string? value) => value is null ? "null" : $"STR:{value}";
+    }
+
+    private class TestFormatterException : Formatter<Exception>
+    {
+        public override string Format(Exception value) => $"EX:{value.GetType().FullName}";
+    }
+
+    private class TestFormatterWithBaseUtils : Formatter<string?>
+    {
+        public override string Format(string? value)
+        {
+            if (value is null) return NullString;
+            return $"VALUE:{value}";
+        }
+    }
+
+    private class TestFormatterList : Formatter<List<string>>
+    {
+        public override string Format(List<string> value)
+        {
+            var joined = JoinWithComma(value);
+            return $"LIST:[{joined}]";
+        }
+    }
+
+    private class TestFormatterWithSeparator : Formatter<(string, string)>
+    {
+        public override string Format((string, string) value)
+        {
+            var (key, val) = value;
+            var totalLength = key.Length + 4 + val.Length; // " => "
+            return CreateSeparatedString(totalLength, key, " => ", val);
+        }
+    }
+
+    private class TestFormatterWithSpan : Formatter<string>
+    {
+        public override string Format(string value)
+        {
+            const string prefix = "PREFIX:";
+            var totalLength = prefix.Length + value.Length;
+            return string.Create(totalLength, (prefix, value), static (span, state) =>
+            {
+                var (p, v) = state;
+                CopyAsSpan(p, span, 0);
+                CopyAsSpan(v, span, p.Length);
+            });
+        }
+    }
+
+    private class TestFormatterNullableInt : Formatter<int?>
+    {
+        public override string Format(int? value)
+        {
+            if (value is null) return "null";
+            return $"NULLABLE:{value}";
+        }
+    }
+
+    private class TestFormatterGuid : Formatter<Guid>
+    {
+        public override string Format(Guid value) => $"GUID:{value}";
+    }
+
+    private class TestFormatterEnum : Formatter<DayOfWeek>
+    {
+        public override string Format(DayOfWeek value) => $"ENUM:{value}";
+    }
+
+    private class TestFormatterEnumerable : Formatter<IEnumerable<int>>
+    {
+        public override string Format(IEnumerable<int> value) => $"ENUMERABLE:{value.Count()}";
+    }
+
+    private class TestFormatterStream : Formatter<Stream>
+    {
+        public override string Format(Stream value) => $"STREAM:{value.GetType().FullName}";
+    }
+
     #endregion
 }
