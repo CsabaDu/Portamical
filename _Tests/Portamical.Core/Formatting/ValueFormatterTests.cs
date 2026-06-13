@@ -3,6 +3,7 @@
 
 using System.Collections;
 using Portamical.Core.Formatting;
+using Portamical.Core.Formatting.Model;
 
 namespace Tests.Portamical.Core.Formatting;
 
@@ -26,7 +27,7 @@ public class ValueFormatterTests
     [TestMethod]
     public void MaxCount_hasCorrectValue()
     {
-        Assert.AreEqual(3, ValueFormatter.MaxCount);
+        Assert.AreEqual(Formatter.MaxCount, ValueFormatter.MaxCount);
     }
 #pragma warning restore MSTEST0032
     #endregion

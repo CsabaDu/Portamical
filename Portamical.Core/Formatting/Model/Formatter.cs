@@ -21,6 +21,21 @@ namespace Portamical.Core.Formatting.Model;
 public abstract class Formatter : IFormatter
 {
     /// <summary>
+    /// The maximum number of items to include when formatting collections, tuples, and dictionaries.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Limits collection output to the first 3 items to keep formatted strings concise and readable.
+    /// When collections exceed this limit, output is truncated with a prefix like <c>"First 3 of 5+"</c>.
+    /// </para>
+    /// <para>
+    /// This value balances readability with diagnostic usefulness, providing enough context without
+    /// overwhelming test case names or log output with large collections.
+    /// </para>
+    /// </remarks>
+    public const int MaxCount = 3;
+
+    /// <summary>
     /// The string representation used for null values in formatted output.
     /// </summary>
     /// <remarks>

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2026. Csaba Dudas (CsabaDu)
+// Copyright (ch) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Safety;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 using static Portamical.Core.Formatting.Model.Formatter;
 using static Portamical.Core.Safety.Validator;
 
@@ -37,19 +38,16 @@ namespace Portamical.Core.Formatting;
 public static class ValueFormatter
 {
     /// <summary>
-    /// The maximum number of items to include when formatting collections, tuples, and dictionaries.
+    /// Represents the maximum count value supported by the formatter.
     /// </summary>
+    /// <value>
+    /// The maximum count value inherited from <see cref="Model.Formatter.MaxCount"/>.
+    /// </value>
     /// <remarks>
-    /// <para>
-    /// Limits collection output to the first 3 items to keep formatted strings concise and readable.
-    /// When collections exceed this limit, output is truncated with a prefix like <c>"First 3 of 5+"</c>.
-    /// </para>
-    /// <para>
-    /// This value balances readability with diagnostic usefulness, providing enough context without
-    /// overwhelming test case names or log output with large collections.
-    /// </para>
+    /// This constant defines the upper limit for count operations in the value formatter.
+    /// Any count exceeding this value should be handled appropriately by the implementing code.
     /// </remarks>
-    public const int MaxCount = 3;
+    public const int MaxCount = Model.Formatter.MaxCount;
 
     /// <summary>
     /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
@@ -57,7 +55,7 @@ public static class ValueFormatter
     /// <remarks>
     /// <para>
     /// This cache eliminates string allocations for ~95% of character formatting operations.
-    /// Characters are formatted with single quotes: <c>'a'</c>, <c>'Z'</c>, <c>'0'</c>, etc.
+    /// Characters are formatted with single quotes: <ch>'a'</ch>, <ch>'Z'</ch>, <ch>'0'</ch>, etc.
     /// </para>
     /// <para>
     /// Non-printable characters (control characters, extended ASCII, Unicode) are formatted
@@ -147,7 +145,7 @@ public static class ValueFormatter
     /// <strong>Implementation:</strong> First checks the <see cref="Registry"/> for custom formatters registered
     /// for the object's type. If no custom formatter is found, uses pattern matching to dispatch to type-specific
     /// overloaded helper methods. Each specialized method handles formatting for a particular type or type family
-    /// (e.g., <c>Format(char)</c>, <c>Format(string)</c>, <c>Format(IEnumerable)</c>).
+    /// (e.g., <ch>Format(char)</ch>, <ch>Format(string)</ch>, <ch>Format(IEnumerable)</ch>).
     /// This design separates concerns and improves maintainability while allowing extensibility.
     /// </para>
     /// <para>
@@ -159,55 +157,55 @@ public static class ValueFormatter
     ///   </listheader>
     ///   <item>
     ///     <term><see cref="char"/></term>
-    ///     <description>Single-quoted: <c>'c'</c> (via <c>Format(char)</c>)</description>
+    ///     <description>Single-quoted: <ch>'ch'</ch> (via <ch>Format(char)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="string"/></term>
-    ///     <description>Double-quoted: <c>"text"</c> (except for literal "null") (via <c>Format(string)</c>)</description>
+    ///     <description>Double-quoted: <ch>"text"</ch> (except for literal "null") (via <ch>Format(string)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="DateTime"/>, <see cref="DateTimeOffset"/></term>
-    ///     <description>ISO 8601 (round-trippable): <c>2026-01-15T10:30:00.0000000Z</c> (via <c>Format&lt;T&gt;(Func, T)</c> with "O" format)</description>
+    ///     <description>ISO 8601 (round-trippable): <ch>2026-01-15T10:30:00.0000000Z</ch> (via <ch>Format&lt;T&gt;(Func, T)</ch> with "O" format)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Guid"/></term>
-    ///     <description>Hyphenated format: <c>12345678-1234-1234-1234-123456789012</c> (via <c>Format&lt;T&gt;(Func, T)</c> with "D" format)</description>
+    ///     <description>Hyphenated format: <ch>12345678-1234-1234-1234-123456789012</ch> (via <ch>Format&lt;T&gt;(Func, T)</ch> with "D" format)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="byte"/>[]</term>
-    ///     <description>Hex string: <c>01-02-03-FF</c> (via <c>Format&lt;T&gt;(Func, T)</c> with <see cref="BitConverter.ToString"/>)</description>
+    ///     <description>Hex string: <ch>01-02-03-FF</ch> (via <ch>Format&lt;T&gt;(Func, T)</ch> with <see cref="BitConverter.ToString"/>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="KeyValuePair{TKey, TValue}"/></term>
-    ///     <description>Key-value pair: <c>{key: value}</c> (via <c>Format&lt;TKey, TValue&gt;(KeyValuePair)</c>)</description>
+    ///     <description>Key-value pair: <ch>{key: value}</ch> (via <ch>Format&lt;TKey, TValue&gt;(KeyValuePair)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Tuple"/> and <see cref="ValueTuple"/> (all arities)</term>
-    ///     <description>Parenthesized items: <c>(item1, item2, ...)</c> (via <c>Format(ITuple)</c>)</description>
+    ///     <description>Parenthesized items: <ch>(item1, item2, ...)</ch> (via <ch>Format(ITuple)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Exception"/></term>
-    ///     <description>Type and message: <c>ArgumentException: Value cannot be null</c> (via <c>Format(Exception)</c>)</description>
+    ///     <description>Type and message: <ch>ArgumentException: Value cannot be null</ch> (via <ch>Format(Exception)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Type"/></term>
-    ///     <description>C#-friendly expectedType name: <c>int</c>, <c>List&lt;string&gt;</c>, <c>int?</c>, <c>int[]</c> (via <c>Format(Type)</c>)</description>
+    ///     <description>C#-friendly expectedType name: <ch>int</ch>, <ch>List&lt;string&gt;</ch>, <ch>int?</ch>, <ch>int[]</ch> (via <ch>Format(Type)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Delegate"/></term>
-    ///     <description>Type and method name: <c>Func&lt;int, string&gt; (MethodName)</c> or <c>Action (anonymous)</c> (via <c>Format(Delegate)</c>)</description>
+    ///     <description>Type and method name: <ch>Func&lt;int, string&gt; (MethodName)</ch> or <ch>Action (anonymous)</ch> (via <ch>Format(Delegate)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IEnumerable"/></term>
-    ///     <description>First <see cref="MaxCount"/> (3) items: <c>[3]: [1, 2, 3]</c> or <c>[First 3 of 5+]: [1, 2, 3]</c> (via <c>Format(IEnumerable)</c>)</description>
+    ///     <description>First <see cref="MaxCount"/> (3) items: <ch>[3]: [1, 2, 3]</ch> or <ch>[First 3 of 5+]: [1, 2, 3]</ch> (via <ch>Format(IEnumerable)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IDictionary"/></term>
-    ///     <description>First <see cref="MaxCount"/> (3) pairs: <c>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</c> (via <c>Format(IDictionary, string?)</c>)</description>
+    ///     <description>First <see cref="MaxCount"/> (3) pairs: <ch>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</ch> (via <ch>Format(IDictionary, string?)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Stream"/></term>
-    ///     <description>Type, length, position: <c>MemoryStream (Length: 1024, Position: 0)</c> (via <c>Format(Stream)</c>)</description>
+    ///     <description>Type, length, position: <ch>MemoryStream (Length: 1024, Position: 0)</ch> (via <ch>Format(Stream)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term>Other types</term>
@@ -281,7 +279,8 @@ public static class ValueFormatter
         // Check custom formatter registry first (lock-free, thread-safe)
         var expectedType = expected.GetType();
 
-        if (_registry.TryGetValue(expectedType, out var formatter))
+        if (RegisteredFormatterCount > 0 &&
+            _registry.TryGetValue(expectedType, out var formatter))
         {
             return formatter.Format(expected);
         }
@@ -528,7 +527,7 @@ public static class ValueFormatter
     /// </para>
     /// <para>
     /// <strong>Usage:</strong> Typically called during test teardown or when resetting the
-    /// formatter to its default state.
+    /// formatter to its default st.
     /// </para>
     /// </remarks>
     /// <example>
@@ -558,7 +557,7 @@ public static class ValueFormatter
     /// avoiding code duplication for types that support parameterized string formatting.
     /// </para>
     /// <para>
-    /// <strong>Usage Example:</strong> <c>Format(dt.ToString, "O")</c> delegates to <c>dt.ToString("O")</c>.
+    /// <strong>Usage Example:</strong> <ch>Format(dt.ToString, "O")</ch> delegates to <ch>dt.ToString("O")</ch>.
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -573,7 +572,7 @@ public static class ValueFormatter
     /// Formats a <see cref="char"/> value with single quotes.
     /// </summary>
     /// <param name="ch">The character to format.</param>
-    /// <returns>A string in the form <c>'c'</c> where <c>c</c> is the character value.</returns>
+    /// <returns>A string in the form <ch>'ch'</ch> where <ch>ch</ch> is the character value.</returns>
     /// <remarks>
     /// <para>
     /// Uses single quotes to distinguish characters from strings and match C# literal syntax.
@@ -591,7 +590,6 @@ public static class ValueFormatter
     /// Format('\u0041') // Returns: "'A'" (cached)
     /// </code>
     /// </example>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? Format(char ch)
     {
         var IsAsciiPrintable = ch >= 32 && ch < 127;
@@ -609,14 +607,14 @@ public static class ValueFormatter
     /// </summary>
     /// <param name="str">The string to format.</param>
     /// <returns>
-    /// A double-quoted string (e.g., <c>"text"</c>), or the literal <c>null</c> (unquoted)
-    /// if the input is the exact string <c>"null"</c>.
+    /// A double-quoted string (e.g., <ch>"text"</ch>), or the literal <ch>null</ch> (unquoted)
+    /// if the input is the exact string <ch>"null"</ch>.
     /// </returns>
     /// <remarks>
     /// <para>
-    /// <strong>Special Case:</strong> The literal string <c>"null"</c> is returned unquoted
+    /// <strong>Special Case:</strong> The literal string <ch>"null"</ch> is returned unquoted
     /// to distinguish it from actual null values in formatted output. This prevents confusion
-    /// when displaying test case names where <c>"null"</c> as a string is different from
+    /// when displaying test case names where <ch>"null"</ch> as a string is different from
     /// a missing/null value.
     /// </para>
     /// <para>
@@ -634,7 +632,6 @@ public static class ValueFormatter
     /// Format("null")   // Returns: "null" (no quotes)
     /// </code>
     /// </example>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? Format(string str)
     {
         if (str == NullString)
@@ -649,9 +646,10 @@ public static class ValueFormatter
             str,
             static (span, state) =>
             {
-                span[0] = '"';
+                var insertChar = '"';
+                span[0] = insertChar;
                 CopyAsSpan(state, span, 1);
-                span[^1] = '"';
+                span[^1] = insertChar;
             });
     }
 
@@ -659,7 +657,7 @@ public static class ValueFormatter
     /// Formats an <see cref="Exception"/> as its expectedType name followed by its message.
     /// </summary>
     /// <param name="exception">The exception to format.</param>
-    /// <returns>A string in the form <c>"ExceptionType: Message"</c>.</returns>
+    /// <returns>A string in the form <ch>"ExceptionType: Message"</ch>.</returns>
     /// <remarks>
     /// <para>
     /// Provides a concise representation of exceptions suitable for test case names
@@ -667,8 +665,8 @@ public static class ValueFormatter
     /// other detailed information.
     /// </para>
     /// <para>
-    /// <strong>Note:</strong> Uses <see cref="Type.Name"/> (not <c>FullName</c>) to keep
-    /// output concise (e.g., <c>ArgumentException</c> instead of <c>System.ArgumentException</c>).
+    /// <strong>Note:</strong> Uses <see cref="Type.Name"/> (not <ch>FullName</ch>) to keep
+    /// output concise (e.g., <ch>ArgumentException</ch> instead of <ch>System.ArgumentException</ch>).
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -692,12 +690,12 @@ public static class ValueFormatter
     /// </summary>
     /// <param name="key">The key object (may be null for reference types).</param>
     /// <param name="value">The value object (may be null for reference types).</param>
-    /// <returns>A formatted string in the form <c>"{key: value}"</c>.</returns>
+    /// <returns>A formatted string in the form <ch>"{key: value}"</ch>.</returns>
     /// <remarks>
     /// <para>
     /// Recursively calls <see cref="Format(object?)"/> for both key and value to ensure
     /// consistent formatting (e.g., strings are quoted, chars are single-quoted, etc.).
-    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <c>"null"</c>.
+    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <ch>"null"</ch>.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -718,18 +716,20 @@ public static class ValueFormatter
             static (span, state) =>
             {
                 var (k, v) = state;
+
+                var insertChar = '{';
                 var index = 0;
+                span = InsertCharAndIncrement(span, insertChar, index, out index);
 
-                span[index++] = '{';
-                CopyAsSpan(k, span, index);
+                insertChar = ':';
+                span = CopyAndInsertChar(k, span, insertChar, index, out index);
 
-                index += k.Length;
-                span[index++] = ':';
-                span[index++] = ' ';
+                index++;
+                insertChar = ' ';
+                span = InsertCharAndIncrement(span, insertChar, index, out index);
 
-                CopyAsSpan(v, span, index);
-                index += v.Length;
-                span[index] = '}';
+                insertChar = '}';
+                _ = CopyAndInsertChar(v, span, insertChar, index, out index);
             });
     }
 
@@ -737,7 +737,7 @@ public static class ValueFormatter
     /// Formats a <see cref="Tuple"/> or <see cref="ValueTuple"/> into a human-readable string.
     /// </summary>
     /// <param name="tuple">The tuple to format (accessed via <see cref="ITuple"/> interface).</param>
-    /// <returns>A formatted string in the form <c>"(item1, item2, ...)"</c>.</returns>
+    /// <returns>A formatted string in the form <ch>"(item1, item2, ...)"</ch>.</returns>
     /// <remarks>
     /// <para>
     /// Uses the <see cref="ITuple"/> interface to access tuple elements generically,
@@ -747,11 +747,11 @@ public static class ValueFormatter
     /// <para>
     /// Recursively calls <see cref="Format(object?)"/> for each element to ensure
     /// consistent formatting across all types (strings quoted, dates in ISO 8601, etc.).
-    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <c>"null"</c>.
+    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <ch>"null"</ch>.
     /// </para>
     /// <para>
     /// <strong>Why use ITuple instead of Tuple.ToString()?</strong>
-    /// While <see cref="Tuple.ToString"/> produces <c>(item1, item2)</c> output,
+    /// While <see cref="Tuple.ToString"/> produces <ch>(item1, item2)</ch> output,
     /// this method applies our custom formatting rules recursively. For example,
     /// strings are double-quoted, chars are single-quoted, and dates use ISO 8601 format.
     /// </para>
@@ -787,8 +787,8 @@ public static class ValueFormatter
     /// </summary>
     /// <param name="del">The delegate to format.</param>
     /// <returns>
-    /// A string in the form <c>"DelegateType (MethodName)"</c> for named methods,
-    /// or <c>"DelegateType (anonymous)"</c> for anonymous methods and lambdas.
+    /// A string in the form <ch>"DelegateType (MethodName)"</ch> for named methods,
+    /// or <ch>"DelegateType (anonymous)"</ch> for anonymous methods and lambdas.
     /// </returns>
     /// <remarks>
     /// <para>
@@ -800,8 +800,8 @@ public static class ValueFormatter
     /// <para>
     /// <strong>Method Name Detection:</strong> Distinguishes between:
     /// <list type="bullet">
-    ///   <item><strong>Named methods:</strong> Shows the actual method name (e.g., <c>WriteLine</c>, <c>ToString</c>)</item>
-    ///   <item><strong>Anonymous methods/lambdas:</strong> Shows <c>"anonymous"</c> for compiler-generated names</item>
+    ///   <item><strong>Named methods:</strong> Shows the actual method name (e.g., <ch>WriteLine</ch>, <ch>ToString</ch>)</item>
+    ///   <item><strong>Anonymous methods/lambdas:</strong> Shows <ch>"anonymous"</ch> for compiler-generated names</item>
     /// </list>
     /// </para>
     /// <para>
@@ -848,18 +848,17 @@ public static class ValueFormatter
             static (span, state) =>
             {
                 var (type, name) = state;
+
+                var insertChar = ' ';
                 var index = 0;
+                span = CopyAndInsertChar(type, span, insertChar, index, out index);
 
-                CopyAsSpan(type, span, index);
-                index += type.Length;
+                index++;
+                insertChar = '(';
+                span = InsertCharAndIncrement(span, insertChar, index, out index);
 
-                span[index++] = ' ';
-                span[index++] = '(';
-
-                CopyAsSpan(name, span, index);
-                index += name.Length;
-
-                span[index] = ')';
+                insertChar = ')';
+                _ = CopyAndInsertChar(name, span, insertChar, index, out index);
             });
     }
 
@@ -932,14 +931,14 @@ public static class ValueFormatter
     /// </summary>
     /// <param name="coll">The collection to format.</param>
     /// <returns>
-    /// A string in the form <c>"[count]: [item1, item2, item3]"</c> or
-    /// <c>"[First 3 of 5+]: [item1, item2, item3]"</c> if there are more than <see cref="MaxCount"/> items.
+    /// A string in the form <ch>"[count]: [item1, item2, item3]"</ch> or
+    /// <ch>"[First 3 of 5+]: [item1, item2, item3]"</ch> if there are more than <see cref="MaxCount"/> items.
     /// </returns>
     /// <remarks>
     /// <para>
     /// <strong>Collection Truncation:</strong> Only the first <see cref="MaxCount"/> (3) items are included
     /// to keep output concise. If the collection contains more items, the prefix shows
-    /// <c>"First 3 of N+"</c> to indicate truncation.
+    /// <ch>"First 3 of N+"</ch> to indicate truncation.
     /// </para>
     /// <para>
     /// <strong>Dictionary Handling:</strong> If the collection implements <see cref="IDictionary"/>,
@@ -960,7 +959,7 @@ public static class ValueFormatter
     /// <code>
     /// Format(new[] { 1, 2, 3 })           // Returns: "[3]: [1, 2, 3]"
     /// Format(new[] { 1, 2, 3, 4, 5 })     // Returns: "[First 3 of 4+]: [1, 2, 3]"
-    /// Format(new[] { "a", null, "c" })    // Returns: "[3]: [\"a\", null, \"c\"]"
+    /// Format(new[] { "a", null, "ch" })    // Returns: "[3]: [\"a\", null, \"ch\"]"
     /// Format(new List&lt;char&gt; { 'x', 'y' })  // Returns: "[2]: ['x', 'y']"
     /// </code>
     /// </example>
@@ -992,22 +991,22 @@ public static class ValueFormatter
     /// Formats an <see cref="IDictionary"/> showing the first <see cref="MaxCount"/> key-value pairs.
     /// </summary>
     /// <param name="dictionary">The dictionary to format.</param>
-    /// <param name="prefix">A prefix string describing the count (e.g., <c>"3"</c> or <c>"First 3 of 5+"</c>).</param>
+    /// <param name="prefix">A prefix string describing the count (e.g., <ch>"3"</ch> or <ch>"First 3 of 5+"</ch>).</param>
     /// <returns>
-    /// A string in the form <c>"[prefix]: {{key1: value1}, {key2: value2}, {key3: value3}}"</c>.
+    /// A string in the form <ch>"[prefix]: {{key1: value1}, {key2: value2}, {key3: value3}}"</ch>.
     /// </returns>
     /// <remarks>
     /// <para>
     /// <strong>Dictionary Entry Handling:</strong> Supports both <see cref="DictionaryEntry"/> (non-generic)
     /// and <see cref="KeyValuePair{TKey,TValue}"/> (generic) via reflection. This enables formatting
-    /// of both <c>IDictionary</c> and <c>IDictionary&lt;TKey, TValue&gt;</c> implementations.
+    /// of both <ch>IDictionary</ch> and <ch>IDictionary&lt;TKey, TValue&gt;</ch> implementations.
     /// </para>
     /// <para>
     /// <strong>Recursive Formatting:</strong> Keys and values are formatted via <see cref="Format(object?, object?)"/>
     /// which recursively applies expectedType-specific formatting rules.
     /// </para>
     /// <para>
-    /// <strong>Reflection Usage:</strong> For generic <c>Dictionary&lt;TKey, TValue&gt;</c>, uses reflection
+    /// <strong>Reflection Usage:</strong> For generic <ch>Dictionary&lt;TKey, TValue&gt;</ch>, uses reflection
     /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> expectedType,
     /// avoiding the need for multiple overloads for every possible key/value expectedType combination.
     /// </para>
@@ -1018,8 +1017,8 @@ public static class ValueFormatter
     /// </remarks>
     /// <example>
     /// <code>
-    /// var dictionary = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2, ["c"] = 3 };
-    /// Format(dictionary, "3")  // Returns: "[3]: {{\"a\": 1}, {\"b\": 2}, {\"c\": 3}}"
+    /// var dictionary = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2, ["ch"] = 3 };
+    /// Format(dictionary, "3")  // Returns: "[3]: {{\"a\": 1}, {\"b\": 2}, {\"ch\": 3}}"
     /// 
     /// var largeDict = new Dictionary&lt;int, string&gt; { [1] = "one", [2] = "two", [3] = "three", [4] = "four" };
     /// Format(largeDict, "First 3 of 4+")  // Returns: "[First 3 of 4+]: {{1: \"one\"}, {2: \"two\"}, {3: \"three\"}}"
@@ -1206,14 +1205,15 @@ public static class ValueFormatter
                 static (span, state) =>
                 {
                     var (element, count) = state;
-                    CopyAsSpan(element, span, 0);
 
-                    var index = element.Length;
-                    span[index++] = '[';
+                    var insertChar = '[';
+                    span = CopyAndInsertChar(element, span, insertChar, 0, out var index);
+
+                    index++;
 
                     for (int i = 0; i < count; i++)
                     {
-                        span[index++] = ',';
+                        span = InsertCharAndIncrement(span, ',', index, out index);
                     }
 
                     span[index] = ']';
@@ -1261,17 +1261,14 @@ public static class ValueFormatter
             static (span, state) =>
             {
                 var (name, args) = state;
+
+                var insertChar = '<';
                 var index = 0;
+                span = CopyAndInsertChar(name, span, insertChar, index, out index);
 
-                CopyAsSpan(name, span, index);
-                index += name.Length;
-
-                span[index++] = '<';
-
-                CopyAsSpan(args, span, index);
-                index += args.Length;
-
-                span[index] = '>';
+                insertChar = '>';
+                index++;
+                _ = CopyAndInsertChar(args, span, insertChar, index, out index);
             });
     }
 
@@ -1311,6 +1308,35 @@ public static class ValueFormatter
         "System.Void" => "void",
         _ => type.Name
     };
+
+    #endregion
+
+    #region Span<char> helpers
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Span<char> InsertCharAndIncrement(
+        Span<char> span,
+        char ch,
+        int index,
+        out int incremented)
+    {
+        span[index] = ch;
+        incremented = index + 1;
+        return span;
+    }
+
+    private static Span<char> CopyAndInsertChar(
+        string str,
+        Span<char> span,
+        char ch,
+        int index,
+        out int incremented)
+    {
+        CopyAsSpan(str, span, index);
+        incremented = index + str.Length;
+        span[incremented] = ch;
+        return span;
+    }
 
     #endregion
 
