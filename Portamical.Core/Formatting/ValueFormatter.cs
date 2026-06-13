@@ -989,7 +989,7 @@ public static class ValueFormatter
 
         if (coll is IDictionary dictionary)
         {
-            return Format(dictionary, prefix);
+            return FormatDictionary(dictionary, prefix);
         }
 
         var items = materializedObjects
@@ -1036,7 +1036,7 @@ public static class ValueFormatter
     /// Format(largeDict, "First 3 of 4+")  // Returns: "[First 3 of 4+]: {{1: \"one\"}, {2: \"two\"}, {3: \"three\"}}"
     /// </code>
     /// </example>
-    private static string? Format(IDictionary dictionary, string? prefix)
+    private static string? FormatDictionary(IDictionary dictionary, string? prefix)
     {
         var items = dictionary
             .Cast<object>()
