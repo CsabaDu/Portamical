@@ -669,8 +669,9 @@ public static class ValueFormatter
     /// output concise (e.g., <ch>ArgumentException</ch> instead of <ch>System.ArgumentException</ch>).
     /// </para>
     /// <para>
-    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because exception formatting is not a hot path and involves string concatenation.
+    /// <strong>Performance:</strong> Uses <see cref="Formatter.CreateSeparatedString"/> for zero-allocation
+    /// string construction. Exception formatting is a hot path when used with <c>TestDataReturns&lt;TException&gt;</c>
+    /// for exception-based test case generation, where it's called for every parameterized test case.
     /// </para>
     /// </remarks>
     /// <example>
@@ -683,7 +684,18 @@ public static class ValueFormatter
     /// </code>
     /// </example>
     private static string? Format(Exception exception)
-    => $"{exception.GetType().Name}: {exception.Message}";
+    {
+        const string separator = ": ";
+        var typeName = exception.GetType().Name;
+        var message = exception.Message;
+        var totalLength = typeName.Length + separator.Length + message.Length;
+
+        return CreateSeparatedString(
+            totalLength,
+            typeName,
+            separator,
+            message);
+    }
 
     /// <summary>
     /// Formats a KeyValuePair's key and value into a readable string.
@@ -923,7 +935,7 @@ public static class ValueFormatter
 
         // Use C# expectedType aliases for primitive types
         // or fallback to type name for non-primitive types
-        return GetCSharpAlias(type);
+        return GetCSharpAliasOrTypeName(type);
     }
 
     /// <summary>
@@ -1287,7 +1299,7 @@ public static class ValueFormatter
     /// because the switch expression is large and this is called only at the end of expectedType-formatting logic.
     /// </para>
     /// </remarks>
-    private static string GetCSharpAlias(Type type)
+    private static string GetCSharpAliasOrTypeName(Type type)
     => type.FullName switch
     {
         "System.Boolean" => "bool",
