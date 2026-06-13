@@ -292,7 +292,7 @@ public static class ValueFormatter
             //   (since these implement or may implement IEnumerable).
             // - IDictionary is checked separately in Format(IEnumerable)
             //   to delegate to Format(IDictionary, string?).
-            char ch => Format(ch),
+            char ch                 => Format(ch),
             string str              => Format(str),
             Type type               => Format(type),
             DateTime dt             => Format(dt.ToString, "O"),
