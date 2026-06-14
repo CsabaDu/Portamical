@@ -1,13 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (ch) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Safety;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 using static Portamical.Core.Formatting.Model.Formatter;
-using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.Core.Formatting;
 
@@ -16,7 +12,7 @@ namespace Portamical.Core.Formatting;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The <see cref="ValueFormatter"/> class offers specialized formatting for various .NET types,
+/// The <see cref="DefaultFormatter"/> class offers specialized formatting for various .NET types,
 /// optimized for creating readable test case names, diagnostic output, and logging messages.
 /// </para>
 /// <para>
@@ -35,19 +31,11 @@ namespace Portamical.Core.Formatting;
 /// Supports custom formatter registration via <see cref="Registry"/> for specialized types.
 /// </para>
 /// </remarks>
-public static class ValueFormatter
+public static class DefaultFormatter
 {
-    /// <summary>
-    /// Represents the maximum count value supported by the formatter.
-    /// </summary>
-    /// <value>
-    /// The maximum count value inherited from <see cref="Model.Formatter.MaxCount"/>.
-    /// </value>
-    /// <remarks>
-    /// This constant defines the upper limit for count operations in the value formatter.
-    /// Any count exceeding this value should be handled appropriately by the implementing code.
-    /// </remarks>
-    public const int MaxCount = Model.Formatter.MaxCount;
+    private const int AsciiPrintableStart = ' ';
+    private const int AsciiPrintableEnd = '~';
+
 
     /// <summary>
     /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
@@ -63,73 +51,15 @@ public static class ValueFormatter
     /// </para>
     /// </remarks>
     private static readonly string[] CharFormats =
-        [.. Enumerable.Range(32, 95).Select(i => $"'{(char)i}'")];
-
-    /// <summary>
-    /// Thread-safe registry of custom formatters for specific types.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Uses <see cref="ConcurrentDictionary{TKey, TValue}"/> to provide lock-free thread-safe
-    /// access for concurrent reads and writes. Multiple threads can safely register formatters
-    /// and format objects simultaneously without external synchronization.
-    /// </para>
-    /// <para>
-    /// <strong>Usage:</strong> Register formatters via <see cref="RegisterFormatter(Type, IFormatter)"/>
-    /// for domain-specific types, complex objects, or types that need specialized string representations
-    /// in test case names. Unregister via <see cref="UnregisterFormatter(Type)"/>.
-    /// </para>
-    /// <para>
-    /// <strong>Performance:</strong> Lock-free reads are O(1). Registered formatters are consulted
-    /// before pattern matching, providing an efficient extension point without modifying core logic.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> All operations (register, unregister, lookup) are thread-safe.
-    /// </para>
-    /// </remarks>
-    private static readonly ConcurrentDictionary<Type, IFormatter> _registry = new();
-
-    /// <summary>
-    /// Gets the internal formatter registry for testing purposes.
-    /// </summary>
-    /// <value>A read-only view of the formatter registry.</value>
-    /// <remarks>
-    /// <para>
-    /// <strong>Warning:</strong> This property is exposed primarily for unit testing
-    /// and should not be used in production code. Use the public registration methods
-    /// (<see cref="RegisterFormatter(Type, IFormatter)"/>, <see cref="UnregisterFormatter(Type)"/>, etc.)
-    /// for normal formatter management.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> The returned dictionary is thread-safe for reads and writes.
-    /// </para>
-    /// </remarks>
-    public static IReadOnlyDictionary<Type, IFormatter> Registry
-    => _registry;
-
-    /// <summary>
-    /// Gets the number of currently registered custom formatters.
-    /// </summary>
-    /// <value>The count of registered formatters.</value>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This property is thread-safe. However, the count may change
-    /// immediately after reading due to concurrent registrations/unregistrations from other threads.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// int count = ValueFormatter.RegisteredFormatterCount;
-    /// Console.WriteLine($"Custom formatters: {count}");
-    /// </code>
-    /// </example>
-    public static int RegisteredFormatterCount
-    => _registry.Count;
+        [.. Enumerable.Range(
+            AsciiPrintableStart,
+            AsciiPrintableEnd - AsciiPrintableStart + 1)
+        .Select(i => $"'{(char)i}'")];
 
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
     /// </summary>
-    /// <param name="expected">The object to format. May be null from recursive calls.</param>
+    /// <param name="obj">The object to format. May be null from recursive calls.</param>
     /// <returns>
     /// A formatted string representation suitable for test case names, or <see langword="null"/> if formatting fails.
     /// Null returns are intentional and signal the caller to use <see cref="Resolver.FallbackIfNullOrWhiteSpace"/> 
@@ -272,26 +202,16 @@ public static class ValueFormatter
     /// Format(null)  // Returns: null
     /// </code>
     /// </example>
-    public static string? Format(object? expected)
+    public static string? Format(object? obj)
     {
-        if (expected is null) return null;
-
-        // Check custom formatter registry first (lock-free, thread-safe)
-        var expectedType = expected.GetType();
-
-        if (RegisteredFormatterCount > 0 &&
-            _registry.TryGetValue(expectedType, out var formatter))
+        // - string, ITuple (Tuple/ValueTuple) and KeyValuePair
+        //   must be checked before IEnumerable
+        //   (since these implement or may implement IEnumerable).
+        // - IDictionary is checked separately in Format(IEnumerable)
+        //   to delegate to Format(IDictionary, string?).
+        return obj switch
         {
-            return formatter.Format(expected);
-        }
-
-        return expected switch
-        {
-            // - string, ITuple (Tuple/ValueTuple) and KeyValuePair
-            //   must be checked before IEnumerable
-            //   (since these implement or may implement IEnumerable).
-            // - IDictionary is checked separately in Format(IEnumerable)
-            //   to delegate to Format(IDictionary, string?).
+            null                    => null,
             char ch                 => Format(ch),
             string str              => Format(str),
             Type type               => Format(type),
@@ -301,245 +221,16 @@ public static class ValueFormatter
             byte[] bytes            => Format(BitConverter.ToString, bytes),
             Exception ex            => Format(ex),
             _ when IsKeyValuePair(
-                expected,
+                obj,
                 out var key,
                 out var value)      => Format(key, value),
             ITuple tuple            => Format(tuple),
             Delegate del            => Format(del),
             IEnumerable coll        => Format(coll),
             Stream stream           => Format(stream),
-            _                       => expected.ToString() ?? null,
+            _                       => obj.ToString() ?? null,
         };
     }
-
-    #region Formatter Registration API
-
-    /// <summary>
-    /// Registers a custom formatter for a specific type.
-    /// </summary>
-    /// <param name="type">The type to register the formatter for. Cannot be null.</param>
-    /// <param name="formatter">The formatter implementation. Cannot be null.</param>
-    /// <returns>
-    /// <see langword="true"/> if the formatter was registered successfully;
-    /// <see langword="false"/> if a formatter for this type already exists (no overwrite).
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently
-    /// from multiple threads. Uses <see cref="ConcurrentDictionary{TKey, TValue}.TryAdd"/> which
-    /// guarantees atomic insertion without locks.
-    /// </para>
-    /// <para>
-    /// <strong>Overwrite Protection:</strong> If a formatter is already registered for the type,
-    /// this method returns <see langword="false"/> without modifying the existing registration.
-    /// Use <see cref="UnregisterFormatter(Type)"/> first if you need to replace a formatter.
-    /// </para>
-    /// <para>
-    /// <strong>Usage:</strong> Call during application startup or test initialization to register
-    /// custom formatters for domain-specific types.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="type"/> or <paramref name="formatter"/> is <see langword="null"/>.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// // Register a custom formatter for MyCustomType
-    /// public class MyCustomFormatter : IFormatter
-    /// {
-    ///     public string? Format(object? obj) => obj switch
-    ///     {
-    ///         MyCustomType custom => $"Custom[{custom.Id}]",
-    ///         _ => null
-    ///     };
-    /// }
-    /// 
-    /// // Thread-safe registration
-    /// bool registered = ValueFormatter.RegisterFormatter(typeof(MyCustomType), new MyCustomFormatter());
-    /// if (registered)
-    /// {
-    ///     // Formatter registered successfully
-    ///     var result = ValueFormatter.Format(new MyCustomType { Id = 42 });
-    ///     // Returns: "Custom[42]"
-    /// }
-    /// </code>
-    /// </example>
-    public static bool RegisterFormatter(Type type, IFormatter formatter)
-    => _registry.TryAdd(
-        NotNull(type, nameof(type)),
-        NotNull(formatter, nameof(formatter)));
-
-    /// <summary>
-    /// Registers a custom formatter for a specific type using a generic type parameter.
-    /// </summary>
-    /// <typeparam name="T">The type to register the formatter for.</typeparam>
-    /// <param name="formatter">The formatter implementation. Cannot be null.</param>
-    /// <returns>
-    /// <see langword="true"/> if the formatter was registered successfully;
-    /// <see langword="false"/> if a formatter for this type already exists (no overwrite).
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This is a convenience overload of <see cref="RegisterFormatter(Type, IFormatter)"/>
-    /// that uses compile-time type safety via generics.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="formatter"/> is <see langword="null"/>.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// // Generic registration (compile-time type safety)
-    /// bool registered = ValueFormatter.RegisterFormatter&lt;MyCustomType&gt;(new MyCustomFormatter());
-    /// </code>
-    /// </example>
-    public static bool RegisterFormatter<T>(IFormatter formatter)
-    => RegisterFormatter(typeof(T), formatter);
-
-    /// <summary>
-    /// Unregisters a custom formatter for a specific type.
-    /// </summary>
-    /// <param name="type">The type to unregister the formatter for. Cannot be null.</param>
-    /// <returns>
-    /// <see langword="true"/> if the formatter was unregistered successfully;
-    /// <see langword="false"/> if no formatter was registered for this type.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently
-    /// from multiple threads. Uses <see cref="ConcurrentDictionary{TKey, TValue}.TryRemove(TKey, out TValue)"/>
-    /// which guarantees atomic removal without locks.
-    /// </para>
-    /// <para>
-    /// After unregistration, <see cref="Format(object?)"/> will fall back to the default
-    /// pattern matching logic for objects of this type.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="type"/> is <see langword="null"/>.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// // Unregister a formatter
-    /// bool unregistered = ValueFormatter.UnregisterFormatter(typeof(MyCustomType));
-    /// if (unregistered)
-    /// {
-    ///     // Formatter removed, will use default formatting now
-    /// }
-    /// </code>
-    /// </example>
-    public static bool UnregisterFormatter(Type type)
-    => _registry.TryRemove(
-        NotNull(type, nameof(type)),
-        out _);
-
-    /// <summary>
-    /// Unregisters a custom formatter for a specific type using a generic type parameter.
-    /// </summary>
-    /// <typeparam name="T">The type to unregister the formatter for.</typeparam>
-    /// <returns>
-    /// <see langword="true"/> if the formatter was unregistered successfully;
-    /// <see langword="false"/> if no formatter was registered for this type.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This is a convenience overload of <see cref="UnregisterFormatter(Type)"/>
-    /// that uses compile-time type safety via generics.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// // Generic unregistration (compile-time type safety)
-    /// bool unregistered = ValueFormatter.UnregisterFormatter&lt;MyCustomType&gt;();
-    /// </code>
-    /// </example>
-    public static bool UnregisterFormatter<T>()
-    => UnregisterFormatter(typeof(T));
-
-    /// <summary>
-    /// Checks if a custom formatter is registered for a specific type.
-    /// </summary>
-    /// <param name="type">The type to check. Cannot be null.</param>
-    /// <returns>
-    /// <see langword="true"/> if a formatter is registered for this type;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="type"/> is <see langword="null"/>.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// if (ValueFormatter.IsFormatterRegistered(typeof(MyCustomType)))
-    /// {
-    ///     // Custom formatter is active
-    /// }
-    /// </code>
-    /// </example>
-    public static bool IsFormatterRegistered(Type type)
-    => _registry.ContainsKey(NotNull(type, nameof(type)));
-
-    /// <summary>
-    /// Checks if a custom formatter is registered for a specific type using a generic type parameter.
-    /// </summary>
-    /// <typeparam name="T">The type to check.</typeparam>
-    /// <returns>
-    /// <see langword="true"/> if a formatter is registered for this type;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This is a convenience overload of <see cref="IsFormatterRegistered(Type)"/>
-    /// that uses compile-time type safety via generics.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// if (ValueFormatter.IsFormatterRegistered&lt;MyCustomType&gt;())
-    /// {
-    ///     // Custom formatter is active
-    /// }
-    /// </code>
-    /// </example>
-    public static bool IsFormatterRegistered<T>()
-    => IsFormatterRegistered(typeof(T));
-
-    /// <summary>
-    /// Clears all registered custom formatters.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// Uses <see cref="ConcurrentDictionary{TKey, TValue}.Clear"/> which is atomic.
-    /// </para>
-    /// <para>
-    /// <strong>Usage:</strong> Typically called during test teardown or when resetting the
-    /// formatter to its default st.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// // Clear all custom formatters (e.g., in test cleanup)
-    /// ValueFormatter.ClearFormatters();
-    /// </code>
-    /// </example>
-    public static void ClearFormatters()
-    => _registry.Clear();
-
-    #endregion
 
     #region Private formatter methods
 
@@ -591,16 +282,9 @@ public static class ValueFormatter
     /// </code>
     /// </example>
     private static string? Format(char ch)
-    {
-        var IsAsciiPrintable = ch >= 32 && ch < 127;
-
-        if (IsAsciiPrintable)
-        {
-            return CharFormats[ch - 32];
-        }
-
-        return $"'{ch}'";
-    }
+    => ch >= AsciiPrintableStart && ch <= AsciiPrintableEnd ?
+        CharFormats[ch - AsciiPrintableStart]
+        : $"'{ch}'";
 
     /// <summary>
     /// Formats a <see cref="string"/> value with double quotes.
@@ -639,8 +323,11 @@ public static class ValueFormatter
             return NullString;
         }
 
-        // Zero-allocation string building: "str"
-        var totalLength = 2 + str.Length; // Two quote characters + string content
+        var additionalCharsCount = 2; // Two quote characters
+        var totalLength =
+            str.Length +
+            additionalCharsCount;
+
         return string.Create(
             totalLength,
             str,
@@ -688,7 +375,10 @@ public static class ValueFormatter
         const string separator = ": ";
         var typeName = exception.GetType().Name;
         var message = exception.Message;
-        var totalLength = typeName.Length + separator.Length + message.Length;
+        var totalLength =
+            typeName.Length +
+            separator.Length +
+            message.Length;
 
         return CreateSeparatedString(
             totalLength,
@@ -719,9 +409,11 @@ public static class ValueFormatter
     {
         var formattedKey = FallbackIfNull(Format(key));
         var formattedValue = FallbackIfNull(Format(value));
-
-        // Zero-allocation string building: {key: value}
-        var totalLength = 4 + formattedKey.Length + formattedValue.Length; // "{", ": ", "}"
+        var additionalCharsCount = 4; // "{", ": ", "}"
+        var totalLength =
+            formattedKey.Length +
+            formattedValue.Length +
+            additionalCharsCount;
         return string.Create(
             totalLength,
             (formattedKey, formattedValue),
@@ -1222,14 +914,16 @@ public static class ValueFormatter
                     var ch = '[';
                     span = CopyAndInsertChar(element, span, ch, 0, out var index);
 
+                    ch = ',';
                     index++;
 
                     for (int i = 0; i < count; i++)
                     {
-                        span = InsertCharAndIncrement(span, ',', index, out index);
+                        span = InsertCharAndIncrement(span, ch, index, out index);
                     }
 
-                    span[index] = ']';
+                    ch = ']';
+                    span[index] = ch;
                 });
         }
     }
@@ -1304,22 +998,22 @@ public static class ValueFormatter
     => type.FullName switch
     {
         "System.Boolean" => "bool",
-        "System.Byte" => "byte",
-        "System.SByte" => "sbyte",
-        "System.Char" => "char",
+        "System.Byte"    => "byte",
+        "System.SByte"   => "sbyte",
+        "System.Char"    => "char",
         "System.Decimal" => "decimal",
-        "System.Double" => "double",
-        "System.Single" => "float",
-        "System.Int32" => "int",
-        "System.UInt32" => "uint",
-        "System.Int64" => "long",
-        "System.UInt64" => "ulong",
-        "System.Int16" => "short",
-        "System.UInt16" => "ushort",
-        "System.Object" => "object",
-        "System.String" => "string",
-        "System.Void" => "void",
-        _ => type.Name
+        "System.Double"  => "double",
+        "System.Single"  => "float",
+        "System.Int32"   => "int",
+        "System.UInt32"  => "uint",
+        "System.Int64"   => "long",
+        "System.UInt64"  => "ulong",
+        "System.Int16"   => "short",
+        "System.UInt16"  => "ushort",
+        "System.Object"  => "object",
+        "System.String"  => "string",
+        "System.Void"    => "void",
+        _                => type.Name
     };
 
     #endregion

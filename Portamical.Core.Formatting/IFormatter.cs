@@ -10,7 +10,7 @@ namespace Portamical.Core.Formatting;
 /// <remarks>
 /// <para>
 /// This interface provides the extensibility mechanism for the Portamical formatting system.
-/// Custom formatters can be registered in <see cref="ValueFormatter.Registry"/> to override
+/// Custom formatters can be registered in <see cref="DefaultFormatter.Registry"/> to override
 /// or extend the built-in formatting behavior for specific types.
 /// </para>
 /// <para>
@@ -58,7 +58,7 @@ namespace Portamical.Core.Formatting;
 /// </code>
 /// </example>
 /// <seealso cref="IFormatter{T}"/>
-/// <seealso cref="ValueFormatter"/>
+/// <seealso cref="DefaultFormatter"/>
 public interface IFormatter
 {
     /// <summary>
@@ -157,7 +157,7 @@ public interface IFormatter
 /// </code>
 /// </example>
 /// <seealso cref="IFormatter"/>
-/// <seealso cref="ValueFormatter.Registry"/>
+/// <seealso cref="DefaultFormatter.Registry"/>
 /// <seealso cref="Formatting.Model.Formatter"/>
 public interface IFormatter<in T> : IFormatter
 {

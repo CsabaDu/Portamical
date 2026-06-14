@@ -1,11 +1,12 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.Formatting;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
 using System.Runtime.CompilerServices;
-using static Portamical.Core.Formatting.ValueFormatter;
+using static Portamical.Core.Formatting.Registration;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
@@ -166,9 +167,9 @@ where TResult : notnull
     /// This creates an auditable trail of formatting failures via <see cref="Resolver"/>.
     /// </para>
     /// <para>
-    /// <strong>Formatting:</strong> The private <c>Format</c> methods provide intelligent
+    /// <strong>Formatting:</strong> The private <c>formatExpected</c> methods provide intelligent
     /// formatting for common types (char, DateTime, Guid, collections, exceptions, etc.) to create
-    /// readable test case names. The main <c>Format(object?)</c> method uses pattern matching to
+    /// readable test case names. The main <c>formatExpected(object?)</c> method uses pattern matching to
     /// dispatch to specialized overloads.
     /// </para>
     /// </remarks>
@@ -203,9 +204,22 @@ where TResult : notnull
 
         var defaultExpected = Expected.GetType().ToString();
         var expected = defaultExpected.FallbackIfNullOrWhiteSpace(
-            Format(Expected), nameof(GetExpected));
+            formatExpected(), nameof(GetExpected));
 
         return $"{resultPrefix} {expected}";
+
+        #region Local methods
+        string? formatExpected()
+        {
+            // Check custom formatter registry first (lock-free, thread-safe)
+            if (Registry.TryGetValue(Expected.GetType(), out var formatter))
+            {
+                return formatter.Format(Expected);
+            }
+
+            return DefaultFormatter.Format(Expected);
+        }
+        #endregion
     }
 
     /// <summary>

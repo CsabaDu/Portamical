@@ -30,7 +30,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// <strong>Result Formatting:</strong> This class provides the result prefix "throws" via <see cref="GetResultPrefix()"/>.
 /// The base class <see cref="TestDataExpected{TResult}.GetResult"/> combines this prefix with the formatted
 /// exception to create test case names like: <c>"Validate(null) =&gt; throws ArgumentException: Value cannot be null"</c>.
-/// The base class Format method specifically handles exceptions by showing type name and message.
+/// The base class formatExpected method specifically handles exceptions by showing type name and message.
 /// </para>
 /// <para>
 /// <strong>Counterpart:</strong> This class is the exception-testing counterpart to <see cref="TestDataReturns{TResult}"/>,

@@ -129,6 +129,9 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Portamical.Core.Formatting\Portamical.Core.Formatting.csproj" />
+  </ItemGroup>
 
   <!-- T4 tooling support -->
 

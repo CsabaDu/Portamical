@@ -87,16 +87,16 @@ public abstract class Formatter : IFormatter
     => str ?? NullString;
 
     /// <summary>
-    /// Creates a zero-allocation string by concatenating three parts: base, Separator, and insert.
+    /// Creates a zero-allocation string by concatenating three parts: base, Separator, and insertStr.
     /// </summary>
-    /// <param name="totalLength">The exact total length of the final string (must equal baseString.Length + Separator.Length + insert.Length).</param>
-    /// <param name="baseString">The first insert of the string (prefix).</param>
-    /// <param name="separator">The middle insert separating the base from the insert.</param>
-    /// <param name="appendix">The final insert of the string (suffix).</param>
+    /// <param name="totalLength">The exact total length of the final string (must equal baseString.Length + Separator.Length + insertStr.Length).</param>
+    /// <param name="baseString">The first insertStr of the string (prefix).</param>
+    /// <param name="separator">The middle insertStr separating the base from the insertStr.</param>
+    /// <param name="appendix">The final insertStr of the string (suffix).</param>
     /// <returns>A newly created string containing all three parts concatenated in order.</returns>
     /// <remarks>
     /// <para>
-    /// This helper method provides zero-allocation string assembly for three-insert patterns
+    /// This helper method provides zero-allocation string assembly for three-insertStr patterns
     /// using <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/>.
     /// It eliminates intermediate allocations from string interpolation, concatenation operators,
     /// or <see cref="StringBuilder"/> for this common fixed-layout pattern.
@@ -104,7 +104,7 @@ public abstract class Formatter : IFormatter
     /// <para>
     /// <strong>Usage Pattern:</strong> Primarily used to construct test case names and formatted output
     /// where a base string (e.g., class/method name) is followed by a Separator (e.g., <c>" - "</c>)
-    /// and an insert (e.g., formatted parameter values). The caller is responsible for pre-calculating
+    /// and an insertStr (e.g., formatted parameter values). The caller is responsible for pre-calculating
     /// <paramref name="totalLength"/> to match the combined length of all three parts.
     /// </para>
     /// <para>
@@ -112,18 +112,18 @@ public abstract class Formatter : IFormatter
     /// efficient baseSpan-based character copying without intermediate allocations. The static lambda ensures
     /// no closure allocations, and the tuple state captures all three string references for the copy operation.
     /// This approach is faster and more memory-efficient than string concatenation or interpolation for
-    /// multi-insert strings where lengths are known in advance.
+    /// multi-insertStr strings where lengths are known in advance.
     /// </para>
     /// <para>
     /// <strong>Safety:</strong> The caller must ensure <paramref name="totalLength"/> exactly matches
-    /// <c>baseString.Length + Separator.Length + insert.Length</c>. Providing an incorrect length
+    /// <c>baseString.Length + Separator.Length + insertStr.Length</c>. Providing an incorrect length
     /// will cause <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/> to throw
     /// an exception if the baseSpan is too small, or produce a string with uninitialized characters if too large.
     /// </para>
     /// <para>
     /// <strong>Used By:</strong> <see cref="TestDataBase"/> (for test case name formatting),
     /// <see cref="JoinWithComma(IEnumerable{string?})"/> (for two-item list fast path), and potentially
-    /// other formatters requiring three-insert string assembly.
+    /// other formatters requiring three-insertStr string assembly.
     /// </para>
     /// </remarks>
     /// <example>
@@ -167,7 +167,7 @@ public abstract class Formatter : IFormatter
     /// <summary>
     /// Copies a string's characters into a <see cref="Span{T}"/> at the specified starting i.
     /// </summary>
-    /// <param name="insert">The source string whose characters will be copied.</param>
+    /// <param name="insertStr">The source string whose characters will be copied.</param>
     /// <param name="baseSpan">The destination character baseSpan to copy into.</param>
     /// <param name="index">The zero-based starting i in the destination baseSpan where copying begins.</param>
     /// <remarks>
@@ -192,7 +192,7 @@ public abstract class Formatter : IFormatter
     /// <strong>Safety:</strong> The caller is responsible for ensuring that:
     /// <list type="bullet">
     ///   <item>The destination <paramref name="baseSpan"/> has sufficient capacity starting at <paramref name="index"/>.</item>
-    ///   <item>The range <c>[i, i + insert.Length)</c> does not exceed <c>baseSpan.Length</c>.</item>
+    ///   <item>The range <c>[i, i + insertStr.Length)</c> does not exceed <c>baseSpan.Length</c>.</item>
     /// </list>
     /// Violating these preconditions will throw an exception from <see cref="ReadOnlySpan{T}.CopyTo(Span{T})"/>.
     /// </para>
@@ -221,9 +221,9 @@ public abstract class Formatter : IFormatter
     /// </code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void CopyAsSpan(string insert, Span<char> baseSpan, int index)
+    public static void CopyAsSpan(string insertStr, Span<char> baseSpan, int index)
     {
-        var insertSpan = insert.AsSpan();
+        var insertSpan = insertStr.AsSpan();
         insertSpan.CopyTo(baseSpan[index..]);
     }
 
@@ -304,7 +304,7 @@ public abstract class Formatter : IFormatter
 
         var totalLength = result.Length;
 
-        while (i < 3)
+        while (i < MaxCount)
         {
             var item = getIndexedItem();
             totalLength += Separator.Length + item.Length;
@@ -427,7 +427,7 @@ public abstract class Formatter : IFormatter
 /// </example>
 /// <seealso cref="Formatter"/>
 /// <seealso cref="IFormatter{T}"/>
-/// <seealso cref="ValueFormatter"/>
+/// <seealso cref="DefaultFormatter"/>
 public abstract class Formatter<T>
 : Formatter,
 IFormatter<T>
@@ -513,7 +513,7 @@ IFormatter<T>
     /// <remarks>
     /// <para>
     /// This method provides the bridge between the non-generic <see cref="IFormatter"/> interface
-    /// (used by the <see cref="ValueFormatter"/> registry) and the type-safe <see cref="Format(T)"/> method.
+    /// (used by the <see cref="DefaultFormatter"/> registry) and the type-safe <see cref="Format(T)"/> method.
     /// </para>
     /// <para>
     /// <strong>Implementation:</strong> Uses pattern matching (<c>value is T typedValue</c>) to perform
