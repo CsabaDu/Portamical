@@ -45,6 +45,12 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// </list>
 /// </para>
 /// <para>
+/// <strong>Thread-Safety:</strong> This class is immutable after construction (primary constructor
+/// parameter is captured as readonly). Instances can be safely shared across threads. All virtual
+/// methods create new objects rather than mutating state. Static helper methods are stateless.
+/// See BASE_CLASSES_THREAD_SAFETY.md for detailed analysis and safe publication guidance.
+/// </para>
+/// <para>
 /// <strong>Performance Optimization:</strong> The <see cref="CreateTestCaseName()"/> method uses
 /// <see cref="string.Create(int, TState, SpanAction{char, TState})"/> for zero-copy string concatenation,
 /// minimizing allocations during test data creation. The <see cref="ToArgs(ArgsCode)"/> convenience

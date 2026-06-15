@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Formatting;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
@@ -84,6 +83,19 @@ where TResult : notnull
     /// The constructor automatically generates the <see cref="TestCaseName"/> by calling
     /// <see cref="TestDataBase.CreateTestCaseName()"/>, which combines the definition and
     /// result (derived from <paramref name="expected"/>).
+    /// </para>
+    /// <para>
+    /// <strong>Thread-Safety:</strong> Instances are immutable after construction via <c>init</c> accessors.
+    /// When sharing instances across threads, ensure proper safe publication:
+    /// <list type="bullet">
+    ///   <item>Use <c>volatile</c> fields for static/shared references</item>
+    ///   <item>Use <see cref="Lazy{T}"/> for thread-safe lazy initialization</item>
+    ///   <item>Use <see cref="System.Collections.Immutable"/> collections for thread-safe storage</item>
+    ///   <item>Use <see cref="System.Threading.Interlocked"/> for atomic reference updates</item>
+    ///   <item>Use proper synchronization (locks, concurrent collections) when caching</item>
+    /// </list>
+    /// Do not share partially-constructed instances (i.e., before the constructor completes).
+    /// Local instances used within a single thread require no special handling.
     /// </para>
     /// </remarks>
     protected TestDataExpected(
@@ -202,7 +214,8 @@ where TResult : notnull
         var resultPrefix = defaultResultPrefix.FallbackIfNullOrWhiteSpace(
             GetResultPrefix(), nameof(GetResultPrefix));
 
-        var defaultExpected = Expected.GetType().ToString();
+        var expectedType = Expected.GetType();
+        var defaultExpected = expectedType.ToString();
         var expected = defaultExpected.FallbackIfNullOrWhiteSpace(
             formatExpected(), nameof(GetExpected));
 
@@ -211,13 +224,8 @@ where TResult : notnull
         #region Local methods
         string? formatExpected()
         {
-            // Check custom formatter registry first (lock-free, thread-safe)
-            if (Registry.TryGetValue(Expected.GetType(), out var formatter))
-            {
-                return formatter.Format(Expected);
-            }
-
-            return DefaultFormatter.Format(Expected);
+            var formatter = GetFormatter(expectedType);
+            return formatter.Format(Expected);
         }
         #endregion
     }

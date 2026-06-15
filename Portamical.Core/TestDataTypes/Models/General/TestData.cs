@@ -106,6 +106,17 @@ public abstract class TestData
     /// (e.g., "returns {value}"), this class uses the result exactly as provided. This allows
     /// complete control over test case name formatting.
     /// </para>
+    /// <para>
+    /// <strong>Thread-Safety:</strong> Instances are immutable after construction (<c>readonly</c> field,
+    /// <c>init</c> accessors). When sharing instances across threads, ensure proper safe publication:
+    /// <list type="bullet">
+    ///   <item>Use <c>volatile</c> fields for static/shared references</item>
+    ///   <item>Use <see cref="Lazy{T}"/> for thread-safe lazy initialization</item>
+    ///   <item>Use <see cref="System.Collections.Immutable"/> collections for thread-safe storage</item>
+    ///   <item>Use <see cref="System.Threading.Interlocked"/> for atomic reference updates</item>
+    /// </list>
+    /// See BASE_CLASSES_THREAD_SAFETY.md for detailed guidance.
+    /// </para>
     /// </remarks>
     /// <example>
     /// <code>

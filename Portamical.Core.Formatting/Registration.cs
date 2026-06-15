@@ -302,4 +302,16 @@ public static class Registration
     /// </example>
     public static void ClearFormatters()
     => _registry.Clear();
+
+    public static IFormatter GetFormatter(Type type)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+
+        if (_registry.TryGetValue(type, out var formatter))
+        {
+            return formatter;
+        }
+
+        return DefaultFormatter.Instance;
+    }
 }

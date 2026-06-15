@@ -31,11 +31,19 @@ namespace Portamical.Core.Formatting;
 /// Supports custom formatter registration via <see cref="Registry"/> for specialized types.
 /// </para>
 /// </remarks>
-public static class DefaultFormatter
+public sealed class DefaultFormatter : IFormatter
 {
+    private DefaultFormatter()
+    {
+    }
+
+    string? IFormatter.Format(object value)
+    => Format(value);
+
+    public static readonly IFormatter Instance = new DefaultFormatter();
+
     private const int AsciiPrintableStart = ' ';
     private const int AsciiPrintableEnd = '~';
-
 
     /// <summary>
     /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
