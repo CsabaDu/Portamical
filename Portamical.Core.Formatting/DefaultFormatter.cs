@@ -20,15 +20,15 @@ namespace Portamical.Core.Formatting;
 /// <list type="bullet">
 ///   <item>Type-specific formatting rules (strings quoted, chars single-quoted, dates in ISO 8601, etc.)</item>
 ///   <item>Recursive formatting for collections, tuples, and nested structures</item>
-///   <item>C#-friendly expectedType names (int instead of Int32, List&lt;string&gt; with proper syntax)</item>
+///   <item>C#-friendly type names (int instead of Int32, List&lt;string&gt; with proper syntax)</item>
 ///   <item>Graceful null handling - returns null to signal formatting failure for downstream handling</item>
 ///   <item>Configurable collection truncation (first <see cref="MaxCount"/> items)</item>
 /// </list>
 /// </para>
 /// <para>
 /// <strong>Design Pattern:</strong> Uses pattern matching with method overloading to dispatch
-/// to expectedType-specific formatters, enabling extensibility and clean separation of concerns.
-/// Supports custom formatter registration via <see cref="Registry"/> for specialized types.
+/// to type-specific formatters, enabling extensibility and clean separation of concerns.
+/// Supports custom formatter registration via <see cref="Registration"/> for specialized types.
 /// </para>
 /// </remarks>
 public sealed class DefaultFormatter : IFormatter
@@ -80,7 +80,7 @@ public sealed class DefaultFormatter : IFormatter
     /// the failure and provide an indexed fallback label, creating an auditable trail.
     /// </para>
     /// <para>
-    /// <strong>Implementation:</strong> First checks the <see cref="Registry"/> for custom formatters registered
+    /// <strong>Implementation:</strong> First checks the <see cref="Registration"/> for custom formatters registered
     /// for the object's type. If no custom formatter is found, uses pattern matching to dispatch to type-specific
     /// overloaded helper methods. Each specialized method handles formatting for a particular type or type family
     /// (e.g., <ch>Format(char)</ch>, <ch>Format(string)</ch>, <ch>Format(IEnumerable)</ch>).
@@ -127,7 +127,7 @@ public sealed class DefaultFormatter : IFormatter
     ///   </item>
     ///   <item>
     ///     <term><see cref="Type"/></term>
-    ///     <description>C#-friendly expectedType name: <ch>int</ch>, <ch>List&lt;string&gt;</ch>, <ch>int?</ch>, <ch>int[]</ch> (via <ch>Format(Type)</ch>)</description>
+    ///     <description>C#-friendly type name: <ch>int</ch>, <ch>List&lt;string&gt;</ch>, <ch>int?</ch>, <ch>int[]</ch> (via <ch>Format(Type)</ch>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Delegate"/></term>
@@ -245,13 +245,13 @@ public sealed class DefaultFormatter : IFormatter
     /// <summary>
     /// Formats an object by invoking a provided formatting function.
     /// </summary>
-    /// <typeparam name="T">The expectedType of the context object to format.</typeparam>
+    /// <typeparam name="T">The type of the context object to format.</typeparam>
     /// <param name="toString">A function that converts the context object to a string representation.</param>
     /// <param name="context">The object instance to format.</param>
     /// <returns>The result of invoking <paramref name="toString"/> with <paramref name="context"/>, or <see langword="null"/> if the function returns null.</returns>
     /// <remarks>
     /// <para>
-    /// This generic helper method enables delegation of formatting to expectedType-specific methods
+    /// This generic helper method enables delegation of formatting to type-specific methods
     /// like <see cref="DateTime.ToString(string)"/> or <see cref="Guid.ToString(string)"/>,
     /// avoiding code duplication for types that support parameterized string formatting.
     /// </para>
@@ -349,7 +349,7 @@ public sealed class DefaultFormatter : IFormatter
     }
 
     /// <summary>
-    /// Formats an <see cref="Exception"/> as its expectedType name followed by its message.
+    /// Formats an <see cref="Exception"/> as its type name followed by its message.
     /// </summary>
     /// <param name="exception">The exception to format.</param>
     /// <returns>A string in the form <ch>"ExceptionType: Message"</ch>.</returns>
@@ -495,7 +495,7 @@ public sealed class DefaultFormatter : IFormatter
     }
 
     /// <summary>
-    /// Formats a <see cref="Delegate"/> showing its expectedType and method name.
+    /// Formats a <see cref="Delegate"/> showing its type and method name.
     /// </summary>
     /// <param name="del">The delegate to format.</param>
     /// <returns>
@@ -506,8 +506,8 @@ public sealed class DefaultFormatter : IFormatter
     /// <para>
     /// Formats delegates (including <see cref="Func{TResult}"/>, <see cref="Action"/>, 
     /// and custom delegate types) into readable strings suitable for test case names.
-    /// The output includes the delegate's expectedType with generic parameters formatted using
-    /// <see cref="Format(Type)"/> for C#-friendly expectedType names.
+    /// The output includes the delegate's type with generic parameters formatted using
+    /// <see cref="Format(Type)"/> for C#-friendly type names.
     /// </para>
     /// <para>
     /// <strong>Method Name Detection:</strong> Distinguishes between:
@@ -518,7 +518,7 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because delegate formatting involves expectedType formatting and string operations. Delegate
+    /// because delegate formatting involves type formatting and string operations. Delegate
     /// formatting is infrequent compared to primitive types.
     /// </para>
     /// </remarks>
@@ -575,11 +575,11 @@ public sealed class DefaultFormatter : IFormatter
     }
 
     /// <summary>
-    /// Formats a <see cref="Type"/> into a C#-friendly expectedType name.
+    /// Formats a <see cref="Type"/> into a C#-friendly type name.
     /// </summary>
-    /// <param name="type">The expectedType to format.</param>
+    /// <param name="type">The type to format.</param>
     /// <returns>
-    /// A C#-friendly expectedType name using aliases (e.g., "int" instead of "Int32"), 
+    /// A C#-friendly type name using aliases (e.g., "int" instead of "Int32"), 
     /// with generic parameters (e.g., "List&lt;string&gt;"), array notation (e.g., "int[]"),
     /// and nullable syntax (e.g., "int?").
     /// </returns>
@@ -700,11 +700,11 @@ public sealed class DefaultFormatter : IFormatter
     }
 
     /// <summary>
-    /// Formats a <see cref="Stream"/> showing its expectedType, length, and current position.
+    /// Formats a <see cref="Stream"/> showing its type, length, and current position.
     /// </summary>
     /// <param name="stream">The stream to format.</param>
     /// <returns>
-    /// A string showing the stream's expectedType name, length (if seekable), and current position;
+    /// A string showing the stream's type name, length (if seekable), and current position;
     /// or <see langword="null"/> if accessing stream properties throws an exception.
     /// </returns>
     /// <remarks>
@@ -792,7 +792,7 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because it contains early returns, expectedType checks, and reflection. KeyValuePair detection is
+    /// because it contains early returns, type checks, and reflection. KeyValuePair detection is
     /// infrequent compared to primitive formatting.
     /// </para>
     /// </remarks>
@@ -835,12 +835,12 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Recursive Formatting:</strong> Keys and values are formatted via <see cref="Format(object?, object?)"/>
-    /// which recursively applies expectedType-specific formatting rules.
+    /// which recursively applies type-specific formatting rules.
     /// </para>
     /// <para>
     /// <strong>Reflection Usage:</strong> For generic <ch>Dictionary&lt;TKey, TValue&gt;</ch>, uses reflection
-    /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> expectedType,
-    /// avoiding the need for multiple overloads for every possible key/value expectedType combination.
+    /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> type,
+    /// avoiding the need for multiple overloads for every possible key/value type combination.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -988,18 +988,18 @@ public sealed class DefaultFormatter : IFormatter
     }
 
     /// <summary>
-    /// Gets the C# expectedType alias for common BCL types.
+    /// Gets the C# type alias for common BCL types.
     /// </summary>
-    /// <param name="type">The expectedType to get an alias for.</param>
+    /// <param name="type">The type to get an alias for.</param>
     /// <returns>The C# alias (e.g., "int") if available; otherwise, <see cref="Type.Name"/>.</returns>
     /// <remarks>
     /// <para>
-    /// Maps BCL expectedType names to their C# keywords for improved readability.
+    /// Maps BCL type names to their C# keywords for improved readability.
     /// Called by <see cref="Format(Type)"/> after handling arrays, nullables, and generics.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because the switch expression is large and this is called only at the end of expectedType-formatting logic.
+    /// because the switch expression is large and this is called only at the end of type-formatting logic.
     /// </para>
     /// </remarks>
     private static string GetCSharpAliasOrTypeName(Type type)
