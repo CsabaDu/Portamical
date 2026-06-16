@@ -290,7 +290,10 @@ public static class FormatBuilder
     /// </example>
     public static string JoinWithSeparator(IEnumerable<string?> items, string separator)
     {
-        if (items is null) return NullString;
+        if (items is null)
+        {
+            return NullString;
+        }
 
         separator ??= Comma_;
 
