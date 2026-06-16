@@ -727,7 +727,7 @@ public sealed class DefaultFormatter : IFormatter
 
         var items = materializedObjects
             .Take(MaxCount)
-            .Select(item => Format(item) ?? NullString);
+            .Select(item => FallbackIfNull(Format(item)));
 
         return $"[{prefix}]: [{JoinWithComma(items)}]";
     }
