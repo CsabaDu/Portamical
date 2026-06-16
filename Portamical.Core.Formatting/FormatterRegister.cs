@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace Portamical.Core.Formatting;
 
-public static class Registration
+public static class FormatterRegister
 {
     /// <summary>
     /// Thread-safe registry of custom formatters for specific types.
@@ -49,25 +49,6 @@ public static class Registration
     public static IReadOnlyDictionary<Type, IFormatter> Registry
     => _registry;
 
-    ///// <summary>
-    ///// Gets the number of currently registered custom formatters.
-    ///// </summary>
-    ///// <value>The count of registered formatters.</value>
-    ///// <remarks>
-    ///// <para>
-    ///// <strong>Thread Safety:</strong> This property is thread-safe. However, the count may change
-    ///// immediately after reading due to concurrent registrations/unregistrations from other threads.
-    ///// </para>
-    ///// </remarks>
-    ///// <example>
-    ///// <code>
-    ///// int count = Registration.RegisteredFormatterCount;
-    ///// Console.WriteLine($"Custom formatters: {count}");
-    ///// </code>
-    ///// </example>
-    //public static int RegisteredFormatterCount
-    //=> _registry.Count;
-
     /// <summary>
     /// Registers a custom formatter for a specific type.
     /// </summary>
@@ -109,11 +90,11 @@ public static class Registration
     /// }
     /// 
     /// // Thread-safe registration
-    /// bool registered = Registration.RegisterFormatter(typeof(MyCustomType), new MyCustomFormatter());
+    /// bool registered = FormatterRegister.RegisterFormatter(typeof(MyCustomType), new MyCustomFormatter());
     /// if (registered)
     /// {
     ///     // Formatter registered successfully
-    ///     var formatter = Registration.GetFormatter(typeof(MyCustomType));
+    ///     var formatter = FormatterRegister.GetFormatter(typeof(MyCustomType));
     ///     var result = formatter.Format(new MyCustomType { Id = 42 });
     ///     // Returns: "Custom[42]"
     /// }
@@ -151,7 +132,7 @@ public static class Registration
     /// <example>
     /// <code>
     /// // Generic registration (compile-time type safety)
-    /// bool registered = Registration.RegisterFormatter&lt;MyCustomType&gt;(new MyCustomFormatter());
+    /// bool registered = FormatterRegister.RegisterFormatter&lt;MyCustomType&gt;(new MyCustomFormatter());
     /// </code>
     /// </example>
     public static bool RegisterFormatter<T>(IFormatter formatter)
@@ -182,7 +163,7 @@ public static class Registration
     /// <example>
     /// <code>
     /// // Unregister a formatter
-    /// bool unregistered = Registration.UnregisterFormatter(typeof(MyCustomType));
+    /// bool unregistered = FormatterRegister.UnregisterFormatter(typeof(MyCustomType));
     /// if (unregistered)
     /// {
     ///     // Formatter removed, will use default formatting now
@@ -216,7 +197,7 @@ public static class Registration
     /// <example>
     /// <code>
     /// // Generic unregistration (compile-time type safety)
-    /// bool unregistered = Registration.UnregisterFormatter&lt;MyCustomType&gt;();
+    /// bool unregistered = FormatterRegister.UnregisterFormatter&lt;MyCustomType&gt;();
     /// </code>
     /// </example>
     public static bool UnregisterFormatter<T>()
@@ -240,7 +221,7 @@ public static class Registration
     /// </exception>
     /// <example>
     /// <code>
-    /// if (ValueFormatter.IsFormatterRegistered(typeof(MyCustomType)))
+    /// if (FormatterRegister.IsFormatterRegistered(typeof(MyCustomType)))
     /// {
     ///     // Custom formatter is active
     /// }
@@ -272,7 +253,7 @@ public static class Registration
     /// </remarks>
     /// <example>
     /// <code>
-    /// if (ValueFormatter.IsFormatterRegistered&lt;MyCustomType&gt;())
+    /// if (FormatterRegister.IsFormatterRegistered&lt;MyCustomType&gt;())
     /// {
     ///     // Custom formatter is active
     /// }
@@ -297,7 +278,7 @@ public static class Registration
     /// <example>
     /// <code>
     /// // Clear all custom formatters (e.g., in test cleanup)
-    /// Registration.ClearFormatters();
+    /// FormatterRegister.ClearFormatters();
     /// </code>
     /// </example>
     public static void ClearFormatters()
@@ -328,15 +309,15 @@ public static class Registration
     /// <example>
     /// <code>
     /// // Get formatter for a type (custom or default)
-    /// var formatter = Registration.GetFormatter(typeof(MyCustomType));
+    /// var formatter = FormatterRegister.GetFormatter(typeof(MyCustomType));
     /// var result = formatter.Format(myObject);
     /// 
     /// // Example with registered custom formatter
-    /// Registration.RegisterFormatter&lt;MyType&gt;(new MyCustomFormatter());
-    /// var customFormatter = Registration.GetFormatter(typeof(MyType)); // Returns MyCustomFormatter
+    /// FormatterRegister.RegisterFormatter&lt;MyType&gt;(new MyCustomFormatter());
+    /// var customFormatter = FormatterRegister.GetFormatter(typeof(MyType)); // Returns MyCustomFormatter
     /// 
     /// // Example without registered formatter
-    /// var defaultFormatter = Registration.GetFormatter(typeof(int)); // Returns DefaultFormatter.Instance
+    /// var defaultFormatter = FormatterRegister.GetFormatter(typeof(int)); // Returns DefaultFormatter.Instance
     /// </code>
     /// </example>
     public static IFormatter GetFormatter(Type type)
@@ -349,5 +330,15 @@ public static class Registration
         }
 
         return DefaultFormatter.Instance;
+    }
+
+    public static IFormatter GetFormatter<T>()
+    => GetFormatter(typeof(T));
+
+    public static string? Format<T>(T value)
+    {
+        var formatter = GetFormatter<T>();
+
+        return formatter.Format(value);
     }
 }

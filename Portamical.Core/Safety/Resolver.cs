@@ -203,6 +203,7 @@ public static class Resolver
     {
         var logIndex = Interlocked.Increment(ref LogCounter);
         logPrefix = $"Portamical log {logIndex}: ";
+
         return logIndex;
     }
 }

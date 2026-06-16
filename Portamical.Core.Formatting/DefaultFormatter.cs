@@ -3,7 +3,7 @@
 
 using System.Collections;
 using System.Runtime.CompilerServices;
-using static Portamical.Core.Formatting.Model.Formatter;
+using static Portamical.Core.Formatting.FormatBuilder;
 
 namespace Portamical.Core.Formatting;
 
@@ -28,7 +28,7 @@ namespace Portamical.Core.Formatting;
 /// <para>
 /// <strong>Design Pattern:</strong> Uses pattern matching with method overloading to dispatch
 /// to type-specific formatters, enabling extensibility and clean separation of concerns.
-/// Supports custom formatter registration via <see cref="Registration"/> for specialized types.
+/// Supports custom formatter registration via <see cref="FormatterRegister"/> for specialized types.
 /// </para>
 /// </remarks>
 public sealed class DefaultFormatter : IFormatter
@@ -37,10 +37,12 @@ public sealed class DefaultFormatter : IFormatter
     {
     }
 
-    string? IFormatter.Format(object value)
+    string? IFormatter.Format(object? value)
     => Format(value);
 
     public static readonly IFormatter Instance = new DefaultFormatter();
+
+    #region char helpers
 
     private const int AsciiPrintableStart = ' ';
     private const int AsciiPrintableEnd = '~';
@@ -64,6 +66,8 @@ public sealed class DefaultFormatter : IFormatter
             AsciiPrintableEnd - AsciiPrintableStart + 1)
         .Select(i => $"'{(char)i}'")];
 
+    #endregion
+
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
     /// </summary>
@@ -80,7 +84,7 @@ public sealed class DefaultFormatter : IFormatter
     /// the failure and provide an indexed fallback label, creating an auditable trail.
     /// </para>
     /// <para>
-    /// <strong>Implementation:</strong> First checks the <see cref="Registration"/> for custom formatters registered
+    /// <strong>Implementation:</strong> First checks the <see cref="FormatterRegister"/> for custom formatters registered
     /// for the object's type. If no custom formatter is found, uses pattern matching to dispatch to type-specific
     /// overloaded helper methods. Each specialized method handles formatting for a particular type or type family
     /// (e.g., <ch>Format(char)</ch>, <ch>Format(string)</ch>, <ch>Format(IEnumerable)</ch>).

@@ -84,7 +84,7 @@ public interface IFormatter
     /// Type-safe implementations should prefer <see cref="IFormatter{T}.Format(T)"/>.
     /// </para>
     /// </remarks>
-    string? Format(object value);
+    string? Format(object? value);
 }
 
 /// <summary>
@@ -212,5 +212,5 @@ public interface IFormatter<in T> : IFormatter
     /// formatter.Format(null);  // "null"
     /// </code>
     /// </example>
-    string? Format(T value);
+    string Format(T value);
 }

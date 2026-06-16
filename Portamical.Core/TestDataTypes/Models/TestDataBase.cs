@@ -5,7 +5,7 @@ using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using System.Runtime.CompilerServices;
-using static Portamical.Core.Formatting.Model.Formatter;
+using static Portamical.Core.Formatting.FormatBuilder;
 
 namespace Portamical.Core.TestDataTypes.Models;
 

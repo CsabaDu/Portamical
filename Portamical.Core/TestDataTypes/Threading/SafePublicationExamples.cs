@@ -184,8 +184,8 @@ public static class SafePublicationExamples
         where TResult : notnull
     {
         // ? SAFE: ImmutableList with ImmutableInterlocked updates
-        private static ImmutableList<TestDataExpected<TResult>> _testCases =
-            ImmutableList<TestDataExpected<TResult>>.Empty;
+        private static ImmutableList<TestDataExpected<TResult>> _testCases = [];
+            //ImmutableList<TestDataExpected<TResult>>.Empty;
 
         /// <summary>
         /// Adds a test case to the repository. Thread-safe.
