@@ -296,7 +296,7 @@ public static class FormatBuilder
 
         if (items is not ICollection<string?> collection)
         {
-            return joinWithSeparator(items);
+            return joinWithSeparatorBase(items);
         }
 
         if (collection.Count == 0)
@@ -309,10 +309,10 @@ public static class FormatBuilder
             return JoinWithSeparator(list, separator);
         }
 
-        return joinWithSeparator(collection);
+        return joinWithSeparatorBase(collection);
 
         #region Local methods
-        string joinWithSeparator(IEnumerable<string?> items)
+        string joinWithSeparatorBase(IEnumerable<string?> items)
         => JoinWithSeparatorBase(items, separator);
         #endregion
     }
