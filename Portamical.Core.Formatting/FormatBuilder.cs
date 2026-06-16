@@ -122,12 +122,12 @@ public static class FormatBuilder
         (FallbackIfNull(baseString), separator ?? Comma_, FallbackIfNull(appendix)),
         static (span, state) =>
         {
-            var (b, sep, app) = state;
+            var (bs, sep, app) = state;
 
             var i = 0;
-            CopyAsSpan(b, span, i);
+            CopyAsSpan(bs, span, i);
 
-            i = b.Length;
+            i = bs.Length;
             CopyAsSpan(sep, span, i);
 
             i += sep.Length;
@@ -324,7 +324,7 @@ public static class FormatBuilder
 
     private static string JoinWithSeparator(IList<string?> list, string separator)
     {
-        // Fast path for common case: List<string> with less than MaxCount items
+        // Fast path for common case: List<string> with not more than MaxCount items
 
         var i = 0;
         var result = getIndexedItem();
