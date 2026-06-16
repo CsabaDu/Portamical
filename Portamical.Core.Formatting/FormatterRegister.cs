@@ -344,7 +344,8 @@ public static class FormatterRegister
     /// This is a convenience overload of <see cref="GetFormatter(Type)"/>
     /// that uses compile-time type safety via generics.
     /// </remarks>
-    public static IFormatter GetFormatter<T>() => GetFormatter(typeof(T));
+    public static IFormatter GetFormatter<T>()
+    => GetFormatter(typeof(T));
 
     /// <summary>
     /// Formats a value using the registered formatter for its type, or the default formatter if none is registered.
