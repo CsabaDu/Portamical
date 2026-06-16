@@ -254,6 +254,6 @@ public abstract class Formatter<T> : IFormatter<T>
     /// formatter.Format(obj3);      // null ✅ (int != string)
     /// </code>
     /// </example>
-    string? IFormatter.Format(object? value)
-    => Format((T)value!);
+    string? IFormatter.Format(object? obj)
+    => Format((T)obj!);
 }

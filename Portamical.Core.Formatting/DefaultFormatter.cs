@@ -37,8 +37,8 @@ public sealed class DefaultFormatter : IFormatter
     {
     }
 
-    string? IFormatter.Format(object? value)
-    => Format(value);
+    string? IFormatter.Format(object? obj)
+    => Format(obj);
 
     /// <summary>
     /// Gets the singleton instance of the <see cref="DefaultFormatter"/>.
