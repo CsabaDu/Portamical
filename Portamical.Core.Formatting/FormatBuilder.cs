@@ -119,7 +119,7 @@ public static class FormatBuilder
         string appendix)
     => string.Create(
         totalLength,
-        (FallbackIfNull(baseString), separator ?? Comma_, FallbackIfNull(appendix)),
+        (FallbackIfNull(baseString), NotNullSeparator(separator), FallbackIfNull(appendix)),
         static (span, state) =>
         {
             var (bs, sep, app) = state;
@@ -295,7 +295,7 @@ public static class FormatBuilder
             return NullString;
         }
 
-        separator ??= Comma_;
+        separator = NotNullSeparator(separator);
 
         if (items is not ICollection<string?> collection)
         {
@@ -321,6 +321,9 @@ public static class FormatBuilder
     }
 
     #region Private methods
+
+    private static string NotNullSeparator(string? separator)
+    => separator ?? Comma_;
 
     private static string JoinWithSeparator(IList<string?> list, string separator)
     {
