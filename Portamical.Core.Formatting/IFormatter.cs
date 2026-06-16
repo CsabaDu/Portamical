@@ -64,7 +64,7 @@ public interface IFormatter
     /// <summary>
     /// Formats the specified value as a string for test case naming.
     /// </summary>
-    /// <param name="value">The value to format. May be null.</param>
+    /// <param name="obj">The value to format. May be null.</param>
     /// <returns>
     /// A formatted string representation of the value, or <see langword="null"/> if the formatter
     /// does not support the value's type.

@@ -171,9 +171,9 @@ public abstract class Formatter<T> : IFormatter<T>
     /// <summary>
     /// Formats an object value by checking its type and delegating to the type-safe <see cref="Format(T)"/> method.
     /// </summary>
-    /// <param name="value">The object to format. May be null.</param>
+    /// <param name="obj">The object to format. May be null.</param>
     /// <returns>
-    /// A formatted string representation if <paramref name="value"/> is of type <typeparamref name="T"/>;
+    /// A formatted string representation if <paramref name="obj"/> is of type <typeparamref name="T"/>;
     /// otherwise, <see langword="null"/> to indicate type incompatibility.
     /// </returns>
     /// <remarks>
@@ -182,7 +182,7 @@ public abstract class Formatter<T> : IFormatter<T>
     /// (used by the <see cref="DefaultFormatter"/> registry) and the type-safe <see cref="Format(T)"/> method.
     /// </para>
     /// <para>
-    /// <strong>Implementation:</strong> Uses pattern matching (<c>value is T typedValue</c>) to perform
+    /// <strong>Implementation:</strong> Uses pattern matching (<c>obj is T typedValue</c>) to perform
     /// efficient type checking. If the type matches, delegates to the abstract <see cref="Format(T)"/>
     /// method; otherwise, returns <see langword="null"/> to signal incompatibility.
     /// </para>
