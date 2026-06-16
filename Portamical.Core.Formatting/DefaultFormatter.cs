@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (ch) 2026. Csaba Dudas (CsabaDu)
+// Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using System.Collections;
 using System.Runtime.CompilerServices;
@@ -40,6 +40,35 @@ public sealed class DefaultFormatter : IFormatter
     string? IFormatter.Format(object? value)
     => Format(value);
 
+    /// <summary>
+    /// Gets the singleton instance of the <see cref="DefaultFormatter"/>.
+    /// </summary>
+    /// <value>A shared, thread-safe <see cref="IFormatter"/> instance.</value>
+    /// <remarks>
+    /// <para>
+    /// This property provides a pre-initialized formatter instance that can be reused
+    /// throughout the application, avoiding unnecessary allocations. The formatter is
+    /// stateless and thread-safe, making it suitable for concurrent use.
+    /// </para>
+    /// <para>
+    /// <strong>Thread Safety:</strong> The formatter instance is immutable and thread-safe.
+    /// Multiple threads can safely call <see cref="Format(object?)"/> concurrently.
+    /// </para>
+    /// <para>
+    /// <strong>Usage:</strong> This instance is returned by <see cref="FormatterRegister.GetFormatter(Type)"/>
+    /// when no custom formatter is registered for a type, serving as the fallback formatter.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Use the singleton instance directly
+    /// var formatter = DefaultFormatter.Instance;
+    /// var result = formatter.Format(42);  // Returns: "42"
+    /// 
+    /// // Or use it via the interface
+    /// IFormatter formatter = DefaultFormatter.Instance;
+    /// </code>
+    /// </example>
     public static readonly IFormatter Instance = new DefaultFormatter();
 
     #region char helpers
@@ -87,7 +116,7 @@ public sealed class DefaultFormatter : IFormatter
     /// <strong>Implementation:</strong> First checks the <see cref="FormatterRegister"/> for custom formatters registered
     /// for the object's type. If no custom formatter is found, uses pattern matching to dispatch to type-specific
     /// overloaded helper methods. Each specialized method handles formatting for a particular type or type family
-    /// (e.g., <ch>Format(char)</ch>, <ch>Format(string)</ch>, <ch>Format(IEnumerable)</ch>).
+    /// (e.g., internal <ch>Format(char)</ch>, <ch>Format(string)</ch>, <ch>Format(IEnumerable)</ch> formatters).
     /// This design separates concerns and improves maintainability while allowing extensibility.
     /// </para>
     /// <para>
@@ -99,55 +128,55 @@ public sealed class DefaultFormatter : IFormatter
     ///   </listheader>
     ///   <item>
     ///     <term><see cref="char"/></term>
-    ///     <description>Single-quoted: <ch>'ch'</ch> (via <ch>Format(char)</ch>)</description>
+    ///     <description>Single-quoted: <ch>'ch'</ch> (via internal <ch>Format(char)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="string"/></term>
-    ///     <description>Double-quoted: <ch>"text"</ch> (except for literal "null") (via <ch>Format(string)</ch>)</description>
+    ///     <description>Double-quoted: <ch>"text"</ch> (except for literal "null") (via internal <ch>Format(string)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="DateTime"/>, <see cref="DateTimeOffset"/></term>
-    ///     <description>ISO 8601 (round-trippable): <ch>2026-01-15T10:30:00.0000000Z</ch> (via <ch>Format&lt;T&gt;(Func, T)</ch> with "O" format)</description>
+    ///     <description>ISO 8601 (round-trippable): <ch>2026-01-15T10:30:00.0000000Z</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with "O" format)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Guid"/></term>
-    ///     <description>Hyphenated format: <ch>12345678-1234-1234-1234-123456789012</ch> (via <ch>Format&lt;T&gt;(Func, T)</ch> with "D" format)</description>
+    ///     <description>Hyphenated format: <ch>12345678-1234-1234-1234-123456789012</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with "D" format)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="byte"/>[]</term>
-    ///     <description>Hex string: <ch>01-02-03-FF</ch> (via <ch>Format&lt;T&gt;(Func, T)</ch> with <see cref="BitConverter.ToString"/>)</description>
+    ///     <description>Hex string: <ch>01-02-03-FF</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with <see cref="BitConverter.ToString"/>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="KeyValuePair{TKey, TValue}"/></term>
-    ///     <description>Key-value pair: <ch>{key: value}</ch> (via <ch>Format&lt;TKey, TValue&gt;(KeyValuePair)</ch>)</description>
+    ///     <description>Key-value pair: <ch>{key: value}</ch> (via internal <ch>Format(object?, object?)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Tuple"/> and <see cref="ValueTuple"/> (all arities)</term>
-    ///     <description>Parenthesized items: <ch>(item1, item2, ...)</ch> (via <ch>Format(ITuple)</ch>)</description>
+    ///     <description>Parenthesized items: <ch>(item1, item2, ...)</ch> (via internal <ch>Format(ITuple)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Exception"/></term>
-    ///     <description>Type and message: <ch>ArgumentException: Value cannot be null</ch> (via <ch>Format(Exception)</ch>)</description>
+    ///     <description>Type and message: <ch>ArgumentException: Value cannot be null</ch> (via internal <ch>Format(Exception)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Type"/></term>
-    ///     <description>C#-friendly type name: <ch>int</ch>, <ch>List&lt;string&gt;</ch>, <ch>int?</ch>, <ch>int[]</ch> (via <ch>Format(Type)</ch>)</description>
+    ///     <description>C#-friendly type name: <ch>int</ch>, <ch>List&lt;string&gt;</ch>, <ch>int?</ch>, <ch>int[]</ch> (via internal <ch>Format(Type)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Delegate"/></term>
-    ///     <description>Type and method name: <ch>Func&lt;int, string&gt; (MethodName)</ch> or <ch>Action (anonymous)</ch> (via <ch>Format(Delegate)</ch>)</description>
+    ///     <description>Type and method name: <ch>Func&lt;int, string&gt; (MethodName)</ch> or <ch>Action (anonymous)</ch> (via internal <ch>Format(Delegate)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IEnumerable"/></term>
-    ///     <description>First <see cref="MaxCount"/> (3) items: <ch>[3]: [1, 2, 3]</ch> or <ch>[First 3 of 5+]: [1, 2, 3]</ch> (via <ch>Format(IEnumerable)</ch>)</description>
+    ///     <description>First <see cref="MaxCount"/> (3) items: <ch>[3]: [1, 2, 3]</ch> or <ch>[First 3 of 5+]: [1, 2, 3]</ch> (via internal <ch>Format(IEnumerable)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IDictionary"/></term>
-    ///     <description>First <see cref="MaxCount"/> (3) pairs: <ch>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</ch> (via <ch>Format(IDictionary, string?)</ch>)</description>
+    ///     <description>First <see cref="MaxCount"/> (3) pairs: <ch>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</ch> (via internal <ch>Format(IDictionary, string?)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Stream"/></term>
-    ///     <description>Type, length, position: <ch>MemoryStream (Length: 1024, Position: 0)</ch> (via <ch>Format(Stream)</ch>)</description>
+    ///     <description>Type, length, position: <ch>MemoryStream (Length: 1024, Position: 0)</ch> (via internal <ch>Format(Stream)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term>Other types</term>
@@ -275,7 +304,7 @@ public sealed class DefaultFormatter : IFormatter
     /// Formats a <see cref="char"/> value with single quotes.
     /// </summary>
     /// <param name="ch">The character to format.</param>
-    /// <returns>A string in the form <ch>'ch'</ch> where <ch>ch</ch> is the character value.</returns>
+    /// <returns>A string in the form <c>'ch'</c> where the character is enclosed in single quotes.</returns>
     /// <remarks>
     /// <para>
     /// Uses single quotes to distinguish characters from strings and match C# literal syntax.

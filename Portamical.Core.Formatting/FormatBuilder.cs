@@ -249,6 +249,45 @@ public static class FormatBuilder
     public static string JoinWithComma(IEnumerable<string?> items)
     => JoinWithSeparator(items, Comma_);
 
+    /// <summary>
+    /// Joins a collection of pre-formatted string items with a custom separator.
+    /// </summary>
+    /// <param name="items">The collection of formatted string items to join. May contain null elements or be null itself.</param>
+    /// <param name="separator">The separator to use between items. If null, defaults to <c>", "</c>.</param>
+    /// <returns>
+    /// A separator-delimited string representation of the items. Returns <c>"null"</c> if <paramref name="items"/> 
+    /// is null, or an empty string for empty collections.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This is the core joining method that <see cref="JoinWithComma(IEnumerable{string?})"/> delegates to.
+    /// It provides flexibility for using custom separators beyond the default comma-space separator.
+    /// </para>
+    /// <para>
+    /// <strong>Null Handling:</strong> 
+    /// <list type="bullet">
+    ///   <item>If <paramref name="items"/> is null, returns <c>"null"</c></item>
+    ///   <item>If <paramref name="separator"/> is null, uses <c>", "</c> as default</item>
+    ///   <item>Null elements within the collection are converted to <c>"null"</c> via <see cref="FallbackIfNull(string?)"/></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Uses optimized code paths for <see cref="IList{T}"/> collections
+    /// with up to <see cref="MaxCount"/> items, employing zero-allocation string building techniques.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Custom separator
+    /// JoinWithSeparator(new[] { "a", "b", "c" }, " | ")  // Returns: "a | b | c"
+    /// JoinWithSeparator(new[] { "1", "2" }, "; ")         // Returns: "1; 2"
+    /// 
+    /// // Null handling
+    /// JoinWithSeparator(null, ", ")                       // Returns: "null"
+    /// JoinWithSeparator(new string[] { }, ", ")           // Returns: ""
+    /// JoinWithSeparator(new[] { "a", null }, " - ")       // Returns: "a - null"
+    /// </code>
+    /// </example>
     public static string JoinWithSeparator(IEnumerable<string?> items, string separator)
     {
         if (items is null) return NullString;

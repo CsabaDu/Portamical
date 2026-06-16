@@ -154,7 +154,7 @@ public static class FormatterRegister
     /// </para>
     /// <para>
     /// After unregistration, <see cref="GetFormatter(Type)"/> will fall back to the default
-    /// <see cref="DefaultFormatter"/> for objects of this type.
+    /// <see cref="DefaultFormatter.Instance"/> for objects of this type.
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">
@@ -332,9 +332,37 @@ public static class FormatterRegister
         return DefaultFormatter.Instance;
     }
 
-    public static IFormatter GetFormatter<T>()
-    => GetFormatter(typeof(T));
+    /// <summary>
+    /// Gets the formatter registered for the specified type, or returns the default formatter if none is registered.
+    /// </summary>
+    /// <typeparam name="T">The type to get a formatter for.</typeparam>
+    /// <returns>
+    /// The registered <see cref="IFormatter"/> for the specified type, or <see cref="DefaultFormatter.Instance"/>
+    /// if no custom formatter is registered.
+    /// </returns>
+    /// <remarks>
+    /// This is a convenience overload of <see cref="GetFormatter(Type)"/>
+    /// that uses compile-time type safety via generics.
+    /// </remarks>
+    public static IFormatter GetFormatter<T>() => GetFormatter(typeof(T));
 
+    /// <summary>
+    /// Formats a value using the registered formatter for its type, or the default formatter if none is registered.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to format.</typeparam>
+    /// <param name="value">The value to format. May be null for reference types.</param>
+    /// <returns>
+    /// A formatted string representation of the value, or <see langword="null"/> if formatting fails.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This is a convenience method that combines <see cref="GetFormatter{T}()"/> and 
+    /// <see cref="IFormatter.Format(object?)"/> into a single call.
+    /// </para>
+    /// <para>
+    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
+    /// </para>
+    /// </remarks>
     public static string? Format<T>(T value)
     {
         var formatter = GetFormatter<T>();
