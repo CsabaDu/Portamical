@@ -29,7 +29,9 @@ public sealed class EnumValidatorTests
 
         var ex = invalidValue.GetInvalidEnumArgumentException(nameof(invalidValue));
 
+#pragma warning disable MSTEST0046 // Use StringAssert for string-based assertion clarity
         StringAssert.Contains(ex.Message, "99");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -39,7 +41,9 @@ public sealed class EnumValidatorTests
 
         var ex = invalidValue.GetInvalidEnumArgumentException(nameof(invalidValue));
 
+#pragma warning disable MSTEST0046 // Use StringAssert for string-based assertion clarity
         StringAssert.Contains(ex.Message, nameof(DayOfWeek));
+#pragma warning restore MSTEST0046
     }
 
     // Defined
@@ -83,6 +87,8 @@ public sealed class EnumValidatorTests
         var ex = Assert.ThrowsExactly<InvalidEnumArgumentException>(
             () => invalid.Defined(nameof(invalid)));
 
+#pragma warning disable MSTEST0046 // Use StringAssert for string-based assertion clarity
         StringAssert.Contains(ex.Message, "999");
+#pragma warning restore MSTEST0046
     }
 }

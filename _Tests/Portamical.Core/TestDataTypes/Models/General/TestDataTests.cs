@@ -21,14 +21,14 @@ public class TestDataTests
 
     #region TestCaseName and GetResult
     [TestMethod]
-    public void testCaseName_hasFormat_definitionArrowResult()
+    public void TestCaseName_hasFormat_definitionArrowResult()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 1);
         Assert.AreEqual($"{Def} => {Result}", sut.TestCaseName);
     }
 
     [TestMethod]
-    public void getResult_returnsResultString()
+    public void GetResult_returnsResultString()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 42);
         Assert.AreEqual(Result, sut.GetResult());
@@ -37,7 +37,7 @@ public class TestDataTests
 
     #region ToArgs — PropsCode trimming
     [TestMethod]
-    public void toArgs_properties_trimReturnsExpected_removesTestCaseName()
+    public void ToArgs_properties_trimReturnsExpected_removesTestCaseName()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 42);
         var args = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimReturnsExpected);
@@ -46,7 +46,7 @@ public class TestDataTests
     }
 
     [TestMethod]
-    public void toArgs_properties_trimThrowsExpected_removesTestCaseName()
+    public void ToArgs_properties_trimThrowsExpected_removesTestCaseName()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 42);
         var args = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimThrowsExpected);
@@ -55,7 +55,7 @@ public class TestDataTests
     }
 
     [TestMethod]
-    public void toArgs_properties_all_includesTestCaseName()
+    public void ToArgs_properties_all_includesTestCaseName()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, Result, 42);
         var args = sut.ToArgs(ArgsCode.Properties, PropsCode.All);
@@ -65,7 +65,7 @@ public class TestDataTests
     }
 
     [TestMethod]
-    public void toArgs_properties_all_arity2_returnsTestCaseName_andBothArgs()
+    public void ToArgs_properties_all_arity2_returnsTestCaseName_andBothArgs()
     {
         var sut = TestDataFactory.CreateTestData<int, string>(Def, Result, 42, "hello");
         var args = sut.ToArgs(ArgsCode.Properties, PropsCode.All);

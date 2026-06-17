@@ -26,7 +26,9 @@ public sealed class ResolverTests
     {
         var result = "Fallback".FallbackIfNullOrWhiteSpace(null, "GetName");
 
+#pragma warning disable MSTEST0046 // Use StringAssert for string-based assertion clarity
         StringAssert.StartsWith(result, "Fallback (");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -34,7 +36,9 @@ public sealed class ResolverTests
     {
         var result = "Fallback".FallbackIfNullOrWhiteSpace(string.Empty, "GetName");
 
+#pragma warning disable MSTEST0046 // Use StringAssert for string-based assertion clarity
         StringAssert.StartsWith(result, "Fallback (");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]
@@ -42,7 +46,9 @@ public sealed class ResolverTests
     {
         var result = "Fallback".FallbackIfNullOrWhiteSpace("   ", "GetName");
 
+#pragma warning disable MSTEST0046 // Use StringAssert for string-based assertion clarity
         StringAssert.StartsWith(result, "Fallback (");
+#pragma warning restore MSTEST0046
     }
 
     [TestMethod]

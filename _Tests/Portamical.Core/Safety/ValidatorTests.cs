@@ -72,6 +72,8 @@ public sealed class ValidatorTests
         Assert.AreSame(array, result);
     }
 
+    private static readonly int[] expected = [1, 2, 3];
+
     [TestMethod]
     public void NotNullOrEmpty_nonArrayEnumerable_returnsEquivalentArray()
     {
@@ -79,7 +81,7 @@ public sealed class ValidatorTests
 
         var result = Validator.NotNullOrEmpty(source, nameof(source));
 
-        CollectionAssert.AreEqual(new[] { 1, 2, 3 }, result);
+        CollectionAssert.AreEqual(expected, result);
     }
 
     [TestMethod]

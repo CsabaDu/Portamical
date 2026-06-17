@@ -18,147 +18,158 @@ public class PatternsTests
 
     #region ITestData conformance
     [TestMethod]
-    public void testData_implements_iTestData()
+    public void TestData_implements_iTestData()
     {
         var sut = TestDataFactory.CreateTestData<int>(Def, "result", 1);
         Assert.IsInstanceOfType<ITestData>(sut);
     }
 
     [TestMethod]
-    public void testDataReturns_implements_iTestData()
+    public void TestDataReturns_implements_iTestData()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
         Assert.IsInstanceOfType<ITestData>(sut);
     }
 
     [TestMethod]
-    public void testDataThrows_implements_iTestData()
+    public void TestDataThrows_implements_iTestData()
     {
-        var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
+        var sut = TestDataFactory.CreateTestDataThrows(Def, new InvalidOperationException(), 1);
         Assert.IsInstanceOfType<ITestData>(sut);
     }
     #endregion
 
     #region IReturns conformance
     [TestMethod]
-    public void testDataReturns_implements_iReturns()
+    public void TestDataReturns_implements_iReturns()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
         Assert.IsInstanceOfType<IReturns>(sut);
     }
 
     [TestMethod]
-    public void testDataReturns_implements_iReturns_TStruct()
+    public void TestDataReturns_implements_iReturns_TStruct()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
         Assert.IsInstanceOfType<IReturns<int>>(sut);
     }
 
     [TestMethod]
-    public void testDataReturns_implements_iExpected()
+    public void TestDataReturns_implements_iExpected()
     {
-        var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
+        var sut = TestDataFactory.CreateTestDataReturns(Def, 5, 1);
         Assert.IsInstanceOfType<IExpected>(sut);
     }
 
     [TestMethod]
-    public void testDataReturns_implements_iExpected_TStruct()
+    public void TestDataReturns_implements_iExpected_TStruct()
     {
-        var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
+        var sut = TestDataFactory.CreateTestDataReturns(Def, 5, 1);
         Assert.IsInstanceOfType<IExpected<int>>(sut);
     }
 
     [TestMethod]
-    public void testDataThrows_doesNotImplement_iReturns()
+    public void TestDataThrows_doesNotImplement_iReturns()
     {
-        var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
+        var sut = TestDataFactory.CreateTestDataThrows(Def, new InvalidOperationException(), 1);
         Assert.IsNotInstanceOfType<IReturns>(sut);
     }
     #endregion
 
     #region IThrows conformance
     [TestMethod]
-    public void testDataThrows_implements_iThrows()
+    public void TestDataThrows_implements_iThrows()
     {
-        var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
+        var sut = TestDataFactory.CreateTestDataThrows(Def, new InvalidOperationException(), 1);
         Assert.IsInstanceOfType<IThrows>(sut);
     }
 
     [TestMethod]
-    public void testDataThrows_implements_iThrows_TException()
+    public void TestDataThrows_implements_iThrows_TException()
     {
-        var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
+        var sut = TestDataFactory.CreateTestDataThrows(Def, new InvalidOperationException(), 1);
         Assert.IsInstanceOfType<IThrows<InvalidOperationException>>(sut);
     }
 
     [TestMethod]
-    public void testDataThrows_implements_iExpected()
+    public void TestDataThrows_implements_iExpected()
     {
-        var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
+        var sut = TestDataFactory.CreateTestDataThrows(Def, new InvalidOperationException(), 1);
         Assert.IsInstanceOfType<IExpected>(sut);
     }
 
     [TestMethod]
-    public void testDataThrows_implements_iExpected_TException()
+    public void TestDataThrows_implements_iExpected_TException()
     {
-        var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
+        var sut = TestDataFactory.CreateTestDataThrows(Def, new InvalidOperationException(), 1);
         Assert.IsInstanceOfType<IExpected<InvalidOperationException>>(sut);
     }
 
     [TestMethod]
-    public void testDataReturns_doesNotImplement_iThrows()
+    public void TestDataReturns_doesNotImplement_iThrows()
     {
-        var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
+        var sut = TestDataFactory.CreateTestDataReturns(Def, 5, 1);
         Assert.IsNotInstanceOfType<IThrows>(sut);
     }
     #endregion
 
     #region IExpected.GetExpected() — non-generic object access
     [TestMethod]
-    public void iExpected_getExpected_returnsExpectedValue_forReturns()
+    public void IExpected_getExpected_returnsExpectedValue_forReturns()
     {
-        IExpected sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 42, 1);
+#pragma warning disable CA1859 // Use concrete types when possible - interface type is intentionally used to test non-generic access
+        IExpected sut = TestDataFactory.CreateTestDataReturns(Def, 42, 1);
+#pragma warning restore CA1859
         Assert.AreEqual(42, sut.GetExpected());
     }
 
     [TestMethod]
-    public void iExpected_getExpected_returnsExpectedInstance_forThrows()
+    public void IExpected_getExpected_returnsExpectedInstance_forThrows()
     {
         var ex = new InvalidOperationException();
-        IExpected sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, ex, 1);
+#pragma warning disable CA1859 // Use concrete types when possible - interface type is intentionally used to test non-generic access
+        IExpected sut = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
+#pragma warning restore CA1859
         Assert.AreSame(ex, sut.GetExpected());
     }
     #endregion
 
     #region IExpected.GetResultPrefix()
     [TestMethod]
-    public void iExpected_getResultPrefix_returnsReturns_forTestDataReturns()
+    public void IExpected_getResultPrefix_returnsReturns_forTestDataReturns()
     {
-        IExpected sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
+#pragma warning disable CA1859 // Use concrete types when possible - interface type is intentionally used to test non-generic access
+        IExpected sut = TestDataFactory.CreateTestDataReturns(Def, 5, 1);
+#pragma warning restore CA1859
         Assert.AreEqual("returns", sut.GetResultPrefix());
     }
 
     [TestMethod]
-    public void iExpected_getResultPrefix_returnsThrows_forTestDataThrows()
+    public void IExpected_getResultPrefix_returnsThrows_forTestDataThrows()
     {
-        IExpected sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
+#pragma warning disable CA1859 // Use concrete types when possible - interface type is intentionally used to test non-generic access
+        IExpected sut = TestDataFactory.CreateTestDataThrows(Def, new InvalidOperationException(), 1);
+#pragma warning restore CA1859
         Assert.AreEqual("throws", sut.GetResultPrefix());
     }
     #endregion
 
     #region IExpected<T>.Expected — typed property access
     [TestMethod]
-    public void iExpectedT_expected_hasExpectedValue_forReturns()
+    public void IExpectedT_expected_hasExpectedValue_forReturns()
     {
-        IExpected<int> sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 42, 1);
+#pragma warning disable CA1859 // Use concrete types when possible - interface type is intentionally used to test non-generic access
+        IExpected<int> sut = TestDataFactory.CreateTestDataReturns(Def, 42, 1);
+#pragma warning restore CA1859
         Assert.AreEqual(42, sut.Expected);
     }
 
     [TestMethod]
-    public void iExpectedT_expected_hasExpectedInstance_forThrows()
+    public void IExpectedT_expected_hasExpectedInstance_forThrows()
     {
         var ex = new InvalidOperationException();
-        IExpected<InvalidOperationException> sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, ex, 1);
+#pragma warning disable CA1859 // Use concrete types when possible - interface type is intentionally used to test non-generic access
+        IExpected<InvalidOperationException> sut = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
         var actual = sut.Expected;
         Assert.AreSame(ex, actual);
     }
@@ -166,9 +177,10 @@ public class PatternsTests
 
     #region Covariance
     [TestMethod]
-    public void iThrows_isAssignableTo_iThrowsBaseException_viaCovariance()
+    public void IThrows_isAssignableTo_IThrowsBaseException_viaCovariance()
     {
-        IThrows<ArgumentException> derived = TestDataFactory.CreateTestDataThrows<ArgumentException, int>(Def, new ArgumentException(), 1);
+        var ex = new ArgumentException("ignore test message");
+        IThrows<ArgumentException> derived = TestDataFactory.CreateTestDataThrows(Def, ex, 1);
         IThrows<Exception> covariant = derived;    // IThrows<ArgumentException> → IThrows<Exception>
         Assert.IsNotNull(covariant);
     }

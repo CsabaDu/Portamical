@@ -17,14 +17,14 @@ public class TestDataExpectedTests
 
     #region GetResult()
     [TestMethod]
-    public void testDataReturns_getResult_hasFormat_returnsExpected()
+    public void TestDataReturns_getResult_hasFormat_returnsExpected()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
         Assert.AreEqual("returns 5", sut.GetResult());
     }
 
     [TestMethod]
-    public void testDataThrows_getResult_hasFormat_throwsExceptionTypeName()
+    public void TestDataThrows_getResult_hasFormat_throwsExceptionTypeName()
     {
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
         Assert.AreEqual($"throws {nameof(InvalidOperationException)}", sut.GetResult());
@@ -33,14 +33,14 @@ public class TestDataExpectedTests
 
     #region TestCaseName
     [TestMethod]
-    public void testDataReturns_testCaseName_hasFormat_definitionArrowReturnsExpected()
+    public void TestDataReturns_testCaseName_hasFormat_definitionArrowReturnsExpected()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
         Assert.AreEqual($"{Def} => returns 5", sut.TestCaseName);
     }
 
     [TestMethod]
-    public void testDataThrows_testCaseName_hasFormat_definitionArrowThrowsTypeName()
+    public void TestDataThrows_testCaseName_hasFormat_definitionArrowThrowsTypeName()
     {
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
         Assert.AreEqual($"{Def} => throws {nameof(InvalidOperationException)}", sut.TestCaseName);
@@ -49,14 +49,14 @@ public class TestDataExpectedTests
 
     #region GetExpected() — non-generic polymorphic access
     [TestMethod]
-    public void getExpected_returnsExpected_asObject_forReturns()
+    public void GetExpected_returnsExpected_asObject_forReturns()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 42, 1);
         Assert.AreEqual(42, sut.GetExpected());
     }
 
     [TestMethod]
-    public void getExpected_returnsExpected_asObject_forThrows()
+    public void GetExpected_returnsExpected_asObject_forThrows()
     {
         var ex = new InvalidOperationException();
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, ex, 1);
@@ -66,14 +66,14 @@ public class TestDataExpectedTests
 
     #region GetResultPrefix()
     [TestMethod]
-    public void getResultPrefix_returnsReturns_forTestDataReturns()
+    public void GetResultPrefix_returnsReturns_forTestDataReturns()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 1);
         Assert.AreEqual("returns", sut.GetResultPrefix());
     }
 
     [TestMethod]
-    public void getResultPrefix_returnsThrows_forTestDataThrows()
+    public void GetResultPrefix_returnsThrows_forTestDataThrows()
     {
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 1);
         Assert.AreEqual("throws", sut.GetResultPrefix());
@@ -82,7 +82,7 @@ public class TestDataExpectedTests
 
     #region TestDataReturns — TrimThrowsExpected behaves as TrimTestCaseName
     [TestMethod]
-    public void testDataReturns_toArgs_trimThrowsExpected_leavesExpected_removesTestCaseName()
+    public void TestDataReturns_toArgs_trimThrowsExpected_leavesExpected_removesTestCaseName()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 42);
         var args = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimThrowsExpected);
@@ -95,7 +95,7 @@ public class TestDataExpectedTests
 
     #region TestDataReturns — ToArgs with PropsCode
     [TestMethod]
-    public void testDataReturns_toArgs_properties_all_returnsTestCaseName_expected_andArg1()
+    public void TestDataReturns_toArgs_properties_all_returnsTestCaseName_expected_andArg1()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 42);
         var args = sut.ToArgs(ArgsCode.Properties, PropsCode.All);
@@ -106,7 +106,7 @@ public class TestDataExpectedTests
     }
 
     [TestMethod]
-    public void testDataReturns_toArgs_properties_trimTestCaseName_returnsExpected_andArg1()
+    public void TestDataReturns_toArgs_properties_trimTestCaseName_returnsExpected_andArg1()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 42);
         var args = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName);
@@ -116,7 +116,7 @@ public class TestDataExpectedTests
     }
 
     [TestMethod]
-    public void testDataReturns_toArgs_properties_trimReturnsExpected_removesTestCaseName_andExpected()
+    public void TestDataReturns_toArgs_properties_trimReturnsExpected_removesTestCaseName_andExpected()
     {
         var sut = TestDataFactory.CreateTestDataReturns<int, int>(Def, 5, 42);
         var args = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimReturnsExpected);
@@ -127,7 +127,7 @@ public class TestDataExpectedTests
 
     #region TestDataThrows — TrimReturnsExpected behaves as TrimTestCaseName
     [TestMethod]
-    public void testDataThrows_toArgs_trimReturnsExpected_leavesExpected_removesTestCaseName()
+    public void TestDataThrows_toArgs_trimReturnsExpected_leavesExpected_removesTestCaseName()
     {
         var ex = new InvalidOperationException();
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, ex, 42);
@@ -141,7 +141,7 @@ public class TestDataExpectedTests
 
     #region TestDataThrows — ToArgs with PropsCode
     [TestMethod]
-    public void testDataThrows_toArgs_properties_all_returnsTestCaseName_expected_andArg1()
+    public void TestDataThrows_toArgs_properties_all_returnsTestCaseName_expected_andArg1()
     {
         var ex = new InvalidOperationException();
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, ex, 42);
@@ -153,7 +153,7 @@ public class TestDataExpectedTests
     }
 
     [TestMethod]
-    public void testDataThrows_toArgs_properties_trimTestCaseName_returnsExpected_andArg1()
+    public void TestDataThrows_toArgs_properties_trimTestCaseName_returnsExpected_andArg1()
     {
         var ex = new InvalidOperationException();
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, ex, 42);
@@ -164,7 +164,7 @@ public class TestDataExpectedTests
     }
 
     [TestMethod]
-    public void testDataThrows_toArgs_properties_trimThrowsExpected_removesTestCaseName_andExpected()
+    public void TestDataThrows_toArgs_properties_trimThrowsExpected_removesTestCaseName_andExpected()
     {
         var sut = TestDataFactory.CreateTestDataThrows<InvalidOperationException, int>(Def, new InvalidOperationException(), 42);
         var args = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimThrowsExpected);
