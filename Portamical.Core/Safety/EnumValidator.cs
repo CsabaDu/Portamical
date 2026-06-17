@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Runtime.CompilerServices;
+
 namespace Portamical.Core.Safety;
 
 /// <summary>
@@ -113,6 +115,7 @@ public static class EnumValidator
     /// // Throws: InvalidEnumArgumentException: The value of argument 'invalid' (999) is invalid for Enum type 'ArgsCode'.
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TEnum Defined<TEnum>(
         this TEnum enumValue,
         string paramName)

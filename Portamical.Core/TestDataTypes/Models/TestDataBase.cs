@@ -4,6 +4,7 @@
 using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
+using System.Runtime.CompilerServices;
 
 namespace Portamical.Core.TestDataTypes.Models;
 
@@ -77,6 +78,7 @@ public abstract class TestDataBase(string definition)
     /// An array of objects representing the test arguments, using <see cref="PropsCode.TrimTestCaseName"/>
     /// as the default property selection strategy.
     /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public object?[] ToArgs(ArgsCode argsCode)
     => ToArgs(argsCode, PropsCode.TrimTestCaseName);
 

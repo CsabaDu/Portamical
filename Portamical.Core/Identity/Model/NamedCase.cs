@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.Core.Identity.Model;
@@ -228,6 +229,7 @@ public abstract class NamedCase : INamedCase
     /// <remarks>
     /// This method is sealed to ensure consistent string representation across all derived types.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public sealed override string ToString()
     => TestCaseName;
 
@@ -255,6 +257,7 @@ public abstract class NamedCase : INamedCase
     /// Console.WriteLine(name); // Outputs: "test => succeeds"
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator string?(NamedCase? namedCase)
     => namedCase?.TestCaseName;
 

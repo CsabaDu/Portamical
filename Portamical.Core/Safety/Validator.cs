@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Runtime.CompilerServices;
+
 namespace Portamical.Core.Safety;
 
 /// <summary>
@@ -98,6 +100,7 @@ public static class Validator
     /// // Throws: ArgumentException: The sequence must contain at least one element.
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] NotNullOrEmpty<T>(IEnumerable<T>? enumerable, string? paramName)
     {
         // Take a stable snapshot once
@@ -160,6 +163,7 @@ public static class Validator
     /// var invalid = new TestData(null); // Throws ArgumentNullException
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T NotNull<T>(T? value, string? paramName)
     => value is null ?
         throw new ArgumentNullException(paramName)
