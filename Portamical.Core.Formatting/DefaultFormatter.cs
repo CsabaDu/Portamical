@@ -416,13 +416,13 @@ public sealed class DefaultFormatter : IFormatter
         const string separator = ": ";
         var typeName = exception.GetType().Name;
         var message = exception.Message;
-        var totalLength =
-            typeName.Length +
-            separator.Length +
-            message.Length;
+        //var totalLength =
+        //    typeName.Length +
+        //    separator.Length +
+        //    message.Length;
 
         return CreateSeparatedString(
-            totalLength,
+            //totalLength,
             typeName,
             separator,
             message);

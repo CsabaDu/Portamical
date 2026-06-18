@@ -113,26 +113,32 @@ public static class FormatBuilder
     /// </code>
     /// </example>
     public static string CreateSeparatedString(
-        int totalLength,
         string baseString,
         string separator,
         string appendix)
-    => string.Create(
-        totalLength,
-        (FallbackIfNull(baseString), NotNullSeparator(separator), FallbackIfNull(appendix)),
-        static (span, state) =>
-        {
-            var (bs, sep, app) = state;
+    {
+        baseString = FallbackIfNull(baseString);
+        separator = NotNullSeparator(separator);
+        appendix = FallbackIfNull(appendix);
+        var totalLength = baseString.Length + separator.Length + appendix.Length;
 
-            var i = 0;
-            CopyAsSpan(bs, span, i);
+        return string.Create(
+            totalLength,
+            (baseString, separator, appendix),
+            static (span, state) =>
+            {
+                var (bs, sep, app) = state;
 
-            i = bs.Length;
-            CopyAsSpan(sep, span, i);
+                var i = 0;
+                CopyAsSpan(bs, span, i);
 
-            i += sep.Length;
-            CopyAsSpan(app, span, i);
-        });
+                i = bs.Length;
+                CopyAsSpan(sep, span, i);
+
+                i += sep.Length;
+                CopyAsSpan(app, span, i);
+            });
+    }
 
     /// <summary>
     /// Copies a string's characters into a <see cref="Span{T}"/> at the specified starting index.
@@ -334,14 +340,14 @@ public static class FormatBuilder
 
         if (isCountEqualToIncrementedIndex()) return result;
 
-        var totalLength = result.Length;
+        //var totalLength = result.Length;
 
         while (i < MaxCount)
         {
             var item = getIndexedItem();
-            totalLength += separator.Length + item.Length;
+            //totalLength += separator.Length + item.Length;
             result = CreateSeparatedString(
-                totalLength,
+                //totalLength,
                 result,
                 separator,
                 item);

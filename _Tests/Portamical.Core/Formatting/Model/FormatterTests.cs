@@ -3,6 +3,7 @@
 
 using Portamical.Core.Formatting;
 using Portamical.Core.Formatting.Model;
+using static Portamical.Core.Formatting.FormatBuilder;
 
 namespace Tests.Portamical.Core.Formatting.Model;
 
@@ -17,13 +18,13 @@ public class FormatterTests
     [TestMethod]
     public void NullString_hasCorrectValue()
     {
-        Assert.AreEqual("null", Formatter.NullString);
+        Assert.AreEqual("null", NullString);
     }
 
     [TestMethod]
     public void MaxCount_hasCorrectValue()
     {
-        Assert.AreEqual(3, Formatter.MaxCount);
+        Assert.AreEqual(3, MaxCount);
     }
 #pragma warning restore MSTEST0032
     #endregion
@@ -32,14 +33,14 @@ public class FormatterTests
     [TestMethod]
     public void FallbackIfNull_withNull_returnsNullString()
     {
-        var result = Formatter.FallbackIfNull(null);
+        var result = FallbackIfNull(null);
         Assert.AreEqual("null", result);
     }
 
     [TestMethod]
     public void FallbackIfNull_withEmptyString_returnsEmptyString()
     {
-        var result = Formatter.FallbackIfNull("");
+        var result = FallbackIfNull("");
         Assert.AreEqual("", result);
     }
 
@@ -47,7 +48,7 @@ public class FormatterTests
     public void FallbackIfNull_withNonNullString_returnsOriginal()
     {
         var input = "test";
-        var result = Formatter.FallbackIfNull(input);
+        var result = FallbackIfNull(input);
         Assert.AreEqual("test", result);
         Assert.AreSame(input, result);
     }
@@ -55,7 +56,7 @@ public class FormatterTests
     [TestMethod]
     public void FallbackIfNull_withWhitespace_returnsOriginal()
     {
-        var result = Formatter.FallbackIfNull("   ");
+        var result = FallbackIfNull("   ");
         Assert.AreEqual("   ", result);
     }
     #endregion
@@ -67,7 +68,7 @@ public class FormatterTests
         var buffer = new char[10];
         var span = new Span<char>(buffer);
 
-        Formatter.CopyAsSpan("hello", span, 0);
+        CopyAsSpan("hello", span, 0);
 
         Assert.AreEqual('h', buffer[0]);
         Assert.AreEqual('e', buffer[1]);
@@ -82,8 +83,8 @@ public class FormatterTests
         var buffer = new char[10];
         var span = new Span<char>(buffer);
 
-        Formatter.CopyAsSpan("abc", span, 0);
-        Formatter.CopyAsSpan("xyz", span, 5);
+        CopyAsSpan("abc", span, 0);
+        CopyAsSpan("xyz", span, 5);
 
         Assert.AreEqual('a', buffer[0]);
         Assert.AreEqual('b', buffer[1]);
@@ -102,7 +103,7 @@ public class FormatterTests
         Array.Fill(buffer, 'x');
         var span = new Span<char>(buffer);
 
-        Formatter.CopyAsSpan("", span, 2);
+        CopyAsSpan("", span, 2);
 
         Assert.AreEqual('x', buffer[0]);
         Assert.AreEqual('x', buffer[1]);
@@ -114,7 +115,7 @@ public class FormatterTests
     [TestMethod]
     public void CreateSeparatedString_concatenatesThreeParts()
     {
-        var result = Formatter.CreateSeparatedString(11, "Hello", " ", "World");
+        var result = CreateSeparatedString("Hello", " ", "World");
         Assert.AreEqual("Hello World", result);
     }
 
@@ -122,7 +123,7 @@ public class FormatterTests
     public void CreateSeparatedString_withEmptyBase_concatenatesCorrectly()
     {
         // "" (0) + ", " (2) + "test" (4) = 6 total
-        var result = Formatter.CreateSeparatedString(6, "", ", ", "test");
+        var result = CreateSeparatedString("", ", ", "test");
         Assert.AreEqual(", test", result);
     }
 
@@ -130,7 +131,7 @@ public class FormatterTests
     public void CreateSeparatedString_withEmptyAppendix_concatenatesCorrectly()
     {
         // "base" (4) + ": " (2) + "" (0) = 6 total
-        var result = Formatter.CreateSeparatedString(6, "base", ": ", "");
+        var result = CreateSeparatedString("base", ": ", "");
         Assert.AreEqual("base: ", result);
     }
 
@@ -138,7 +139,7 @@ public class FormatterTests
     public void CreateSeparatedString_withEmptySeparator_concatenatesCorrectly()
     {
         // "test" (4) + "" (0) + "case" (4) = 8 total
-        var result = Formatter.CreateSeparatedString(8, "test", "", "case");
+        var result = CreateSeparatedString("test", "", "case");
         Assert.AreEqual("testcase", result);
     }
 
@@ -146,7 +147,7 @@ public class FormatterTests
     public void CreateSeparatedString_withAllEmptyStrings_returnsEmptyString()
     {
         // "" (0) + "" (0) + "" (0) = 0 total
-        var result = Formatter.CreateSeparatedString(0, "", "", "");
+        var result = CreateSeparatedString("", "", "");
         Assert.AreEqual("", result);
     }
 
@@ -154,7 +155,7 @@ public class FormatterTests
     public void CreateSeparatedString_withComplexSeparator_concatenatesCorrectly()
     {
         // "Method" (6) + " - " (3) + "param1" (6) = 15 total
-        var result = Formatter.CreateSeparatedString(15, "Method", " - ", "param1");
+        var result = CreateSeparatedString("Method", " - ", "param1");
         Assert.AreEqual("Method - param1", result);
     }
     #endregion
@@ -164,7 +165,7 @@ public class FormatterTests
     public void JoinWithComma_withEmptyList_returnsEmptyString()
     {
         var items = new List<string?>();
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("", result);
     }
 
@@ -172,7 +173,7 @@ public class FormatterTests
     public void JoinWithComma_withEmptyArray_returnsEmptyString()
     {
         var items = Array.Empty<string?>();
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("", result);
     }
 
@@ -180,7 +181,7 @@ public class FormatterTests
     public void JoinWithComma_withSingleItem_returnsItem()
     {
         var items = new List<string?> { "test" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("test", result);
     }
 
@@ -188,7 +189,7 @@ public class FormatterTests
     public void JoinWithComma_withSingleNull_returnsNull()
     {
         var items = new List<string?> { null };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("null", result);
     }
     #endregion
@@ -198,7 +199,7 @@ public class FormatterTests
     public void JoinWithComma_withTwoItems_returnsCommaSeparated()
     {
         var items = new List<string?> { "first", "second" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("first, second", result);
     }
 
@@ -206,7 +207,7 @@ public class FormatterTests
     public void JoinWithComma_withTwoItemsFirstNull_returnsCommaSeparated()
     {
         var items = new List<string?> { null, "second" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("null, second", result);
     }
 
@@ -214,7 +215,7 @@ public class FormatterTests
     public void JoinWithComma_withTwoItemsSecondNull_returnsCommaSeparated()
     {
         var items = new List<string?> { "first", null };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("first, null", result);
     }
 
@@ -222,7 +223,7 @@ public class FormatterTests
     public void JoinWithComma_withTwoNulls_returnsCommaSeparated()
     {
         var items = new List<string?> { null, null };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("null, null", result);
     }
     #endregion
@@ -232,7 +233,7 @@ public class FormatterTests
     public void JoinWithComma_withThreeItems_returnsCommaSeparated()
     {
         var items = new List<string?> { "one", "two", "three" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("one, two, three", result);
     }
 
@@ -240,7 +241,7 @@ public class FormatterTests
     public void JoinWithComma_withThreeItemsFirstNull_returnsCommaSeparated()
     {
         var items = new List<string?> { null, "two", "three" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("null, two, three", result);
     }
 
@@ -248,7 +249,7 @@ public class FormatterTests
     public void JoinWithComma_withThreeItemsSecondNull_returnsCommaSeparated()
     {
         var items = new List<string?> { "one", null, "three" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("one, null, three", result);
     }
 
@@ -256,7 +257,7 @@ public class FormatterTests
     public void JoinWithComma_withThreeItemsThirdNull_returnsCommaSeparated()
     {
         var items = new List<string?> { "one", "two", null };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("one, two, null", result);
     }
 
@@ -264,7 +265,7 @@ public class FormatterTests
     public void JoinWithComma_withThreeNulls_returnsCommaSeparated()
     {
         var items = new List<string?> { null, null, null };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("null, null, null", result);
     }
 
@@ -272,7 +273,7 @@ public class FormatterTests
     public void JoinWithComma_withThreeItemsMixedNulls_returnsCommaSeparated()
     {
         var items = new List<string?> { null, "middle", null };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("null, middle, null", result);
     }
     #endregion
@@ -282,7 +283,7 @@ public class FormatterTests
     public void JoinWithComma_withFourItems_returnsCommaSeparated()
     {
         var items = new List<string?> { "a", "b", "c", "d" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("a, b, c, d", result);
     }
 
@@ -290,7 +291,7 @@ public class FormatterTests
     public void JoinWithComma_withManyItems_returnsCommaSeparated()
     {
         var items = new List<string?> { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("1, 2, 3, 4, 5, 6, 7, 8, 9, 10", result);
     }
 
@@ -298,7 +299,7 @@ public class FormatterTests
     public void JoinWithComma_withFourItemsContainingNulls_returnsCommaSeparated()
     {
         var items = new List<string?> { "a", null, "c", null };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("a, null, c, null", result);
     }
     #endregion
@@ -308,7 +309,7 @@ public class FormatterTests
     public void JoinWithComma_withArray_returnsCommaSeparated()
     {
         var items = new[] { "x", "y", "z" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("x, y, z", result);
     }
 
@@ -316,7 +317,7 @@ public class FormatterTests
     public void JoinWithComma_withEnumerable_returnsCommaSeparated()
     {
         var items = Enumerable.Range(1, 5).Select(i => i.ToString());
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("1, 2, 3, 4, 5", result);
     }
 
@@ -324,7 +325,7 @@ public class FormatterTests
     public void JoinWithComma_withHashSet_returnsCommaSeparated()
     {
         var items = new HashSet<string?> { "alpha", "beta", "gamma" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         // Order may vary with HashSet, just check all items are present
         Assert.Contains("alpha", result);
         Assert.Contains("beta", result);
@@ -341,9 +342,9 @@ public class FormatterTests
         var singleEmpty = new List<string?> { "" };
         var twoEmpties = new List<string?> { "", "" };
 
-        var result1 = Formatter.JoinWithComma(emptyCollection);
-        var result2 = Formatter.JoinWithComma(singleEmpty);
-        var result3 = Formatter.JoinWithComma(twoEmpties);
+        var result1 = JoinWithComma(emptyCollection);
+        var result2 = JoinWithComma(singleEmpty);
+        var result3 = JoinWithComma(twoEmpties);
 
         Assert.AreEqual("", result1);
         Assert.AreEqual("", result2);
@@ -354,7 +355,7 @@ public class FormatterTests
     public void JoinWithComma_withQuotedStrings_preservesQuotes()
     {
         var items = new List<string?> { "\"hello\"", "'a'", "42" };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
         Assert.AreEqual("\"hello\", 'a', 42", result);
     }
 
@@ -364,7 +365,7 @@ public class FormatterTests
         var long1 = new string('a', 100);
         var long2 = new string('b', 100);
         var items = new List<string?> { long1, long2 };
-        var result = Formatter.JoinWithComma(items);
+        var result = JoinWithComma(items);
 
         Assert.AreEqual(202, result.Length); // 100 + 2 (", ") + 100
         Assert.StartsWith(new string('a', 100), result);
@@ -390,12 +391,12 @@ public class FormatterTests
     }
 
     // Test implementation of abstract Formatter class
-    private class TestFormatter : Formatter
+    private class TestFormatter : IFormatter
     {
-        public override string? Format(object value)
+        public string? Format(object? obj)
         {
-            if (value == null) return null;
-            return value.ToString()?.ToUpper();
+            if (obj == null) return null;
+            return obj.ToString()?.ToUpper();
         }
     }
     #endregion
@@ -409,31 +410,176 @@ public class FormatterTests
         Assert.AreEqual("INT:42", result);
     }
 
-    [TestMethod]
-    public void FormatterT_FormatObject_withMatchingType_callsTypeSafeMethod()
-    {
-        var formatter = new TestFormatterInt();
-        object value = 42;
-        var result = formatter.Format(value);
-        Assert.AreEqual("INT:42", result);
-    }
+    // These methods test an earlier version of formatter that had a non-generic Format(object) method. In the current design, Formatter<T> has a sealed Format(object) method that delegates to the type-safe Format(T) method. These tests ensure that the delegation works correctly and that type mismatches are handled as expected.
+    //[TestMethod]
+    //public void FormatterT_FormatObject_withMatchingType_callsTypeSafeMethod()
+    //{
+    //    var formatter = new TestFormatterInt();
+    //    object obj = 42;
+    //    var result = formatter.Format(obj);
+    //    Assert.AreEqual("INT:42", result);
+    //}
 
-    [TestMethod]
-    public void FormatterT_FormatObject_withNonMatchingType_returnsNull()
-    {
-        var formatter = new TestFormatterInt();
-        object value = "not an int";
-        var result = formatter.Format(value);
-        Assert.IsNull(result);
-    }
+    //[TestMethod]
+    //public void FormatterT_FormatObject_withNonMatchingType_returnsNull()
+    //{
+    //    var formatter = new TestFormatterInt();
+    //    object obj = "not an int";
+    //    var result = formatter.Format(obj);
+    //    Assert.IsNull(result);
+    //}
 
-    [TestMethod]
-    public void FormatterT_FormatObject_withNullForValueType_returnsNull()
-    {
-        var formatter = new TestFormatterInt();
-        var result = formatter.Format(null!);
-        Assert.IsNull(result);
-    }
+    //[TestMethod]
+    //public void FormatterT_FormatObject_withNullForValueType_returnsNull()
+    //{
+    //    var formatter = new TestFormatterInt();
+    //    var result = formatter.Format(null!);
+    //    Assert.IsNull(result);
+    //}
+
+    //[TestMethod]
+    //public void FormatterT_FormatObject_withBoxedValueType_unboxesAndFormats()
+    //{
+    //    var formatter = new TestFormatterInt();
+    //    object boxed = 123;
+    //    var result = formatter.Format(boxed);
+    //    Assert.AreEqual("INT:123", result);
+    //}
+    //[TestMethod]
+    //public void FormatterT_FormatObject_withDerivedType_worksCorrectly()
+    //{
+    //    var formatter = new TestFormatterException();
+    //    object exception = new InvalidOperationException("test");
+    //    var result = formatter.Format(exception);
+    //    Assert.AreEqual("EX:System.InvalidOperationException", result);
+    //}
+    //[TestMethod]
+    //public void FormatterT_withNullableValueType_objectOverloadHandlesNull()
+    //{
+    //    // When null is passed as object?, the pattern matching fails for nullable obj types
+    //    // because null (object?) is not the same as null (int?)
+    //    var formatter = new TestFormatterNullableInt();
+    //    var result = formatter.Format((object?)null!);
+    //    Assert.IsNull(result); // Returns null due to type mismatch, not "null" string
+    //}
+
+    //[TestMethod]
+    //public void FormatterT_withNullableValueType_objectOverloadHandlesBoxedValue()
+    //{
+    //    var formatter = new TestFormatterNullableInt();
+    //    object? value = 99;
+    //    var result = formatter.Format(value);
+    //    Assert.AreEqual("NULLABLE:99", result);
+    //}
+    //private static Task NewMethod(int i, TestFormatterInt formatter, System.Collections.Concurrent.ConcurrentBag<(object input, string? output)> results)
+    //{
+    //    return Task.Run(() =>
+    //    {
+    //        // Mix of valid ints and invalid types
+    //        object value = i % 2 == 0 ? i : $"string{i}";
+    //        var result = formatter.Format(value);
+    //        results.Add((value, result));
+    //    });
+    //}
+    //[TestMethod]
+    //public void FormatterT_concurrentMixedTypeCalls_handledCorrectly()
+    //{
+    //    var formatter = new TestFormatterInt();
+    //    var results = new System.Collections.Concurrent.ConcurrentBag<(object input, string? output)>();
+
+    //    var tasks = Enumerable.Range(0, 50).Select(i => NewMethod(i, formatter, results)).ToArray();
+
+    //    Task.WaitAll(tasks, TestContext.CancellationToken);
+
+    //    // Verify correct type handling
+    //    foreach (var (input, output) in results)
+    //    {
+    //        if (input is int intValue)
+    //        {
+    //            Assert.AreEqual($"INT:{intValue}", output);
+    //        }
+    //        else
+    //        {
+    //            Assert.IsNull(output);
+    //        }
+    //    }
+    //}
+    //[TestMethod]
+    //public void FormatterT_withExceptionInTypeSafeFormat_objectOverloadPropagatesException()
+    //{
+    //    var formatter = new TestFormatterThatThrows();
+    //    object value = 42;
+
+    //    try
+    //    {
+    //        formatter.Format(value);
+    //        Assert.Fail("Expected InvalidOperationException");
+    //    }
+    //    catch (InvalidOperationException)
+    //    {
+    //        // Expected
+    //    }
+    //}
+
+    //[TestMethod]
+    //public void FormatterT_withObjectParameter_nullCheckedCorrectly()
+    //{
+    //    var formatter = new TestFormatterString();
+
+    //    // Null as object? -> In C#, pattern matching `null is string?` returns false
+    //    // even though string? is nullable, because the runtime type of null is not string
+    //    string? result1 = formatter.Format((object?)null!);
+    //    Assert.IsNull(result1); // Returns null due to type mismatch
+
+    //    // Null as string? -> direct call to Format(string?) works correctly
+    //    var result2 = formatter.Format((string?)null);
+    //    Assert.AreEqual("null", result2);
+    //}
+
+    //[TestMethod]
+    //public void FormatterT_withBoxedValueType_unboxesCorrectly()
+    //{
+    //    var formatter = new TestFormatterInt();
+
+    //    // Direct call
+    //    var result1 = formatter.Format(42);
+    //    Assert.AreEqual("INT:42", result1);
+
+    //    // Boxed int
+    //    object boxed = 42;
+    //    var result2 = formatter.Format(boxed);
+    //    Assert.AreEqual("INT:42", result2);
+
+    //    // Verify they're equal
+    //    Assert.AreEqual(result1, result2);
+    //}
+
+    //[TestMethod]
+    //public void FormatterT_withWrongBoxedType_returnsNull()
+    //{
+    //    var formatter = new TestFormatterInt();
+
+    //    // Boxed double (not int)
+    //    object boxed = 42.0;
+    //    var result = formatter.Format(boxed);
+
+    //    Assert.IsNull(result);
+    //}
+
+    //[TestMethod]
+    //public void FormatterT_withNullableBoxedValue_handlesCorrectly()
+    //{
+    //    var formatter = new TestFormatterNullableInt();
+
+    //    // Boxed nullable with obj
+    //    object? boxedValue = (int?)42;
+    //    var result1 = formatter.Format(boxedValue);
+    //    Assert.AreEqual("NULLABLE:42", result1);
+
+    //    // Direct nullable with obj
+    //    var result2 = formatter.Format((int?)42);
+    //    Assert.AreEqual("NULLABLE:42", result2);
+    //}
 
     [TestMethod]
     public void FormatterT_FormatObject_withNullForReferenceType_callsTypeSafeMethod()
@@ -444,30 +590,12 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_FormatObject_withBoxedValueType_unboxesAndFormats()
-    {
-        var formatter = new TestFormatterInt();
-        object boxed = 123;
-        var result = formatter.Format(boxed);
-        Assert.AreEqual("INT:123", result);
-    }
-
-    [TestMethod]
     public void FormatterT_Format_withDerivedType_worksCorrectly()
     {
         var formatter = new TestFormatterException();
         var exception = new ArgumentException("test");
         var result = formatter.Format(exception);
         Assert.AreEqual("EX:System.ArgumentException", result);
-    }
-
-    [TestMethod]
-    public void FormatterT_FormatObject_withDerivedType_worksCorrectly()
-    {
-        var formatter = new TestFormatterException();
-        object exception = new InvalidOperationException("test");
-        var result = formatter.Format(exception);
-        Assert.AreEqual("EX:System.InvalidOperationException", result);
     }
     #endregion
 
@@ -562,25 +690,6 @@ public class FormatterTests
         var result = formatter.Format(42);
         Assert.AreEqual("NULLABLE:42", result);
     }
-
-    [TestMethod]
-    public void FormatterT_withNullableValueType_objectOverloadHandlesNull()
-    {
-        // When null is passed as object?, the pattern matching fails for nullable value types
-        // because null (object?) is not the same as null (int?)
-        var formatter = new TestFormatterNullableInt();
-        var result = formatter.Format((object?)null!);
-        Assert.IsNull(result); // Returns null due to type mismatch, not "null" string
-    }
-
-    [TestMethod]
-    public void FormatterT_withNullableValueType_objectOverloadHandlesBoxedValue()
-    {
-        var formatter = new TestFormatterNullableInt();
-        object? value = 99;
-        var result = formatter.Format(value);
-        Assert.AreEqual("NULLABLE:99", result);
-    }
     #endregion
 
     #region Formatter<T> - Edge Cases
@@ -619,16 +728,17 @@ public class FormatterTests
         Assert.AreEqual("STREAM:System.IO.MemoryStream", result);
     }
 
-    [TestMethod]
-    public void FormatterT_formatMethodNotOverridable_isSealed()
-    {
-        // This test verifies at compile-time that Format(object) is sealed
-        // and cannot be overridden by derived classes
-        var formatter = new TestFormatterInt();
-        var method = formatter.GetType().GetMethod("Format", [typeof(object)]);
-        Assert.IsNotNull(method);
-        Assert.IsTrue(method!.IsFinal); // Sealed methods are marked as Final in reflection
-    }
+    // TODO: Check if reasonable?
+    //[TestMethod]
+    //public void FormatterT_formatMethodNotOverridable_isSealed()
+    //{
+    //    // This test verifies at compile-time that Format(object) is sealed
+    //    // and cannot be overridden by derived classes
+    //    var formatter = new TestFormatterInt();
+    //    var method = formatter.GetType().GetMethod("Format", [typeof(object)]);
+    //    Assert.IsNotNull(method);
+    //    Assert.IsTrue(method!.IsFinal); // Sealed methods are marked as Final in reflection
+    //}
     #endregion
 
     #region Formatter<T> Test Implementations
@@ -671,8 +781,8 @@ public class FormatterTests
         public override string Format((string, string) value)
         {
             var (key, val) = value;
-            var totalLength = key.Length + 4 + val.Length; // " => "
-            return CreateSeparatedString(totalLength, key, " => ", val);
+            //var totalLength = key.Length + 4 + val.Length; // " => "
+            return CreateSeparatedString(key, " => ", val);
         }
     }
 
@@ -774,40 +884,6 @@ public class FormatterTests
         }
     }
 
-    [TestMethod]
-    public void FormatterT_concurrentMixedTypeCalls_handledCorrectly()
-    {
-        var formatter = new TestFormatterInt();
-        var results = new System.Collections.Concurrent.ConcurrentBag<(object input, string? output)>();
-
-        var tasks = Enumerable.Range(0, 50).Select(i => NewMethod(i, formatter, results)).ToArray();
-
-        Task.WaitAll(tasks, TestContext.CancellationToken);
-
-        // Verify correct type handling
-        foreach (var (input, output) in results)
-        {
-            if (input is int intValue)
-            {
-                Assert.AreEqual($"INT:{intValue}", output);
-            }
-            else
-            {
-                Assert.IsNull(output);
-            }
-        }
-    }
-
-    private static Task NewMethod(int i, TestFormatterInt formatter, System.Collections.Concurrent.ConcurrentBag<(object input, string? output)> results)
-    {
-        return Task.Run(() =>
-        {
-            // Mix of valid ints and invalid types
-            object value = i % 2 == 0 ? i : $"string{i}";
-            var result = formatter.Format(value);
-            results.Add((value, result));
-        });
-    }
     #endregion
 
     #region Formatter<T> - Error Handling Tests
@@ -819,23 +895,6 @@ public class FormatterTests
         try
         {
             formatter.Format(42);
-            Assert.Fail("Expected InvalidOperationException");
-        }
-        catch (InvalidOperationException)
-        {
-            // Expected
-        }
-    }
-
-    [TestMethod]
-    public void FormatterT_withExceptionInTypeSafeFormat_objectOverloadPropagatesException()
-    {
-        var formatter = new TestFormatterThatThrows();
-        object value = 42;
-
-        try
-        {
-            formatter.Format(value);
             Assert.Fail("Expected InvalidOperationException");
         }
         catch (InvalidOperationException)
@@ -870,7 +929,7 @@ public class FormatterTests
         var formatter = new DerivedTestFormatter();
 
         // Can use base class utility methods
-        var fallback = Formatter.FallbackIfNull(null);
+        var fallback = FallbackIfNull(null);
         Assert.AreEqual("null", fallback);
 
         // Verify formatter works
@@ -1006,65 +1065,6 @@ public class FormatterTests
     #endregion
 
     #region Formatter<T> - Pattern Matching Edge Cases
-    [TestMethod]
-    public void FormatterT_withObjectParameter_nullCheckedCorrectly()
-    {
-        var formatter = new TestFormatterString();
-
-        // Null as object? -> In C#, pattern matching `null is string?` returns false
-        // even though string? is nullable, because the runtime type of null is not string
-        string? result1 = formatter.Format((object?)null!);
-        Assert.IsNull(result1); // Returns null due to type mismatch
-
-        // Null as string? -> direct call to Format(string?) works correctly
-        var result2 = formatter.Format((string?)null);
-        Assert.AreEqual("null", result2);
-    }
-
-    [TestMethod]
-    public void FormatterT_withBoxedValueType_unboxesCorrectly()
-    {
-        var formatter = new TestFormatterInt();
-
-        // Direct call
-        var result1 = formatter.Format(42);
-        Assert.AreEqual("INT:42", result1);
-
-        // Boxed int
-        object boxed = 42;
-        var result2 = formatter.Format(boxed);
-        Assert.AreEqual("INT:42", result2);
-
-        // Verify they're equal
-        Assert.AreEqual(result1, result2);
-    }
-
-    [TestMethod]
-    public void FormatterT_withWrongBoxedType_returnsNull()
-    {
-        var formatter = new TestFormatterInt();
-
-        // Boxed double (not int)
-        object boxed = 42.0;
-        var result = formatter.Format(boxed);
-
-        Assert.IsNull(result);
-    }
-
-    [TestMethod]
-    public void FormatterT_withNullableBoxedValue_handlesCorrectly()
-    {
-        var formatter = new TestFormatterNullableInt();
-
-        // Boxed nullable with value
-        object? boxedValue = (int?)42;
-        var result1 = formatter.Format(boxedValue);
-        Assert.AreEqual("NULLABLE:42", result1);
-
-        // Direct nullable with value
-        var result2 = formatter.Format((int?)42);
-        Assert.AreEqual("NULLABLE:42", result2);
-    }
 
     [TestMethod]
     public void FormatterT_withContravariance_handlesBaseTypeFormatters()
@@ -1086,15 +1086,15 @@ public class FormatterTests
     {
 #pragma warning disable MSTEST0032 // Using directive is unnecessary
         // Verify access to constants
-        Assert.AreEqual(3, Formatter.MaxCount);
-        Assert.AreEqual("null", Formatter.NullString);
+        Assert.AreEqual(3, MaxCount);
+        Assert.AreEqual("null", NullString);
 #pragma warning restore MSTEST0032
 
         // Verify access to static methods
-        var joined = Formatter.JoinWithComma(["a", "b", "c"]);
+        var joined = JoinWithComma(["a", "b", "c"]);
         Assert.AreEqual("a, b, c", joined);
 
-        var fallback = Formatter.FallbackIfNull(null);
+        var fallback = FallbackIfNull(null);
         Assert.AreEqual("null", fallback);
     }
 

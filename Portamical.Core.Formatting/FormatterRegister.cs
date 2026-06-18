@@ -50,6 +50,25 @@ public static class FormatterRegister
     => _registry;
 
     /// <summary>
+    /// Gets the number of currently registered custom formatters.
+    /// </summary>
+    /// <value>The count of registered formatters.</value>
+    /// <remarks>
+    /// <para>
+    /// <strong>Thread Safety:</strong> This property is thread-safe. However, the count may change
+    /// immediately after reading due to concurrent registrations/unregistrations from other threads.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// int count = ValueFormatter.RegisteredFormatterCount;
+    /// Console.WriteLine($"Custom formatters: {count}");
+    /// </code>
+    /// </example>
+    public static int RegisteredFormatterCount
+    => _registry.Count;
+
+    /// <summary>
     /// Registers a custom formatter for a specific type.
     /// </summary>
     /// <param name="type">The type to register the formatter for. Cannot be null.</param>

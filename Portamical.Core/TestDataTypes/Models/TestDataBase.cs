@@ -60,11 +60,6 @@ namespace Portamical.Core.TestDataTypes.Models;
 public abstract class TestDataBase(string definition)
     : NamedCase, ITestData
 {
-    #region Fields
-    private const string DefinitionString = "definition";
-    private const string Separator = " => ";
-    #endregion
-
     #region Methods
     /// <summary>
     /// Gets the definition string for the current instance.
@@ -73,9 +68,13 @@ public abstract class TestDataBase(string definition)
     /// A string containing the definition. If no definition is set, a fallback value is returned.
     /// </returns>
     public string GetDefinition()
-    => DefinitionString.FallbackIfNullOrWhiteSpace(
-        definition,
-        nameof(GetDefinition));
+    {
+        const string defaultDefinition = "definition";
+
+        return defaultDefinition.FallbackIfNullOrWhiteSpace(
+            definition,
+            nameof(GetDefinition));
+    }
 
     /// <summary>
     /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:
@@ -156,19 +155,29 @@ public abstract class TestDataBase(string definition)
     /// </remarks>
     protected string CreateTestCaseName()
     {
-        var def = GetDefinition();
-        var result = GetResult();
-        var totalLength =
-            def.Length +
-            Separator.Length +
-            result.Length;
+        const string separator = " => ";
 
         return CreateSeparatedString(
-            totalLength,
-            def,
-            Separator,
-            result);
+            GetDefinition(),
+            separator,
+            GetResult());
     }
+
+    //protected string CreateTestCaseName()
+    //{
+    //    var def = GetDefinition();
+    //    var result = GetResult();
+    //    //var totalLength =
+    //    //    def.Length +
+    //    //    Separator.Length +
+    //    //    result.Length;
+
+    //    return CreateSeparatedString(
+    //        //totalLength,
+    //        def,
+    //        Separator,
+    //        result);
+    //}
 
     /// <summary>
     /// Converts the test data to an argument array based on the specified <see cref="ArgsCode"/> parameter.

@@ -32,7 +32,7 @@
       v3.3.0 (2026-06-13) - Extensibility, Performance &amp; Documentation Release
 
       BREAKING CHANGES:
-      - ValueFormatter refactored to use Formatter base class
+      - DefaultFormatter refactored to use Formatter base class
       - Helper methods (FallbackIfNull, JoinWithComma) moved to Formatter base class
 
       Added:
@@ -42,11 +42,11 @@
       - Formatter abstract base class with shared formatting utilities
         • Constants: NullString, MaxCount, Separator
         • Helpers: FallbackIfNull, JoinWithComma, CreateSeparatedString, CopyAsSpan
-      - Custom formatter registry in ValueFormatter
+      - Custom formatter registry in DefaultFormatter
         • Static Registry property for registering custom formatters by Type
         • Format() checks registry before built-in pattern matching
-        • Enables extensibility without modifying ValueFormatter source
-      - Delegate formatting support in ValueFormatter.Format() method
+        • Enables extensibility without modifying DefaultFormatter source
+      - Delegate formatting support in DefaultFormatter.Format() method
         • Formats Func&lt;T&gt;, Action&lt;T&gt;, Predicate&lt;T&gt;, and custom delegate types
         • Distinguishes between named methods (e.g., "WriteLine") and anonymous lambdas
         • Output format: "DelegateType (methodName)" or "DelegateType (anonymous)"
@@ -59,16 +59,16 @@
         • Format(Delegate): Allocation-free delegate name construction
         • Format(Type): Span-based array/nullable/generic formatting
       - Reduced GC pressure in hot paths (tuples, type arguments, small collections)
-      - CreateSeparatedString: Shared by ValueFormatter and TestDataBase for zero-copy concatenation
+      - CreateSeparatedString: Shared by DefaultFormatter and TestDataBase for zero-copy concatenation
 
       Improved:
-      - Optimized pattern matching in ValueFormatter (removed redundant string check)
+      - Optimized pattern matching in DefaultFormatter (removed redundant string check)
       - Extracted GetKvpPropValues helper for KeyValuePair property access
       - Simplified TestDataBase.CreateTestCaseName() using CreateSeparatedString helper
 
       Documentation:
       - Added comprehensive XML documentation for IFormatter and Formatter
-      - Added comprehensive XML documentation for ValueFormatter
+      - Added comprehensive XML documentation for DefaultFormatter
         • Detailed type-specific formatting table for 12+ types
         • Formatter registration API fully documented
         • Performance characteristics and thread-safety notes
@@ -98,10 +98,10 @@
       - Added test parallelization control and cleanup for registry tests
 
       Migration Guide:
-      - Change: using static Portamical.Core.Formatting.ValueFormatter; 
+      - Change: using static Portamical.Core.Formatting.DefaultFormatter; 
         To: using static Portamical.Core.Formatting.Model.Formatter;
         (for FallbackIfNull, JoinWithComma access)
-      - Custom formatters: Implement IFormatter&lt;T&gt; and register in ValueFormatter.Registry
+      - Custom formatters: Implement IFormatter&lt;T&gt; and register in DefaultFormatter.Registry
     </PackageReleaseNotes>
 
     <!-- Package Generation -->
