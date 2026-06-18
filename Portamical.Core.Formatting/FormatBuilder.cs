@@ -120,7 +120,10 @@ public static class FormatBuilder
         baseString = FallbackIfNull(baseString);
         separator = NotNullSeparator(separator);
         appendix = FallbackIfNull(appendix);
-        var totalLength = baseString.Length + separator.Length + appendix.Length;
+        var totalLength =
+            baseString.Length +
+            separator.Length +
+            appendix.Length;
 
         return string.Create(
             totalLength,
