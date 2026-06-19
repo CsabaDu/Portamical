@@ -154,30 +154,10 @@ public abstract class TestDataBase(string definition)
     /// </para>
     /// </remarks>
     protected string CreateTestCaseName()
-    {
-        const string separator = " => ";
-
-        return CreateSeparatedString(
-            GetDefinition(),
-            separator,
-            GetResult());
-    }
-
-    //protected string CreateTestCaseName()
-    //{
-    //    var def = GetDefinition();
-    //    var result = GetResult();
-    //    //var totalLength =
-    //    //    def.Length +
-    //    //    Separator.Length +
-    //    //    result.Length;
-
-    //    return CreateSeparatedString(
-    //        //totalLength,
-    //        def,
-    //        Separator,
-    //        result);
-    //}
+    => CreateSeparatedString(
+        baseString: GetDefinition(),
+        separator: " => ",
+        appendix: GetResult());
 
     /// <summary>
     /// Converts the test data to an argument array based on the specified <see cref="ArgsCode"/> parameter.

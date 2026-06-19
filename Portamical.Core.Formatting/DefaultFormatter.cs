@@ -412,21 +412,10 @@ public sealed class DefaultFormatter : IFormatter
     /// </code>
     /// </example>
     private static string? Format(Exception exception)
-    {
-        const string separator = ": ";
-        var typeName = exception.GetType().Name;
-        var message = exception.Message;
-        //var totalLength =
-        //    typeName.Length +
-        //    separator.Length +
-        //    message.Length;
-
-        return CreateSeparatedString(
-            //totalLength,
-            typeName,
-            separator,
-            message);
-    }
+    => CreateSeparatedString(
+        baseString: exception.GetType().Name,
+        separator: ": ",
+        appendix: exception.Message);
 
     /// <summary>
     /// Formats a KeyValuePair's key and value into a readable string.

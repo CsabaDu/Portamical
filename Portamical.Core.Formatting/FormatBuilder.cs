@@ -57,6 +57,28 @@ public static class FormatBuilder
     => str ?? NullString;
 
     /// <summary>
+    /// Provides a fallback separator when the input is null, ensuring a consistent default separator.
+    /// </summary>
+    /// <param name="separator">The nullable separator string to check.</param>
+    /// <returns>
+    /// The original <paramref name="separator"/> if not null; otherwise, a comma-space (<c>", "</c>).
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This helper centralizes separator fallback logic, providing a consistent default separator
+    /// (comma-space) across formatting operations when no explicit separator is specified.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// to eliminate method call overhead. This is a frequently called helper on hot paths during
+    /// string joining and formatting operations.
+    /// </para>
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string FallbackIfNullSeparator(string? separator)
+    => separator ?? Comma_;
+
+    /// <summary>
     /// Creates a zero-allocation string by concatenating three parts: base, separator, and appendix.
     /// </summary>
     /// <param name="totalLength">The exact total length of the final string (must equal baseString.Length + separator.Length + appendix.Length).</param>
@@ -118,7 +140,7 @@ public static class FormatBuilder
         string appendix)
     {
         baseString = FallbackIfNull(baseString);
-        separator = NotNullSeparator(separator);
+        separator = FallbackIfNullSeparator(separator);
         appendix = FallbackIfNull(appendix);
         var totalLength =
             baseString.Length +
@@ -304,8 +326,6 @@ public static class FormatBuilder
             return NullString;
         }
 
-        separator = NotNullSeparator(separator);
-
         if (items is not ICollection<string?> collection)
         {
             return joinWithSeparatorBase();
@@ -316,7 +336,7 @@ public static class FormatBuilder
             return string.Empty;
         }
 
-        if (items is IList<string?> list)
+        if (collection is IList<string?> list)
         {
             return JoinWithSeparator(list, separator);
         }
@@ -331,9 +351,6 @@ public static class FormatBuilder
 
     #region Private methods
 
-    private static string NotNullSeparator(string? separator)
-    => separator ?? Comma_;
-
     private static string JoinWithSeparator(IList<string?> list, string separator)
     {
         // Fast path for common case: List<string> with not more than MaxCount items
@@ -343,17 +360,13 @@ public static class FormatBuilder
 
         if (isCountEqualToIncrementedIndex()) return result;
 
-        //var totalLength = result.Length;
-
         while (i < MaxCount)
         {
             var item = getIndexedItem();
-            //totalLength += separator.Length + item.Length;
             result = CreateSeparatedString(
-                //totalLength,
-                result,
-                separator,
-                item);
+                baseString: FallbackIfNull(result),
+                separator: FallbackIfNullSeparator(separator),
+                appendix: FallbackIfNull(item));
 
             if (isCountEqualToIncrementedIndex()) return result;
         }
@@ -371,7 +384,7 @@ public static class FormatBuilder
     }
 
     private static string JoinWithSeparatorBase(IEnumerable<string?> items, string separator)
-    => string.Join(separator, items.Select(FallbackIfNull));
+    => string.Join(FallbackIfNullSeparator(separator), items.Select(FallbackIfNull));
 
     #endregion
 }
