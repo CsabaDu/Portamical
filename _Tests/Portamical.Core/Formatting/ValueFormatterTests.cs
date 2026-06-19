@@ -21,17 +21,6 @@ public class ValueFormatterTests
         FormatterRegister.ClearFormatters();
     }
 
-    #region Constants
-//#pragma warning disable MSTEST0032 // Review or remove the assertion as its condition is known to be always true
-    // Obsolete test for MaxCount constant; removed in favor of testing via public API
-    //[TestMethod]
-    //public void MaxCount_hasCorrectValue()
-    //{
-    //    Assert.AreEqual(FormatBuilder.MaxCount, DefaultFormatter.MaxCount);
-    //}
-//#pragma warning restore MSTEST0032
-    #endregion
-
     #region Format(object?) - Null and Basic Types
     [TestMethod]
     public void Format_withNull_returnsNull()
@@ -1431,19 +1420,6 @@ public class ValueFormatterTests
         FormatterRegister.ClearFormatters();
         Assert.AreEqual(0, FormatterRegister.RegisteredFormatterCount);
     }
-
-    //[TestMethod]
-    //public void RegisteredFormatterCount_withNoFormatters_returnsZero()
-    //{
-    //    // Arrange
-    //    FormatterRegister.ClearFormatters();
-
-    //    // Act
-    //    var count = FormatterRegister.RegisteredFormatterCount;
-
-    //    // Assert
-    //    Assert.AreEqual(0, count);
-    //}
 
     [TestMethod]
     public void RegisteredFormatterCount_withOneFormatter_returnsOne()
