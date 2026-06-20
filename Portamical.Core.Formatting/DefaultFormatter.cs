@@ -71,32 +71,6 @@ public sealed class DefaultFormatter : IFormatter
     /// </example>
     public static readonly IFormatter Instance = new DefaultFormatter();
 
-    #region char helpers
-
-    private const int AsciiPrintableStart = ' ';
-    private const int AsciiPrintableEnd = '~';
-
-    /// <summary>
-    /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This cache eliminates string allocations for ~95% of character formatting operations.
-    /// Characters are formatted with single quotes: <ch>'a'</ch>, <ch>'Z'</ch>, <ch>'0'</ch>, etc.
-    /// </para>
-    /// <para>
-    /// Non-printable characters (control characters, extended ASCII, Unicode) are formatted
-    /// on-demand and are not cached.
-    /// </para>
-    /// </remarks>
-    private static readonly string[] CharFormats =
-        [.. Enumerable.Range(
-            AsciiPrintableStart,
-            AsciiPrintableEnd - AsciiPrintableStart + 1)
-        .Select(i => $"'{(char)i}'")];
-
-    #endregion
-
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
     /// </summary>
@@ -256,10 +230,10 @@ public sealed class DefaultFormatter : IFormatter
             char ch                 => Format(ch),
             string str              => Format(str),
             Type type               => Format(type),
-            DateTime dt             => Format(dt.ToString, "O"),
-            DateTimeOffset dto      => Format(dto.ToString, "O"),
-            Guid guid               => Format(guid.ToString, "D"),
-            byte[] bytes            => Format(BitConverter.ToString, bytes),
+            DateTime dt             => Format(dt.ToString, context: "O"),
+            DateTimeOffset dto      => Format(dto.ToString, context: "O"),
+            Guid guid               => Format(guid.ToString, context: "D"),
+            byte[] bytes            => Format(BitConverter.ToString, context: bytes),
             Exception ex            => Format(ex),
             _ when IsKeyValuePair(
                 obj,
@@ -764,12 +738,9 @@ public sealed class DefaultFormatter : IFormatter
 
         try
         {
-            if (stream.CanSeek)
-            {
-                return $"{typeName} (Length: {stream.Length}, Position: {stream.Position})";
-            }
-
-            return $"{typeName} (Position: {stream.Position})";
+            return stream.CanSeek ?
+                $"{typeName} (Length: {stream.Length}, Position: {stream.Position})"
+                : $"{typeName} (Position: {stream.Position})";
         }
         catch
         {
@@ -779,7 +750,64 @@ public sealed class DefaultFormatter : IFormatter
 
     #endregion
 
-    #region Format helper methods
+    #region Helpers
+
+    #region char helpers
+
+    private const int AsciiPrintableStart = ' ';
+    private const int AsciiPrintableEnd = '~';
+
+    /// <summary>
+    /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This cache eliminates string allocations for ~95% of character formatting operations.
+    /// Characters are formatted with single quotes: <ch>'a'</ch>, <ch>'Z'</ch>, <ch>'0'</ch>, etc.
+    /// </para>
+    /// <para>
+    /// Non-printable characters (control characters, extended ASCII, Unicode) are formatted
+    /// on-demand and are not cached.
+    /// </para>
+    /// </remarks>
+    private static readonly string[] CharFormats =
+        [.. Enumerable.Range(
+            AsciiPrintableStart,
+            AsciiPrintableEnd - AsciiPrintableStart + 1)
+        .Select(i => $"'{(char)i}'")];
+
+    #endregion
+
+    #region Span<char> helpers
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Span<char> InsertCharAndIncrement(
+        Span<char> span,
+        char ch,
+        int index,
+        out int incremented)
+    {
+        span[index] = ch;
+        incremented = index + 1;
+        return span;
+    }
+
+    private static Span<char> CopyAndInsertChar(
+        string str,
+        Span<char> span,
+        char ch,
+        int index,
+        out int incremented)
+    {
+        CopyAsSpan(str, span, index);
+        incremented = index + str.Length;
+        span[incremented] = ch;
+        return span;
+    }
+
+    #endregion
+
+    #region Formatting helpers
 
     #region KeyValuePair formatting helpers
 
@@ -1047,33 +1075,6 @@ public sealed class DefaultFormatter : IFormatter
     };
 
     #endregion
-
-    #region Span<char> helpers
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Span<char> InsertCharAndIncrement(
-        Span<char> span,
-        char ch,
-        int index,
-        out int incremented)
-    {
-        span[index] = ch;
-        incremented = index + 1;
-        return span;
-    }
-
-    private static Span<char> CopyAndInsertChar(
-        string str,
-        Span<char> span,
-        char ch,
-        int index,
-        out int incremented)
-    {
-        CopyAsSpan(str, span, index);
-        incremented = index + str.Length;
-        span[incremented] = ch;
-        return span;
-    }
 
     #endregion
 

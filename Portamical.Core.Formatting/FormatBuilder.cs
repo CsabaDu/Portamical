@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Diagnostics;
+using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Portamical.Core.Formatting;
@@ -228,6 +231,10 @@ public static class FormatBuilder
         if (index > baseLength)
         {
             index = baseLength;
+            Trace.TraceWarning(string.Create(
+                CultureInfo.InvariantCulture,
+                $"Portamical Formatting log: CopyAsSpan index {index} exceeds base span length {baseLength}." +
+                $" Adjusted to {baseLength}."));
         }
         var insertSpan = insertStr.AsSpan();
         insertSpan.CopyTo(baseSpan[index..]);
