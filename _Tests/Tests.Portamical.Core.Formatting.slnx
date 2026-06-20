@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../Portamical.Core.Formatting/Portamical.Core.Formatting.csproj" />
+  <Project Path="Portamical.Core.Formatting/Tests.Portamical.Core.Formatting.csproj" />
+</Solution>
