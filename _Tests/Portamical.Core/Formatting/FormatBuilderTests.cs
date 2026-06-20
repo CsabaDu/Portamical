@@ -223,6 +223,26 @@ public class FormatBuilderTests
         Assert.AreEqual('\u4E2D', buffer[0]);
         Assert.AreEqual('\u6587', buffer[1]);
     }
+
+    [TestMethod]
+    public void CopyAsSpan_withIndexExceedingBaseLength_adjustsIndexToBaseLength()
+    {
+        // Arrange
+        var buffer = new char[5];
+        Array.Fill(buffer, 'x');
+        var span = new Span<char>(buffer);
+
+        // Act - index 10 exceeds buffer length 5, should be adjusted to 5
+        // Using empty string to avoid exception when copying to empty span
+        CopyAsSpan("", span, 10);
+
+        // Assert - buffer should remain unchanged as nothing is copied
+        Assert.AreEqual('x', buffer[0]);
+        Assert.AreEqual('x', buffer[1]);
+        Assert.AreEqual('x', buffer[2]);
+        Assert.AreEqual('x', buffer[3]);
+        Assert.AreEqual('x', buffer[4]);
+    }
     #endregion
 
     #region CreateSeparatedString
