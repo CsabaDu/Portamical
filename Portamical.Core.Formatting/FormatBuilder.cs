@@ -233,8 +233,9 @@ public static class FormatBuilder
             index = baseLength;
             Trace.TraceWarning(string.Create(
                 CultureInfo.InvariantCulture,
-                $"Portamical Formatting log: CopyAsSpan index {index} exceeds base span length {baseLength}." +
-                $" Adjusted to {baseLength}."));
+                $"Portamical Formatting log: CopyAsSpan index {index} " +
+                $"exceeds base span length {baseLength}. " +
+                $"Adjusted to {baseLength}."));
         }
         var insertSpan = insertStr.AsSpan();
         insertSpan.CopyTo(baseSpan[index..]);
