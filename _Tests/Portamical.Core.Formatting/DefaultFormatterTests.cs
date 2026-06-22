@@ -13,6 +13,11 @@ namespace Tests.Portamical.Core.Formatting;
 [DoNotParallelize] // Registry is a shared static resource; tests must run sequentially
 public class DefaultFormatterTests
 {
+    private sealed class NullToStringObject
+    {
+        public override string ToString() => null!;
+    }
+
     [TestCleanup]
     public void Cleanup()
     {
@@ -27,6 +32,22 @@ public class DefaultFormatterTests
         var result = DefaultFormatter.Format(null);
         Assert.IsNull(result);
     }
+
+    [TestMethod]
+    public void Format_withNullToString_returnsNull()
+    {
+        var result = DefaultFormatter.Format(new NullToStringObject());
+        Assert.IsNull(result);
+    }
+
+
+    [TestMethod]
+    public void Format_withNotDefinedObject_returnsToString()
+    {
+        var result = DefaultFormatter.Format(new object());
+        Assert.AreEqual("System.Object", result);
+    }
+
     #endregion
 
     #region Format(object?) - Custom Registry Formatters
@@ -583,6 +604,44 @@ public class DefaultFormatterTests
         var result = DefaultFormatter.Format(kvp);
         Assert.AreEqual("{\"key\": null}", result);
     }
+
+    [TestMethod]
+    public void Format_withKeyValuePairBothNull_returnsFormattedPairWithNulls()
+    {
+        // Arrange: Create a KeyValuePair with both null key and value (nullable reference types)
+        var kvp = new KeyValuePair<string?, string?>(null, null);
+
+        // Act
+        var result = DefaultFormatter.Format(kvp);
+
+        // Assert: Should format both as null
+        Assert.AreEqual("{null: null}", result);
+    }
+
+    [TestMethod]
+    public void GetKvpPropValues_withTypeMissingProperties_returnsNulls()
+    {
+        // Arrange: Use reflection to invoke the private GetKvpPropValues method
+        // with a type that doesn't have Key/Value properties to test the null-safety on line 825
+        var method = typeof(DefaultFormatter).GetMethod(
+            "GetKvpPropValues",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+
+        Assert.IsNotNull(method, "GetKvpPropValues method should exist");
+
+        // Create an object with a type that doesn't have Key or Value properties
+        var testObject = new { SomeProperty = "test" };
+        var testType = testObject.GetType();
+
+        // Act: Invoke the private method
+        var result = method.Invoke(null, new object[] { testType, testObject });
+
+        // Assert: Should return (null, null) because GetProperty returns null for non-existent properties
+        Assert.IsNotNull(result);
+        var tuple = ((object? key, object? value))result;
+        Assert.IsNull(tuple.key, "Key should be null when property doesn't exist");
+        Assert.IsNull(tuple.value, "Value should be null when property doesn't exist");
+    }
     #endregion
 
     #region Format(ITuple) - Tuple and ValueTuple
@@ -1059,6 +1118,34 @@ public class DefaultFormatterTests
     }
 
     [TestMethod]
+    public void Format_withSbyteType_returnsAlias()
+    {
+        var result = DefaultFormatter.Format(typeof(sbyte));
+        Assert.AreEqual("sbyte", result);
+    }
+
+    [TestMethod]
+    public void Format_withUintType_returnsAlias()
+    {
+        var result = DefaultFormatter.Format(typeof(uint));
+        Assert.AreEqual("uint", result);
+    }
+
+    [TestMethod]
+    public void Format_withUlongType_returnsAlias()
+    {
+        var result = DefaultFormatter.Format(typeof(ulong));
+        Assert.AreEqual("ulong", result);
+    }
+
+    [TestMethod]
+    public void Format_withUshortType_returnsAlias()
+    {
+        var result = DefaultFormatter.Format(typeof(ushort));
+        Assert.AreEqual("ushort", result);
+    }
+
+    [TestMethod]
     public void Format_withShortType_returnsAlias()
     {
         var result = DefaultFormatter.Format(typeof(short));
@@ -1098,6 +1185,49 @@ public class DefaultFormatterTests
     {
         var result = DefaultFormatter.Format(typeof(DefaultFormatterTests));
         Assert.AreEqual("DefaultFormatterTests", result);
+    }
+    #endregion
+
+    #region Format(Stream)
+    [TestMethod]
+    public void Format_withSeekableStream_returnsTypeNameLengthAndPosition()
+    {
+        // Arrange: Create a seekable stream (MemoryStream)
+        using var stream = new MemoryStream(new byte[1024]);
+        stream.Position = 0;
+
+        // Act
+        var result = DefaultFormatter.Format(stream);
+
+        // Assert: Should include type name, length, and position
+        Assert.AreEqual("MemoryStream (Length: 1024, Position: 0)", result);
+    }
+
+    [TestMethod]
+    public void Format_withSeekableStreamNonZeroPosition_returnsTypeNameLengthAndPosition()
+    {
+        // Arrange: Create a seekable stream with non-zero position
+        using var stream = new MemoryStream(new byte[2048]);
+        stream.Position = 512;
+
+        // Act
+        var result = DefaultFormatter.Format(stream);
+
+        // Assert: Should include type name, length, and current position
+        Assert.AreEqual("MemoryStream (Length: 2048, Position: 512)", result);
+    }
+
+    [TestMethod]
+    public void Format_withNonSeekableStream_returnsTypeNameAndPosition()
+    {
+        // Arrange: Create a non-seekable stream (NetworkStream simulation)
+        using var nonSeekableStream = new NonSeekableStream();
+
+        // Act
+        var result = DefaultFormatter.Format(nonSeekableStream);
+
+        // Assert: Should include only type name and position (no length)
+        Assert.AreEqual("NonSeekableStream (Position: 0)", result);
     }
     #endregion
 
@@ -1167,6 +1297,45 @@ public class DefaultFormatterTests
     private class CustomObject
     {
         public override string ToString() => "CustomObject";
+    }
+
+    /// <summary>
+    /// A test stream that simulates a non-seekable stream (e.g., NetworkStream).
+    /// </summary>
+    private sealed class NonSeekableStream : Stream
+    {
+        private long _position;
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+
+        public override long Length => throw new NotSupportedException("Stream does not support seeking.");
+
+        public override long Position
+        {
+            get => _position;
+            set => throw new NotSupportedException("Stream does not support seeking.");
+        }
+
+        public override void Flush() { }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            _position += count;
+            return count;
+        }
+
+        public override long Seek(long offset, SeekOrigin origin) =>
+            throw new NotSupportedException("Stream does not support seeking.");
+
+        public override void SetLength(long value) =>
+            throw new NotSupportedException("Stream does not support seeking.");
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            _position += count;
+        }
     }
     #endregion
 }

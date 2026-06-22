@@ -846,16 +846,10 @@ public sealed class DefaultFormatter : IFormatter
     /// infrequent compared to primitive formatting.
     /// </para>
     /// </remarks>
-    private static bool IsKeyValuePair(object? obj, out object? key, out object? value)
+    private static bool IsKeyValuePair(object obj, out object? key, out object? value)
     {
         key = null;
         value = null;
-
-        if (obj is null)
-        {
-            return false;
-        }
-
         var type = obj.GetType();
 
         if (!type.IsGenericType ||
@@ -936,11 +930,7 @@ public sealed class DefaultFormatter : IFormatter
 
     private static string FormatArrayType(Type type)
     {
-        var elementType = type.GetElementType();
-        if (elementType is null)
-        {
-            return type.Name;
-        }
+        var elementType = type.GetElementType()!;
         var formattedElement = Format(elementType)!;
         var rank = type.GetArrayRank();
         if (rank == 1)
@@ -1016,7 +1006,7 @@ public sealed class DefaultFormatter : IFormatter
 
         // Format generic arguments
         var genericArgs = type.GetGenericArguments();
-        var formattedArgs = JoinWithComma(genericArgs.Select(t => Format(t) ?? t.Name));
+        var formattedArgs = JoinWithComma(genericArgs.Select(t => Format(t)));
 
         // Zero-allocation string building: TypeName<args>
         var totalLength = typeName.Length + 2 + formattedArgs.Length; // "<", ">"
