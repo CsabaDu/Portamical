@@ -76,7 +76,7 @@ public interface INamedCase : IEquatable<INamedCase>
     /// </returns>
     /// <remarks>
     /// <para>
-    /// <strong>Typical Format:</strong>
+    /// <strong>Typical formatExpected:</strong>
     /// <list type="bullet">
     ///   <item>With method name: <c>"MethodName(testData: scenario =&gt; outcome)"</c></item>
     ///   <item>Without method name: <c>"scenario =&gt; outcome"</c></item>

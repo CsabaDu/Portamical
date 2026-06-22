@@ -5,7 +5,7 @@ using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using System.Runtime.CompilerServices;
-using static Portamical.Core.Formatting.Model.Formatter;
+using static Portamical.Core.Formatting.FormatBuilder;
 
 namespace Portamical.Core.TestDataTypes.Models;
 
@@ -45,6 +45,12 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// </list>
 /// </para>
 /// <para>
+/// <strong>Thread-Safety:</strong> This class is immutable after construction (primary constructor
+/// parameter is captured as readonly). Instances can be safely shared across threads. All virtual
+/// methods create new objects rather than mutating state. Static helper methods are stateless.
+/// See BASE_CLASSES_THREAD_SAFETY.md for detailed analysis and safe publication guidance.
+/// </para>
+/// <para>
 /// <strong>Performance Optimization:</strong> The <see cref="CreateTestCaseName()"/> method uses
 /// <see cref="string.Create(int, TState, SpanAction{char, TState})"/> for zero-copy string concatenation,
 /// minimizing allocations during test data creation. The <see cref="ToArgs(ArgsCode)"/> convenience
@@ -54,11 +60,6 @@ namespace Portamical.Core.TestDataTypes.Models;
 public abstract class TestDataBase(string definition)
     : NamedCase, ITestData
 {
-    #region Fields
-    private const string DefinitionString = "definition";
-    private const string Separator = " => ";
-    #endregion
-
     #region Methods
     /// <summary>
     /// Gets the definition string for the current instance.
@@ -67,9 +68,13 @@ public abstract class TestDataBase(string definition)
     /// A string containing the definition. If no definition is set, a fallback value is returned.
     /// </returns>
     public string GetDefinition()
-    => DefinitionString.FallbackIfNullOrWhiteSpace(
-        definition,
-        nameof(GetDefinition));
+    {
+        const string defaultDefinition = "definition";
+
+        return defaultDefinition.FallbackIfNullOrWhiteSpace(
+            definition,
+            nameof(GetDefinition));
+    }
 
     /// <summary>
     /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:
@@ -113,15 +118,7 @@ public abstract class TestDataBase(string definition)
             _ = propsCode.Defined(nameof(propsCode));
         }
 
-        var args = ToObjectArray(argsCode);
-
-        return args.Length == 0 ?
-            throw new ArgumentOutOfRangeException(
-                nameof(propsCode),
-                $"Invalid 'TestDataBase' implementation: 'PropsCode.{propsCode}' produced no arguments. " +
-                $"Custom TestData types must override 'ToObjectArray()' to include additional properties beyond 'TestCaseName'. " +
-                "Use 'PropsCode.All' to include 'TestCaseName', or ensure your implementation adds at least one property.")
-            : args;
+        return ToObjectArray(argsCode);
     }
 
     /// <summary>
@@ -149,20 +146,10 @@ public abstract class TestDataBase(string definition)
     /// </para>
     /// </remarks>
     protected string CreateTestCaseName()
-    {
-        var def = GetDefinition();
-        var result = GetResult();
-        var totalLength =
-            def.Length +
-            Separator.Length +
-            result.Length;
-
-        return CreateSeparatedString(
-            totalLength,
-            def,
-            Separator,
-            result);
-    }
+    => CreateSeparatedString(
+        baseString: GetDefinition(),
+        separator: " => ",
+        appendix: GetResult());
 
     /// <summary>
     /// Converts the test data to an argument array based on the specified <see cref="ArgsCode"/> parameter.

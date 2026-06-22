@@ -10,7 +10,7 @@ namespace Portamical.Core.Formatting;
 /// <remarks>
 /// <para>
 /// This interface provides the extensibility mechanism for the Portamical formatting system.
-/// Custom formatters can be registered in <see cref="ValueFormatter.Registry"/> to override
+/// Custom formatters can be registered in <see cref="DefaultFormatter.Registry"/> to override
 /// or extend the built-in formatting behavior for specific types.
 /// </para>
 /// <para>
@@ -58,13 +58,13 @@ namespace Portamical.Core.Formatting;
 /// </code>
 /// </example>
 /// <seealso cref="IFormatter{T}"/>
-/// <seealso cref="ValueFormatter"/>
+/// <seealso cref="DefaultFormatter"/>
 public interface IFormatter
 {
     /// <summary>
     /// Formats the specified value as a string for test case naming.
     /// </summary>
-    /// <param name="value">The value to format. May be null.</param>
+    /// <param name="obj">The value to format. May be null.</param>
     /// <returns>
     /// A formatted string representation of the value, or <see langword="null"/> if the formatter
     /// does not support the value's type.
@@ -84,7 +84,7 @@ public interface IFormatter
     /// Type-safe implementations should prefer <see cref="IFormatter{T}.Format(T)"/>.
     /// </para>
     /// </remarks>
-    string? Format(object value);
+    string? Format(object? obj);
 }
 
 /// <summary>
@@ -157,7 +157,7 @@ public interface IFormatter
 /// </code>
 /// </example>
 /// <seealso cref="IFormatter"/>
-/// <seealso cref="ValueFormatter.Registry"/>
+/// <seealso cref="DefaultFormatter.Registry"/>
 /// <seealso cref="Formatting.Model.Formatter"/>
 public interface IFormatter<in T> : IFormatter
 {
@@ -212,5 +212,5 @@ public interface IFormatter<in T> : IFormatter
     /// formatter.Format(null);  // "null"
     /// </code>
     /// </example>
-    string? Format(T value);
+    string Format(T value);
 }

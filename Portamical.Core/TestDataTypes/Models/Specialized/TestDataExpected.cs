@@ -5,7 +5,7 @@ using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
 using System.Runtime.CompilerServices;
-using static Portamical.Core.Formatting.ValueFormatter;
+using static Portamical.Core.Formatting.FormatterRegister;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
@@ -83,6 +83,19 @@ where TResult : notnull
     /// The constructor automatically generates the <see cref="TestCaseName"/> by calling
     /// <see cref="TestDataBase.CreateTestCaseName()"/>, which combines the definition and
     /// result (derived from <paramref name="expected"/>).
+    /// </para>
+    /// <para>
+    /// <strong>Thread-Safety:</strong> Instances are immutable after construction via <c>init</c> accessors.
+    /// When sharing instances across threads, ensure proper safe publication:
+    /// <list type="bullet">
+    ///   <item>Use <c>volatile</c> fields for static/shared references</item>
+    ///   <item>Use <see cref="Lazy{T}"/> for thread-safe lazy initialization</item>
+    ///   <item>Use <see cref="System.Collections.Immutable"/> collections for thread-safe storage</item>
+    ///   <item>Use <see cref="System.Threading.Interlocked"/> for atomic reference updates</item>
+    ///   <item>Use proper synchronization (locks, concurrent collections) when caching</item>
+    /// </list>
+    /// Do not share partially-constructed instances (i.e., before the constructor completes).
+    /// Local instances used within a single thread require no special handling.
     /// </para>
     /// </remarks>
     protected TestDataExpected(
@@ -166,9 +179,9 @@ where TResult : notnull
     /// This creates an auditable trail of formatting failures via <see cref="Resolver"/>.
     /// </para>
     /// <para>
-    /// <strong>Formatting:</strong> The private <c>Format</c> methods provide intelligent
+    /// <strong>Formatting:</strong> The private <c>formatExpected</c> methods provide intelligent
     /// formatting for common types (char, DateTime, Guid, collections, exceptions, etc.) to create
-    /// readable test case names. The main <c>Format(object?)</c> method uses pattern matching to
+    /// readable test case names. The main <c>formatExpected(object?)</c> method uses pattern matching to
     /// dispatch to specialized overloads.
     /// </para>
     /// </remarks>
@@ -201,7 +214,8 @@ where TResult : notnull
         var resultPrefix = defaultResultPrefix.FallbackIfNullOrWhiteSpace(
             GetResultPrefix(), nameof(GetResultPrefix));
 
-        var defaultExpected = Expected.GetType().ToString();
+        var expectedType = Expected.GetType();
+        var defaultExpected = expectedType.ToString();
         var expected = defaultExpected.FallbackIfNullOrWhiteSpace(
             Format(Expected), nameof(GetExpected));
 

@@ -29,7 +29,7 @@ namespace Portamical.Core.TestDataTypes;
 /// allowing flexible conversion of test data to method parameters based on <see cref="ArgsCode"/> and <see cref="PropsCode"/>.
 /// </para>
 /// <para>
-/// <strong>Test Case Name Format:</strong> The <see cref="INamedCase.TestCaseName"/> typically follows the formatExpected:
+/// <strong>Test Case Name formatExpected:</strong> The <see cref="INamedCase.TestCaseName"/> typically follows the formatExpected:
 /// <c>"{scenario description} =&gt; {expected outcome}"</c>
 /// <br/>
 /// <see cref="GetDefinition()"/> returns the scenario part, and <see cref="GetResult()"/> returns the outcome part.

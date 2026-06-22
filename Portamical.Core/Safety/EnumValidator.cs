@@ -56,7 +56,7 @@ public static class EnumValidator
     /// consistent exception messages. It can also be used directly when custom validation is needed.
     /// </para>
     /// <para>
-    /// <strong>Exception Message Format:</strong> The resulting exception contains the parameter name,
+    /// <strong>Exception Message formatExpected:</strong> The resulting exception contains the parameter name,
     /// the invalid integer value, and the enumeration type name for clear error diagnostics.
     /// </para>
     /// <para>

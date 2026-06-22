@@ -67,7 +67,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// };
 /// // Test case name: "GetName(\"John\") => returns \"John\"" ✅
 /// 
-/// // Testing DateTime return values (ISO 8601 format)
+/// // Testing DateTime return values (ISO 8601 formatExpected)
 /// var dateTest = new TestDataReturns&lt;DateTime&gt;
 /// {
 ///     TestCaseName = "Now() =&gt; returns 2026-01-15T10:30:00.0000000Z",
