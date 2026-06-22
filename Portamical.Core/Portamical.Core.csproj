@@ -130,7 +130,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Portamical.Core.Formatting\Portamical.Core.Formatting.csproj" />
+    <PackageReference Include="Portamical.Core.Formatting" Version="0.0.1" />
   </ItemGroup>
 
   <!-- T4 tooling support -->

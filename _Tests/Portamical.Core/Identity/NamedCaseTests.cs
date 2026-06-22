@@ -10,6 +10,26 @@ namespace Tests.Portamical.Core.Identity;
 [TestClass]
 public sealed class NamedCaseTests
 {
+    private sealed class TestableINamedCase(string? testCaseName) : INamedCase
+    {
+        public string TestCaseName { get; init; } = testCaseName!;
+
+        bool INamedCase.ContainedBy(IEnumerable<INamedCase>? namedCases)
+        {
+            throw new NotImplementedException("This branch should not be reached in tests.");
+        }
+
+        bool IEquatable<INamedCase>.Equals(INamedCase? other)
+        {
+            throw new NotImplementedException("This branch should not be reached in tests.");
+        }
+
+        string? INamedCase.GetDisplayName(string? testMethodName)
+        {
+            throw new NotImplementedException("This branch should not be reached in tests.");
+        }
+    }
+
     private sealed class TestableNamedCase(string testCaseName) : NamedCase
     {
         public override string TestCaseName { get; init; } = testCaseName;
@@ -81,6 +101,23 @@ public sealed class NamedCaseTests
     // -------------------------------------------------------------------------
     // Comparer.GetHashCode
     // -------------------------------------------------------------------------
+
+    [TestMethod]
+    public void Comparer_GetHashCode_nullParam_throwsArgumentNullException()
+    {
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => NamedCase.Comparer.GetHashCode(null!));
+    }
+
+    [TestMethod]
+    public void Comparer_GetHashCode_nullTestCaseName_stringEmptyHashCode()
+    {
+        var sut = new TestableINamedCase(null);
+
+        Assert.AreEqual(
+            NamedCase.Comparer.GetHashCode(sut),
+            StringComparer.Ordinal.GetHashCode(string.Empty));
+    }
 
     [TestMethod]
     public void Comparer_GetHashCode_sameName_returnsSameHash()

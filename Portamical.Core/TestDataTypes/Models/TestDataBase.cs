@@ -118,15 +118,7 @@ public abstract class TestDataBase(string definition)
             _ = propsCode.Defined(nameof(propsCode));
         }
 
-        var args = ToObjectArray(argsCode);
-
-        return args.Length == 0 ?
-            throw new ArgumentOutOfRangeException(
-                nameof(propsCode),
-                $"Invalid 'TestDataBase' implementation: 'PropsCode.{propsCode}' produced no arguments. " +
-                $"Custom TestData types must override 'ToObjectArray()' to include additional properties beyond 'TestCaseName'. " +
-                "Use 'PropsCode.All' to include 'TestCaseName', or ensure your implementation adds at least one property.")
-            : args;
+        return ToObjectArray(argsCode);
     }
 
     /// <summary>

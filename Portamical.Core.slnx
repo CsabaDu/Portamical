@@ -4,6 +4,5 @@
     <File Path="scripts/verify-generated.ps1" />
     <File Path="scripts/verify-generated.sh" />
   </Folder>
-  <Project Path="Portamical.Core.Formatting/Portamical.Core.Formatting.csproj" />
   <Project Path="Portamical.Core/Portamical.Core.csproj" />
 </Solution>
