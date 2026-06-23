@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <!-- Build Settings -->
@@ -130,7 +131,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Portamical.Core.Formatting" Version="0.0.1" />
+    <ProjectReference Include="..\Portamical.Core.Formatting\Portamical.Core.Formatting.csproj" />
   </ItemGroup>
 
   <!-- T4 tooling support -->

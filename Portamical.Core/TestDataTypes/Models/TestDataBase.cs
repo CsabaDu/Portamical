@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Identity.Model;
@@ -118,14 +118,22 @@ public abstract class TestDataBase(string definition)
             _ = propsCode.Defined(nameof(propsCode));
         }
 
-        return ToObjectArray(argsCode);
+        var args = ToObjectArray(argsCode);
+
+        return args.Length == 0 ?
+            throw new ArgumentOutOfRangeException(
+                nameof(propsCode),
+                $"Invalid 'TestDataBase' implementation: 'PropsCode.{propsCode}' produced no arguments. " +
+                $"Custom TestData types must override 'ToObjectArray()' to include additional properties beyond 'TestCaseName'. " +
+                "Use 'PropsCode.All' to include 'TestCaseName', or ensure your implementation adds at least one property.")
+            : args;
     }
 
     /// <summary>
     /// When implemented in a derived class, returns the result of the operation as a string.
     /// </summary>
     /// <returns>
-    /// A string that represents the result of the operation. The meaning and formatExpected of the result are defined by the
+    /// A string that represents the result of the operation. The meaning and format of the result are defined by the
     /// derived class implementation.
     /// </returns>
     public abstract string GetResult();
