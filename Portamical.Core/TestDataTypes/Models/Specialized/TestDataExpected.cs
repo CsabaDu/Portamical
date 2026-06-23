@@ -5,7 +5,7 @@ using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
 using System.Runtime.CompilerServices;
-using static Portamical.Core.Formatting.FormatterRegister;
+using Portamical.Core.Formatting;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 
@@ -217,7 +217,7 @@ where TResult : notnull
         var expectedType = Expected.GetType();
         var defaultExpected = expectedType.ToString();
         var expected = defaultExpected.FallbackIfNullOrWhiteSpace(
-            Format(Expected), nameof(GetExpected));
+            Formatter.Format(Expected), nameof(GetExpected));
 
         return $"{resultPrefix} {expected}";
     }

@@ -22,7 +22,7 @@ public class DefaultFormatterTests
     public void Cleanup()
     {
         // Ensure registry is clean after each test to prevent test interference
-        FormatterRegister.ClearFormatters();
+        Formatter.ClearFormatters();
     }
 
     #region Format(object?) - Null and Basic Types
@@ -72,12 +72,12 @@ public class DefaultFormatterTests
 
         try
         {
-            FormatterRegister.RegisterFormatter<CustomType>(customFormatter);
+            Formatter.RegisterFormatter<CustomType>(customFormatter);
 
             var obj = new CustomType { Value = 42 };
 
             // Act
-            var result = FormatterRegister.Format(obj);
+            var result = Formatter.Format(obj);
 
             // Assert: Should use custom formatter
             Assert.AreEqual("Custom:42", result);
@@ -85,7 +85,7 @@ public class DefaultFormatterTests
         finally
         {
             // Cleanup: Remove the registered formatter
-            FormatterRegister.UnregisterFormatter<CustomType>();
+            Formatter.UnregisterFormatter<CustomType>();
         }
     }
 
@@ -97,18 +97,18 @@ public class DefaultFormatterTests
 
         try
         {
-            FormatterRegister.RegisterFormatter<CustomType>(nullFormatter);
+            Formatter.RegisterFormatter<CustomType>(nullFormatter);
             var obj = new CustomType { Value = 42 };
 
             // Act
-            var result = FormatterRegister.Format(obj);
+            var result = Formatter.Format(obj);
 
             // Assert: Custom formatter returns null
             Assert.IsNull(result);
         }
         finally
         {
-            FormatterRegister.UnregisterFormatter<CustomType>();
+            Formatter.UnregisterFormatter<CustomType>();
         }
     }
 
@@ -116,7 +116,7 @@ public class DefaultFormatterTests
     public void Format_withRegistryCountZero_skipsRegistryLookup()
     {
         // Arrange: Ensure registry is empty
-        FormatterRegister.ClearFormatters();
+        Formatter.ClearFormatters();
 
         var obj = new CustomType { Value = 99 };
 
@@ -135,7 +135,7 @@ public class DefaultFormatterTests
 
         try
         {
-            FormatterRegister.RegisterFormatter<CustomType>(customFormatter);
+            Formatter.RegisterFormatter<CustomType>(customFormatter);
 
             var obj = new AnotherCustomType { Name = "Test" };
 
@@ -147,7 +147,7 @@ public class DefaultFormatterTests
         }
         finally
         {
-            FormatterRegister.UnregisterFormatter<CustomType>();
+            Formatter.UnregisterFormatter<CustomType>();
         }
     }
 
@@ -160,15 +160,15 @@ public class DefaultFormatterTests
 
         try
         {
-            FormatterRegister.RegisterFormatter<CustomType>(customFormatter);
-            FormatterRegister.RegisterFormatter<AnotherCustomType>(anotherFormatter);
+            Formatter.RegisterFormatter<CustomType>(customFormatter);
+            Formatter.RegisterFormatter<AnotherCustomType>(anotherFormatter);
 
             var obj1 = new CustomType { Value = 42 };
             var obj2 = new AnotherCustomType { Name = "Test" };
 
             // Act
-            var result1 = FormatterRegister.Format(obj1);
-            var result2 = FormatterRegister.Format(obj2);
+            var result1 = Formatter.Format(obj1);
+            var result2 = Formatter.Format(obj2);
 
             // Assert
             Assert.AreEqual("Custom:42", result1);
@@ -176,8 +176,8 @@ public class DefaultFormatterTests
         }
         finally
         {
-            FormatterRegister.UnregisterFormatter<CustomType>();
-            FormatterRegister.UnregisterFormatter<AnotherCustomType>();
+            Formatter.UnregisterFormatter<CustomType>();
+            Formatter.UnregisterFormatter<AnotherCustomType>();
         }
     }
 
@@ -189,17 +189,17 @@ public class DefaultFormatterTests
 
         try
         {
-            FormatterRegister.RegisterFormatter<string>(stringFormatter);
+            Formatter.RegisterFormatter<string>(stringFormatter);
 
             // Act
-            var result = FormatterRegister.Format("hello");
+            var result = Formatter.Format("hello");
 
             // Assert: Should use custom formatter instead of default double-quoting
             Assert.AreEqual("[hello]", result);
         }
         finally
         {
-            FormatterRegister.UnregisterFormatter<string>();
+            Formatter.UnregisterFormatter<string>();
         }
     }
 
@@ -216,7 +216,7 @@ public class DefaultFormatterTests
         public override string ToString() => $"Another:{Name}";
     }
 
-    private class CustomTypeFormatter : IFormatter
+    private class CustomTypeFormatter : global::Portamical.Core.Formatting.ICustomFormatter
     {
         public string? Format(object? obj)
         {
@@ -226,7 +226,7 @@ public class DefaultFormatterTests
         }
     }
 
-    private class AnotherTypeFormatter : IFormatter
+    private class AnotherTypeFormatter : global::Portamical.Core.Formatting.ICustomFormatter
     {
         public string? Format(object? obj)
         {
@@ -236,12 +236,12 @@ public class DefaultFormatterTests
         }
     }
 
-    private class NullReturningFormatter : IFormatter
+    private class NullReturningFormatter : global::Portamical.Core.Formatting.ICustomFormatter
     {
         public string? Format(object? obj) => null;
     }
 
-    private class CustomStringFormatter : IFormatter
+    private class CustomStringFormatter : global::Portamical.Core.Formatting.ICustomFormatter
     {
         public string? Format(object? obj)
         {

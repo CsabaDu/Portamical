@@ -10,7 +10,7 @@ namespace Portamical.Core.Formatting.Model;
 /// <typeparam name="T">The type of value this formatter handles.</typeparam>
 /// <remarks>
 /// <para>
-/// This generic abstract class extends <see cref="IFormatter"/> to provide type-safe formatting
+/// This generic abstract class extends <see cref="ICustomFormatter"/> to provide type-safe formatting
 /// for specific value types. It implements the Template Method pattern by providing the infrastructure
 /// for type checking and delegation, while subclasses implement the type-specific formatting logic.
 /// </para>
@@ -19,15 +19,15 @@ namespace Portamical.Core.Formatting.Model;
 /// <list type="bullet">
 ///   <item><strong>Type Safety:</strong> Compile-time type checking eliminates casting errors</item>
 ///   <item><strong>Separation of Concerns:</strong> Base class handles type checking; subclasses focus on formatting</item>
-///   <item><strong>Interface Compliance:</strong> Automatically implements both <see cref="IFormatter"/> and <see cref="IFormatter{T}"/></item>
-///   <item><strong>Reusability:</strong> Inherit utility methods from <see cref="IFormatter"/> base class</item>
+///   <item><strong>Interface Compliance:</strong> Automatically implements both <see cref="ICustomFormatter"/> and <see cref="ICustomFormatter{T}"/></item>
+///   <item><strong>Reusability:</strong> Inherit utility methods from <see cref="ICustomFormatter"/> base class</item>
 /// </list>
 /// </para>
 /// <para>
 /// <strong>Implementation Pattern:</strong> Subclasses need only implement <see cref="Format(T)"/>
 /// with type-specific formatting logic. The base class automatically handles:
 /// <list type="bullet">
-///   <item>Type checking in <see cref="IFormatter.Format(object?)"/></item>
+///   <item>Type checking in <see cref="ICustomFormatter.Format(object?)"/></item>
 ///   <item>Delegation to the type-safe <see cref="Format(T)"/> method</item>
 ///   <item>Returning <see langword="null"/> for incompatible types</item>
 /// </list>
@@ -37,7 +37,7 @@ namespace Portamical.Core.Formatting.Model;
 /// if maintaining state, as formatters may be called concurrently from multiple threads during test execution.
 /// </para>
 /// <para>
-/// <strong>Performance:</strong> The sealed <see cref="IFormatter.Format(object?)"/> implementation uses pattern matching
+/// <strong>Performance:</strong> The sealed <see cref="ICustomFormatter.Format(object?)"/> implementation uses pattern matching
 /// (<c>is T</c>) for efficient type checking without reflection overhead. The JIT compiler can optimize
 /// this check to a simple type comparison for reference types or unboxing for value types.
 /// </para>
@@ -93,10 +93,10 @@ namespace Portamical.Core.Formatting.Model;
 /// // Result: "[1, 10]" ✅
 /// </code>
 /// </example>
-/// <seealso cref="IFormatter"/>
-/// <seealso cref="IFormatter{T}"/>
+/// <seealso cref="ICustomFormatter"/>
+/// <seealso cref="ICustomFormatter{T}"/>
 /// <seealso cref="DefaultFormatter"/>
-public abstract class Formatter<T> : IFormatter<T>
+public abstract class CustomFormatter<T> : ICustomFormatter<T>
 {
     /// <summary>
     /// Formats a value of type <typeparamref name="T"/> into a human-readable string representation.
@@ -173,13 +173,12 @@ public abstract class Formatter<T> : IFormatter<T>
     /// </summary>
     /// <param name="obj">The object to format. May be null.</param>
     /// <returns>
-    /// A formatted string representation if <paramref name="obj"/> is of type <typeparamref name="T"/>;
-    /// otherwise, <see langword="null"/> to indicate type incompatibility.
+    /// A formatted string representation of the object.
     /// </returns>
     /// <remarks>
     /// <para>
-    /// This method provides the bridge between the non-generic <see cref="IFormatter"/> interface
-    /// (used by the <see cref="FormatterRegister"/> registry) and the type-safe <see cref="Format(T)"/> method.
+    /// This method provides the bridge between the non-generic <see cref="ICustomFormatter"/> interface
+    /// (used by the <see cref="Formatter"/> registry) and the type-safe <see cref="Format(T)"/> method.
     /// </para>
     /// <para>
     /// <strong>Implementation:</strong> Uses pattern matching (<c>obj is T typedValue</c>) to perform
@@ -254,6 +253,6 @@ public abstract class Formatter<T> : IFormatter<T>
     /// formatter.Format(obj3);      // null ✅ (int != string)
     /// </code>
     /// </example>
-    string? IFormatter.Format(object? obj)
-    => obj is T typedValue ? Format(typedValue) : null;
+    string? ICustomFormatter.Format(object? obj)
+    => Format((T)obj!);
 }

@@ -10,7 +10,7 @@ namespace Portamical.Core.Formatting;
 /// <remarks>
 /// <para>
 /// This interface provides the extensibility mechanism for the Portamical formatting system.
-/// Custom formatters can be registered in <see cref="FormatterRegister.Registry"/> to override
+/// Custom formatters can be registered in <see cref="Formatter.Registry"/> to override
 /// or extend the built-in formatting behavior for specific types.
 /// </para>
 /// <para>
@@ -24,15 +24,15 @@ namespace Portamical.Core.Formatting;
 /// synchronization.
 /// </para>
 /// <para>
-/// <strong>Design Pattern:</strong> Prefer implementing <see cref="IFormatter{T}"/> for type-safe
-/// formatters. The non-generic <see cref="IFormatter"/> interface is primarily for internal use
+/// <strong>Design Pattern:</strong> Prefer implementing <see cref="ICustomFormatter{T}"/> for type-safe
+/// formatters. The non-generic <see cref="ICustomFormatter"/> interface is primarily for internal use
 /// and registry storage.
 /// </para>
 /// </remarks>
 /// <example>
 /// <code>
 /// // Implement a custom formatter for domain types
-/// public class ProductIdFormatter : IFormatter&lt;ProductId&gt;
+/// public class ProductIdFormatter : ICustomFormatter&lt;ProductId&gt;
 /// {
 ///     public string Format(ProductId value)
 ///     {
@@ -40,7 +40,7 @@ namespace Portamical.Core.Formatting;
 ///     }
 ///     
 ///     // Explicit interface implementation for non-generic version
-///     string? IFormatter.Format(object value)
+///     string? ICustomFormatter.Format(object value)
 ///     {
 ///         return value is ProductId id ? Format(id) : null;
 ///     }
@@ -57,9 +57,9 @@ namespace Portamical.Core.Formatting;
 /// // TestCaseName: "Get product =&gt; returns PROD-000042" ✅
 /// </code>
 /// </example>
-/// <seealso cref="IFormatter{T}"/>
+/// <seealso cref="ICustomFormatter{T}"/>
 /// <seealso cref="DefaultFormatter"/>
-public interface IFormatter
+public interface ICustomFormatter
 {
     /// <summary>
     /// Formats the specified value as a string for test case naming.
@@ -81,7 +81,7 @@ public interface IFormatter
     /// </para>
     /// <para>
     /// <strong>Note:</strong> This method is primarily used by the registry lookup mechanism.
-    /// Type-safe implementations should prefer <see cref="IFormatter{T}.Format(T)"/>.
+    /// Type-safe implementations should prefer <see cref="ICustomFormatter{T}.Format(T)"/>.
     /// </para>
     /// </remarks>
     string? Format(object? obj);
@@ -97,7 +97,7 @@ public interface IFormatter
 /// </typeparam>
 /// <remarks>
 /// <para>
-/// This generic interface extends <see cref="IFormatter"/> to provide type-safe formatting for
+/// This generic interface extends <see cref="ICustomFormatter"/> to provide type-safe formatting for
 /// specific value types. It is the recommended interface for implementing custom formatters.
 /// </para>
 /// <para>
@@ -105,12 +105,12 @@ public interface IFormatter
 /// enables contravariance, allowing a formatter for a base type to handle derived types:
 /// </para>
 /// <code>
-/// IFormatter&lt;object&gt; baseFormatter = new ObjectFormatter();
-/// IFormatter&lt;string&gt; stringFormatter = baseFormatter;  // ✅ Valid due to contravariance
+/// ICustomFormatter&lt;object&gt; baseFormatter = new ObjectFormatter();
+/// ICustomFormatter&lt;string&gt; stringFormatter = baseFormatter;  // ✅ Valid due to contravariance
 /// </code>
 /// <para>
 /// <strong>Implementation Pattern:</strong> Implement both <see cref="Format(T)"/> (type-safe)
-/// and <see cref="IFormatter.Format(object)"/> (registry support). The non-generic method should
+/// and <see cref="ICustomFormatter.Format(object)"/> (registry support). The non-generic method should
 /// delegate to the type-safe version after type checking.
 /// </para>
 /// <para>
@@ -126,7 +126,7 @@ public interface IFormatter
 /// <example>
 /// <code>
 /// // Type-safe formatter for custom domain types
-/// public sealed class MoneyFormatter : IFormatter&lt;Money&gt;
+/// public sealed class MoneyFormatter : ICustomFormatter&lt;Money&gt;
 /// {
 ///     // Type-safe method - preferred for implementation
 ///     public string Format(Money value)
@@ -135,7 +135,7 @@ public interface IFormatter
 ///     }
 ///     
 ///     // Explicit interface implementation for registry support
-///     string? IFormatter.Format(object value)
+///     string? ICustomFormatter.Format(object value)
 ///     {
 ///         return value is Money money ? Format(money) : null;
 ///     }
@@ -156,9 +156,9 @@ public interface IFormatter
 /// // TestCaseName: "Get product price =&gt; returns USD 99.99" ✅
 /// </code>
 /// </example>
-/// <seealso cref="IFormatter"/>
-/// <seealso cref="FormatterRegister.Registry"/>
-public interface IFormatter<in T> : IFormatter
+/// <seealso cref="ICustomFormatter"/>
+/// <seealso cref="Formatter.Registry"/>
+public interface ICustomFormatter<in T> : ICustomFormatter
 {
     /// <summary>
     /// Formats the specified value as a string for test case naming.
@@ -188,7 +188,7 @@ public interface IFormatter<in T> : IFormatter
     /// <example>
     /// <code>
     /// // Example implementation for a custom type
-    /// public class EmailFormatter : IFormatter&lt;EmailAddress&gt;
+    /// public class EmailFormatter : ICustomFormatter&lt;EmailAddress&gt;
     /// {
     ///     public string Format(EmailAddress value)
     ///     {
@@ -199,7 +199,7 @@ public interface IFormatter<in T> : IFormatter
     ///         return $"\"{value.LocalPart}@{value.Domain}\"";
     ///     }
     ///     
-    ///     string? IFormatter.Format(object value)
+    ///     string? ICustomFormatter.Format(object value)
     ///     {
     ///         return value is EmailAddress email ? Format(email) : null;
     ///     }

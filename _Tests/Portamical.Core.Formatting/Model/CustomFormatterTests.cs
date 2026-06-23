@@ -8,16 +8,16 @@ using static Portamical.Core.Formatting.FormatBuilder;
 namespace Tests.Portamical.Core.Formatting.Model;
 
 /// <summary>
-/// Unit tests for <see cref="Formatter{T}"/> generic base class.
+/// Unit tests for <see cref="CustomFormatter{T}"/> generic base class.
 /// </summary>
 [TestClass]
-public class FormatterTests
+public class CustomFormatterTests
 {
     #region Abstract Method Test Implementation
     [TestMethod]
     public void Format_abstractMethod_canBeImplemented()
     {
-        var formatter = new TestFormatter();
+        var formatter = new TestCustomFormatter();
         var result = formatter.Format("test");
         Assert.AreEqual("TEST", result);
     }
@@ -25,13 +25,13 @@ public class FormatterTests
     [TestMethod]
     public void Format_abstractMethod_canReturnNull()
     {
-        var formatter = new TestFormatter();
+        var formatter = new TestCustomFormatter();
         var result = formatter.Format(null!);
         Assert.IsNull(result);
     }
 
-    // Test implementation of abstract Formatter class
-    private class TestFormatter : IFormatter
+    // Test implementation of abstract CustomFormatter class
+    private class TestCustomFormatter : global::Portamical.Core.Formatting.ICustomFormatter
     {
         public string? Format(object? obj)
         {
@@ -41,181 +41,181 @@ public class FormatterTests
     }
     #endregion
 
-    #region Formatter<T> - Type Safety Tests
+    #region CustomFormatter<T> - Type Safety Tests
     [TestMethod]
-    public void FormatterT_Format_withMatchingType_delegatesToTypeSafeMethod()
+    public void CustomFormatterT_Format_withMatchingType_delegatesToTypeSafeMethod()
     {
-        var formatter = new TestFormatterInt();
+        var formatter = new TestCustomFormatterInt();
         var result = formatter.Format(42);
         Assert.AreEqual("INT:42", result);
     }
 
     [TestMethod]
-    public void FormatterT_FormatObject_withNullForReferenceType_callsTypeSafeMethod()
+    public void CustomFormatterT_FormatObject_withNullForReferenceType_callsTypeSafeMethod()
     {
-        var formatter = new TestFormatterString();
+        var formatter = new TestCustomFormatterString();
         var result = formatter.Format(null!);
         Assert.AreEqual("null", result);
     }
 
     [TestMethod]
-    public void FormatterT_Format_withDerivedType_worksCorrectly()
+    public void CustomFormatterT_Format_withDerivedType_worksCorrectly()
     {
-        var formatter = new TestFormatterException();
+        var formatter = new TestCustomFormatterException();
         var exception = new ArgumentException("test");
         var result = formatter.Format(exception);
         Assert.AreEqual("EX:System.ArgumentException", result);
     }
     #endregion
 
-    #region Formatter<T> - IFormatter Interface Compliance
+    #region CustomFormatter<T> - ICustomFormatter Interface Compliance
     [TestMethod]
-    public void FormatterT_implementsIFormatter()
+    public void CustomFormatterT_implementsICustomFormatter()
     {
-        var formatter = new TestFormatterInt();
-        Assert.IsInstanceOfType<IFormatter>(formatter);
+        var formatter = new TestCustomFormatterInt();
+        Assert.IsInstanceOfType<global::Portamical.Core.Formatting.ICustomFormatter>(formatter);
     }
 
     [TestMethod]
-    public void FormatterT_implementsIFormatterT()
+    public void CustomFormatterT_implementsICustomFormatterT()
     {
-        var formatter = new TestFormatterInt();
-        Assert.IsInstanceOfType<IFormatter<int>>(formatter);
+        var formatter = new TestCustomFormatterInt();
+        Assert.IsInstanceOfType<ICustomFormatter<int>>(formatter);
     }
 
     [TestMethod]
-    public void FormatterT_IFormatterFormat_callsTypeSafeMethod()
+    public void CustomFormatterT_ICustomFormatterFormat_callsTypeSafeMethod()
     {
-        IFormatter formatter = new TestFormatterInt();
+        global::Portamical.Core.Formatting.ICustomFormatter formatter = new TestCustomFormatterInt();
         object value = 99;
         var result = formatter.Format(value);
         Assert.AreEqual("INT:99", result);
     }
 
     [TestMethod]
-    public void FormatterT_IFormatterTFormat_callsTypeSafeMethod()
+    public void CustomFormatterT_ICustomFormatterTFormat_callsTypeSafeMethod()
     {
-        IFormatter<int> formatter = new TestFormatterInt();
+        ICustomFormatter<int> formatter = new TestCustomFormatterInt();
         var result = formatter.Format(55);
         Assert.AreEqual("INT:55", result);
     }
     #endregion
 
-    #region Formatter<T> - Base Class Utility Usage
+    #region CustomFormatter<T> - Base Class Utility Usage
     [TestMethod]
-    public void FormatterT_canUseBaseClassConstants()
+    public void CustomFormatterT_canUseBaseClassConstants()
     {
-        var formatter = new TestFormatterWithBaseUtils();
+        var formatter = new TestCustomFormatterWithBaseUtils();
         var result = formatter.Format(null);
         Assert.AreEqual("null", result);
     }
 
     [TestMethod]
-    public void FormatterT_canUseFallbackIfNull()
+    public void CustomFormatterT_canUseFallbackIfNull()
     {
-        var formatter = new TestFormatterWithBaseUtils();
+        var formatter = new TestCustomFormatterWithBaseUtils();
         var result = formatter.Format("test");
         Assert.AreEqual("VALUE:test", result);
     }
 
     [TestMethod]
-    public void FormatterT_canUseJoinWithComma()
+    public void CustomFormatterT_canUseJoinWithComma()
     {
-        var formatter = new TestFormatterList();
+        var formatter = new TestCustomFormatterList();
         var result = formatter.Format(["a", "b", "c"]);
         Assert.AreEqual("LIST:[a, b, c]", result);
     }
 
     [TestMethod]
-    public void FormatterT_canUseCreateSeparatedString()
+    public void CustomFormatterT_canUseCreateSeparatedString()
     {
-        var formatter = new TestFormatterWithSeparator();
+        var formatter = new TestCustomFormatterWithSeparator();
         var result = formatter.Format(("key", "value"));
         Assert.AreEqual("key => value", result);
     }
 
     [TestMethod]
-    public void FormatterT_canUseCopyAsSpan()
+    public void CustomFormatterT_canUseCopyAsSpan()
     {
-        var formatter = new TestFormatterWithSpan();
+        var formatter = new TestCustomFormatterWithSpan();
         var result = formatter.Format("test");
         Assert.AreEqual("PREFIX:test", result);
     }
     #endregion
 
-    #region Formatter<T> - Nullable Type Handling
+    #region CustomFormatter<T> - Nullable Type Handling
     [TestMethod]
-    public void FormatterT_withNullableValueType_handlesNull()
+    public void CustomFormatterT_withNullableValueType_handlesNull()
     {
-        var formatter = new TestFormatterNullableInt();
+        var formatter = new TestCustomFormatterNullableInt();
         var result = formatter.Format(null);
         Assert.AreEqual("null", result);
     }
 
     [TestMethod]
-    public void FormatterT_withNullableValueType_handlesValue()
+    public void CustomFormatterT_withNullableValueType_handlesValue()
     {
-        var formatter = new TestFormatterNullableInt();
+        var formatter = new TestCustomFormatterNullableInt();
         var result = formatter.Format(42);
         Assert.AreEqual("NULLABLE:42", result);
     }
     #endregion
 
-    #region Formatter<T> - Edge Cases
+    #region CustomFormatter<T> - Edge Cases
     [TestMethod]
-    public void FormatterT_withStructType_handlesCorrectly()
+    public void CustomFormatterT_withStructType_handlesCorrectly()
     {
-        var formatter = new TestFormatterGuid();
+        var formatter = new TestCustomFormatterGuid();
         var guid = Guid.NewGuid();
         var result = formatter.Format(guid);
         Assert.IsTrue(result?.StartsWith("GUID:"));
     }
 
     [TestMethod]
-    public void FormatterT_withEnumType_handlesCorrectly()
+    public void CustomFormatterT_withEnumType_handlesCorrectly()
     {
-        var formatter = new TestFormatterEnum();
+        var formatter = new TestCustomFormatterEnum();
         var result = formatter.Format(DayOfWeek.Monday);
         Assert.AreEqual("ENUM:Monday", result);
     }
 
     [TestMethod]
-    public void FormatterT_withInterfaceType_handlesImplementations()
+    public void CustomFormatterT_withInterfaceType_handlesImplementations()
     {
-        var formatter = new TestFormatterEnumerable();
+        var formatter = new TestCustomFormatterEnumerable();
         var list = new List<int> { 1, 2, 3 };
         var result = formatter.Format(list);
         Assert.AreEqual("ENUMERABLE:3", result);
     }
 
     [TestMethod]
-    public void FormatterT_withAbstractType_handlesDerivedTypes()
+    public void CustomFormatterT_withAbstractType_handlesDerivedTypes()
     {
-        var formatter = new TestFormatterStream();
+        var formatter = new TestCustomFormatterStream();
         var stream = new MemoryStream();
         var result = formatter.Format(stream);
         Assert.AreEqual("STREAM:System.IO.MemoryStream", result);
     }
     #endregion
 
-    #region Formatter<T> Test Implementations
+    #region CustomFormatter<T> Test Implementations
 
-    private class TestFormatterInt : Formatter<int>
+    private class TestCustomFormatterInt : CustomFormatter<int>
     {
         public override string Format(int value) => $"INT:{value}";
     }
 
-    private class TestFormatterString : Formatter<string?>
+    private class TestCustomFormatterString : CustomFormatter<string?>
     {
         public override string Format(string? value) => value is null ? "null" : $"STR:{value}";
     }
 
-    private class TestFormatterException : Formatter<Exception>
+    private class TestCustomFormatterException : CustomFormatter<Exception>
     {
         public override string Format(Exception value) => $"EX:{value.GetType().FullName}";
     }
 
-    private class TestFormatterWithBaseUtils : Formatter<string?>
+    private class TestCustomFormatterWithBaseUtils : CustomFormatter<string?>
     {
         public override string Format(string? value)
         {
@@ -224,7 +224,7 @@ public class FormatterTests
         }
     }
 
-    private class TestFormatterList : Formatter<List<string>>
+    private class TestCustomFormatterList : CustomFormatter<List<string>>
     {
         public override string Format(List<string> value)
         {
@@ -233,7 +233,7 @@ public class FormatterTests
         }
     }
 
-    private class TestFormatterWithSeparator : Formatter<(string, string)>
+    private class TestCustomFormatterWithSeparator : CustomFormatter<(string, string)>
     {
         public override string Format((string, string) value)
         {
@@ -243,7 +243,7 @@ public class FormatterTests
         }
     }
 
-    private class TestFormatterWithSpan : Formatter<string>
+    private class TestCustomFormatterWithSpan : CustomFormatter<string>
     {
         public override string Format(string value)
         {
@@ -258,7 +258,7 @@ public class FormatterTests
         }
     }
 
-    private class TestFormatterNullableInt : Formatter<int?>
+    private class TestCustomFormatterNullableInt : CustomFormatter<int?>
     {
         public override string Format(int? value)
         {
@@ -267,33 +267,33 @@ public class FormatterTests
         }
     }
 
-    private class TestFormatterGuid : Formatter<Guid>
+    private class TestCustomFormatterGuid : CustomFormatter<Guid>
     {
         public override string Format(Guid value) => $"GUID:{value}";
     }
 
-    private class TestFormatterEnum : Formatter<DayOfWeek>
+    private class TestCustomFormatterEnum : CustomFormatter<DayOfWeek>
     {
         public override string Format(DayOfWeek value) => $"ENUM:{value}";
     }
 
-    private class TestFormatterEnumerable : Formatter<IEnumerable<int>>
+    private class TestCustomFormatterEnumerable : CustomFormatter<IEnumerable<int>>
     {
         public override string Format(IEnumerable<int> value) => $"ENUMERABLE:{value.Count()}";
     }
 
-    private class TestFormatterStream : Formatter<Stream>
+    private class TestCustomFormatterStream : CustomFormatter<Stream>
     {
         public override string Format(Stream value) => $"STREAM:{value.GetType().FullName}";
     }
 
     #endregion
 
-    #region Formatter<T> - Performance and Allocation Tests
+    #region CustomFormatter<T> - Performance and Allocation Tests
     [TestMethod]
-    public void FormatterT_withZeroAllocationFormatting_doesNotAllocateExcessively()
+    public void CustomFormatterT_withZeroAllocationFormatting_doesNotAllocateExcessively()
     {
-        var formatter = new TestFormatterWithSpan();
+        var formatter = new TestCustomFormatterWithSpan();
 
         // Warm up
         _ = formatter.Format("warmup");
@@ -306,23 +306,23 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_multipleCallsSameValue_canReturnSameOrNewString()
+    public void CustomFormatterT_multipleCallsSameValue_canReturnSameOrNewString()
     {
-        var formatter = new TestFormatterInt();
+        var formatter = new TestCustomFormatterInt();
         var result1 = formatter.Format(42);
         var result2 = formatter.Format(42);
 
-        // Formatters are not required to cache results
+        // CustomFormatters are not required to cache results
         Assert.AreEqual(result1, result2);
         // They might return same or different instances
     }
     #endregion
 
-    #region Formatter<T> - Thread Safety Tests
+    #region CustomFormatter<T> - Thread Safety Tests
     [TestMethod]
-    public void FormatterT_concurrentCalls_handledSafely()
+    public void CustomFormatterT_concurrentCalls_handledSafely()
     {
-        var formatter = new TestFormatterInt();
+        var formatter = new TestCustomFormatterInt();
         var tasks = new List<Task<string>>();
 
         // Create 100 concurrent formatting tasks
@@ -343,11 +343,11 @@ public class FormatterTests
 
     #endregion
 
-    #region Formatter<T> - Error Handling Tests
+    #region CustomFormatter<T> - Error Handling Tests
     [TestMethod]
-    public void FormatterT_whenFormatThrows_exceptionPropagates()
+    public void CustomFormatterT_whenFormatThrows_exceptionPropagates()
     {
-        var formatter = new TestFormatterThatThrows();
+        var formatter = new TestCustomFormatterThatThrows();
 
         try
         {
@@ -361,29 +361,29 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_withNullReturnFromFormat_returnsNull()
+    public void CustomFormatterT_withNullReturnFromFormat_returnsNull()
     {
-        var formatter = new TestFormatterReturnsNull();
+        var formatter = new TestCustomFormatterReturnsNull();
         var result = formatter.Format(42);
 
         Assert.IsNull(result);
     }
     #endregion
 
-    #region Formatter<T> - Inheritance and Composition Tests
+    #region CustomFormatter<T> - Inheritance and Composition Tests
     [TestMethod]
-    public void FormatterT_canBeInherited_byDerivedFormatter()
+    public void CustomFormatterT_canBeInherited_byDerivedCustomFormatter()
     {
-        var formatter = new DerivedTestFormatter();
+        var formatter = new DerivedTestCustomFormatter();
         var result = formatter.Format(42);
 
         Assert.AreEqual("DERIVED:INT:42", result);
     }
 
     [TestMethod]
-    public void FormatterT_derivedFormatter_inheritsMethods()
+    public void CustomFormatterT_derivedCustomFormatter_inheritsMethods()
     {
-        var formatter = new DerivedTestFormatter();
+        var formatter = new DerivedTestCustomFormatter();
 
         // Can use base class utility methods
         var fallback = FallbackIfNull(null);
@@ -395,25 +395,25 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_canComposeMultipleFormatters()
+    public void CustomFormatterT_canComposeMultipleCustomFormatters()
     {
-        var intFormatter = new TestFormatterInt();
-        var stringFormatter = new TestFormatterString();
+        var intCustomFormatter = new TestCustomFormatterInt();
+        var stringCustomFormatter = new TestCustomFormatterString();
 
         // Use formatters independently
-        var intResult = intFormatter.Format(42);
-        var stringResult = stringFormatter.Format("test");
+        var intResult = intCustomFormatter.Format(42);
+        var stringResult = stringCustomFormatter.Format("test");
 
         Assert.AreEqual("INT:42", intResult);
         Assert.AreEqual("STR:test", stringResult);
     }
     #endregion
 
-    #region Formatter<T> - Generic Type Constraints Tests
+    #region CustomFormatter<T> - Generic Type Constraints Tests
     [TestMethod]
-    public void FormatterT_withClassConstraint_handlesReferenceTypes()
+    public void CustomFormatterT_withClassConstraint_handlesReferenceTypes()
     {
-        var formatter = new TestFormatterClassConstrained();
+        var formatter = new TestCustomFormatterClassConstrained();
         var testObj = new TestReferenceType { Value = "test" };
 
         var result = formatter.Format(testObj);
@@ -421,38 +421,38 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_withClassConstraint_handlesNullCorrectly()
+    public void CustomFormatterT_withClassConstraint_handlesNullCorrectly()
     {
-        var formatter = new TestFormatterClassConstrained();
+        var formatter = new TestCustomFormatterClassConstrained();
         var result = formatter.Format(null);
 
         Assert.AreEqual("null", result);
     }
 
     [TestMethod]
-    public void FormatterT_withStructConstraint_handlesValueTypes()
+    public void CustomFormatterT_withStructConstraint_handlesValueTypes()
     {
-        var formatter = new TestFormatterStructConstrained();
+        var formatter = new TestCustomFormatterStructConstrained();
         var result = formatter.Format(42);
 
         Assert.AreEqual("STRUCT:42", result);
     }
 
     [TestMethod]
-    public void FormatterT_withNewConstraint_canInstantiateType()
+    public void CustomFormatterT_withNewConstraint_canInstantiateType()
     {
-        var formatter = new TestFormatterNewConstrained();
+        var formatter = new TestCustomFormatterNewConstrained();
         var result = formatter.Format(new TestTypeWithDefaultConstructor { Id = 99 });
 
         Assert.IsTrue(result?.Contains("99"));
     }
     #endregion
 
-    #region Formatter<T> - Complex Type Hierarchies
+    #region CustomFormatter<T> - Complex Type Hierarchies
     [TestMethod]
-    public void FormatterT_withBaseClass_formatsDerivedClasses()
+    public void CustomFormatterT_withBaseClass_formatsDerivedClasses()
     {
-        var formatter = new TestFormatterException();
+        var formatter = new TestCustomFormatterException();
         var derived = new DerivedTestException("test message");
 
         var result = formatter.Format(derived);
@@ -460,18 +460,18 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_withInterface_formatsImplementations()
+    public void CustomFormatterT_withInterface_formatsImplementations()
     {
-        var formatter = new TestFormatterComparable();
+        var formatter = new TestCustomFormatterComparable();
         var result = formatter.Format(42);
 
         Assert.AreEqual("COMPARABLE:42", result);
     }
 
     [TestMethod]
-    public void FormatterT_withGenericInterface_handlesGenericImplementations()
+    public void CustomFormatterT_withGenericInterface_handlesGenericImplementations()
     {
-        var formatter = new TestFormatterGenericInterface();
+        var formatter = new TestCustomFormatterGenericInterface();
         var list = new List<string> { "a", "b", "c" };
 
         var result = formatter.Format(list);
@@ -479,11 +479,11 @@ public class FormatterTests
     }
     #endregion
 
-    #region Formatter<T> - Special Type Tests
+    #region CustomFormatter<T> - Special Type Tests
     [TestMethod]
-    public void FormatterT_withSealedType_handlesCorrectly()
+    public void CustomFormatterT_withSealedType_handlesCorrectly()
     {
-        var formatter = new TestFormatterSealed();
+        var formatter = new TestCustomFormatterSealed();
         var value = new SealedTestType { Data = "sealed" };
 
         var result = formatter.Format(value);
@@ -491,9 +491,9 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_withRecord_handlesCorrectly()
+    public void CustomFormatterT_withRecord_handlesCorrectly()
     {
-        var formatter = new TestFormatterRecord();
+        var formatter = new TestCustomFormatterRecord();
         var record = new TestRecord(42, "test");
 
         var result = formatter.Format(record);
@@ -501,9 +501,9 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_withTupleType_handlesValueTuples()
+    public void CustomFormatterT_withTupleType_handlesValueTuples()
     {
-        var formatter = new TestFormatterValueTuple();
+        var formatter = new TestCustomFormatterValueTuple();
         var tuple = (42, "test");
 
         var result = formatter.Format(tuple);
@@ -511,9 +511,9 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_withDelegate_handlesCorrectly()
+    public void CustomFormatterT_withDelegate_handlesCorrectly()
     {
-        var formatter = new TestFormatterAction();
+        var formatter = new TestCustomFormatterAction();
         static void attempt(int x) => Console.WriteLine(x);
 
         var result = formatter.Format(attempt);
@@ -521,25 +521,25 @@ public class FormatterTests
     }
     #endregion
 
-    #region Formatter<T> - Pattern Matching Edge Cases
+    #region CustomFormatter<T> - Pattern Matching Edge Cases
 
     [TestMethod]
-    public void FormatterT_withContravariance_handlesBaseTypeFormatters()
+    public void CustomFormatterT_withContravariance_handlesBaseTypeCustomFormatters()
     {
-        // IFormatter<in T> is contravariant
-        IFormatter<Exception> baseFormatter = new TestFormatterException();
+        // ICustomFormatter<in T> is contravariant
+        ICustomFormatter<Exception> baseCustomFormatter = new TestCustomFormatterException();
 
         // Can assign to more derived type through interface
         var exception = new ArgumentException("test");
-        var result = baseFormatter.Format(exception);
+        var result = baseCustomFormatter.Format(exception);
 
         Assert.IsTrue(result?.StartsWith("EX:"));
     }
     #endregion
 
-    #region Formatter<T> - Integration with Base Class
+    #region CustomFormatter<T> - Integration with Base Class
     [TestMethod]
-    public void FormatterT_inheritsAllBaseClassMembers()
+    public void CustomFormatterT_inheritsAllBaseClassMembers()
     {
 #pragma warning disable MSTEST0032 // Using directive is unnecessary
         // Verify access to constants
@@ -556,9 +556,9 @@ public class FormatterTests
     }
 
     [TestMethod]
-    public void FormatterT_canCallBaseClassUtilitiesInImplementation()
+    public void CustomFormatterT_canCallBaseClassUtilitiesInImplementation()
     {
-        var formatter = new TestFormatterUsingAllBaseUtils();
+        var formatter = new TestCustomFormatterUsingAllBaseUtils();
         var result = formatter.Format(["a", "b", "c"]);
 
         // Uses JoinWithComma, CreateSeparatedString, CopyAsSpan internally
@@ -566,20 +566,20 @@ public class FormatterTests
     }
     #endregion
 
-    #region Formatter<T> Additional Test Implementations
+    #region CustomFormatter<T> Additional Test Implementations
 
-    private class TestFormatterThatThrows : Formatter<int>
+    private class TestCustomFormatterThatThrows : CustomFormatter<int>
     {
         public override string Format(int value)
-            => throw new InvalidOperationException("Formatter error");
+            => throw new InvalidOperationException("CustomFormatter error");
     }
 
-    private class TestFormatterReturnsNull : Formatter<int>
+    private class TestCustomFormatterReturnsNull : CustomFormatter<int>
     {
         public override string Format(int value) => null!;
     }
 
-    private class DerivedTestFormatter : TestFormatterInt
+    private class DerivedTestCustomFormatter : TestCustomFormatterInt
     {
         public override string Format(int value) => $"DERIVED:{base.Format(value)}";
     }
@@ -589,13 +589,13 @@ public class FormatterTests
         public string Value { get; set; } = string.Empty;
     }
 
-    private class TestFormatterClassConstrained : Formatter<TestReferenceType?>
+    private class TestCustomFormatterClassConstrained : CustomFormatter<TestReferenceType?>
     {
         public override string Format(TestReferenceType? value)
             => value is null ? "null" : $"REF:{value.Value}";
     }
 
-    private class TestFormatterStructConstrained : Formatter<int>
+    private class TestCustomFormatterStructConstrained : CustomFormatter<int>
     {
         public override string Format(int value) => $"STRUCT:{value}";
     }
@@ -605,7 +605,7 @@ public class FormatterTests
         public int Id { get; set; }
     }
 
-    private class TestFormatterNewConstrained : Formatter<TestTypeWithDefaultConstructor>
+    private class TestCustomFormatterNewConstrained : CustomFormatter<TestTypeWithDefaultConstructor>
     {
         public override string Format(TestTypeWithDefaultConstructor value)
         {
@@ -618,12 +618,12 @@ public class FormatterTests
     {
     }
 
-    private class TestFormatterComparable : Formatter<IComparable>
+    private class TestCustomFormatterComparable : CustomFormatter<IComparable>
     {
         public override string Format(IComparable value) => $"COMPARABLE:{value}";
     }
 
-    private class TestFormatterGenericInterface : Formatter<IList<string>>
+    private class TestCustomFormatterGenericInterface : CustomFormatter<IList<string>>
     {
         public override string Format(IList<string> value) => $"GENERIC:{value.Count}";
     }
@@ -633,31 +633,31 @@ public class FormatterTests
         public string Data { get; set; } = string.Empty;
     }
 
-    private class TestFormatterSealed : Formatter<SealedTestType>
+    private class TestCustomFormatterSealed : CustomFormatter<SealedTestType>
     {
         public override string Format(SealedTestType value) => $"SEALED:{value.Data}";
     }
 
     private record TestRecord(int Id, string Name);
 
-    private class TestFormatterRecord : Formatter<TestRecord>
+    private class TestCustomFormatterRecord : CustomFormatter<TestRecord>
     {
         public override string Format(TestRecord value) => $"RECORD:{value.Id}-{value.Name}";
     }
 
-    private class TestFormatterValueTuple : Formatter<(int, string)>
+    private class TestCustomFormatterValueTuple : CustomFormatter<(int, string)>
     {
         public override string Format((int, string) value)
             => $"TUPLE:{value.Item1},{value.Item2}";
     }
 
-    private class TestFormatterAction : Formatter<Action<int>>
+    private class TestCustomFormatterAction : CustomFormatter<Action<int>>
     {
         public override string Format(Action<int> value)
             => $"ACTION:{value.Method.Name}";
     }
 
-    private class TestFormatterUsingAllBaseUtils : Formatter<List<string>>
+    private class TestCustomFormatterUsingAllBaseUtils : CustomFormatter<List<string>>
     {
         public override string Format(List<string> value)
         {

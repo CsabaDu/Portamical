@@ -28,22 +28,22 @@ namespace Portamical.Core.Formatting;
 /// <para>
 /// <strong>Design Pattern:</strong> Uses pattern matching with method overloading to dispatch
 /// to type-specific formatters, enabling extensibility and clean separation of concerns.
-/// Supports custom formatter registration via <see cref="FormatterRegister"/> for specialized types.
+/// Supports custom formatter registration via <see cref="Formatter"/> for specialized types.
 /// </para>
 /// </remarks>
-public sealed class DefaultFormatter : IFormatter
+public sealed class DefaultFormatter : ICustomFormatter
 {
     private DefaultFormatter()
     {
     }
 
-    string? IFormatter.Format(object? obj)
+    string? ICustomFormatter.Format(object? obj)
     => Format(obj);
 
     /// <summary>
     /// Gets the singleton instance of the <see cref="DefaultFormatter"/>.
     /// </summary>
-    /// <value>A shared, thread-safe <see cref="IFormatter"/> instance.</value>
+    /// <value>A shared, thread-safe <see cref="ICustomFormatter"/> instance.</value>
     /// <remarks>
     /// <para>
     /// This property provides a pre-initialized formatter instance that can be reused
@@ -55,7 +55,7 @@ public sealed class DefaultFormatter : IFormatter
     /// Multiple threads can safely call <see cref="Format(object?)"/> concurrently.
     /// </para>
     /// <para>
-    /// <strong>Usage:</strong> This instance is returned by <see cref="FormatterRegister.GetFormatter(Type)"/>
+    /// <strong>Usage:</strong> This instance is returned by <see cref="Formatter.GetFormatter(Type)"/>
     /// when no custom formatter is registered for a type, serving as the fallback formatter.
     /// </para>
     /// </remarks>
@@ -66,10 +66,10 @@ public sealed class DefaultFormatter : IFormatter
     /// var result = formatter.Format(42);  // Returns: "42"
     /// 
     /// // Or use it via the interface
-    /// IFormatter formatter = DefaultFormatter.Instance;
+    /// ICustomFormatter formatter = DefaultFormatter.Instance;
     /// </code>
     /// </example>
-    public static readonly IFormatter Instance = new DefaultFormatter();
+    public static readonly ICustomFormatter Instance = new DefaultFormatter();
 
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
@@ -85,7 +85,7 @@ public sealed class DefaultFormatter : IFormatter
     /// Callers should use fallback strategies for logging and error handling.
     /// </para>
     /// <para>
-    /// <strong>Implementation:</strong> First checks the <see cref="FormatterRegister"/> for custom formatters registered
+    /// <strong>Implementation:</strong> First checks the <see cref="Formatter"/> for custom formatters registered
     /// for the object's type. If no custom formatter is found, uses pattern matching to dispatch to type-specific
     /// overloaded helper methods. Each specialized method handles formatting for a particular type or type family
     /// (e.g., internal <ch>Format(char)</ch>, <ch>Format(string)</ch>, <ch>Format(IEnumerable)</ch> formatters).
