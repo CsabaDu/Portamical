@@ -26,7 +26,7 @@ namespace Portamical.Core.Formatting;
 /// synchronization.
 /// </para>
 /// <para>
-/// <strong>Design Pattern:</strong> Prefer implementing <see cref="ICustomFormatter{T}"/> for type-safe
+/// <strong>Design Pattern:</strong> Prefer implementing <see cref="IFormatter{T}"/> for type-safe
 /// formatters. The non-generic <see cref="IFormatter"/> interface is primarily for internal use
 /// and registry storage.
 /// </para>
@@ -59,7 +59,7 @@ namespace Portamical.Core.Formatting;
 /// // TestCaseName: "Get product =&gt; returns PROD-000042" ✅
 /// </code>
 /// </example>
-/// <seealso cref="ICustomFormatter{T}"/>
+/// <seealso cref="IFormatter{T}"/>
 /// <seealso cref="DefaultFormatter"/>
 public interface IFormatter
 {
@@ -83,7 +83,7 @@ public interface IFormatter
     /// </para>
     /// <para>
     /// <strong>Note:</strong> This method is primarily used by the registry lookup mechanism.
-    /// Type-safe implementations should prefer <see cref="ICustomFormatter{T}.Format(T)"/>.
+    /// Type-safe implementations should prefer <see cref="IFormatter{T}.Format(T)"/>.
     /// </para>
     /// </remarks>
     string? Format(object? obj);

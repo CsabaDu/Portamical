@@ -8,7 +8,7 @@ using static Portamical.Core.Formatting.FormatBuilder;
 namespace Tests.Portamical.Core.Formatting.Model;
 
 /// <summary>
-/// Unit tests for <see cref="CustomFormatter{T}"/> generic base class.
+/// Unit tests for <see cref="Formatter{T}"/> generic base class.
 /// </summary>
 [TestClass]
 public class CustomFormatterTests
@@ -80,7 +80,7 @@ public class CustomFormatterTests
     public void CustomFormatterT_implementsICustomFormatterT()
     {
         var formatter = new TestCustomFormatterInt();
-        Assert.IsInstanceOfType<ICustomFormatter<int>>(formatter);
+        Assert.IsInstanceOfType<IFormatter<int>>(formatter);
     }
 
     [TestMethod]
@@ -95,7 +95,7 @@ public class CustomFormatterTests
     [TestMethod]
     public void CustomFormatterT_ICustomFormatterTFormat_callsTypeSafeMethod()
     {
-        ICustomFormatter<int> formatter = new TestCustomFormatterInt();
+        IFormatter<int> formatter = new TestCustomFormatterInt();
         var result = formatter.Format(55);
         Assert.AreEqual("INT:55", result);
     }
@@ -200,22 +200,22 @@ public class CustomFormatterTests
 
     #region CustomFormatter<T> Test Implementations
 
-    private class TestCustomFormatterInt : CustomFormatter<int>
+    private class TestCustomFormatterInt : Formatter<int>
     {
         public override string Format(int value) => $"INT:{value}";
     }
 
-    private class TestCustomFormatterString : CustomFormatter<string?>
+    private class TestCustomFormatterString : Formatter<string?>
     {
         public override string Format(string? value) => value is null ? "null" : $"STR:{value}";
     }
 
-    private class TestCustomFormatterException : CustomFormatter<Exception>
+    private class TestCustomFormatterException : Formatter<Exception>
     {
         public override string Format(Exception value) => $"EX:{value.GetType().FullName}";
     }
 
-    private class TestCustomFormatterWithBaseUtils : CustomFormatter<string?>
+    private class TestCustomFormatterWithBaseUtils : Formatter<string?>
     {
         public override string Format(string? value)
         {
@@ -224,7 +224,7 @@ public class CustomFormatterTests
         }
     }
 
-    private class TestCustomFormatterList : CustomFormatter<List<string>>
+    private class TestCustomFormatterList : Formatter<List<string>>
     {
         public override string Format(List<string> value)
         {
@@ -233,7 +233,7 @@ public class CustomFormatterTests
         }
     }
 
-    private class TestCustomFormatterWithSeparator : CustomFormatter<(string, string)>
+    private class TestCustomFormatterWithSeparator : Formatter<(string, string)>
     {
         public override string Format((string, string) value)
         {
@@ -243,7 +243,7 @@ public class CustomFormatterTests
         }
     }
 
-    private class TestCustomFormatterWithSpan : CustomFormatter<string>
+    private class TestCustomFormatterWithSpan : Formatter<string>
     {
         public override string Format(string value)
         {
@@ -258,7 +258,7 @@ public class CustomFormatterTests
         }
     }
 
-    private class TestCustomFormatterNullableInt : CustomFormatter<int?>
+    private class TestCustomFormatterNullableInt : Formatter<int?>
     {
         public override string Format(int? value)
         {
@@ -267,22 +267,22 @@ public class CustomFormatterTests
         }
     }
 
-    private class TestCustomFormatterGuid : CustomFormatter<Guid>
+    private class TestCustomFormatterGuid : Formatter<Guid>
     {
         public override string Format(Guid value) => $"GUID:{value}";
     }
 
-    private class TestCustomFormatterEnum : CustomFormatter<DayOfWeek>
+    private class TestCustomFormatterEnum : Formatter<DayOfWeek>
     {
         public override string Format(DayOfWeek value) => $"ENUM:{value}";
     }
 
-    private class TestCustomFormatterEnumerable : CustomFormatter<IEnumerable<int>>
+    private class TestCustomFormatterEnumerable : Formatter<IEnumerable<int>>
     {
         public override string Format(IEnumerable<int> value) => $"ENUMERABLE:{value.Count()}";
     }
 
-    private class TestCustomFormatterStream : CustomFormatter<Stream>
+    private class TestCustomFormatterStream : Formatter<Stream>
     {
         public override string Format(Stream value) => $"STREAM:{value.GetType().FullName}";
     }
@@ -527,7 +527,7 @@ public class CustomFormatterTests
     public void CustomFormatterT_withContravariance_handlesBaseTypeCustomFormatters()
     {
         // ICustomFormatter<in T> is contravariant
-        ICustomFormatter<Exception> baseCustomFormatter = new TestCustomFormatterException();
+        IFormatter<Exception> baseCustomFormatter = new TestCustomFormatterException();
 
         // Can assign to more derived type through interface
         var exception = new ArgumentException("test");
@@ -568,13 +568,13 @@ public class CustomFormatterTests
 
     #region CustomFormatter<T> Additional Test Implementations
 
-    private class TestCustomFormatterThatThrows : CustomFormatter<int>
+    private class TestCustomFormatterThatThrows : Formatter<int>
     {
         public override string Format(int value)
             => throw new InvalidOperationException("CustomFormatter error");
     }
 
-    private class TestCustomFormatterReturnsNull : CustomFormatter<int>
+    private class TestCustomFormatterReturnsNull : Formatter<int>
     {
         public override string Format(int value) => null!;
     }
@@ -589,13 +589,13 @@ public class CustomFormatterTests
         public string Value { get; set; } = string.Empty;
     }
 
-    private class TestCustomFormatterClassConstrained : CustomFormatter<TestReferenceType?>
+    private class TestCustomFormatterClassConstrained : Formatter<TestReferenceType?>
     {
         public override string Format(TestReferenceType? value)
             => value is null ? "null" : $"REF:{value.Value}";
     }
 
-    private class TestCustomFormatterStructConstrained : CustomFormatter<int>
+    private class TestCustomFormatterStructConstrained : Formatter<int>
     {
         public override string Format(int value) => $"STRUCT:{value}";
     }
@@ -605,7 +605,7 @@ public class CustomFormatterTests
         public int Id { get; set; }
     }
 
-    private class TestCustomFormatterNewConstrained : CustomFormatter<TestTypeWithDefaultConstructor>
+    private class TestCustomFormatterNewConstrained : Formatter<TestTypeWithDefaultConstructor>
     {
         public override string Format(TestTypeWithDefaultConstructor value)
         {
@@ -618,12 +618,12 @@ public class CustomFormatterTests
     {
     }
 
-    private class TestCustomFormatterComparable : CustomFormatter<IComparable>
+    private class TestCustomFormatterComparable : Formatter<IComparable>
     {
         public override string Format(IComparable value) => $"COMPARABLE:{value}";
     }
 
-    private class TestCustomFormatterGenericInterface : CustomFormatter<IList<string>>
+    private class TestCustomFormatterGenericInterface : Formatter<IList<string>>
     {
         public override string Format(IList<string> value) => $"GENERIC:{value.Count}";
     }
@@ -633,31 +633,31 @@ public class CustomFormatterTests
         public string Data { get; set; } = string.Empty;
     }
 
-    private class TestCustomFormatterSealed : CustomFormatter<SealedTestType>
+    private class TestCustomFormatterSealed : Formatter<SealedTestType>
     {
         public override string Format(SealedTestType value) => $"SEALED:{value.Data}";
     }
 
     private record TestRecord(int Id, string Name);
 
-    private class TestCustomFormatterRecord : CustomFormatter<TestRecord>
+    private class TestCustomFormatterRecord : Formatter<TestRecord>
     {
         public override string Format(TestRecord value) => $"RECORD:{value.Id}-{value.Name}";
     }
 
-    private class TestCustomFormatterValueTuple : CustomFormatter<(int, string)>
+    private class TestCustomFormatterValueTuple : Formatter<(int, string)>
     {
         public override string Format((int, string) value)
             => $"TUPLE:{value.Item1},{value.Item2}";
     }
 
-    private class TestCustomFormatterAction : CustomFormatter<Action<int>>
+    private class TestCustomFormatterAction : Formatter<Action<int>>
     {
         public override string Format(Action<int> value)
             => $"ACTION:{value.Method.Name}";
     }
 
-    private class TestCustomFormatterUsingAllBaseUtils : CustomFormatter<List<string>>
+    private class TestCustomFormatterUsingAllBaseUtils : Formatter<List<string>>
     {
         public override string Format(List<string> value)
         {

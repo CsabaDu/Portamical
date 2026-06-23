@@ -21,7 +21,7 @@ namespace Portamical.Core.Formatting.CustomFormatters.Model;
 /// <list type="bullet">
 ///   <item><strong>Type Safety:</strong> Compile-time type checking eliminates casting errors</item>
 ///   <item><strong>Separation of Concerns:</strong> Base class handles type checking; subclasses focus on formatting</item>
-///   <item><strong>Interface Compliance:</strong> Automatically implements both <see cref="IFormatter"/> and <see cref="ICustomFormatter{T}"/></item>
+///   <item><strong>Interface Compliance:</strong> Automatically implements both <see cref="IFormatter"/> and <see cref="IFormatter{T}"/></item>
 ///   <item><strong>Reusability:</strong> Inherit utility methods from <see cref="IFormatter"/> base class</item>
 /// </list>
 /// </para>
@@ -96,9 +96,9 @@ namespace Portamical.Core.Formatting.CustomFormatters.Model;
 /// </code>
 /// </example>
 /// <seealso cref="IFormatter"/>
-/// <seealso cref="ICustomFormatter{T}"/>
+/// <seealso cref="IFormatter{T}"/>
 /// <seealso cref="DefaultFormatter"/>
-public abstract class CustomFormatter<T> : ICustomFormatter<T>
+public abstract class Formatter<T> : IFormatter<T>
 {
     /// <summary>
     /// Formats a value of type <typeparamref name="T"/> into a human-readable string representation.

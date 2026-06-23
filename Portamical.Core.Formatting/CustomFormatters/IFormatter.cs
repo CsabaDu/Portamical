@@ -74,7 +74,7 @@ namespace Portamical.Core.Formatting.CustomFormatters;
 /// </example>
 /// <seealso cref="IFormatter"/>
 /// <seealso cref="Formatter.Registry"/>
-public interface ICustomFormatter<in T> : IFormatter
+public interface IFormatter<in T> : IFormatter
 {
     /// <summary>
     /// Formats the specified value as a string for test case naming.
