@@ -47,7 +47,7 @@ namespace Portamical.Core.Formatting;
 /// }
 /// 
 /// // Register the formatter globally
-/// ValueFormatter.Registry[typeof(ProductId)] = new ProductIdFormatter();
+/// FormatterRegister.RegisterFormatter&lt;ProductId&gt;(new ProductIdFormatter());
 /// 
 /// // Now all test cases automatically use custom formatting
 /// var testData = CreateTestDataReturns(
@@ -142,10 +142,10 @@ public interface IFormatter
 /// }
 /// 
 /// // Register and use
-/// ValueFormatter.Registry[typeof(Money)] = new MoneyFormatter();
+/// FormatterRegister.RegisterFormatter&lt;Money&gt;(new MoneyFormatter());
 /// 
 /// var price = new Money { Currency = "USD", Amount = 99.99m };
-/// var formatted = ValueFormatter.Format(price);
+/// var formatted = FormatterRegister.Format(price);
 /// // Result: "USD 99.99" ✅
 /// 
 /// // Automatically applied in test data

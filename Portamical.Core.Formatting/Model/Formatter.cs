@@ -27,7 +27,7 @@ namespace Portamical.Core.Formatting.Model;
 /// <strong>Implementation Pattern:</strong> Subclasses need only implement <see cref="Format(T)"/>
 /// with type-specific formatting logic. The base class automatically handles:
 /// <list type="bullet">
-///   <item>Type checking in <see cref="DefaultFormatter.Format(object)"/></item>
+///   <item>Type checking in <see cref="IFormatter.Format(object?)"/></item>
 ///   <item>Delegation to the type-safe <see cref="Format(T)"/> method</item>
 ///   <item>Returning <see langword="null"/> for incompatible types</item>
 /// </list>
@@ -37,7 +37,7 @@ namespace Portamical.Core.Formatting.Model;
 /// if maintaining state, as formatters may be called concurrently from multiple threads during test execution.
 /// </para>
 /// <para>
-/// <strong>Performance:</strong> The sealed <see cref="DefaultFormatter.Format(object)"/> override uses pattern matching
+/// <strong>Performance:</strong> The sealed <see cref="IFormatter.Format(object?)"/> implementation uses pattern matching
 /// (<c>is T</c>) for efficient type checking without reflection overhead. The JIT compiler can optimize
 /// this check to a simple type comparison for reference types or unboxing for value types.
 /// </para>
@@ -56,12 +56,12 @@ namespace Portamical.Core.Formatting.Model;
 ///     }
 /// }
 /// 
-/// // Usage with ValueFormatter registry
+/// // Usage with FormatterRegister registry
 /// var formatter = new ProductIdFormatter();
-/// ValueFormatter.RegisterFormatter&lt;ProductId&gt;(formatter);
+/// FormatterRegister.RegisterFormatter&lt;ProductId&gt;(formatter);
 /// 
 /// var productId = new ProductId { Id = 42 };
-/// var formatted = ValueFormatter.Format(productId);
+/// var formatted = FormatterRegister.Format(productId);
 /// // Result: "PROD-000042" ✅
 /// 
 /// // Automatic type safety
@@ -179,7 +179,7 @@ public abstract class Formatter<T> : IFormatter<T>
     /// <remarks>
     /// <para>
     /// This method provides the bridge between the non-generic <see cref="IFormatter"/> interface
-    /// (used by the <see cref="DefaultFormatter"/> registry) and the type-safe <see cref="Format(T)"/> method.
+    /// (used by the <see cref="FormatterRegister"/> registry) and the type-safe <see cref="Format(T)"/> method.
     /// </para>
     /// <para>
     /// <strong>Implementation:</strong> Uses pattern matching (<c>obj is T typedValue</c>) to perform
@@ -255,5 +255,5 @@ public abstract class Formatter<T> : IFormatter<T>
     /// </code>
     /// </example>
     string? IFormatter.Format(object? obj)
-    => Format((T)obj!);
+    => obj is T typedValue ? Format(typedValue) : null;
 }

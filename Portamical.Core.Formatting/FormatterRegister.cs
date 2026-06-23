@@ -127,7 +127,7 @@ public static class FormatterRegister
     /// </remarks>
     /// <example>
     /// <code>
-    /// int count = ValueFormatter.RegisteredFormatterCount;
+    /// int count = FormatterRegister.RegisteredFormatterCount;
     /// Console.WriteLine($"Custom formatters: {count}");
     /// </code>
     /// </example>

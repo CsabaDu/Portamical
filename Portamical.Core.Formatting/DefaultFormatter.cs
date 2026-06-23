@@ -447,7 +447,7 @@ public sealed class DefaultFormatter : IFormatter
     /// <remarks>
     /// <para>
     /// Uses the <see cref="ITuple"/> interface to access tuple elements generically,
-    /// supporting both <see cref="Tuple"/> (reference expectedType) and <see cref="ValueTuple"/> (value expectedType)
+    /// supporting both <see cref="Tuple"/> (reference type) and <see cref="ValueTuple"/> (value type)
     /// of any arity (1-8+ elements, including nested tuples).
     /// </para>
     /// <para>
@@ -627,7 +627,7 @@ public sealed class DefaultFormatter : IFormatter
             return FormatGenericType(type);
         }
 
-        // Use C# expectedType aliases for primitive types
+        // Use C# type aliases for primitive types
         // or fallback to type name for non-primitive types
         return GetCSharpAliasOrTypeName(type);
     }
@@ -652,7 +652,7 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Recursive Formatting:</strong> Each item is formatted via <see cref="Format(object?)"/>
-    /// to apply expectedType-specific formatting rules (strings quoted, chars single-quoted, etc.).
+    /// to apply type-specific formatting rules (strings quoted, chars single-quoted, etc.).
     /// Null items are replaced with the <see cref="NullString"/> constant.
     /// </para>
     /// <para>
