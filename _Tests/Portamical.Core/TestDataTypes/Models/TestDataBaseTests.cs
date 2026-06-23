@@ -39,6 +39,9 @@ public class TestDataBaseTests
             baseToObjectArray: (argsCode) => [],
             argsCode,
             newArg);
+
+        protected override object?[] ToObjectArray(ArgsCode argsCode)
+        => null!;
     }
 
     #region GetDefinition
@@ -116,6 +119,16 @@ public class TestDataBaseTests
     {
         Assert.ThrowsExactly<InvalidEnumArgumentException>(
             () => _ = TestDataBaseChild.Extend((ArgsCode)99, new object()));
+    }
+
+    [TestMethod]
+    public void ToArgs_withZeroElements_throwsInvalidOperationException()
+    {
+        var sut = new TestDataBaseChild(Def);
+        Assert.ThrowsExactly<InvalidOperationException>(
+            () => _ = sut.ToArgs(ArgsCode.Instance));
+        Assert.ThrowsExactly<InvalidOperationException>(
+            () => _ = sut.ToArgs(ArgsCode.Properties, default));
     }
     #endregion
 

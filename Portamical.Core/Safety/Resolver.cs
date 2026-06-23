@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using System.Diagnostics;
@@ -69,7 +69,7 @@ public static class Resolver
     /// </param>
     /// <returns>
     /// The <paramref name="preferredValue"/> if it contains non-white-space characters; otherwise, the 
-    /// <paramref name="fallbackLabel"/> with a unique index appended in the formatExpected <c>"{fallbackLabel} ({index})"</c>.
+    /// <paramref name="fallbackLabel"/> with a unique index appended in the format <c>"{fallbackLabel} ({index})"</c>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="fallbackLabel"/> or <paramref name="methodName"/> is <see langword="null"/>.
@@ -88,7 +88,7 @@ public static class Resolver
     /// </para>
     /// <para>
     /// <strong>Trace Output:</strong> When a fallback occurs, a warning is written to the trace
-    /// listeners via <see cref="Trace.TraceWarning(string)"/>. The message formatExpected is:
+    /// listeners via <see cref="Trace.TraceWarning(string)"/>. The message format is:
     /// <c>"Portamical log {index}: The '{methodName}' method of the test data object returned a null, empty, or whitespace value. Using indexed fallback label '{fallback}' in the test report."</c>
     /// </para>
     /// <para>
@@ -150,7 +150,7 @@ public static class Resolver
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> This method is marked for aggressive inlining because it wraps
-    /// a single atomic operation (<see cref="Interlocked.Exchange"/>). Inlining eliminates method
+    /// a single atomic operation (<see cref="Interlocked.Exchange(ref long, long)"/>). Inlining eliminates method
     /// call overhead while preserving thread safety.
     /// </para>
     /// <para>

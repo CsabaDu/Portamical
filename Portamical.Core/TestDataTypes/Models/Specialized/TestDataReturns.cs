@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Strategy;
@@ -67,7 +67,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// };
 /// // Test case name: "GetName(\"John\") => returns \"John\"" ✅
 /// 
-/// // Testing DateTime return values (ISO 8601 formatExpected)
+/// // Testing DateTime return values (ISO 8601 format)
 /// var dateTest = new TestDataReturns&lt;DateTime&gt;
 /// {
 ///     TestCaseName = "Now() =&gt; returns 2026-01-15T10:30:00.0000000Z",

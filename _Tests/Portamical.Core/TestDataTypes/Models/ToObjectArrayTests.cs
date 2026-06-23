@@ -73,7 +73,11 @@ public class ToObjectArrayTests
         Assert.HasCount(3, result);
         Assert.AreEqual(42, result[0]);
         Assert.AreEqual("test", result[1]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[2]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
     }
 
     [TestMethod]
@@ -90,7 +94,11 @@ public class ToObjectArrayTests
         Assert.HasCount(4, result);
         Assert.AreEqual(42, result[0]);
         Assert.AreEqual("test", result[1]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[2]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
         Assert.AreEqual(3.14, result[3]);
     }
 
@@ -108,7 +116,11 @@ public class ToObjectArrayTests
         Assert.HasCount(5, result);
         Assert.AreEqual(42, result[0]);
         Assert.AreEqual("test", result[1]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[2]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
         Assert.AreEqual(3.14, result[3]);
         Assert.AreEqual('A', result[4]);
     }
@@ -207,7 +219,11 @@ public class ToObjectArrayTests
         Assert.AreEqual(99, result[0]);
         Assert.AreEqual(42, result[1]);
         Assert.AreEqual("test", result[2]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[3]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
     }
 
     [TestMethod]
@@ -225,7 +241,11 @@ public class ToObjectArrayTests
         Assert.AreEqual(99, result[0]);
         Assert.AreEqual(42, result[1]);
         Assert.AreEqual("test", result[2]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[3]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
         Assert.AreEqual(3.14, result[4]);
     }
 
@@ -244,7 +264,11 @@ public class ToObjectArrayTests
         Assert.AreEqual(99, result[0]);
         Assert.AreEqual(42, result[1]);
         Assert.AreEqual("test", result[2]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[3]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
         Assert.AreEqual(3.14, result[4]);
         Assert.AreEqual('X', result[5]);
     }
@@ -353,7 +377,8 @@ public class ToObjectArrayTests
     public void TestDataThrows_toObjectArray_properties_arity3_returnsExpectedAndAllArgs()
     {
         // Arrange
-        var exception = new ArgumentNullException("paramName");
+        var paramname = "paramName";
+        var exception = new ArgumentNullException(paramname);
         var sut = TestDataFactory.CreateTestDataThrows<ArgumentNullException, int, string, bool>(
             Def, exception, 42, "test", true);
 
@@ -365,14 +390,19 @@ public class ToObjectArrayTests
         Assert.AreSame(exception, result[0]);
         Assert.AreEqual(42, result[1]);
         Assert.AreEqual("test", result[2]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[3]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
     }
 
     [TestMethod]
     public void TestDataThrows_toObjectArray_properties_arity4_returnsExpectedAndAllArgs()
     {
         // Arrange
-        var exception = new ArgumentOutOfRangeException("param");
+        var paramname = "param";
+        var exception = new ArgumentOutOfRangeException(paramname);
         var sut = TestDataFactory.CreateTestDataThrows<ArgumentOutOfRangeException, int, string, bool, double>(
             Def, exception, 42, "test", true, 3.14);
 
@@ -384,7 +414,11 @@ public class ToObjectArrayTests
         Assert.AreSame(exception, result[0]);
         Assert.AreEqual(42, result[1]);
         Assert.AreEqual("test", result[2]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[3]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
         Assert.AreEqual(3.14, result[4]);
     }
 
@@ -404,7 +438,11 @@ public class ToObjectArrayTests
         Assert.AreSame(exception, result[0]);
         Assert.AreEqual(42, result[1]);
         Assert.AreEqual("test", result[2]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[3]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
         Assert.AreEqual(3.14, result[4]);
         Assert.AreEqual('Z', result[5]);
     }
@@ -539,7 +577,11 @@ public class ToObjectArrayTests
         Assert.AreEqual(42, result[0]);
         Assert.AreEqual("text", result[1]);
         Assert.AreSame(obj, result[2]);
+#pragma warning disable MSTEST0037 // Use 'Assert.IsTrue' - Intentionally asserting bool-typed array element value
+#pragma warning disable S2701 // Literal boolean in assertion - Intentionally asserting bool-typed array element value
         Assert.AreEqual(true, result[3]);
+#pragma warning restore S2701
+#pragma warning restore MSTEST0037
         Assert.AreEqual(3.14, result[4]);
     }
 

@@ -9,7 +9,7 @@ namespace Portamical.Core.Strategy;
 /// <remarks>
 /// <para>
 /// This enum implements the Strategy pattern for test argument generation. It determines
-/// whether test methods receive the complete <see cref="ITestData"/> instance or individual
+/// whether test methods receive the complete <see cref="TestDataTypes.ITestData"/> instance or individual
 /// property values as parameters.
 /// </para>
 /// <para>
@@ -17,8 +17,8 @@ namespace Portamical.Core.Strategy;
 /// for test data serialization without complex class hierarchies.
 /// </para>
 /// <para>
-/// <strong>Usage Context:</strong> Used by <see cref="ITestData.ToArgs(ArgsCode)"/> and
-/// <see cref="IDataStrategy"/> implementations to determine argument array structure.
+/// <strong>Usage Context:</strong> Used by <see cref="TestDataTypes.ITestData.ToArgs(ArgsCode)"/> and
+/// <see cref="TestDataTypes.ITestData.ToArgs(ArgsCode)"/> implementations to determine argument array structure.
 /// </para>
 /// <para>
 /// <strong>Framework Integration:</strong>

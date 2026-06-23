@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 namespace Portamical.Core.TestDataTypes.Patterns;
@@ -53,7 +53,7 @@ public interface IExpected
     /// </returns>
     /// <remarks>
     /// <para>
-    /// This prefix is used to construct the test case name in the formatExpected:
+    /// This prefix is used to construct the test case name in the format:
     /// <c>"{scenario} =&gt; {prefix} {expected}"</c>
     /// </para>
     /// <para>
