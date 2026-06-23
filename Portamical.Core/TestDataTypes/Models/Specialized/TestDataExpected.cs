@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Safety;
@@ -179,9 +179,9 @@ where TResult : notnull
     /// This creates an auditable trail of formatting failures via <see cref="Resolver"/>.
     /// </para>
     /// <para>
-    /// <strong>Formatting:</strong> The private <c>formatExpected</c> methods provide intelligent
+    /// <strong>Formatting:</strong> The private <c>format</c> methods provide intelligent
     /// formatting for common types (char, DateTime, Guid, collections, exceptions, etc.) to create
-    /// readable test case names. The main <c>formatExpected(object?)</c> method uses pattern matching to
+    /// readable test case names. The main <c>format(object?)</c> method uses pattern matching to
     /// dispatch to specialized overloads.
     /// </para>
     /// </remarks>

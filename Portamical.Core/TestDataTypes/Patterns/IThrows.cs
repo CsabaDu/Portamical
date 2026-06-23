@@ -4,7 +4,6 @@
 namespace Portamical.Core.TestDataTypes.Patterns;
 
 /// <summary>
-/// <summary>
 /// Marker interface for test cases validating exception throwing behavior.
 /// </summary>
 /// <remarks>

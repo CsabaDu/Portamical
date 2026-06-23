@@ -20,15 +20,15 @@ public enum PropsCode
     All,
 
     /// <summary>
-    /// Includes all properties of the <see cref="TestDataTypes.ITestData"/> instanc
+    /// Includes all properties of the <see cref="TestDataTypes.ITestData"/> instance
     /// except the <see cref="Identity.INamedCase.TestCaseName"/> property.
-    /// Most common case: Useful when the test case name isn't needed to be contained 
-    /// by the test data object array.
+    /// Most common case: Useful when the test case name isn't needed in
+    /// the test data object array.
     /// </summary>
     TrimTestCaseName,
 
     /// <summary>
-    /// Excludes also the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
+    /// Also excludes the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
     /// if the <see cref="TestDataTypes.ITestData"/> instance implements
     /// <see cref="TestDataTypes.Patterns.IReturns"/>. Otherwise, the 'Expected' property is included.
     /// Useful for NUnit/TestNG style tests returning values.
@@ -36,7 +36,7 @@ public enum PropsCode
     TrimReturnsExpected,
 
     /// <summary>
-    /// Excludes the also <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
+    /// Also excludes the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
     /// if the <see cref="TestDataTypes.ITestData"/> instance implements
     /// <see cref="TestDataTypes.Patterns.IThrows"/>. Otherwise, the 'Expected' property is included.
     /// </summary>

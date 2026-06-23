@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Safety;
@@ -44,7 +44,7 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// </remarks>
 /// <example>
 /// <code>
-/// // Custom result formatExpected
+/// // Custom result format
 /// public class MyTestData : TestData
 /// {
 ///     public MyTestData(string definition, string result, string arg)
@@ -62,17 +62,17 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// // Usage with custom result
 /// var test = new MyTestData(
 ///     "Process complex data",
-///     "succeeds with warnings",  // ✅ Custom formatExpected
+///     "succeeds with warnings",  // ✅ Custom format
 ///     "input.json");
 /// // Test case name: "Process complex data => succeeds with warnings"
 /// 
 /// // Compare with TestDataReturns (constrained):
 /// var returnsTest = new TestDataReturns&lt;int&gt;("Add(2,3)", 5);
-/// // Test case name: "Add(2,3) => returns 5"  ✅ Fixed formatExpected
+/// // Test case name: "Add(2,3) => returns 5"  ✅ Fixed format
 /// 
 /// // Compare with TestDataThrows (constrained):
 /// var throwsTest = new TestDataThrows&lt;ArgumentException&gt;("Validate(null)", new ArgumentException());
-/// // Test case name: "Validate(null) => throws ArgumentException"  ✅ Fixed formatExpected
+/// // Test case name: "Validate(null) => throws ArgumentException"  ✅ Fixed format
 /// </code>
 /// </example>
 public abstract class TestData
@@ -102,7 +102,7 @@ public abstract class TestData
     /// This provides stronger immutability than an <c>init</c> property.
     /// </para>
     /// <para>
-    /// <strong>Result Formatting:</strong> Unlike specialized classes that formatExpected results automatically
+    /// <strong>Result Formatting:</strong> Unlike specialized classes that format results automatically
     /// (e.g., "returns {value}"), this class uses the result exactly as provided. This allows
     /// complete control over test case name formatting.
     /// </para>
