@@ -11,7 +11,7 @@ namespace Portamical.Core.Formatting;
 /// <remarks>
 /// <para>
 /// The <see cref="Formatter"/> class allows registration, retrieval, and management of custom
-/// <see cref="ICustomFormatter"/> implementations for specific types. This enables extensibility of the
+/// <see cref="IFormatter"/> implementations for specific types. This enables extensibility of the
 /// formatting system without modifying core formatter logic. Registered formatters are consulted
 /// before pattern matching in <see cref="DefaultFormatter"/>, allowing domain-specific formatting rules.
 /// </para>
@@ -83,7 +83,7 @@ public static class Formatter
     /// and format objects simultaneously without external synchronization.
     /// </para>
     /// <para>
-    /// <strong>Usage:</strong> Register formatters via <see cref="RegisterFormatter(Type, ICustomFormatter)"/>
+    /// <strong>Usage:</strong> Register formatters via <see cref="RegisterFormatter(Type, IFormatter)"/>
     /// for domain-specific types, complex objects, or types that need specialized string representations
     /// in test case names. Unregister via <see cref="UnregisterFormatter(Type)"/>.
     /// </para>
@@ -95,7 +95,7 @@ public static class Formatter
     /// <strong>Thread Safety:</strong> All operations (register, unregister, lookup) are thread-safe.
     /// </para>
     /// </remarks>
-    private static readonly ConcurrentDictionary<Type, ICustomFormatter> _registry = new();
+    private static readonly ConcurrentDictionary<Type, IFormatter> _registry = new();
 
     /// <summary>
     /// Gets the internal formatter registry for testing purposes.
@@ -105,14 +105,14 @@ public static class Formatter
     /// <para>
     /// <strong>Warning:</strong> This property is exposed primarily for unit testing
     /// and should not be used in production code. Use the public registration methods
-    /// (<see cref="RegisterFormatter(Type, ICustomFormatter)"/>, <see cref="UnregisterFormatter(Type)"/>, etc.)
+    /// (<see cref="RegisterFormatter(Type, IFormatter)"/>, <see cref="UnregisterFormatter(Type)"/>, etc.)
     /// for normal formatter management.
     /// </para>
     /// <para>
     /// <strong>Thread Safety:</strong> The returned dictionary is thread-safe for reads and writes.
     /// </para>
     /// </remarks>
-    public static IReadOnlyDictionary<Type, ICustomFormatter> Registry
+    public static IReadOnlyDictionary<Type, IFormatter> Registry
     => _registry;
 
     /// <summary>
@@ -185,7 +185,7 @@ public static class Formatter
     /// }
     /// </code>
     /// </example>
-    public static bool RegisterFormatter(Type type, ICustomFormatter formatter)
+    public static bool RegisterFormatter(Type type, IFormatter formatter)
     {
         ArgumentNullException.ThrowIfNull(type);
         ArgumentNullException.ThrowIfNull(formatter);
@@ -204,7 +204,7 @@ public static class Formatter
     /// </returns>
     /// <remarks>
     /// <para>
-    /// This is a convenience overload of <see cref="RegisterFormatter(Type, ICustomFormatter)"/>
+    /// This is a convenience overload of <see cref="RegisterFormatter(Type, IFormatter)"/>
     /// that uses compile-time type safety via generics.
     /// </para>
     /// <para>
@@ -220,7 +220,7 @@ public static class Formatter
     /// bool registered = FormatterRegister.RegisterFormatter&lt;MyCustomType&gt;(new MyCustomFormatter());
     /// </code>
     /// </example>
-    public static bool RegisterFormatter<T>(ICustomFormatter formatter)
+    public static bool RegisterFormatter<T>(IFormatter formatter)
     => RegisterFormatter(typeof(T), formatter);
 
     /// <summary>
@@ -374,7 +374,7 @@ public static class Formatter
     /// </summary>
     /// <param name="type">The type to get a formatter for. Cannot be null.</param>
     /// <returns>
-    /// The registered <see cref="ICustomFormatter"/> for the specified type, or <see cref="DefaultFormatter.Instance"/>
+    /// The registered <see cref="IFormatter"/> for the specified type, or <see cref="DefaultFormatter.Instance"/>
     /// if no custom formatter is registered.
     /// </returns>
     /// <remarks>
@@ -405,7 +405,7 @@ public static class Formatter
     /// var defaultFormatter = FormatterRegister.GetFormatter(typeof(int)); // Returns DefaultFormatter.Instance
     /// </code>
     /// </example>
-    public static ICustomFormatter GetFormatter(Type type)
+    public static IFormatter GetFormatter(Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
 
@@ -422,14 +422,14 @@ public static class Formatter
     /// </summary>
     /// <typeparam name="T">The type to get a formatter for.</typeparam>
     /// <returns>
-    /// The registered <see cref="ICustomFormatter"/> for the specified type, or <see cref="DefaultFormatter.Instance"/>
+    /// The registered <see cref="IFormatter"/> for the specified type, or <see cref="DefaultFormatter.Instance"/>
     /// if no custom formatter is registered.
     /// </returns>
     /// <remarks>
     /// This is a convenience overload of <see cref="GetFormatter(Type)"/>
     /// that uses compile-time type safety via generics.
     /// </remarks>
-    public static ICustomFormatter GetFormatter<T>()
+    public static IFormatter GetFormatter<T>()
     => GetFormatter(typeof(T));
 
     /// <summary>
@@ -443,7 +443,7 @@ public static class Formatter
     /// <remarks>
     /// <para>
     /// This is a convenience method that combines <see cref="GetFormatter{T}()"/> and 
-    /// <see cref="ICustomFormatter.Format(object?)"/> into a single call.
+    /// <see cref="IFormatter.Format(object?)"/> into a single call.
     /// </para>
     /// <para>
     /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.

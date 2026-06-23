@@ -498,7 +498,7 @@ public class FormatterTests
 
             // Assert
             Assert.IsNotNull(formatter);
-            Assert.IsInstanceOfType<global::Portamical.Core.Formatting.ICustomFormatter>(formatter);
+            Assert.IsInstanceOfType<global::Portamical.Core.Formatting.IFormatter>(formatter);
 
             // Verify it uses the custom formatter
             var obj = new CustomType(42);
@@ -674,7 +674,7 @@ public class FormatterTests
         public override string ToString() => $"Another:{Name}";
     }
 
-    private class CustomTypeFormatter : global::Portamical.Core.Formatting.ICustomFormatter
+    private class CustomTypeFormatter : global::Portamical.Core.Formatting.IFormatter
     {
         public string? Format(object? obj)
         {
@@ -684,7 +684,7 @@ public class FormatterTests
         }
     }
 
-    private class AnotherTypeFormatter : global::Portamical.Core.Formatting.ICustomFormatter
+    private class AnotherTypeFormatter : global::Portamical.Core.Formatting.IFormatter
     {
         public string? Format(object? obj)
         {
@@ -694,7 +694,7 @@ public class FormatterTests
         }
     }
 
-    private class CustomStringFormatter : global::Portamical.Core.Formatting.ICustomFormatter
+    private class CustomStringFormatter : global::Portamical.Core.Formatting.IFormatter
     {
         public string? Format(object? obj)
         {

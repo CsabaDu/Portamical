@@ -1,7 +1,9 @@
 ﻿//SPDX - License - Identifier: MIT
 // Copyright(c) 2026.Csaba Dudas(CsabaDu)
 
-namespace Portamical.Core.Formatting.Model;
+using Portamical.Core.Formatting.CustomFormatters;
+
+namespace Portamical.Core.Formatting.CustomFormatters.Model;
 
 /// <summary>
 /// Provides a generic base class for type-safe formatters that convert values of type <typeparamref name="T"/>
@@ -10,7 +12,7 @@ namespace Portamical.Core.Formatting.Model;
 /// <typeparam name="T">The type of value this formatter handles.</typeparam>
 /// <remarks>
 /// <para>
-/// This generic abstract class extends <see cref="ICustomFormatter"/> to provide type-safe formatting
+/// This generic abstract class extends <see cref="IFormatter"/> to provide type-safe formatting
 /// for specific value types. It implements the Template Method pattern by providing the infrastructure
 /// for type checking and delegation, while subclasses implement the type-specific formatting logic.
 /// </para>
@@ -19,15 +21,15 @@ namespace Portamical.Core.Formatting.Model;
 /// <list type="bullet">
 ///   <item><strong>Type Safety:</strong> Compile-time type checking eliminates casting errors</item>
 ///   <item><strong>Separation of Concerns:</strong> Base class handles type checking; subclasses focus on formatting</item>
-///   <item><strong>Interface Compliance:</strong> Automatically implements both <see cref="ICustomFormatter"/> and <see cref="ICustomFormatter{T}"/></item>
-///   <item><strong>Reusability:</strong> Inherit utility methods from <see cref="ICustomFormatter"/> base class</item>
+///   <item><strong>Interface Compliance:</strong> Automatically implements both <see cref="IFormatter"/> and <see cref="ICustomFormatter{T}"/></item>
+///   <item><strong>Reusability:</strong> Inherit utility methods from <see cref="IFormatter"/> base class</item>
 /// </list>
 /// </para>
 /// <para>
 /// <strong>Implementation Pattern:</strong> Subclasses need only implement <see cref="Format(T)"/>
 /// with type-specific formatting logic. The base class automatically handles:
 /// <list type="bullet">
-///   <item>Type checking in <see cref="ICustomFormatter.Format(object?)"/></item>
+///   <item>Type checking in <see cref="IFormatter.Format(object?)"/></item>
 ///   <item>Delegation to the type-safe <see cref="Format(T)"/> method</item>
 ///   <item>Returning <see langword="null"/> for incompatible types</item>
 /// </list>
@@ -37,7 +39,7 @@ namespace Portamical.Core.Formatting.Model;
 /// if maintaining state, as formatters may be called concurrently from multiple threads during test execution.
 /// </para>
 /// <para>
-/// <strong>Performance:</strong> The sealed <see cref="ICustomFormatter.Format(object?)"/> implementation uses pattern matching
+/// <strong>Performance:</strong> The sealed <see cref="IFormatter.Format(object?)"/> implementation uses pattern matching
 /// (<c>is T</c>) for efficient type checking without reflection overhead. The JIT compiler can optimize
 /// this check to a simple type comparison for reference types or unboxing for value types.
 /// </para>
@@ -93,7 +95,7 @@ namespace Portamical.Core.Formatting.Model;
 /// // Result: "[1, 10]" ✅
 /// </code>
 /// </example>
-/// <seealso cref="ICustomFormatter"/>
+/// <seealso cref="IFormatter"/>
 /// <seealso cref="ICustomFormatter{T}"/>
 /// <seealso cref="DefaultFormatter"/>
 public abstract class CustomFormatter<T> : ICustomFormatter<T>
@@ -177,7 +179,7 @@ public abstract class CustomFormatter<T> : ICustomFormatter<T>
     /// </returns>
     /// <remarks>
     /// <para>
-    /// This method provides the bridge between the non-generic <see cref="ICustomFormatter"/> interface
+    /// This method provides the bridge between the non-generic <see cref="IFormatter"/> interface
     /// (used by the <see cref="Formatter"/> registry) and the type-safe <see cref="Format(T)"/> method.
     /// </para>
     /// <para>
@@ -253,6 +255,6 @@ public abstract class CustomFormatter<T> : ICustomFormatter<T>
     /// formatter.Format(obj3);      // null ✅ (int != string)
     /// </code>
     /// </example>
-    string? ICustomFormatter.Format(object? obj)
+    string? IFormatter.Format(object? obj)
     => Format((T)obj!);
 }

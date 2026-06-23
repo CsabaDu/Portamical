@@ -216,7 +216,7 @@ public class DefaultFormatterTests
         public override string ToString() => $"Another:{Name}";
     }
 
-    private class CustomTypeFormatter : global::Portamical.Core.Formatting.ICustomFormatter
+    private class CustomTypeFormatter : global::Portamical.Core.Formatting.IFormatter
     {
         public string? Format(object? obj)
         {
@@ -226,7 +226,7 @@ public class DefaultFormatterTests
         }
     }
 
-    private class AnotherTypeFormatter : global::Portamical.Core.Formatting.ICustomFormatter
+    private class AnotherTypeFormatter : global::Portamical.Core.Formatting.IFormatter
     {
         public string? Format(object? obj)
         {
@@ -236,12 +236,12 @@ public class DefaultFormatterTests
         }
     }
 
-    private class NullReturningFormatter : global::Portamical.Core.Formatting.ICustomFormatter
+    private class NullReturningFormatter : global::Portamical.Core.Formatting.IFormatter
     {
         public string? Format(object? obj) => null;
     }
 
-    private class CustomStringFormatter : global::Portamical.Core.Formatting.ICustomFormatter
+    private class CustomStringFormatter : global::Portamical.Core.Formatting.IFormatter
     {
         public string? Format(object? obj)
         {

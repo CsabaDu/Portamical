@@ -11,7 +11,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>1.0.0-pre</Version>
+    <Version>1.0.0-pre1</Version>
     <Title>Portamical.Core.Formatting</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>

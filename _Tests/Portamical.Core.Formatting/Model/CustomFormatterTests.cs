@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Formatting;
-using Portamical.Core.Formatting.Model;
+using Portamical.Core.Formatting.CustomFormatters;
+using Portamical.Core.Formatting.CustomFormatters.Model;
 using static Portamical.Core.Formatting.FormatBuilder;
 
 namespace Tests.Portamical.Core.Formatting.Model;
@@ -31,7 +31,7 @@ public class CustomFormatterTests
     }
 
     // Test implementation of abstract CustomFormatter class
-    private class TestCustomFormatter : global::Portamical.Core.Formatting.ICustomFormatter
+    private class TestCustomFormatter : global::Portamical.Core.Formatting.IFormatter
     {
         public string? Format(object? obj)
         {
@@ -73,7 +73,7 @@ public class CustomFormatterTests
     public void CustomFormatterT_implementsICustomFormatter()
     {
         var formatter = new TestCustomFormatterInt();
-        Assert.IsInstanceOfType<global::Portamical.Core.Formatting.ICustomFormatter>(formatter);
+        Assert.IsInstanceOfType<global::Portamical.Core.Formatting.IFormatter>(formatter);
     }
 
     [TestMethod]
@@ -86,7 +86,7 @@ public class CustomFormatterTests
     [TestMethod]
     public void CustomFormatterT_ICustomFormatterFormat_callsTypeSafeMethod()
     {
-        global::Portamical.Core.Formatting.ICustomFormatter formatter = new TestCustomFormatterInt();
+        global::Portamical.Core.Formatting.IFormatter formatter = new TestCustomFormatterInt();
         object value = 99;
         var result = formatter.Format(value);
         Assert.AreEqual("INT:99", result);

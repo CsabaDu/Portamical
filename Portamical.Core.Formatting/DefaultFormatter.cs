@@ -31,19 +31,19 @@ namespace Portamical.Core.Formatting;
 /// Supports custom formatter registration via <see cref="Formatter"/> for specialized types.
 /// </para>
 /// </remarks>
-public sealed class DefaultFormatter : ICustomFormatter
+public sealed class DefaultFormatter : IFormatter
 {
     private DefaultFormatter()
     {
     }
 
-    string? ICustomFormatter.Format(object? obj)
+    string? IFormatter.Format(object? obj)
     => Format(obj);
 
     /// <summary>
     /// Gets the singleton instance of the <see cref="DefaultFormatter"/>.
     /// </summary>
-    /// <value>A shared, thread-safe <see cref="ICustomFormatter"/> instance.</value>
+    /// <value>A shared, thread-safe <see cref="IFormatter"/> instance.</value>
     /// <remarks>
     /// <para>
     /// This property provides a pre-initialized formatter instance that can be reused
@@ -69,7 +69,7 @@ public sealed class DefaultFormatter : ICustomFormatter
     /// ICustomFormatter formatter = DefaultFormatter.Instance;
     /// </code>
     /// </example>
-    public static readonly ICustomFormatter Instance = new DefaultFormatter();
+    public static readonly IFormatter Instance = new DefaultFormatter();
 
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
