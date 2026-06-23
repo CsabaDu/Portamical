@@ -33,6 +33,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// Test data implementation for exception-throwing tests with <#= n #> additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 <# for (int i = 1; i <= n; i++) { #>
 /// <typeparam name="T<#= i #>">The type of the <#= Ordinals[i] #> test argument.</typeparam>
 <# } #>

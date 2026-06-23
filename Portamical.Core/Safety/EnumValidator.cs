@@ -98,7 +98,7 @@ public static class EnumValidator
     /// </exception>
     /// <remarks>
     /// <para>
-    /// This extension method uses <see cref="Enum.IsDefined(Enum)"/> to validate the enum value.
+    /// This extension method uses <see cref="Enum.IsDefined(Type, object)"/> to validate the enum value.
     /// If validation fails, it throws an exception created by 
     /// <see cref="GetInvalidEnumArgumentException{TEnum}(TEnum, string)"/>.
     /// </para>

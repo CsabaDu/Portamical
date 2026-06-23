@@ -91,7 +91,7 @@ where TResult : notnull
     ///   <item>Use <c>volatile</c> fields for static/shared references</item>
     ///   <item>Use <see cref="Lazy{T}"/> for thread-safe lazy initialization</item>
     ///   <item>Use <see cref="System.Collections.Immutable"/> collections for thread-safe storage</item>
-    ///   <item>Use <see cref="System.Threading.Interlocked"/> for atomic reference updates</item>
+    ///   <item>Use <see cref="Interlocked"/> for atomic reference updates</item>
     ///   <item>Use proper synchronization (locks, concurrent collections) when caching</item>
     /// </list>
     /// Do not share partially-constructed instances (i.e., before the constructor completes).
@@ -173,7 +173,7 @@ where TResult : notnull
     /// <strong>Fallback Strategy:</strong> Both the result prefix and expected value use
     /// <see cref="Resolver.FallbackIfNullOrWhiteSpace"/> for null handling:
     /// <list type="bullet">
-    ///   <item>If <see cref="GetResultPrefix()"/> returns null/whitespace → uses <see cref="DefaultResultPrefix"/> "results (N)" with trace warning</item>
+    ///   <item>If <see cref="GetResultPrefix()"/> returns null/whitespace → uses "results (N)" with trace warning</item>
     ///   <item>If the formatting methods return null → uses type name "TResult (N)" with trace warning</item>
     /// </list>
     /// This creates an auditable trail of formatting failures via <see cref="Resolver"/>.
@@ -198,7 +198,7 @@ where TResult : notnull
     /// // Returns: "returns \"John\"" ✅
     /// 
     /// // Exception expected value
-    /// var exTest = new TestDataThrows&lt;ArgumentException&gt;("Validate(null)", new ArgumentException("Value cannot be null"));
+    /// var exTest = new Patterns.TestDataThrows&lt;ArgumentException&gt;("Validate(null)", new ArgumentException("Value cannot be null"));
     /// string result3 = exTest.GetResult();
     /// // Returns: "throws ArgumentException: Value cannot be null" ✅
     /// 
@@ -262,7 +262,7 @@ where TResult : notnull
     /// <remarks>
     /// This method overrides <see cref="TestDataBase.ToObjectArray(ArgsCode)"/> to add the
     /// <see cref="Expected"/> value to the argument array using the
-    /// <see cref="TestDataBase.Extend{T}(Func{ArgsCode, object?[]}, ArgsCode, T?)"/> helper.
+    /// <see cref="TestDataBase.Extend{T}(Func{ArgsCode, object[]}, ArgsCode, T)"/> helper.
     /// </remarks>
     protected override object?[] ToObjectArray(ArgsCode argsCode)
     => Extend(base.ToObjectArray, argsCode, Expected);

@@ -102,7 +102,7 @@ public abstract class NamedCase : INamedCase
     /// <strong>Comparison Logic:</strong>
     /// <list type="bullet">
     ///   <item>Uses <see cref="StringComparer.Ordinal"/> for case-sensitive comparison</item>
-    ///   <item>Reference equality (<see cref="ReferenceEquals"/>) returns <see langword="true"/></item>
+    ///   <item>Reference equality (<see cref="object.ReferenceEquals"/>) returns <see langword="true"/></item>
     ///   <item>Null instances are considered equal to each other but not to non-null instances</item>
     /// </list>
     /// </para>

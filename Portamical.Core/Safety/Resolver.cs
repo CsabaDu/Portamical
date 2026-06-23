@@ -150,7 +150,7 @@ public static class Resolver
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> This method is marked for aggressive inlining because it wraps
-    /// a single atomic operation (<see cref="Interlocked.Exchange"/>). Inlining eliminates method
+    /// a single atomic operation (<see cref="Interlocked.Exchange(ref long, long)"/>). Inlining eliminates method
     /// call overhead while preserving thread safety.
     /// </para>
     /// <para>

@@ -12,7 +12,7 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// <remarks>
 /// <para>
 /// This class extends <see cref="TestDataBase"/> to provide a general-purpose test data foundation
-/// without the constraints of <see cref="TestDataReturns{TStruct}"/> or <see cref="TestDataThrows{TException}"/>.
+/// without the constraints of <see cref="Specialized.TestDataReturns{TResult}"/> or <see cref="Specialized.TestDataThrows{TException}"/>.
 /// It allows fully custom result formatting specified as a string parameter in the constructor.
 /// </para>
 /// <para>
@@ -27,8 +27,8 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// <para>
 /// <strong>Comparison with Specialized Classes:</strong>
 /// <list type="bullet">
-///   <item><see cref="TestDataReturns{TStruct}"/> - For value type returns with automatic "returns {value}" formatting</item>
-///   <item><see cref="TestDataThrows{TException}"/> - For exception testing with automatic "throws {type}" formatting</item>
+///   <item><see cref="Specialized.TestDataReturns{TResult}"/> - For value type returns with automatic "returns {value}" formatting</item>
+///   <item><see cref="Specialized.TestDataThrows{TException}"/> - For exception testing with automatic "throws {type}" formatting</item>
 ///   <item><see cref="TestData"/> - For custom result formatting with no type constraints</item>
 /// </list>
 /// </para>
@@ -86,7 +86,7 @@ public abstract class TestData
     /// </param>
     /// <param name="result">
     /// The pre-formatted result string for the test case (right side of "=&gt;").
-    /// Unlike <see cref="TestDataReturns{TStruct}"/> or <see cref="TestDataThrows{TException}"/>,
+    /// Unlike <see cref="Specialized.TestDataReturns{TResult}"/> or <see cref="Specialized.TestDataThrows{TException}"/>,
     /// this is the exact string that will appear in the test case name without additional formatting.
     /// </param>
     /// <remarks>
@@ -113,7 +113,7 @@ public abstract class TestData
     ///   <item>Use <c>volatile</c> fields for static/shared references</item>
     ///   <item>Use <see cref="Lazy{T}"/> for thread-safe lazy initialization</item>
     ///   <item>Use <see cref="System.Collections.Immutable"/> collections for thread-safe storage</item>
-    ///   <item>Use <see cref="System.Threading.Interlocked"/> for atomic reference updates</item>
+    ///   <item>Use <see cref="Interlocked"/> for atomic reference updates</item>
     /// </list>
     /// See BASE_CLASSES_THREAD_SAFETY.md for detailed guidance.
     /// </para>

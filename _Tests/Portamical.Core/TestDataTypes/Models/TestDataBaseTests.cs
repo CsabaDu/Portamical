@@ -41,7 +41,7 @@ public class TestDataBaseTests
             newArg);
 
         protected override object?[] ToObjectArray(ArgsCode argsCode)
-        => [];
+        => null!;
     }
 
     #region GetDefinition

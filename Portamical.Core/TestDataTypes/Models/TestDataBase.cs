@@ -40,7 +40,7 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// <para>
 /// <strong>Helper Methods for Derived Classes:</strong>
 /// <list type="bullet">
-///   <item><see cref="Extend{T}(Func{ArgsCode, object?[]}, ArgsCode, T?)"/> - Add arguments to base array</item>
+///   <item><see cref="Extend{T}(Func{ArgsCode, object[]}, ArgsCode, T)"/> - Add arguments to base array</item>
 ///   <item><see cref="Trim(Func{ArgsCode, PropsCode, object?[]}, ArgsCode, PropsCode, bool)"/> - Remove first argument conditionally</item>
 /// </list>
 /// </para>
@@ -52,7 +52,7 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// </para>
 /// <para>
 /// <strong>Performance Optimization:</strong> The <see cref="CreateTestCaseName()"/> method uses
-/// <see cref="string.Create(int, TState, SpanAction{char, TState})"/> for zero-copy string concatenation,
+/// <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/> for zero-copy string concatenation,
 /// minimizing allocations during test data creation. The <see cref="ToArgs(ArgsCode)"/> convenience
 /// wrapper is marked for aggressive inlining to eliminate wrapper overhead.
 /// </para>
@@ -119,12 +119,13 @@ public abstract class TestDataBase(string definition)
         }
 
         var args = ToObjectArray(argsCode);
+        var count = args?.Length ?? 0;
 
-        return args.Length == 0 ?
+        return count == 0 ?
             throw new InvalidOperationException(
                 "Invalid 'TestDataBase' implementation produced no arguments. " +
                 "Custom TestData types must override 'ToObjectArray()' to include at least one element.")
-            : args;
+            : args!;
     }
 
     /// <summary>
@@ -146,7 +147,7 @@ public abstract class TestDataBase(string definition)
     /// </returns>
     /// <remarks>
     /// <para>
-    /// <strong>Performance:</strong> This method uses <see cref="string.Create(int, TState, SpanAction{char, TState})"/>
+    /// <strong>Performance:</strong> This method uses <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/>
     /// for optimal performance, pre-calculating the total length and performing a single allocation with
     /// span-based copying. This is the most efficient string concatenation approach in .NET.
     /// </para>
