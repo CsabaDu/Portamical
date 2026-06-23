@@ -5,6 +5,72 @@ using System.Collections.Concurrent;
 
 namespace Portamical.Core.Formatting;
 
+/// <summary>
+/// Provides a thread-safe registry for managing custom formatters for specific types.
+/// </summary>
+/// <remarks>
+/// <para>
+/// The <see cref="FormatterRegister"/> class allows registration, retrieval, and management of custom
+/// <see cref="IFormatter"/> implementations for specific types. This enables extensibility of the
+/// formatting system without modifying core formatter logic. Registered formatters are consulted
+/// before pattern matching in <see cref="DefaultFormatter"/>, allowing domain-specific formatting rules.
+/// </para>
+/// <para>
+/// <strong>Key Features:</strong>
+/// <list type="bullet">
+///   <item>Thread-safe concurrent formatter registration and unregistration</item>
+///   <item>Type-specific formatter lookup and retrieval</item>
+///   <item>Generic and non-generic API overloads for type safety</item>
+///   <item>Centralized formatter management with inspection capabilities</item>
+///   <item>Convenience <see cref="DefaultFormatter.Format(object?)"/> method for direct formatting</item>
+/// </list>
+/// </para>
+/// <para>
+/// <strong>Design Pattern:</strong> Static registry pattern with lock-free concurrent access
+/// using <see cref="ConcurrentDictionary{TKey, TValue}"/>. All operations are thread-safe
+/// and can be called concurrently without external synchronization.
+/// </para>
+/// <para>
+/// <strong>Thread Safety:</strong> All public methods and properties are fully thread-safe.
+/// The internal registry uses lock-free atomic operations for optimal concurrent performance.
+/// </para>
+/// <para>
+/// <strong>Integration:</strong> Works seamlessly with <see cref="DefaultFormatter"/> which
+/// automatically consults registered formatters before applying default formatting rules.
+/// </para>
+/// <para>
+/// <strong>Performance:</strong> Formatter lookups are O(1) lock-free reads. Registration
+/// and unregistration operations use atomic dictionary operations without blocking.
+/// </para>
+/// </remarks>
+/// <example>
+/// <code>
+/// // Define a custom formatter
+/// public class PersonFormatter : IFormatter
+/// {
+///     public string? Format(object? obj) => obj switch
+///     {
+///         Person p => $"{p.FirstName} {p.LastName} (Age: {p.Age})",
+///         _ => null
+///     };
+/// }
+/// 
+/// // Register the formatter
+/// FormatterRegister.RegisterFormatter&lt;Person&gt;(new PersonFormatter());
+/// 
+/// // Use it directly
+/// var person = new Person { FirstName = "John", LastName = "Doe", Age = 30 };
+/// string result = FormatterRegister.Format(person);
+/// // Returns: "John Doe (Age: 30)"
+/// 
+/// // Or use through DefaultFormatter (automatically uses registered formatter)
+/// string result2 = DefaultFormatter.Format(person);
+/// // Returns: "John Doe (Age: 30)"
+/// 
+/// // Cleanup
+/// FormatterRegister.UnregisterFormatter&lt;Person&gt;();
+/// </code>
+/// </example>
 public static class FormatterRegister
 {
     /// <summary>

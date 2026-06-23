@@ -8,6 +8,32 @@ using System.Runtime.CompilerServices;
 
 namespace Portamical.Core.Formatting;
 
+/// <summary>
+/// Provides utility methods and constants for building formatted string representations of objects.
+/// </summary>
+/// <remarks>
+/// <para>
+/// The <see cref="FormatBuilder"/> class offers low-level formatting utilities used by <see cref="DefaultFormatter"/>
+/// and custom formatters to construct human-readable string representations. It includes helpers for joining strings,
+/// building collection formats, and handling null values consistently.
+/// </para>
+/// <para>
+/// <strong>Key Features:</strong>
+/// <list type="bullet">
+///   <item>String joining and concatenation utilities with null handling</item>
+///   <item>Collection formatting with configurable truncation (<see cref="MaxCount"/>)</item>
+///   <item>Consistent null representation (<see cref="NullString"/>)</item>
+///   <item>Type name formatting helpers for C#-friendly output</item>
+/// </list>
+/// </para>
+/// <para>
+/// <strong>Design Pattern:</strong> Static utility class providing building blocks for higher-level formatters.
+/// All methods are designed to be composable and reusable.
+/// </para>
+/// <para>
+/// <strong>Thread Safety:</strong> All methods are thread-safe and stateless.
+/// </para>
+/// </remarks>
 public static class FormatBuilder
 {
     /// <summary>
@@ -84,7 +110,6 @@ public static class FormatBuilder
     /// <summary>
     /// Creates a zero-allocation string by concatenating three parts: base, separator, and appendix.
     /// </summary>
-    /// <param name="totalLength">The exact total length of the final string (must equal baseString.Length + separator.Length + appendix.Length).</param>
     /// <param name="baseString">The first part of the string (prefix).</param>
     /// <param name="separator">The middle part separating the base from the appendix.</param>
     /// <param name="appendix">The final part of the string (suffix).</param>
@@ -92,15 +117,9 @@ public static class FormatBuilder
     /// <remarks>
     /// <para>
     /// This helper method provides zero-allocation string assembly for three-part patterns
-    /// using <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/>.
+    /// using <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/>.
     /// It eliminates intermediate allocations from string interpolation, concatenation operators,
-    /// or <see cref="StringBuilder"/> for this common fixed-layout pattern.
-    /// </para>
-    /// <para>
-    /// <strong>Usage Pattern:</strong> Primarily used to construct test case names and formatted output
-    /// where a base string (e.g., class/method name) is followed by a separator (e.g., <c>" - "</c>)
-    /// and an appendix (e.g., formatted parameter values). The caller is responsible for pre-calculating
-    /// <paramref name="totalLength"/> to match the combined length of all three parts.
+    /// or <see cref="System.Text.StringBuilder"/> for this common fixed-layout pattern.
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Uses <see cref="CopyAsSpan(string, Span{char}, int)"/> to perform
@@ -110,13 +129,6 @@ public static class FormatBuilder
     /// multi-part strings where lengths are known in advance.
     /// </para>
     /// <para>
-    /// <strong>Safety:</strong> The caller must ensure <paramref name="totalLength"/> exactly matches
-    /// <c>baseString.Length + separator.Length + appendix.Length</c>. Providing an incorrect length
-    /// will cause <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/> to throw
-    /// an exception if the span is too small, or produce a string with uninitialized characters if too large.
-    /// </para>
-    /// <para>
-    /// <strong>Used By:</strong> <see cref="TestDataBase"/> (for test case name formatting),
     /// <see cref="JoinWithComma(IEnumerable{string?})"/> (for two-item list fast path), and potentially
     /// other formatters requiring three-part string assembly.
     /// </para>
@@ -178,12 +190,12 @@ public static class FormatBuilder
     /// <para>
     /// This helper method is a core building block for zero-allocation string construction
     /// throughout the formatter infrastructure. It enables efficient string assembly by directly
-    /// copying character data into pre-allocated span buffers created by <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/>.
+    /// copying character data into pre-allocated span buffers created by <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/>.
     /// </para>
     /// <para>
-    /// <strong>Usage Pattern:</strong> Called within <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/>
+    /// <strong>Usage Pattern:</strong> Called within <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/>
     /// lambda expressions to copy string fragments into their final positions in the output buffer.
-    /// Eliminates intermediate string allocations from interpolation, concatenation, or <see cref="StringBuilder"/> usage.
+    /// Eliminates intermediate string allocations from interpolation, concatenation, or <see cref="System.Text.StringBuilder"/> usage.
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -201,7 +213,7 @@ public static class FormatBuilder
     /// Violating these preconditions will throw an exception from <see cref="ReadOnlySpan{T}.CopyTo(Span{T})"/>.
     /// </para>
     /// <para>
-    /// <strong>Used By:</strong> <see cref="CreateSeparatedString(int, string, string, string)"/>,
+    /// <strong>Used By:</strong> <see cref="CreateSeparatedString(string, string, string)"/>,
     /// <see cref="JoinWithComma(IEnumerable{string?})"/>, and various <c>DefaultFormatter.Format</c> overloads
     /// for strings, key-value pairs, delegates, types (arrays, nullable, generics), and other composite types.
     /// </para>
@@ -267,7 +279,7 @@ public static class FormatBuilder
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Optimized for the common case of <see cref="List{T}"/> with 0-3 items.
-    /// Uses <see cref="string.Create{TState}(int, TState, SpanAction{char, TState})"/> for 2-3 item lists
+    /// Uses <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/> for 2-3 item lists
     /// to avoid intermediate string allocations via interpolation. This zero-allocation approach directly writes
     /// to the final string buffer using <see cref="Span{T}"/>, eliminating GC pressure for the most common cases
     /// (tuples, small collections, generic type arguments). The method is intentionally not inlined due to its

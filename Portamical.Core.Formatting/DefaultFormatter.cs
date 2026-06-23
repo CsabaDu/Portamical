@@ -77,14 +77,12 @@ public sealed class DefaultFormatter : IFormatter
     /// <param name="obj">The object to format. May be null from recursive calls.</param>
     /// <returns>
     /// A formatted string representation suitable for test case names, or <see langword="null"/> if formatting fails.
-    /// Null returns are intentional and signal the caller to use <see cref="Resolver.FallbackIfNullOrWhiteSpace"/> 
-    /// or similar fallback strategies for logging and error handling.
+    /// Null returns are intentional and signal the caller to use fallback strategies for logging and error handling.
     /// </returns>
     /// <remarks>
     /// <para>
     /// <strong>Null Handling Strategy:</strong> This method may return null to signal formatting failure.
-    /// Callers should use <see cref="Resolver.FallbackIfNullOrWhiteSpace"/> or similar utilities to log
-    /// the failure and provide an indexed fallback label, creating an auditable trail.
+    /// Callers should use fallback strategies for logging and error handling.
     /// </para>
     /// <para>
     /// <strong>Implementation:</strong> First checks the <see cref="FormatterRegister"/> for custom formatters registered
@@ -118,7 +116,7 @@ public sealed class DefaultFormatter : IFormatter
     ///   </item>
     ///   <item>
     ///     <term><see cref="byte"/>[]</term>
-    ///     <description>Hex string: <ch>01-02-03-FF</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with <see cref="BitConverter.ToString"/>)</description>
+    ///     <description>Hex string: <ch>01-02-03-FF</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with <see cref="BitConverter.ToString(byte[])"/>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="KeyValuePair{TKey, TValue}"/></term>
@@ -161,7 +159,7 @@ public sealed class DefaultFormatter : IFormatter
     /// <para>
     /// <strong>Error Handling:</strong> Instead of throwing exceptions, the formatting methods return null
     /// for unformattable objects (e.g., non-seekable streams that throw on property access, ToString() returns null),
-    /// allowing <see cref="Resolver"/> to log and provide fallback values.
+    /// allowing fallback strategies for logging and error handling.
     /// </para>
     /// </remarks>
     /// <example>
@@ -367,11 +365,11 @@ public sealed class DefaultFormatter : IFormatter
     /// other detailed information.
     /// </para>
     /// <para>
-    /// <strong>Note:</strong> Uses <see cref="Type.Name"/> (not <ch>FullName</ch>) to keep
+    /// <strong>Note:</strong> Uses <see cref="Type"/>'s <c>Name</c> property (not <c>FullName</c>) to keep
     /// output concise (e.g., <ch>ArgumentException</ch> instead of <ch>System.ArgumentException</ch>).
     /// </para>
     /// <para>
-    /// <strong>Performance:</strong> Uses <see cref="Formatter.CreateSeparatedString"/> for zero-allocation
+    /// <strong>Performance:</strong> Uses <see cref="CreateSeparatedString"/> for zero-allocation
     /// string construction. Exception formatting is a hot path when used with <c>TestDataReturns&lt;TException&gt;</c>
     /// for exception-based test case generation, where it's called for every parameterized test case.
     /// </para>
@@ -459,7 +457,7 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Why use ITuple instead of Tuple.ToString()?</strong>
-    /// While <see cref="Tuple.ToString"/> produces <ch>(item1, item2)</ch> output,
+    /// While <see cref="Tuple"/>'s <c>ToString()</c> method produces <ch>(item1, item2)</ch> output,
     /// this method applies our custom formatting rules recursively. For example,
     /// strings are double-quoted, chars are single-quoted, and dates use ISO 8601 format.
     /// </para>
@@ -650,7 +648,7 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Dictionary Handling:</strong> If the collection implements <see cref="IDictionary"/>,
-    /// delegates to <see cref="Format(IDictionary, string?)"/> for specialized key-value pair formatting.
+    /// delegates to <see cref="FormatDictionary(IDictionary, string?)"/> for specialized key-value pair formatting.
     /// </para>
     /// <para>
     /// <strong>Recursive Formatting:</strong> Each item is formatted via <see cref="Format(object?)"/>
@@ -713,7 +711,7 @@ public sealed class DefaultFormatter : IFormatter
     /// <para>
     /// <strong>Error Handling:</strong> Returns <see langword="null"/> if accessing stream properties
     /// throws an exception (e.g., disposed stream, network stream with disconnected socket).
-    /// This allows callers to use fallback formatting via <see cref="Resolver.FallbackIfNullOrWhiteSpace"/>.
+    /// This allows callers to use fallback formatting.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -1031,7 +1029,7 @@ public sealed class DefaultFormatter : IFormatter
     /// Gets the C# type alias for common BCL types.
     /// </summary>
     /// <param name="type">The type to get an alias for.</param>
-    /// <returns>The C# alias (e.g., "int") if available; otherwise, <see cref="Type.Name"/>.</returns>
+    /// <returns>The C# alias (e.g., "int") if available; otherwise, <see cref="Type"/>'s <c>Name</c> property.</returns>
     /// <remarks>
     /// <para>
     /// Maps BCL type names to their C# keywords for improved readability.

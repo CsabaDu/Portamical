@@ -10,7 +10,7 @@ namespace Portamical.Core.Formatting.Model;
 /// <typeparam name="T">The type of value this formatter handles.</typeparam>
 /// <remarks>
 /// <para>
-/// This generic abstract class extends <see cref="Formatter"/> to provide type-safe formatting
+/// This generic abstract class extends <see cref="IFormatter"/> to provide type-safe formatting
 /// for specific value types. It implements the Template Method pattern by providing the infrastructure
 /// for type checking and delegation, while subclasses implement the type-specific formatting logic.
 /// </para>
@@ -20,14 +20,14 @@ namespace Portamical.Core.Formatting.Model;
 ///   <item><strong>Type Safety:</strong> Compile-time type checking eliminates casting errors</item>
 ///   <item><strong>Separation of Concerns:</strong> Base class handles type checking; subclasses focus on formatting</item>
 ///   <item><strong>Interface Compliance:</strong> Automatically implements both <see cref="IFormatter"/> and <see cref="IFormatter{T}"/></item>
-///   <item><strong>Reusability:</strong> Inherit utility methods from <see cref="Formatter"/> base class</item>
+///   <item><strong>Reusability:</strong> Inherit utility methods from <see cref="IFormatter"/> base class</item>
 /// </list>
 /// </para>
 /// <para>
 /// <strong>Implementation Pattern:</strong> Subclasses need only implement <see cref="Format(T)"/>
 /// with type-specific formatting logic. The base class automatically handles:
 /// <list type="bullet">
-///   <item>Type checking in <see cref="Format(object)"/></item>
+///   <item>Type checking in <see cref="DefaultFormatter.Format(object)"/></item>
 ///   <item>Delegation to the type-safe <see cref="Format(T)"/> method</item>
 ///   <item>Returning <see langword="null"/> for incompatible types</item>
 /// </list>
@@ -37,7 +37,7 @@ namespace Portamical.Core.Formatting.Model;
 /// if maintaining state, as formatters may be called concurrently from multiple threads during test execution.
 /// </para>
 /// <para>
-/// <strong>Performance:</strong> The sealed <see cref="Format(object)"/> override uses pattern matching
+/// <strong>Performance:</strong> The sealed <see cref="DefaultFormatter.Format(object)"/> override uses pattern matching
 /// (<c>is T</c>) for efficient type checking without reflection overhead. The JIT compiler can optimize
 /// this check to a simple type comparison for reference types or unboxing for value types.
 /// </para>
@@ -93,7 +93,7 @@ namespace Portamical.Core.Formatting.Model;
 /// // Result: "[1, 10]" ✅
 /// </code>
 /// </example>
-/// <seealso cref="Formatter"/>
+/// <seealso cref="IFormatter"/>
 /// <seealso cref="IFormatter{T}"/>
 /// <seealso cref="DefaultFormatter"/>
 public abstract class Formatter<T> : IFormatter<T>
@@ -110,7 +110,7 @@ public abstract class Formatter<T> : IFormatter<T>
     /// <para>
     /// <strong>Implementation Requirements:</strong>
     /// <list type="bullet">
-    ///   <item><strong>Null Handling:</strong> Return <see cref="Formatter.NullString"/> (<c>"null"</c>) for null values if <typeparamref name="T"/> is nullable</item>
+    ///   <item><strong>Null Handling:</strong> Return <see cref="FormatBuilder.NullString"/> (<c>"null"</c>) for null values if <typeparamref name="T"/> is nullable</item>
     ///   <item><strong>Consistency:</strong> Produce the same output for equivalent values</item>
     ///   <item><strong>Conciseness:</strong> Keep output brief but descriptive (typically &lt; 50 characters)</item>
     ///   <item><strong>Clarity:</strong> Use formats that align with C# literal syntax when appropriate</item>
@@ -120,10 +120,10 @@ public abstract class Formatter<T> : IFormatter<T>
     /// <para>
     /// <strong>Base Class Utilities:</strong> Implementations can leverage inherited helper methods:
     /// <list type="bullet">
-    ///   <item><see cref="Formatter.FallbackIfNull(string?)"/> - Convert null to <c>"null"</c></item>
-    ///   <item><see cref="Formatter.JoinWithComma(IEnumerable{string?})"/> - Join formatted parts</item>
-    ///   <item><see cref="Formatter.CreateSeparatedString(int, string, string, string)"/> - Zero-allocation string assembly</item>
-    ///   <item><see cref="Formatter.CopyAsSpan(string, Span{char}, int)"/> - Efficient string copying</item>
+    ///   <item><see cref="FormatBuilder.FallbackIfNull(string?)"/> - Convert null to <c>"null"</c></item>
+    ///   <item><see cref="FormatBuilder.JoinWithComma(IEnumerable{string?})"/> - Join formatted parts</item>
+    ///   <item><see cref="FormatBuilder.CreateSeparatedString(string, string, string)"/> - Zero-allocation string assembly</item>
+    ///   <item><see cref="FormatBuilder.CopyAsSpan(string, Span{char}, int)"/> - Efficient string copying</item>
     /// </list>
     /// </para>
     /// <para>
