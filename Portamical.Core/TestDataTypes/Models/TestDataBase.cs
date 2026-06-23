@@ -118,7 +118,13 @@ public abstract class TestDataBase(string definition)
             _ = propsCode.Defined(nameof(propsCode));
         }
 
-        return ToObjectArray(argsCode);
+        var args = ToObjectArray(argsCode);
+
+        return args.Length == 0 ?
+            throw new InvalidOperationException(
+                "Invalid 'TestDataBase' implementation produced no arguments. " +
+                "Custom TestData types must override 'ToObjectArray()' to include at least one element.")
+            : args;
     }
 
     /// <summary>
