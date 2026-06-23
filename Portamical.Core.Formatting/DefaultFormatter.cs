@@ -221,7 +221,7 @@ public sealed class DefaultFormatter : IFormatter
         //   must be checked before IEnumerable
         //   (since these implement or may implement IEnumerable).
         // - IDictionary is checked separately in Format(IEnumerable)
-        //   to delegate to Format(IDictionary, string?).
+        //   to delegate to FormatDictionary(IDictionary, string?).
         return obj switch
         {
             null                    => null,
