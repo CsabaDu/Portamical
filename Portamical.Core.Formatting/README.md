@@ -74,7 +74,7 @@ Install-Package Portamical.Core.Formatting
 using Portamical.Core.Formatting;
 
 // Format various types
-var result1 = Formatter.Format("hello");          // "\"hello\""
+var result1 = Formatter.Format("hello");          // ""hello""
 var result2 = Formatter.Format('a');              // "'a'"
 var result3 = Formatter.Format(42);               // "42"
 var result4 = Formatter.Format(new[] { 1, 2, 3 }); // "[3]: [1, 2, 3]"
@@ -178,6 +178,9 @@ Console.WriteLine($"Active custom formatters: {count}");
 IFormatter (non-generic)
 	│
 	├── DefaultFormatter (built-in, 12+ type patterns)
+	│		│
+	├		└── Formatter (non-generic, static)
+	│			 (custom formatter registry, formatting pipeline)
 	│
 	└── IFormatter<T> (generic)
 			│
@@ -366,7 +369,7 @@ var result2 = Formatter.Format(largeArray);  // "[First 3 of 6+]: [1, 2, 3]"
 
 // Dictionaries
 var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 };
-var result3 = Formatter.Format(dict);  // "[2]: {{\"a\": 1}, {\"b\": 2}}"
+var result3 = Formatter.Format(dict);  // "[2]: {{"a": 1}, {"b": 2}}"
 ```
 
 ### Custom Formatter with Base Class Utilities
