@@ -31,7 +31,7 @@
 
 | Type | Format Example |
 |------|----------------|
-| `string` | `"hello"` (quoted, except literal `"null"`) |
+| `string` | `"hello"` (quoted, except literal `null`) |
 | `char` | `'a'` (single-quoted) |
 | `DateTime`, `DateTimeOffset` | `2026-01-15T10:30:00.0000000Z` (ISO 8601) |
 | `Guid` | `12345678-1234-1234-1234-123456789012` |
