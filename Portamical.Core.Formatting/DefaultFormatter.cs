@@ -549,9 +549,9 @@ public sealed class DefaultFormatter : IFormatter
         var displayName = isAnonymous ?
             anonymousMethodName
             : methodName;
+        var spaceAndParensCount = 3; // " (", ")"
 
         // Zero-allocation string building: DelegateType (displayName)
-        var spaceAndParensCount = 3; // " (", ")"
         var totalLength = delegateType!.Length +
             spaceAndParensCount +
             displayName.Length;
