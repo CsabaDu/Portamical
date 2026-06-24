@@ -14,19 +14,19 @@
 
 ## Features
 
-### ?? **Extensible Formatter System**
+### **Extensible Formatter System**
 - **`IFormatter` & `IFormatter<T>` interfaces** - Define custom formatters for domain types
 - **`Formatter<T>` abstract base class** - Template Method pattern with type safety
 - **Thread-safe formatter registry** - Register/unregister formatters at runtime
 - **Priority system** - Custom formatters consulted before built-in patterns
 
-### ? **High Performance**
+### **High Performance**
 - **Zero-allocation string building** - Uses `string.Create()` with `Span<char>`
 - **66-75% fewer allocations** - For common formatting scenarios (2-3 item collections)
 - **Aggressive inlining** - Hot-path helpers marked with `[MethodImpl(AggressiveInlining)]`
 - **Optimized pattern matching** - Method overloading for efficient type dispatch
 
-### ?? **Built-in Formatters**
+### **Built-in Formatters**
 `DefaultFormatter` provides specialized formatting for 12+ .NET types:
 
 | Type | Format Example |
@@ -45,7 +45,7 @@
 | Dictionaries (`IDictionary`) | `[2]: {{"a": 1}, {"b": 2}}` |
 | `Stream` | `MemoryStream (Length: 1024, Position: 0)` |
 
-### ??? **Utility Helpers**
+### **Utility Helpers**
 - **`Builder.CreateSeparatedString`** - Zero-copy three-part string assembly
 - **`Builder.JoinWithComma`** - Optimized for 0-3 item lists
 - **`Builder.CopyAsSpan`** - Efficient character copying for `Span<char>`
@@ -176,31 +176,20 @@ Console.WriteLine($"Active custom formatters: {count}");
 
 ```
 IFormatter (non-generic)
-	?
-	??? DefaultFormatter (built-in, 12+ type patterns)
-	?
-	??? IFormatter<T> (generic)
-			?
-			??? Formatter<T> (abstract base class)
-					?
-					??? [Your Custom Formatters]
+	│
+	├── DefaultFormatter (built-in, 12+ type patterns)
+	│
+	└── IFormatter<T> (generic)
+			│
+			└── Formatter<T> (abstract base class)
+					│
+					└── [Your Custom Formatters]
 ```
 
 ### Formatting Pipeline
 
-```
-1. FormatterRegister.Format<T>(value)
-		?
-2. Check FormatterRegister.Registry for Type
-		?
-   ??????????????????????????????????
-   ? Custom Formatter Found?         ?
-   ?  YES ? Use custom formatter     ?
-   ?  NO  ? Use DefaultFormatter     ?
-   ??????????????????????????????????
-		?
-3. Return formatted string (or null)
-```
+![Portamical_Core_Formatting_FormatterSelection](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/dev/_Images/Portamical_Core_Formatting_FormatterSelection.svg)
+
 
 ### Zero-Allocation String Building
 
@@ -322,7 +311,7 @@ Custom formatters registered in `FormatterRegister` are automatically used by Po
 
 ## Best Practices
 
-### ? DO
+### DO
 
 - **Implement formatters as stateless** - Enables thread-safe concurrent use
 - **Use `Formatter<T>` base class** - Provides type-safe implementation with automatic type checking
@@ -330,7 +319,7 @@ Custom formatters registered in `FormatterRegister` are automatically used by Po
 - **Handle null values explicitly** - Return `"null"` for null inputs
 - **Register formatters at startup** - Avoid runtime registration in hot paths
 
-### ? DON'T
+### DON'T
 
 - **Don't use reflection in formatters** - Impacts performance on hot paths
 - **Don't throw exceptions** - Return `null` for unsupported types instead
@@ -414,10 +403,11 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 ## Related Projects
 
 - **[Portamical.Core](https://github.com/CsabaDu/Portamical/tree/master/Portamical.Core)** - Core test data framework (uses this package)
-- **[Portamical.xUnit](https://github.com/CsabaDu/Portamical/tree/master/Portamical.xUnit)** - xUnit v2 adapter
-- **[Portamical.xUnit_v3](https://github.com/CsabaDu/Portamical/tree/master/Portamical.xUnit_v3)** - xUnit v3 adapter
-- **[Portamical.MSTest](https://github.com/CsabaDu/Portamical/tree/master/Portamical.MSTest)** - MSTest 4 adapter
-- **[Portamical.NUnit](https://github.com/CsabaDu/Portamical/tree/master/Portamical.NUnit)** - NUnit 4 adapter
+- **[Portamical](https://github.com/CsabaDu/Portamical/tree/master/Portamical)** - Shared utilities and base classes (uses Core)
+- **[Portamical.xUnit](https://github.com/CsabaDu/Portamical/tree/master/Portamical.xUnit)** - xUnit v2 adapter (uses shared and test framework modules)
+- **[Portamical.xUnit_v3](https://github.com/CsabaDu/Portamical/tree/master/Portamical.xUnit_v3)** - xUnit v3 adapter (uses shared and test framework modules)
+- **[Portamical.MSTest](https://github.com/CsabaDu/Portamical/tree/master/Portamical.MSTest)** - MSTest 4 adapter (uses shared and test framework modules)
+- **[Portamical.NUnit](https://github.com/CsabaDu/Portamical/tree/master/Portamical.NUnit)** - NUnit 4 adapter (uses shared and test framework modules)
 
 ---
 
