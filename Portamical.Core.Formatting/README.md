@@ -340,10 +340,10 @@ var result = Formatter.Format(ex);
 // "ArgumentException: Value cannot be null"
 
 // Format types with C#-friendly names
-var result1 = Formatter.Format(typeof(int));        // "int"
+var result1 = Formatter.Format(typeof(int));          // "int"
 var result2 = Formatter.Format(typeof(List<string>)); // "List<string>"
-var result3 = Formatter.Format(typeof(int?));       // "int?"
-var result4 = Formatter.Format(typeof(int[]));      // "int[]"
+var result3 = Formatter.Format(typeof(int?));         // "int?"
+var result4 = Formatter.Format(typeof(int[]));        // "int[]"
 
 // Format delegates
 Func<int, string> func = x => x.ToString();
