@@ -365,7 +365,7 @@ var result1 = Formatter.Format(array);  // "[3]: [1, 2, 3]"
 
 // Large collections (truncated)
 var largeArray = new[] { 1, 2, 3, 4, 5, 6 };
-var result2 = Formatter.Format(largeArray);  // "[First 3 of 6+]: [1, 2, 3]"
+var result2 = Formatter.Format(largeArray);  // "[First 3 of 3+]: [1, 2, 3]"
 
 // Dictionaries
 var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 };
