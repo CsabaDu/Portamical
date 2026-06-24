@@ -1,8 +1,6 @@
 ﻿//SPDX - License - Identifier: MIT
 // Copyright(c) 2026.Csaba Dudas(CsabaDu)
 
-using Portamical.Core.Formatting.CustomFormatters;
-
 namespace Portamical.Core.Formatting.CustomFormatters.Model;
 
 /// <summary>
@@ -112,7 +110,7 @@ public abstract class Formatter<T> : IFormatter<T>
     /// <para>
     /// <strong>Implementation Requirements:</strong>
     /// <list type="bullet">
-    ///   <item><strong>Null Handling:</strong> Return <see cref="FormatBuilder.NullString"/> (<c>"null"</c>) for null values if <typeparamref name="T"/> is nullable</item>
+    ///   <item><strong>Null Handling:</strong> Return <see cref="Builder.NullString"/> (<c>"null"</c>) for null values if <typeparamref name="T"/> is nullable</item>
     ///   <item><strong>Consistency:</strong> Produce the same output for equivalent values</item>
     ///   <item><strong>Conciseness:</strong> Keep output brief but descriptive (typically &lt; 50 characters)</item>
     ///   <item><strong>Clarity:</strong> Use formats that align with C# literal syntax when appropriate</item>
@@ -122,10 +120,10 @@ public abstract class Formatter<T> : IFormatter<T>
     /// <para>
     /// <strong>Base Class Utilities:</strong> Implementations can leverage inherited helper methods:
     /// <list type="bullet">
-    ///   <item><see cref="FormatBuilder.FallbackIfNull(string?)"/> - Convert null to <c>"null"</c></item>
-    ///   <item><see cref="FormatBuilder.JoinWithComma(IEnumerable{string?})"/> - Join formatted parts</item>
-    ///   <item><see cref="FormatBuilder.CreateSeparatedString(string, string, string)"/> - Zero-allocation string assembly</item>
-    ///   <item><see cref="FormatBuilder.CopyAsSpan(string, Span{char}, int)"/> - Efficient string copying</item>
+    ///   <item><see cref="Builder.FallbackIfNull(string?)"/> - Convert null to <c>"null"</c></item>
+    ///   <item><see cref="Builder.JoinWithComma(IEnumerable{string?})"/> - Join formatted parts</item>
+    ///   <item><see cref="Builder.CreateSeparatedString(string, string, string)"/> - Zero-allocation string assembly</item>
+    ///   <item><see cref="Builder.CopyAsSpan(string, Span{char}, int)"/> - Efficient string copying</item>
     /// </list>
     /// </para>
     /// <para>

@@ -11,7 +11,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>1.0.0-pre1</Version>
+    <Version>1.0.0-pre2</Version>
     <Title>Portamical.Core.Formatting</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -44,7 +44,7 @@
         • ConcurrentDictionary-based registry for lock-free reads/writes
         • RegisterFormatter, UnregisterFormatter, GetFormatter, Format methods
         • Custom formatters consulted before built-in pattern matching
-      - FormatBuilder utilities for zero-allocation string construction
+      - Builder utilities for zero-allocation string construction
         • CreateSeparatedString: Span-based three-part string assembly
         • JoinWithComma/JoinWithSeparator: Optimized for 0-3 item collections
         • CopyAsSpan: Inline helper for efficient character copying

@@ -3,7 +3,7 @@
 
 using Portamical.Core.Formatting.CustomFormatters;
 using Portamical.Core.Formatting.CustomFormatters.Model;
-using static Portamical.Core.Formatting.FormatBuilder;
+using static Portamical.Core.Formatting.Builder;
 
 namespace Tests.Portamical.Core.Formatting.Model;
 

@@ -46,10 +46,10 @@
 | `Stream` | `MemoryStream (Length: 1024, Position: 0)` |
 
 ### ??? **Utility Helpers**
-- **`FormatBuilder.CreateSeparatedString`** - Zero-copy three-part string assembly
-- **`FormatBuilder.JoinWithComma`** - Optimized for 0-3 item lists
-- **`FormatBuilder.CopyAsSpan`** - Efficient character copying for `Span<char>`
-- **`FormatBuilder.FallbackIfNull`** - Consistent `null` ? `"null"` conversion
+- **`Builder.CreateSeparatedString`** - Zero-copy three-part string assembly
+- **`Builder.JoinWithComma`** - Optimized for 0-3 item lists
+- **`Builder.CopyAsSpan`** - Efficient character copying for `Span<char>`
+- **`Builder.FallbackIfNull`** - Consistent `null` ? `"null"` conversion
 
 ---
 
@@ -209,7 +209,7 @@ IFormatter (non-generic)
 string result = definition + " => " + formatted;
 
 // Portamical approach (0 allocations)
-string result = FormatBuilder.CreateSeparatedString(
+string result = Builder.CreateSeparatedString(
 	baseString: definition,
 	separator: " => ",
 	appendix: formatted);
@@ -300,7 +300,7 @@ Custom formatters registered in `FormatterRegister` are automatically used by Po
 | `ClearFormatters()` | Remove all custom formatters |
 | `RegisteredFormatterCount` | Get count of registered formatters |
 
-### FormatBuilder
+### Builder
 
 | Method | Description |
 |--------|-------------|
@@ -315,8 +315,8 @@ Custom formatters registered in `FormatterRegister` are automatically used by Po
 
 | Constant | Value | Description |
 |----------|-------|-------------|
-| `FormatBuilder.MaxCount` | `3` | Max items shown in collections/tuples |
-| `FormatBuilder.NullString` | `"null"` | String representation of `null` |
+| `Builder.MaxCount` | `3` | Max items shown in collections/tuples |
+| `Builder.NullString` | `"null"` | String representation of `null` |
 
 ---
 

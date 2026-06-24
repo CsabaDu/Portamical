@@ -12,7 +12,7 @@ namespace Portamical.Core.Formatting;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The <see cref="FormatBuilder"/> class offers low-level formatting utilities used by <see cref="DefaultFormatter"/>
+/// The <see cref="Builder"/> class offers low-level formatting utilities used by <see cref="DefaultFormatter"/>
 /// and custom formatters to construct human-readable string representations. It includes helpers for joining strings,
 /// building collection formats, and handling null values consistently.
 /// </para>
@@ -33,7 +33,7 @@ namespace Portamical.Core.Formatting;
 /// <strong>Thread Safety:</strong> All methods are thread-safe and stateless.
 /// </para>
 /// </remarks>
-public static class FormatBuilder
+public static class Builder
 {
     /// <summary>
     /// The maximum number of items to include when formatting collections, tuples, and dictionaries.

@@ -3,7 +3,7 @@
 
 using System.Collections;
 using System.Runtime.CompilerServices;
-using static Portamical.Core.Formatting.FormatBuilder;
+using static Portamical.Core.Formatting.Builder;
 
 namespace Portamical.Core.Formatting;
 
@@ -336,10 +336,10 @@ public sealed class DefaultFormatter : IFormatter
             return NullString;
         }
 
-        var additionalCharsCount = 2; // Two quote characters
+        var twoQuoteCharsCount = 2;
         var totalLength =
             str.Length +
-            additionalCharsCount;
+            twoQuoteCharsCount;
 
         return string.Create(
             totalLength,
@@ -543,11 +543,18 @@ public sealed class DefaultFormatter : IFormatter
         var methodName = del.Method.Name;
 
         // Detect compiler-generated names for anonymous methods/lambdas
-        var isAnonymous = methodName.Contains('<') || methodName.Contains('>') || methodName.StartsWith(lambdaPrefix);
-        var displayName = isAnonymous ? anonymousMethodName : methodName;
+        var isAnonymous = methodName.Contains('<') ||
+            methodName.Contains('>') ||
+            methodName.StartsWith(lambdaPrefix);
+        var displayName = isAnonymous ?
+            anonymousMethodName
+            : methodName;
 
         // Zero-allocation string building: DelegateType (displayName)
-        var totalLength = delegateType!.Length + 3 + displayName.Length; // " (", ")"
+        var spaceAndParensCount = 3; // " (", ")"
+        var totalLength = delegateType!.Length +
+            spaceAndParensCount +
+            displayName.Length;
         return string.Create(
             totalLength,
             (delegateType, displayName),
@@ -673,7 +680,7 @@ public sealed class DefaultFormatter : IFormatter
     {
         var materializedObjects = coll
             .Cast<object?>()
-            .Take(MaxCount + 1)
+            .Take(MaxCount + 1) // Take one extra to check if there are more than MaxCount
             .ToList();
         var count = materializedObjects.Count;
         var hasMore = count > MaxCount;
@@ -931,10 +938,12 @@ public sealed class DefaultFormatter : IFormatter
         var elementType = type.GetElementType()!;
         var formattedElement = Format(elementType)!;
         var rank = type.GetArrayRank();
+        var bracketsCount = 2; // "[]"
         if (rank == 1)
         {
+
             // Zero-allocation string building: elementType[]
-            var totalLength = formattedElement.Length + 2; // "[]"
+            var totalLength = formattedElement.Length + bracketsCount;
             return string.Create(
                 totalLength,
                 formattedElement,
@@ -949,7 +958,7 @@ public sealed class DefaultFormatter : IFormatter
         {
             // Zero-allocation string building: elementType[,,,]
             var commaCount = rank - 1;
-            var totalLength = formattedElement.Length + 2 + commaCount; // "[" + commas + "]"
+            var totalLength = formattedElement.Length + bracketsCount + commaCount; // "[" + commas + "]"
             return string.Create(
                 totalLength,
                 (formattedElement, commaCount),
@@ -977,9 +986,10 @@ public sealed class DefaultFormatter : IFormatter
     private static string FormatUnderlyingType(Type underlyingType)
     {
         var formattedUnderlying = Format(underlyingType)!;
+        var questionMarkCount = 1; // "?"
 
         // Zero-allocation string building: underlyingType?
-        var totalLength = formattedUnderlying.Length + 1; // "?"
+        var totalLength = formattedUnderlying.Length + questionMarkCount;
         return string.Create(
             totalLength,
             formattedUnderlying,
@@ -1005,9 +1015,10 @@ public sealed class DefaultFormatter : IFormatter
         // Format generic arguments
         var genericArgs = type.GetGenericArguments();
         var formattedArgs = JoinWithComma(genericArgs.Select(t => Format(t)));
+        var angleBracketsCount = 2; // "<", ">"
 
         // Zero-allocation string building: TypeName<args>
-        var totalLength = typeName.Length + 2 + formattedArgs.Length; // "<", ">"
+        var totalLength = typeName.Length + angleBracketsCount + formattedArgs.Length;
         return string.Create(
             totalLength,
             (typeName, formattedArgs),

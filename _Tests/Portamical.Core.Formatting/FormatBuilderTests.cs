@@ -2,15 +2,15 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Formatting;
-using static Portamical.Core.Formatting.FormatBuilder;
+using static Portamical.Core.Formatting.Builder;
 
 namespace Tests.Portamical.Core.Formatting;
 
 /// <summary>
-/// Unit tests for <see cref="FormatBuilder"/> static utility methods and constants.
+/// Unit tests for <see cref="Builder"/> static utility methods and constants.
 /// </summary>
 [TestClass]
-public class FormatBuilderTests
+public class BuilderTests
 {
     #region Constants
 #pragma warning disable MSTEST0032 // Review or remove the assertion as its condition is known to be always true
