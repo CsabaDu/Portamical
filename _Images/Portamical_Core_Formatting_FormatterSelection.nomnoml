@@ -1,0 +1,57 @@
+#title: Portamical_Core_Formatting_FormatterSelection
+#direction: down
+
+// #.start: fill=#ffcc99 title=center,bold, body=left visual=input
+#.start: title=center,bold, body=left
+#.step: title=center,italic body=left,italic
+#.custom: fill=#DCE8CF title=center bold body=left
+#.default: fill=#C9DEEF title=center,bold body=left
+
+[<start>
+Formatter.Format(value)
+|
+[
+Check
+Formatter.Registry
+for Type of value
+]
+
+[
+Check
+] -> [<choice>
+Custom
+formatter
+found?
+]
+
+[
+Custom
+] yes -> [<custom>
+Use custom formatter
+]
+
+[
+Custom
+] no -> [<default>
+Use DefaultFormatter
+]
+
+[
+Use custom formatter
+] -> [
+Return
+formatted string
+(or null)
+]
+
+[
+Use DefaultFormatter
+] -> [
+Return
+]
+
+]
+
+
+
+
