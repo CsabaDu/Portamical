@@ -81,7 +81,7 @@ var result4 = Formatter.Format(new[] { 1, 2, 3 }); // "[3]: [1, 2, 3]"
 
 // Format tuples
 var tuple = (name: "Alice", age: 30, active: true);
-var result5 = Formatter.Format(tuple);  // "(\"Alice\", 30, True)"
+var result5 = Formatter.Format(tuple);  // "("Alice", 30, True)"
 
 // Format DateTime (ISO 8601)
 var date = new DateTime(2026, 1, 15, 10, 30, 0, DateTimeKind.Utc);
