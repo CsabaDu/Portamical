@@ -74,18 +74,18 @@ Install-Package Portamical.Core.Formatting
 using Portamical.Core.Formatting;
 
 // Format various types
-var result1 = FormatterRegister.Format("hello");          // "\"hello\""
-var result2 = FormatterRegister.Format('a');              // "'a'"
-var result3 = FormatterRegister.Format(42);               // "42"
-var result4 = FormatterRegister.Format(new[] { 1, 2, 3 }); // "[3]: [1, 2, 3]"
+var result1 = Formatter.Format("hello");          // "\"hello\""
+var result2 = Formatter.Format('a');              // "'a'"
+var result3 = Formatter.Format(42);               // "42"
+var result4 = Formatter.Format(new[] { 1, 2, 3 }); // "[3]: [1, 2, 3]"
 
 // Format tuples
 var tuple = (name: "Alice", age: 30, active: true);
-var result5 = FormatterRegister.Format(tuple);  // "(\"Alice\", 30, True)"
+var result5 = Formatter.Format(tuple);  // "(\"Alice\", 30, True)"
 
 // Format DateTime (ISO 8601)
 var date = new DateTime(2026, 1, 15, 10, 30, 0, DateTimeKind.Utc);
-var result6 = FormatterRegister.Format(date);  // "2026-01-15T10:30:00.0000000Z"
+var result6 = Formatter.Format(date);  // "2026-01-15T10:30:00.0000000Z"
 ```
 
 ### Custom Formatters
@@ -115,11 +115,11 @@ public sealed class ProductIdFormatter : IFormatter<ProductId>
 }
 
 // 3. Register the formatter globally
-FormatterRegister.RegisterFormatter<ProductId>(new ProductIdFormatter());
+Formatter.RegisterFormatter<ProductId>(new ProductIdFormatter());
 
 // 4. Use it automatically
 var productId = new ProductId(42);
-var formatted = FormatterRegister.Format(productId);
+var formatted = Formatter.Format(productId);
 // Result: "PROD-000042" ?
 ```
 
@@ -141,10 +141,10 @@ public sealed class MoneyFormatter : Formatter<Money>
 }
 
 // Register and use
-FormatterRegister.RegisterFormatter<Money>(new MoneyFormatter());
+Formatter.RegisterFormatter<Money>(new MoneyFormatter());
 
 var price = new Money { Currency = "USD", Amount = 99.99m };
-var formatted = FormatterRegister.Format(price);
+var formatted = Formatter.Format(price);
 // Result: "USD 99.99" ?
 ```
 
@@ -152,19 +152,19 @@ var formatted = FormatterRegister.Format(price);
 
 ```csharp
 // Check if a formatter is registered
-if (FormatterRegister.IsFormatterRegistered<ProductId>())
+if (Formatter.IsFormattered<ProductId>())
 {
 	Console.WriteLine("ProductId formatter is active");
 }
 
 // Unregister a formatter
-bool removed = FormatterRegister.UnregisterFormatter<ProductId>();
+bool removed = Formatter.UnregisterFormatter<ProductId>();
 
 // Clear all custom formatters (useful in test cleanup)
-FormatterRegister.ClearFormatters();
+Formatter.ClearFormatters();
 
 // Get current count
-int count = FormatterRegister.RegisteredFormatterCount;
+int count = Formatter.RegisteredFormatterCount;
 Console.WriteLine($"Active custom formatters: {count}");
 ```
 
@@ -214,10 +214,10 @@ string result = Builder.CreateSeparatedString(
 
 | Scenario | Traditional | Portamical | Reduction |
 |----------|-------------|------------|-----------|
-| 2-item tuple | 3 allocations | 1 allocation | **66%** ? |
-| 3-item list | 4 allocations | 1 allocation | **75%** ? |
-| Key-value pair | 5 allocations | 1 allocation | **80%** ? |
-| Quoted string | 2 allocations | 1 allocation | **50%** ? |
+| 2-item tuple | 3 allocations | 1 allocation | **66%** |
+| 3-item list | 4 allocations | 1 allocation | **75%** |
+| Key-value pair | 5 allocations | 1 allocation | **80%** |
+| Quoted string | 2 allocations | 1 allocation | **50%** |
 
 ### Why It Matters
 
@@ -231,7 +231,7 @@ string result = Builder.CreateSeparatedString(
 
 All public APIs are thread-safe for concurrent use:
 
-- **`FormatterRegister`** - Uses `ConcurrentDictionary<Type, IFormatter>` for lock-free reads/writes
+- **`Formatter`** - Uses `ConcurrentDictionary<Type, IFormatter>` for lock-free reads/writes
 - **`DefaultFormatter`** - Stateless singleton, safe for parallel test execution
 - **Custom formatters** - Should be implemented as stateless or use appropriate synchronization
 
@@ -239,13 +239,13 @@ All public APIs are thread-safe for concurrent use:
 // Safe to call from multiple threads simultaneously
 Parallel.For(0, 1000, i =>
 {
-	var result = FormatterRegister.Format(new MyType { Id = i });
+	var result = Formatter.Format(new MyType { Id = i });
 });
 
 // Safe to register formatters from multiple threads
 Parallel.Invoke(
-	() => FormatterRegister.RegisterFormatter<TypeA>(new FormatterA()),
-	() => FormatterRegister.RegisterFormatter<TypeB>(new FormatterB())
+	() => Formatter.RegisterFormatter<TypeA>(new FormatterA()),
+	() => Formatter.RegisterFormatter<TypeB>(new FormatterB())
 );
 ```
 
@@ -256,7 +256,7 @@ Parallel.Invoke(
 `Portamical.Core` uses this package for test case name generation:
 
 ```csharp
-// Portamical.Core internally uses FormatterRegister.Format
+// Portamical.Core internally uses Formatter.Format
 var testData = CreateTestDataReturns(
 	definition: "Calculate tax",
 	expected: 19.99m,
@@ -264,16 +264,16 @@ var testData = CreateTestDataReturns(
 	arg2: 0.20m);
 
 // TestCaseName generated: "Calculate tax => returns 19.99"
-// Uses FormatterRegister.Format(expected) internally
+// Uses Formatter.Format(expected) internally
 ```
 
-Custom formatters registered in `FormatterRegister` are automatically used by Portamical test case generation.
+Custom formatters registered in `Formatter` are automatically used by Portamical test case generation.
 
 ---
 
 ## API Reference
 
-### FormatterRegister
+### Formatter
 
 | Method | Description |
 |--------|-------------|
@@ -281,8 +281,8 @@ Custom formatters registered in `FormatterRegister` are automatically used by Po
 | `RegisterFormatter(Type, IFormatter)` | Register a custom formatter for a type |
 | `UnregisterFormatter<T>()` | Remove the formatter for type `T` |
 | `UnregisterFormatter(Type)` | Remove the formatter for a type |
-| `IsFormatterRegistered<T>()` | Check if a formatter is registered for `T` |
-| `IsFormatterRegistered(Type)` | Check if a formatter is registered for a type |
+| `IsFormattered<T>()` | Check if a formatter is registered for `T` |
+| `IsFormattered(Type)` | Check if a formatter is registered for a type |
 | `GetFormatter<T>()` | Get the formatter for `T` (custom or default) |
 | `GetFormatter(Type)` | Get the formatter for a type (custom or default) |
 | `Format<T>(T)` | Format a value using registered or default formatter |
@@ -336,21 +336,21 @@ Custom formatters registered in `FormatterRegister` are automatically used by Po
 ```csharp
 // Format exceptions
 var ex = new ArgumentException("Value cannot be null");
-var result = FormatterRegister.Format(ex);
+var result = Formatter.Format(ex);
 // "ArgumentException: Value cannot be null"
 
 // Format types with C#-friendly names
-var result1 = FormatterRegister.Format(typeof(int));        // "int"
-var result2 = FormatterRegister.Format(typeof(List<string>)); // "List<string>"
-var result3 = FormatterRegister.Format(typeof(int?));       // "int?"
-var result4 = FormatterRegister.Format(typeof(int[]));      // "int[]"
+var result1 = Formatter.Format(typeof(int));        // "int"
+var result2 = Formatter.Format(typeof(List<string>)); // "List<string>"
+var result3 = Formatter.Format(typeof(int?));       // "int?"
+var result4 = Formatter.Format(typeof(int[]));      // "int[]"
 
 // Format delegates
 Func<int, string> func = x => x.ToString();
-var result5 = FormatterRegister.Format(func);  // "Func<int, string> (anonymous)"
+var result5 = Formatter.Format(func);  // "Func<int, string> (anonymous)"
 
 Action<string> action = Console.WriteLine;
-var result6 = FormatterRegister.Format(action);  // "Action<string> (WriteLine)"
+var result6 = Formatter.Format(action);  // "Action<string> (WriteLine)"
 ```
 
 ### Format Collections
@@ -358,15 +358,15 @@ var result6 = FormatterRegister.Format(action);  // "Action<string> (WriteLine)"
 ```csharp
 // Arrays
 var array = new[] { 1, 2, 3 };
-var result1 = FormatterRegister.Format(array);  // "[3]: [1, 2, 3]"
+var result1 = Formatter.Format(array);  // "[3]: [1, 2, 3]"
 
 // Large collections (truncated)
 var largeArray = new[] { 1, 2, 3, 4, 5, 6 };
-var result2 = FormatterRegister.Format(largeArray);  // "[First 3 of 6+]: [1, 2, 3]"
+var result2 = Formatter.Format(largeArray);  // "[First 3 of 6+]: [1, 2, 3]"
 
 // Dictionaries
 var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 };
-var result3 = FormatterRegister.Format(dict);  // "[2]: {{\"a\": 1}, {\"b\": 2}}"
+var result3 = Formatter.Format(dict);  // "[2]: {{\"a\": 1}, {\"b\": 2}}"
 ```
 
 ### Custom Formatter with Base Class Utilities
@@ -408,6 +408,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 - **[Portamical.xUnit_v3](https://github.com/CsabaDu/Portamical/tree/master/Portamical.xUnit_v3)** - xUnit v3 adapter (uses shared and test framework modules)
 - **[Portamical.MSTest](https://github.com/CsabaDu/Portamical/tree/master/Portamical.MSTest)** - MSTest 4 adapter (uses shared and test framework modules)
 - **[Portamical.NUnit](https://github.com/CsabaDu/Portamical/tree/master/Portamical.NUnit)** - NUnit 4 adapter (uses shared and test framework modules)
+- **[Portamical.TUnit](https://github.com/CsabaDu/Portamical/tree/master/Portamical.TUnit)** ***(Preview)*** - TUnit adapter (uses shared and test framework modules)
 
 ---
 
