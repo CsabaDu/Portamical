@@ -276,13 +276,7 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 
 ## API Reference
 
-### Formatter
-
-| Property | Type | Description |
-|----------|--------------|---------|
-| `Registry` | `IReadOnlyDictionary<Type, IFormatter>` | The registered custom formatter map |
-
-
+### Formatter Methods
 
 | Method | Type | Description |
 |--------|------|-------------|
@@ -297,16 +291,23 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | `GetFormatter(Type)` | `IFormatter`| Get the formatter for a type (custom or default) |
 | `ClearFormatters()` | void | Remove all custom formatters |
 
-### Builder
+### Builder Methods
 
-| Method | Description |
-|--------|-------------|
-| `CreateSeparatedString(string, string, string)` | Zero-allocation three-part string assembly |
-| `JoinWithComma(IEnumerable<string?>)` | Join items with `", "` separator (optimized for 0-3 items) |
-| `JoinWithSeparator(IEnumerable<string?>, string)` | Join items with custom separator |
-| `CopyAsSpan(string, Span<char>, int)` | Copy string to span at index (inlined) |
-| `FallbackIfNull(string?)` | Convert `null` to `"null"` (inlined) |
-| `FallbackIfNullSeparator(string?)` | Convert `null` separator to `", "` (inlined) |
+| Method | Type | Description |
+|--------|------|-------------|
+| `CreateSeparatedString(string, string, string)` | `string` | Zero-allocation three-part string assembly |
+| `JoinWithComma(IEnumerable<string?>)` | `string` | Join items with `", "` separator (optimized for 0-3 items) |
+| `JoinWithSeparator(IEnumerable<string?>, string)` | `string` | Join items with custom separator |
+| `CopyAsSpan(string, Span<char>, int)` | void | Copy string to span at index (inlined) |
+| `FallbackIfNull(string?)` | `string` | Convert `null` to `"null"` (inlined) |
+| `FallbackIfNullSeparator(string?)` | `string` | Convert `null` separator to `", "` (inlined) |
+
+### Static Properties
+
+| Property | Type | Description |
+|----------|--------------|---------|
+| `Formatter.Registry` | `IReadOnlyDictionary<Type, IFormatter>` | The registered custom formatter map |
+| `DefaultFormatter.Instance` | `IFormatter`| The shared, thread-safe singleton instance of `DefaultFormatter` |
 
 ### Constants
 
