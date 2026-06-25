@@ -289,7 +289,7 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | `IsFormattered(Type)` | `bool`| Check if a formatter is registered for a type |
 | `GetFormatter<T>()` | `IFormatter`| Get the formatter for `T` (custom or default) |
 | `GetFormatter(Type)` | `IFormatter`| Get the formatter for a type (custom or default) |
-| `ClearFormatters()` | void | Remove all custom formatters |
+| `ClearFormatters()` | (void) | Remove all custom formatters |
 
 ### Builder Methods
 
@@ -298,7 +298,7 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | `CreateSeparatedString(string, string, string)` | `string` | Zero-allocation three-part string assembly |
 | `JoinWithComma(IEnumerable<string?>)` | `string` | Join items with `", "` separator (optimized for 0-3 items) |
 | `JoinWithSeparator(IEnumerable<string?>, string)` | `string` | Join items with custom separator |
-| `CopyAsSpan(string, Span<char>, int)` | void | Copy string to span at index (inlined) |
+| `CopyAsSpan(string, Span<char>, int)` | (void) | Copy string to span at index (inlined) |
 | `FallbackIfNull(string?)` | `string` | Convert `null` to `"null"` (inlined) |
 | `FallbackIfNullSeparator(string?)` | `string` | Convert `null` separator to `", "` (inlined) |
 
