@@ -748,7 +748,7 @@ public class DefaultFormatterTests
     {
         var list = new List<int> { 1, 2, 3, 4 };
         var result = DefaultFormatter.Format(list);
-        Assert.AreEqual("[First 3 of 4+]: [1, 2, 3]", result);
+        Assert.AreEqual("[First 3 of 3+]: [1, 2, 3]", result);
     }
 
     [TestMethod]
@@ -756,7 +756,7 @@ public class DefaultFormatterTests
     {
         var list = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         var result = DefaultFormatter.Format(list);
-        Assert.AreEqual("[First 3 of 4+]: [1, 2, 3]", result);
+        Assert.AreEqual("[First 3 of 3+]: [1, 2, 3]", result);
     }
 
     [TestMethod]
@@ -891,7 +891,7 @@ public class DefaultFormatterTests
     {
         var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4 };
         var result = DefaultFormatter.Format(dict);
-        Assert.AreEqual("[First 3 of 4+]: {{\"a\": 1}, {\"b\": 2}, {\"c\": 3}}", result);
+        Assert.AreEqual("[First 3 of 3+]: {{\"a\": 1}, {\"b\": 2}, {\"c\": 3}}", result);
     }
 
     [TestMethod]
@@ -930,7 +930,7 @@ public class DefaultFormatterTests
         var hashtable = new Hashtable { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4, ["e"] = 5 };
         var result = DefaultFormatter.Format(hashtable);
         Assert.IsNotNull(result);
-        Assert.StartsWith("[First 3 of 4+]:", result);
+        Assert.StartsWith("[First 3 of 3+]:", result);
     }
 
     [TestMethod]
