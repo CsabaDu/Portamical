@@ -178,15 +178,15 @@ Console.WriteLine($"Active custom formatters: {count}");
 IFormatter (non-generic)
 	│
 	├── DefaultFormatter (built-in, 12+ type patterns)
-	│		│
-	├		└── Formatter (non-generic, static)
-	│			 (custom formatter registry, formatting pipeline)
 	│
 	└── IFormatter<T> (generic)
 			│
 			└── Formatter<T> (abstract base class)
 					│
 					└── [Your Custom Formatters]
+
+Formatter (non-generic, static)
+	(custom formatter registry, formatting pipeline)
 ```
 
 ### Formatting Pipeline
