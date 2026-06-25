@@ -281,6 +281,7 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | Method | Description |
 |--------|-------------|
 | `Registry` | The registered formatter map `{ Type : IFormatter }` |
+| `Format<T>(T)` | Format a value using registered or default formatter |
 | `RegisterFormatter<T>(IFormatter)` | Register a custom formatter for type `T` |
 | `RegisterFormatter(Type, IFormatter)` | Register a custom formatter for a type |
 | `UnregisterFormatter<T>()` | Remove the formatter for type `T` |
@@ -290,7 +291,6 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | `GetFormatter<T>()` | Get the formatter for `T` (custom or default) |
 | `GetFormatter(Type)` | Get the formatter for a type (custom or default) |
 | `ClearFormatters()` | Remove all custom formatters |
-| `Format<T>(T)` | Format a value using registered or default formatter |
 
 ### Builder
 
