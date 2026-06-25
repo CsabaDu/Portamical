@@ -216,34 +216,27 @@ public sealed class DefaultFormatter : IFormatter
     /// </code>
     /// </example>
     public static string? Format(object? obj)
+    => obj switch
     {
-        // - string, ITuple (Tuple/ValueTuple) and KeyValuePair
-        //   must be checked before IEnumerable
-        //   (since these implement or may implement IEnumerable).
-        // - IDictionary is checked separately in Format(IEnumerable)
-        //   to delegate to FormatDictionary(IDictionary, string?).
-        return obj switch
-        {
-            null                    => null,
-            char ch                 => Format(ch),
-            string str              => Format(str),
-            Type type               => Format(type),
-            DateTime dt             => Format(dt.ToString, context: "O"),
-            DateTimeOffset dto      => Format(dto.ToString, context: "O"),
-            Guid guid               => Format(guid.ToString, context: "D"),
-            byte[] bytes            => Format(BitConverter.ToString, context: bytes),
-            Exception ex            => Format(ex),
-            _ when IsKeyValuePair(
-                obj,
-                out var key,
-                out var value)      => Format(key, value),
-            ITuple tuple            => Format(tuple),
-            Delegate del            => Format(del),
-            IEnumerable coll        => Format(coll),
-            Stream stream           => Format(stream),
-            _                       => obj.ToString() ?? null,
-        };
-    }
+        null                    => null,
+        char ch                 => Format(ch),
+        string str              => Format(str),
+        Type type               => Format(type),
+        DateTime dt             => Format(dt.ToString, context: "O"),
+        DateTimeOffset dto      => Format(dto.ToString, context: "O"),
+        Guid guid               => Format(guid.ToString, context: "D"),
+        byte[] bytes            => Format(BitConverter.ToString, context: bytes),
+        Exception ex            => Format(ex),
+        _ when IsKeyValuePair(
+            obj,
+            out var key,
+            out var value)      => Format(key, value),
+        ITuple tuple            => Format(tuple),
+        Delegate del            => Format(del),
+        IEnumerable coll        => Format(coll),
+        Stream stream           => Format(stream),
+        _                       => obj.ToString() ?? null,
+    };
 
     #region Private formatter methods
 
