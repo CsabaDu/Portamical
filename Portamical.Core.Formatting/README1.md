@@ -302,6 +302,12 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | `FallbackIfNull(string?)` | `string` | Convert `null` to `"null"` (inlined) |
 | `FallbackIfNullSeparator(string?)` | `string` | Convert `null` separator to `", "` (inlined) |
 
+### DefaultFormatter Methods
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `Format(object?)` | `string?` | Formats an object into a predefined human-readable string representation, or returns `null` |
+
 ### Static Properties
 
 | Property | Type | Description |
