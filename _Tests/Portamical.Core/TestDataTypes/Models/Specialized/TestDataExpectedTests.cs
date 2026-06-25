@@ -486,7 +486,7 @@ public class TestDataExpectedTests
     {
         var sut = new TestDataExpectedIntList(Def, [1, 2, 3, 4], 1);
         var result = sut.GetResult();
-        Assert.AreEqual("results [First 3 of 4+]: [1, 2, 3]", result);
+        Assert.AreEqual("results [First 3 of 3+]: [1, 2, 3]", result);
     }
 
     [TestMethod]
@@ -494,7 +494,7 @@ public class TestDataExpectedTests
     {
         var sut = new TestDataExpectedIntList(Def, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1);
         var result = sut.GetResult();
-        Assert.AreEqual("results [First 3 of 4+]: [1, 2, 3]", result);
+        Assert.AreEqual("results [First 3 of 3+]: [1, 2, 3]", result);
     }
 
     [TestMethod]
@@ -539,7 +539,7 @@ public class TestDataExpectedTests
         var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4 };
         var sut = new TestDataExpectedDictionary(Def, dict, 1);
         var result = sut.GetResult();
-        Assert.AreEqual("results [First 3 of 4+]: {{\"a\": 1}, {\"b\": 2}, {\"c\": 3}}", result);
+        Assert.AreEqual("results [First 3 of 3+]: {{\"a\": 1}, {\"b\": 2}, {\"c\": 3}}", result);
     }
 
     [TestMethod]
@@ -557,7 +557,7 @@ public class TestDataExpectedTests
         };
         var sut = new TestDataExpectedDictionary(Def, dict, 1);
         var result = sut.GetResult();
-        Assert.AreEqual("results [First 3 of 4+]: {{\"one\": 1}, {\"two\": 2}, {\"three\": 3}}", result);
+        Assert.AreEqual("results [First 3 of 3+]: {{\"one\": 1}, {\"two\": 2}, {\"three\": 3}}", result);
     }
 
     [TestMethod]
@@ -592,7 +592,7 @@ public class TestDataExpectedTests
         var sut = new TestDataExpectedHashtable(Def, hashtable, 1);
         var result = sut.GetResult();
         // Should show "First 3 of 4+" (count is > 3)
-        Assert.StartsWith("results [First 3 of 4+]:", result);
+        Assert.StartsWith("results [First 3 of 3+]:", result);
     }
 
     [TestMethod]

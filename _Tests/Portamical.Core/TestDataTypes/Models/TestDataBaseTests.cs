@@ -44,6 +44,28 @@ public class TestDataBaseTests
         => null!;
     }
 
+    // Test helper that returns an empty array (simulates args is not null but empty)
+    private sealed class TestDataBaseReturnsEmptyArray(string definition) : TestDataBase(definition)
+    {
+        public override string TestCaseName { get; init; } = "TestCaseName";
+
+        public override string GetResult() => "result";
+
+        protected override object?[] ToObjectArray(ArgsCode argsCode)
+        => []; // Returns empty array (not null)
+    }
+
+    // Test helper that returns null
+    private sealed class TestDataBaseReturnsNull(string definition) : TestDataBase(definition)
+    {
+        public override string TestCaseName { get; init; } = "TestCaseName";
+
+        public override string GetResult() => "result";
+
+        protected override object?[] ToObjectArray(ArgsCode argsCode)
+        => null!; // Returns null
+    }
+
     #region GetDefinition
     [TestMethod]
     public void GetDefinition_returnsDefinitionString()
@@ -129,6 +151,99 @@ public class TestDataBaseTests
             () => _ = sut.ToArgs(ArgsCode.Instance));
         Assert.ThrowsExactly<InvalidOperationException>(
             () => _ = sut.ToArgs(ArgsCode.Properties, default));
+    }
+
+    [TestMethod]
+    public void ToArgs_properties_trimTestCaseName_withEmptyArray_throwsWithSpecificMessage()
+    {
+        // Arrange
+        var sut = new TestDataBaseReturnsEmptyArray(Def);
+
+        // Act & Assert - Tests containsTestCaseNameOnly = true branch (lines 133-138)
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(
+            () => _ = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName));
+
+        // Verify the message contains the specific guidance for containsTestCaseNameOnly case
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(
+            exception.Message,
+            "additional properties beyond 'TestCaseName'");
+        StringAssert.Contains(
+            exception.Message,
+            "Use 'PropsCode.All' to include 'TestCaseName'");
+        StringAssert.Contains(
+            exception.Message,
+            "or ensure your implementation adds at least one property");
+#pragma warning restore MSTEST0046
+    }
+
+    [TestMethod]
+    public void ToArgs_instance_withEmptyArray_throwsWithGenericMessage()
+    {
+        // Arrange
+        var sut = new TestDataBaseReturnsEmptyArray(Def);
+
+        // Act & Assert - Tests containsTestCaseNameOnly = false branch (line 141)
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(
+            () => _ = sut.ToArgs(ArgsCode.Instance, PropsCode.TrimTestCaseName));
+
+        // Verify the message contains the generic error message
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(
+            exception.Message,
+            "Invalid 'TestDataBase' implementation produced no arguments");
+        StringAssert.Contains(
+            exception.Message,
+            "at least one element");
+#pragma warning restore MSTEST0046
+        // Should NOT contain the TestCaseName-specific message
+        Assert.DoesNotContain(
+            exception.Message, "additional properties beyond 'TestCaseName'",
+            "Message should not contain TestCaseName-specific guidance when containsTestCaseNameOnly is false");
+    }
+
+    [TestMethod]
+    public void ToArgs_properties_all_withEmptyArray_throwsWithGenericMessage()
+    {
+        // Arrange
+        var sut = new TestDataBaseReturnsEmptyArray(Def);
+
+        // Act & Assert - Tests containsTestCaseNameOnly = false (propsCode == PropsCode.All)
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(
+            () => _ = sut.ToArgs(ArgsCode.Properties, PropsCode.All));
+
+        // Verify the message contains the generic error message
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(
+            exception.Message,
+            "at least one element");
+#pragma warning restore MSTEST0046
+        // Should NOT contain the TestCaseName-specific message
+        Assert.DoesNotContain(
+            exception.Message, "additional properties beyond 'TestCaseName'",
+            "Message should not contain TestCaseName-specific guidance when propsCode is All");
+    }
+
+    [TestMethod]
+    public void ToArgs_properties_trimTestCaseName_withNull_throwsWithGenericMessage()
+    {
+        // Arrange
+        var sut = new TestDataBaseReturnsNull(Def);
+
+        // Act & Assert - Tests containsTestCaseNameOnly = false (args is null)
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(
+            () => _ = sut.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName));
+
+        // Verify the message contains the generic error message (args is null means containsTestCaseNameOnly = false)
+#pragma warning disable MSTEST0046
+        StringAssert.Contains(
+            exception.Message,
+            "at least one element");
+#pragma warning restore MSTEST0046
+        // Should NOT contain the TestCaseName-specific message
+        Assert.DoesNotContain(
+            exception.Message, "additional properties beyond 'TestCaseName'",
+            "Message should not contain TestCaseName-specific guidance when args is null");
     }
     #endregion
 

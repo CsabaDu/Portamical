@@ -5,7 +5,7 @@ using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using System.Runtime.CompilerServices;
-using static Portamical.Core.Formatting.FormatBuilder;
+using static Portamical.Core.Formatting.Builder;
 
 namespace Portamical.Core.TestDataTypes.Models;
 
@@ -122,10 +122,24 @@ public abstract class TestDataBase(string definition)
         var count = args?.Length ?? 0;
 
         return count == 0 ?
-            throw new InvalidOperationException(
-                "Invalid 'TestDataBase' implementation produced no arguments. " +
-                "Custom TestData types must override 'ToObjectArray()' to include at least one element.")
+            throw new InvalidOperationException(getMessage())
             : args!;
+
+        string getMessage()
+        {
+            var containsTestCaseNameOnly =
+                argsCode == ArgsCode.Properties &&
+                propsCode != PropsCode.All &&
+                args is not null;
+
+            return "Invalid 'TestDataBase' implementation produced no arguments. " +
+                "Custom TestData types must override 'ToObjectArray()' to include " +
+                (containsTestCaseNameOnly ?
+                    "additional properties beyond 'TestCaseName'. " +
+                    "Use 'PropsCode.All' to include 'TestCaseName', " +
+                    "or ensure your implementation adds at least one property."
+                    : "at least one element.");
+        }
     }
 
     /// <summary>
