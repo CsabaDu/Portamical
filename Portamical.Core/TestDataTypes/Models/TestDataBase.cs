@@ -125,21 +125,27 @@ public abstract class TestDataBase(string definition)
             throw new InvalidOperationException(getMessage())
             : args!;
 
+        #region Local methods
         string getMessage()
         {
+            const string messageStart =
+                "Invalid 'TestDataBase' implementation produced no arguments. " +
+                "Custom TestData types must override 'ToObjectArray()' to include ";
+
             var containsTestCaseNameOnly =
                 argsCode == ArgsCode.Properties &&
                 propsCode != PropsCode.All &&
                 args is not null;
 
-            return "Invalid 'TestDataBase' implementation produced no arguments. " +
-                "Custom TestData types must override 'ToObjectArray()' to include " +
-                (containsTestCaseNameOnly ?
-                    "additional properties beyond 'TestCaseName'. " +
-                    "Use 'PropsCode.All' to include 'TestCaseName', " +
-                    "or ensure your implementation adds at least one property."
-                    : "at least one element.");
+            var messageEnd = containsTestCaseNameOnly ?
+                "additional properties beyond 'TestCaseName'. " +
+                "Use 'PropsCode.All' to include 'TestCaseName', " +
+                "or ensure your implementation adds at least one property."
+                : "at least one element.";
+
+            return $"{messageStart}{messageEnd}";
         }
+        #endregion
     }
 
     /// <summary>

@@ -164,9 +164,9 @@ public abstract class TestData
     /// <returns>A string containing the result. If the result is null or empty, a fallback value is returned instead.</returns>
     public override sealed string GetResult()
     {
-        const string resultString = "result";
+        const string defaultResult = "result";
 
-        return resultString.FallbackIfNullOrWhiteSpace(_result, nameof(GetResult));
+        return defaultResult.FallbackIfNullOrWhiteSpace(_result, nameof(GetResult));
     }
 
     /// <summary>
