@@ -278,9 +278,14 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 
 ### Formatter
 
+| Property | Type | Description |
+|----------|--------------|----------|
+| `Registry` | `IReadOnlyDictionary<Type, IFormatter>` | The registered formatter map `{ Type : IFormatter }` |
+
+
+
 | Method | Type | Description |
 |--------|------|-------------|
-| `Registry` | `IReadOnlyDictionary<Type, IFormatter>` | The registered formatter map `{ Type : IFormatter }` |
 | `Format<T>(T)` | `string` | Format a value using registered or default formatter |
 | `RegisterFormatter<T>(IFormatter)` | `bool`| Register a custom formatter for type `T` |
 | `RegisterFormatter(Type, IFormatter)` | `bool`| Register a custom formatter for a type |
