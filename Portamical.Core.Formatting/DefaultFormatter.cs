@@ -218,6 +218,11 @@ public sealed class DefaultFormatter : IFormatter
     public static string? Format(object? obj)
     => obj switch
     {
+        // - string, ITuple (Tuple/ValueTuple) and KeyValuePair
+        //   must be checked before IEnumerable
+        //   (since these implement or may implement IEnumerable).
+        // - IDictionary is checked separately in Format(IEnumerable)
+        //   to delegate to FormatDictionary(IDictionary, string?).
         null                    => null,
         char ch                 => Format(ch),
         string str              => Format(str),
