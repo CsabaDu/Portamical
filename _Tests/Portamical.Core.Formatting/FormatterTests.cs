@@ -261,7 +261,7 @@ public class FormatterTests
         // Assert
         Assert.IsFalse(Formatter.IsFormatterRegistered<CustomType>());
         Assert.IsFalse(Formatter.IsFormatterRegistered<AnotherCustomType>());
-        Assert.AreEqual(0, Formatter.RegisteredFormatterCount);
+        Assert.IsEmpty(Formatter.Registry);
     }
 
     [TestMethod]
@@ -272,7 +272,7 @@ public class FormatterTests
 
         // Act & Assert - Should not throw
         Formatter.ClearFormatters();
-        Assert.AreEqual(0, Formatter.RegisteredFormatterCount);
+        Assert.IsEmpty(Formatter.Registry);
     }
     #endregion
 
@@ -287,11 +287,8 @@ public class FormatterTests
         {
             Formatter.RegisterFormatter<CustomType>(formatter);
 
-            // Act
-            var count = Formatter.RegisteredFormatterCount;
-
-            // Assert
-            Assert.AreEqual(1, count);
+            // Act & Assert
+            Assert.HasCount(1, Formatter.Registry);
         }
         finally
         {
@@ -313,11 +310,8 @@ public class FormatterTests
             Formatter.RegisterFormatter<AnotherCustomType>(formatter2);
             Formatter.RegisterFormatter<string>(formatter3);
 
-            // Act
-            var count = Formatter.RegisteredFormatterCount;
-
-            // Assert
-            Assert.AreEqual(3, count);
+            // Act & Assert
+            Assert.HasCount(3, Formatter.Registry);
         }
         finally
         {
@@ -338,15 +332,13 @@ public class FormatterTests
         {
             Formatter.RegisterFormatter<CustomType>(formatter1);
             Formatter.RegisterFormatter<AnotherCustomType>(formatter2);
-            var initialCount = Formatter.RegisteredFormatterCount;
+            Assert.HasCount(2, Formatter.Registry);
 
             // Act
             Formatter.UnregisterFormatter<CustomType>();
-            var finalCount = Formatter.RegisteredFormatterCount;
 
             // Assert
-            Assert.AreEqual(2, initialCount);
-            Assert.AreEqual(1, finalCount);
+            Assert.HasCount(1, Formatter.Registry);
         }
         finally
         {
@@ -445,7 +437,7 @@ public class FormatterTests
             // Assert - Only one should succeed
             var successCount = tasks.Count(t => t.Result);
             Assert.AreEqual(1, successCount);
-            Assert.AreEqual(1, Formatter.RegisteredFormatterCount);
+            Assert.HasCount(1, Formatter.Registry);
         }
         finally
         {

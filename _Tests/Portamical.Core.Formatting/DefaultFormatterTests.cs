@@ -634,13 +634,13 @@ public class DefaultFormatterTests
         var testType = testObject.GetType();
 
         // Act: Invoke the private method
-        var result = method.Invoke(null, new object[] { testType, testObject });
+        var result = method.Invoke(null, [testType, testObject]);
 
         // Assert: Should return (null, null) because GetProperty returns null for non-existent properties
         Assert.IsNotNull(result);
-        var tuple = ((object? key, object? value))result;
-        Assert.IsNull(tuple.key, "Key should be null when property doesn't exist");
-        Assert.IsNull(tuple.value, "Value should be null when property doesn't exist");
+        var (key, value) = ((object? key, object? value))result;
+        Assert.IsNull(key, "Key should be null when property doesn't exist");
+        Assert.IsNull(value, "Value should be null when property doesn't exist");
     }
     #endregion
 
