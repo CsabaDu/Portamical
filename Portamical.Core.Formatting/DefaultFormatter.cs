@@ -678,14 +678,16 @@ public sealed class DefaultFormatter : IFormatter
     /// </example>
     private static string? Format(IEnumerable coll)
     {
+        // Take one extra to check if there are more than MaxCount
         var materializedObjects = coll
             .Cast<object?>()
-            .Take(MaxCount + 1) // Take one extra to check if there are more than MaxCount
+            .Take(MaxCount + 1)
             .ToList();
         var count = materializedObjects.Count;
         var hasMore = count > MaxCount;
+
         var prefix = hasMore ?
-            $"First {MaxCount} of {count}+"
+            $"First {MaxCount} of {MaxCount}+"
             : $"{count}";
 
         if (coll is IDictionary dictionary)
