@@ -307,7 +307,7 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | Property | Type | Description |
 |--------|------------------|---|
 | `Formatter.Registry` | `IReadOnlyDictionary<Type, IFormatter>` | The registered custom formatter map |
-| `DefaultFormatter.Instance` | `IFormatter`| The shared, thread-safe singleton instance of `DefaultFormatter` |
+| `DefaultFormatter.Instance` | `IFormatter`| The shared singleton instance of `DefaultFormatter` |
 
 ### Constants
 
