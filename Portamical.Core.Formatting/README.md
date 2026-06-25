@@ -276,39 +276,51 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 
 ## API Reference
 
-### Formatter
+### Formatter Methods
 
-| Method | Description |
-|--------|-------------|
-| `Registry` | The registered formatter map `{ Type : IFormatter }` |
-| `Format<T>(T)` | Format a value using registered or default formatter |
-| `RegisterFormatter<T>(IFormatter)` | Register a custom formatter for type `T` |
-| `RegisterFormatter(Type, IFormatter)` | Register a custom formatter for a type |
-| `UnregisterFormatter<T>()` | Remove the formatter for type `T` |
-| `UnregisterFormatter(Type)` | Remove the formatter for a type |
-| `IsFormattered<T>()` | Check if a formatter is registered for `T` |
-| `IsFormattered(Type)` | Check if a formatter is registered for a type |
-| `GetFormatter<T>()` | Get the formatter for `T` (custom or default) |
-| `GetFormatter(Type)` | Get the formatter for a type (custom or default) |
-| `ClearFormatters()` | Remove all custom formatters |
+| Method | Type | Description |
+|--------|------|-------------|
+| `Format<T>(T)` | `string` | Format a value using registered or default formatter |
+| `RegisterFormatter<T>(IFormatter)` | `bool`| Register a custom formatter for type `T` |
+| `RegisterFormatter(Type, IFormatter)` | `bool`| Register a custom formatter for a type |
+| `UnregisterFormatter<T>()` | `bool`| Remove the formatter for type `T` |
+| `UnregisterFormatter(Type)` | `bool`| Remove the formatter for a type |
+| `IsFormattered<T>()` | `bool`| Check if a formatter is registered for `T` |
+| `IsFormattered(Type)` | `bool`| Check if a formatter is registered for a type |
+| `GetFormatter<T>()` | `IFormatter`| Get the formatter for `T` (custom or default) |
+| `GetFormatter(Type)` | `IFormatter`| Get the formatter for a type (custom or default) |
+| `ClearFormatters()` | (void) | Remove all custom formatters |
 
-### Builder
+### Builder Methods
 
-| Method | Description |
-|--------|-------------|
-| `CreateSeparatedString(string, string, string)` | Zero-allocation three-part string assembly |
-| `JoinWithComma(IEnumerable<string?>)` | Join items with `", "` separator (optimized for 0-3 items) |
-| `JoinWithSeparator(IEnumerable<string?>, string)` | Join items with custom separator |
-| `CopyAsSpan(string, Span<char>, int)` | Copy string to span at index (inlined) |
-| `FallbackIfNull(string?)` | Convert `null` to `"null"` (inlined) |
-| `FallbackIfNullSeparator(string?)` | Convert `null` separator to `", "` (inlined) |
+| Method | Type | Description |
+|--------|------|-------------|
+| `CreateSeparatedString(string, string, string)` | `string` | Zero-allocation three-part string assembly |
+| `JoinWithComma(IEnumerable<string?>)` | `string` | Join items with `", "` separator (optimized for 0-3 items) |
+| `JoinWithSeparator(IEnumerable<string?>, string)` | `string` | Join items with custom separator |
+| `CopyAsSpan(string, Span<char>, int)` | (void) | Copy string to span at index (inlined) |
+| `FallbackIfNull(string?)` | `string` | Convert `null` to `"null"` (inlined) |
+| `FallbackIfNullSeparator(string?)` | `string` | Convert `null` separator to `", "` (inlined) |
+
+### DefaultFormatter Methods
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `Format(object?)` | `string?` | Formats an object into a predefined human-readable string representation, or returns `null` |
+
+### Static Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `Formatter.Registry` | `IReadOnlyDictionary<Type, IFormatter>` | The registered custom formatter map |
+| `DefaultFormatter.Instance` | `IFormatter`| The singleton instance of `DefaultFormatter` |
 
 ### Constants
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `Builder.MaxCount` | `3` | Max items shown in collections/tuples |
-| `Builder.NullString` | `"null"` | String representation of `null` |
+| Constant | Type | Value | Description |
+|----------|------|-------|-------------|
+| `Builder.MaxCount` | `int` | `3` | Max items shown in collections/tuples |
+| `Builder.NullString` | `string` | `"null"` | String representation of `null` |
 
 ---
 
