@@ -311,10 +311,10 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 
 ### Constants
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `Builder.MaxCount` | `3` | Max items shown in collections/tuples |
-| `Builder.NullString` | `"null"` | String representation of `null` |
+| Constant | Type | Value | Description |
+|----------|------|-------|-------------|
+| `Builder.MaxCount` | `int` | `3` | Max items shown in collections/tuples |
+| `Builder.NullString` | `string` | `"null"` | String representation of `null` |
 
 ---
 
