@@ -42,7 +42,7 @@
 | `Delegate` | `Func<int, string> (MethodName)` or `Action (anonymous)` |
 | `KeyValuePair<K,V>` | `{"key": value}` |
 | `Tuple` / `ValueTuple` | `(item1, item2, item3)` |
-| Collections (`IEnumerable`) | `[3]: [1, 2, 3]` or `[First 3 of 5+]: [1, 2, 3]` |
+| Collections (`IEnumerable`) | `[3]: [1, 2, 3]` or `[First 3 of 3+]: [1, 2, 3]` |
 | Dictionaries (`IDictionary`) | `[2]: {{"a": 1}, {"b": 2}}` |
 | `Stream` | `MemoryStream (Length: 1024, Position: 0)` |
 
