@@ -4,8 +4,8 @@
 namespace Portamical.Core.Strategy;
 
 /// <summary>
-/// Specifies which properties of an <see cref="ITestData"/> instance should be included in the test data object array
-/// when <see cref="ArgsCode.Properties"/> is used. This works in conjunction with <see cref="IDataStrategy"/>.
+/// Specifies which properties of an <see cref="TestDataTypes.ITestData"/> instance should be included in the test data object array
+/// when <see cref="ArgsCode.Properties"/> is used. This works in conjunction with <see cref="TestDataTypes.ITestData.ToArgs(ArgsCode)"/>.
 /// </summary>
 public enum PropsCode
 {
@@ -14,21 +14,21 @@ public enum PropsCode
     /// including the <see cref="Identity.INamedCase.TestCaseName"/>.
     /// This is the most comprehensive inclusion option.
     /// For MSTest: 'DynamicDataAttribute.DynamicDataDisplayName' can use
-    /// <see cref="Identity.Model.NamedCase.CreateDisplayName(string?, object?[]?)"/>
+    /// <see cref="Identity.Model.NamedCase.CreateDisplayName(string, object[])"/>
     /// to construct the display name.
     /// </summary>
     All,
 
     /// <summary>
-    /// Includes all properties of the <see cref="TestDataTypes.ITestData"/> instanc
+    /// Includes all properties of the <see cref="TestDataTypes.ITestData"/> instance
     /// except the <see cref="Identity.INamedCase.TestCaseName"/> property.
-    /// Most common case: Useful when the test case name isn't needed to be contained 
-    /// by the test data object array.
+    /// Most common case: Useful when the test case name isn't needed in
+    /// the test data object array.
     /// </summary>
     TrimTestCaseName,
 
     /// <summary>
-    /// Excludes also the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
+    /// Also excludes the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
     /// if the <see cref="TestDataTypes.ITestData"/> instance implements
     /// <see cref="TestDataTypes.Patterns.IReturns"/>. Otherwise, the 'Expected' property is included.
     /// Useful for NUnit/TestNG style tests returning values.
@@ -36,7 +36,7 @@ public enum PropsCode
     TrimReturnsExpected,
 
     /// <summary>
-    /// Excludes the also <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
+    /// Also excludes the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
     /// if the <see cref="TestDataTypes.ITestData"/> instance implements
     /// <see cref="TestDataTypes.Patterns.IThrows"/>. Otherwise, the 'Expected' property is included.
     /// </summary>

@@ -1,13 +1,9 @@
 // SPDX-License-Identifier: MIT
-// Copyright (ch) 2026. Csaba Dudas (CsabaDu)
+// Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Safety;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
-using static Portamical.Core.Formatting.Model.Formatter;
-using static Portamical.Core.Safety.Validator;
+using static Portamical.Core.Formatting.Builder;
 
 namespace Portamical.Core.Formatting;
 
@@ -16,7 +12,7 @@ namespace Portamical.Core.Formatting;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The <see cref="ValueFormatter"/> class offers specialized formatting for various .NET types,
+/// The <see cref="DefaultFormatter"/> class offers specialized formatting for various .NET types,
 /// optimized for creating readable test case names, diagnostic output, and logging messages.
 /// </para>
 /// <para>
@@ -24,128 +20,75 @@ namespace Portamical.Core.Formatting;
 /// <list type="bullet">
 ///   <item>Type-specific formatting rules (strings quoted, chars single-quoted, dates in ISO 8601, etc.)</item>
 ///   <item>Recursive formatting for collections, tuples, and nested structures</item>
-///   <item>C#-friendly expectedType names (int instead of Int32, List&lt;string&gt; with proper syntax)</item>
+///   <item>C#-friendly type names (int instead of Int32, List&lt;string&gt; with proper syntax)</item>
 ///   <item>Graceful null handling - returns null to signal formatting failure for downstream handling</item>
 ///   <item>Configurable collection truncation (first <see cref="MaxCount"/> items)</item>
 /// </list>
 /// </para>
 /// <para>
 /// <strong>Design Pattern:</strong> Uses pattern matching with method overloading to dispatch
-/// to expectedType-specific formatters, enabling extensibility and clean separation of concerns.
-/// Supports custom formatter registration via <see cref="Registry"/> for specialized types.
+/// to type-specific formatters, enabling extensibility and clean separation of concerns.
+/// Supports custom formatter registration via <see cref="Formatter"/> for specialized types.
 /// </para>
 /// </remarks>
-public static class ValueFormatter
+public sealed class DefaultFormatter : IFormatter
 {
-    /// <summary>
-    /// Represents the maximum count value supported by the formatter.
-    /// </summary>
-    /// <value>
-    /// The maximum count value inherited from <see cref="Model.Formatter.MaxCount"/>.
-    /// </value>
-    /// <remarks>
-    /// This constant defines the upper limit for count operations in the value formatter.
-    /// Any count exceeding this value should be handled appropriately by the implementing code.
-    /// </remarks>
-    public const int MaxCount = Model.Formatter.MaxCount;
+    private DefaultFormatter()
+    {
+    }
+
+    string? IFormatter.Format(object? obj)
+    => Format(obj);
 
     /// <summary>
-    /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
+    /// Gets the singleton instance of the <see cref="DefaultFormatter"/>.
     /// </summary>
+    /// <value>A shared, thread-safe <see cref="IFormatter"/> instance.</value>
     /// <remarks>
     /// <para>
-    /// This cache eliminates string allocations for ~95% of character formatting operations.
-    /// Characters are formatted with single quotes: <ch>'a'</ch>, <ch>'Z'</ch>, <ch>'0'</ch>, etc.
+    /// This property provides a pre-initialized formatter instance that can be reused
+    /// throughout the application, avoiding unnecessary allocations. The formatter is
+    /// stateless and thread-safe, making it suitable for concurrent use.
     /// </para>
     /// <para>
-    /// Non-printable characters (control characters, extended ASCII, Unicode) are formatted
-    /// on-demand and are not cached.
-    /// </para>
-    /// </remarks>
-    private static readonly string[] CharFormats =
-        [.. Enumerable.Range(32, 95).Select(i => $"'{(char)i}'")];
-
-    /// <summary>
-    /// Thread-safe registry of custom formatters for specific types.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Uses <see cref="ConcurrentDictionary{TKey, TValue}"/> to provide lock-free thread-safe
-    /// access for concurrent reads and writes. Multiple threads can safely register formatters
-    /// and format objects simultaneously without external synchronization.
+    /// <strong>Thread Safety:</strong> The formatter instance is immutable and thread-safe.
+    /// Multiple threads can safely call <see cref="Format(object?)"/> concurrently.
     /// </para>
     /// <para>
-    /// <strong>Usage:</strong> Register formatters via <see cref="RegisterFormatter(Type, IFormatter)"/>
-    /// for domain-specific types, complex objects, or types that need specialized string representations
-    /// in test case names. Unregister via <see cref="UnregisterFormatter(Type)"/>.
-    /// </para>
-    /// <para>
-    /// <strong>Performance:</strong> Lock-free reads are O(1). Registered formatters are consulted
-    /// before pattern matching, providing an efficient extension point without modifying core logic.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> All operations (register, unregister, lookup) are thread-safe.
-    /// </para>
-    /// </remarks>
-    private static readonly ConcurrentDictionary<Type, IFormatter> _registry = new();
-
-    /// <summary>
-    /// Gets the internal formatter registry for testing purposes.
-    /// </summary>
-    /// <value>A read-only view of the formatter registry.</value>
-    /// <remarks>
-    /// <para>
-    /// <strong>Warning:</strong> This property is exposed primarily for unit testing
-    /// and should not be used in production code. Use the public registration methods
-    /// (<see cref="RegisterFormatter(Type, IFormatter)"/>, <see cref="UnregisterFormatter(Type)"/>, etc.)
-    /// for normal formatter management.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> The returned dictionary is thread-safe for reads and writes.
-    /// </para>
-    /// </remarks>
-    public static IReadOnlyDictionary<Type, IFormatter> Registry
-    => _registry;
-
-    /// <summary>
-    /// Gets the number of currently registered custom formatters.
-    /// </summary>
-    /// <value>The count of registered formatters.</value>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This property is thread-safe. However, the count may change
-    /// immediately after reading due to concurrent registrations/unregistrations from other threads.
+    /// <strong>Usage:</strong> This instance is returned by <see cref="Formatter.GetFormatter(Type)"/>
+    /// when no custom formatter is registered for a type, serving as the fallback formatter.
     /// </para>
     /// </remarks>
     /// <example>
     /// <code>
-    /// int count = ValueFormatter.RegisteredFormatterCount;
-    /// Console.WriteLine($"Custom formatters: {count}");
+    /// // Use the singleton instance directly
+    /// var formatter = DefaultFormatter.Instance;
+    /// var result = formatter.Format(42);  // Returns: "42"
+    /// 
+    /// // Or use it via the interface
+    /// ICustomFormatter formatter = DefaultFormatter.Instance;
     /// </code>
     /// </example>
-    public static int RegisteredFormatterCount
-    => _registry.Count;
+    public static readonly IFormatter Instance = new DefaultFormatter();
 
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
     /// </summary>
-    /// <param name="expected">The object to format. May be null from recursive calls.</param>
+    /// <param name="obj">The object to format. May be null from recursive calls.</param>
     /// <returns>
     /// A formatted string representation suitable for test case names, or <see langword="null"/> if formatting fails.
-    /// Null returns are intentional and signal the caller to use <see cref="Resolver.FallbackIfNullOrWhiteSpace"/> 
-    /// or similar fallback strategies for logging and error handling.
+    /// Null returns are intentional and signal the caller to use fallback strategies for logging and error handling.
     /// </returns>
     /// <remarks>
     /// <para>
     /// <strong>Null Handling Strategy:</strong> This method may return null to signal formatting failure.
-    /// Callers should use <see cref="Resolver.FallbackIfNullOrWhiteSpace"/> or similar utilities to log
-    /// the failure and provide an indexed fallback label, creating an auditable trail.
+    /// Callers should use fallback strategies for logging and error handling.
     /// </para>
     /// <para>
-    /// <strong>Implementation:</strong> First checks the <see cref="Registry"/> for custom formatters registered
+    /// <strong>Implementation:</strong> First checks the <see cref="Formatter"/> for custom formatters registered
     /// for the object's type. If no custom formatter is found, uses pattern matching to dispatch to type-specific
     /// overloaded helper methods. Each specialized method handles formatting for a particular type or type family
-    /// (e.g., <ch>Format(char)</ch>, <ch>Format(string)</ch>, <ch>Format(IEnumerable)</ch>).
+    /// (e.g., internal <ch>Format(char)</ch>, <ch>Format(string)</ch>, <ch>Format(IEnumerable)</ch> formatters).
     /// This design separates concerns and improves maintainability while allowing extensibility.
     /// </para>
     /// <para>
@@ -157,55 +100,55 @@ public static class ValueFormatter
     ///   </listheader>
     ///   <item>
     ///     <term><see cref="char"/></term>
-    ///     <description>Single-quoted: <ch>'ch'</ch> (via <ch>Format(char)</ch>)</description>
+    ///     <description>Single-quoted: <ch>'ch'</ch> (via internal <ch>Format(char)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="string"/></term>
-    ///     <description>Double-quoted: <ch>"text"</ch> (except for literal "null") (via <ch>Format(string)</ch>)</description>
+    ///     <description>Double-quoted: <ch>"text"</ch> (except for literal "null") (via internal <ch>Format(string)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="DateTime"/>, <see cref="DateTimeOffset"/></term>
-    ///     <description>ISO 8601 (round-trippable): <ch>2026-01-15T10:30:00.0000000Z</ch> (via <ch>Format&lt;T&gt;(Func, T)</ch> with "O" format)</description>
+    ///     <description>ISO 8601 (round-trippable): <ch>2026-01-15T10:30:00.0000000Z</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with "O" format)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Guid"/></term>
-    ///     <description>Hyphenated format: <ch>12345678-1234-1234-1234-123456789012</ch> (via <ch>Format&lt;T&gt;(Func, T)</ch> with "D" format)</description>
+    ///     <description>Hyphenated format: <ch>12345678-1234-1234-1234-123456789012</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with "D" format)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="byte"/>[]</term>
-    ///     <description>Hex string: <ch>01-02-03-FF</ch> (via <ch>Format&lt;T&gt;(Func, T)</ch> with <see cref="BitConverter.ToString"/>)</description>
+    ///     <description>Hex string: <ch>01-02-03-FF</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with <see cref="BitConverter.ToString(byte[])"/>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="KeyValuePair{TKey, TValue}"/></term>
-    ///     <description>Key-value pair: <ch>{key: value}</ch> (via <ch>Format&lt;TKey, TValue&gt;(KeyValuePair)</ch>)</description>
+    ///     <description>Key-value pair: <ch>{key: value}</ch> (via internal <ch>Format(object?, object?)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Tuple"/> and <see cref="ValueTuple"/> (all arities)</term>
-    ///     <description>Parenthesized items: <ch>(item1, item2, ...)</ch> (via <ch>Format(ITuple)</ch>)</description>
+    ///     <description>Parenthesized items: <ch>(item1, item2, ...)</ch> (via internal <ch>Format(ITuple)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Exception"/></term>
-    ///     <description>Type and message: <ch>ArgumentException: Value cannot be null</ch> (via <ch>Format(Exception)</ch>)</description>
+    ///     <description>Type and message: <ch>ArgumentException: Value cannot be null</ch> (via internal <ch>Format(Exception)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Type"/></term>
-    ///     <description>C#-friendly expectedType name: <ch>int</ch>, <ch>List&lt;string&gt;</ch>, <ch>int?</ch>, <ch>int[]</ch> (via <ch>Format(Type)</ch>)</description>
+    ///     <description>C#-friendly type name: <ch>int</ch>, <ch>List&lt;string&gt;</ch>, <ch>int?</ch>, <ch>int[]</ch> (via internal <ch>Format(Type)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Delegate"/></term>
-    ///     <description>Type and method name: <ch>Func&lt;int, string&gt; (MethodName)</ch> or <ch>Action (anonymous)</ch> (via <ch>Format(Delegate)</ch>)</description>
+    ///     <description>Type and method name: <ch>Func&lt;int, string&gt; (MethodName)</ch> or <ch>Action (anonymous)</ch> (via internal <ch>Format(Delegate)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IEnumerable"/></term>
-    ///     <description>First <see cref="MaxCount"/> (3) items: <ch>[3]: [1, 2, 3]</ch> or <ch>[First 3 of 5+]: [1, 2, 3]</ch> (via <ch>Format(IEnumerable)</ch>)</description>
+    ///     <description>First <see cref="MaxCount"/> (3) items: <ch>[3]: [1, 2, 3]</ch> or <ch>[First 3 of 5+]: [1, 2, 3]</ch> (via internal <ch>Format(IEnumerable)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IDictionary"/></term>
-    ///     <description>First <see cref="MaxCount"/> (3) pairs: <ch>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</ch> (via <ch>Format(IDictionary, string?)</ch>)</description>
+    ///     <description>First <see cref="MaxCount"/> (3) pairs: <ch>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</ch> (via internal <ch>Format(IDictionary, string?)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Stream"/></term>
-    ///     <description>Type, length, position: <ch>MemoryStream (Length: 1024, Position: 0)</ch> (via <ch>Format(Stream)</ch>)</description>
+    ///     <description>Type, length, position: <ch>MemoryStream (Length: 1024, Position: 0)</ch> (via internal <ch>Format(Stream)</ch> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term>Other types</term>
@@ -216,7 +159,7 @@ public static class ValueFormatter
     /// <para>
     /// <strong>Error Handling:</strong> Instead of throwing exceptions, the formatting methods return null
     /// for unformattable objects (e.g., non-seekable streams that throw on property access, ToString() returns null),
-    /// allowing <see cref="Resolver"/> to log and provide fallback values.
+    /// allowing fallback strategies for logging and error handling.
     /// </para>
     /// </remarks>
     /// <example>
@@ -272,287 +215,46 @@ public static class ValueFormatter
     /// Format(null)  // Returns: null
     /// </code>
     /// </example>
-    public static string? Format(object? expected)
+    public static string? Format(object? obj)
+    => obj switch
     {
-        if (expected is null) return null;
-
-        // Check custom formatter registry first (lock-free, thread-safe)
-        var expectedType = expected.GetType();
-
-        if (RegisteredFormatterCount > 0 &&
-            _registry.TryGetValue(expectedType, out var formatter))
-        {
-            return formatter.Format(expected);
-        }
-
-        return expected switch
-        {
-            // - string, ITuple (Tuple/ValueTuple) and KeyValuePair
-            //   must be checked before IEnumerable
-            //   (since these implement or may implement IEnumerable).
-            // - IDictionary is checked separately in Format(IEnumerable)
-            //   to delegate to Format(IDictionary, string?).
-            char ch                 => Format(ch),
-            string str              => Format(str),
-            Type type               => Format(type),
-            DateTime dt             => Format(dt.ToString, "O"),
-            DateTimeOffset dto      => Format(dto.ToString, "O"),
-            Guid guid               => Format(guid.ToString, "D"),
-            byte[] bytes            => Format(BitConverter.ToString, bytes),
-            Exception ex            => Format(ex),
-            _ when IsKeyValuePair(
-                expected,
-                out var key,
-                out var value)      => Format(key, value),
-            ITuple tuple            => Format(tuple),
-            Delegate del            => Format(del),
-            IEnumerable coll        => Format(coll),
-            Stream stream           => Format(stream),
-            _                       => expected.ToString() ?? null,
-        };
-    }
-
-    #region Formatter Registration API
-
-    /// <summary>
-    /// Registers a custom formatter for a specific type.
-    /// </summary>
-    /// <param name="type">The type to register the formatter for. Cannot be null.</param>
-    /// <param name="formatter">The formatter implementation. Cannot be null.</param>
-    /// <returns>
-    /// <see langword="true"/> if the formatter was registered successfully;
-    /// <see langword="false"/> if a formatter for this type already exists (no overwrite).
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently
-    /// from multiple threads. Uses <see cref="ConcurrentDictionary{TKey, TValue}.TryAdd"/> which
-    /// guarantees atomic insertion without locks.
-    /// </para>
-    /// <para>
-    /// <strong>Overwrite Protection:</strong> If a formatter is already registered for the type,
-    /// this method returns <see langword="false"/> without modifying the existing registration.
-    /// Use <see cref="UnregisterFormatter(Type)"/> first if you need to replace a formatter.
-    /// </para>
-    /// <para>
-    /// <strong>Usage:</strong> Call during application startup or test initialization to register
-    /// custom formatters for domain-specific types.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="type"/> or <paramref name="formatter"/> is <see langword="null"/>.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// // Register a custom formatter for MyCustomType
-    /// public class MyCustomFormatter : IFormatter
-    /// {
-    ///     public string? Format(object? obj) => obj switch
-    ///     {
-    ///         MyCustomType custom => $"Custom[{custom.Id}]",
-    ///         _ => null
-    ///     };
-    /// }
-    /// 
-    /// // Thread-safe registration
-    /// bool registered = ValueFormatter.RegisterFormatter(typeof(MyCustomType), new MyCustomFormatter());
-    /// if (registered)
-    /// {
-    ///     // Formatter registered successfully
-    ///     var result = ValueFormatter.Format(new MyCustomType { Id = 42 });
-    ///     // Returns: "Custom[42]"
-    /// }
-    /// </code>
-    /// </example>
-    public static bool RegisterFormatter(Type type, IFormatter formatter)
-    => _registry.TryAdd(
-        NotNull(type, nameof(type)),
-        NotNull(formatter, nameof(formatter)));
-
-    /// <summary>
-    /// Registers a custom formatter for a specific type using a generic type parameter.
-    /// </summary>
-    /// <typeparam name="T">The type to register the formatter for.</typeparam>
-    /// <param name="formatter">The formatter implementation. Cannot be null.</param>
-    /// <returns>
-    /// <see langword="true"/> if the formatter was registered successfully;
-    /// <see langword="false"/> if a formatter for this type already exists (no overwrite).
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This is a convenience overload of <see cref="RegisterFormatter(Type, IFormatter)"/>
-    /// that uses compile-time type safety via generics.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="formatter"/> is <see langword="null"/>.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// // Generic registration (compile-time type safety)
-    /// bool registered = ValueFormatter.RegisterFormatter&lt;MyCustomType&gt;(new MyCustomFormatter());
-    /// </code>
-    /// </example>
-    public static bool RegisterFormatter<T>(IFormatter formatter)
-    => RegisterFormatter(typeof(T), formatter);
-
-    /// <summary>
-    /// Unregisters a custom formatter for a specific type.
-    /// </summary>
-    /// <param name="type">The type to unregister the formatter for. Cannot be null.</param>
-    /// <returns>
-    /// <see langword="true"/> if the formatter was unregistered successfully;
-    /// <see langword="false"/> if no formatter was registered for this type.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently
-    /// from multiple threads. Uses <see cref="ConcurrentDictionary{TKey, TValue}.TryRemove(TKey, out TValue)"/>
-    /// which guarantees atomic removal without locks.
-    /// </para>
-    /// <para>
-    /// After unregistration, <see cref="Format(object?)"/> will fall back to the default
-    /// pattern matching logic for objects of this type.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="type"/> is <see langword="null"/>.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// // Unregister a formatter
-    /// bool unregistered = ValueFormatter.UnregisterFormatter(typeof(MyCustomType));
-    /// if (unregistered)
-    /// {
-    ///     // Formatter removed, will use default formatting now
-    /// }
-    /// </code>
-    /// </example>
-    public static bool UnregisterFormatter(Type type)
-    => _registry.TryRemove(
-        NotNull(type, nameof(type)),
-        out _);
-
-    /// <summary>
-    /// Unregisters a custom formatter for a specific type using a generic type parameter.
-    /// </summary>
-    /// <typeparam name="T">The type to unregister the formatter for.</typeparam>
-    /// <returns>
-    /// <see langword="true"/> if the formatter was unregistered successfully;
-    /// <see langword="false"/> if no formatter was registered for this type.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This is a convenience overload of <see cref="UnregisterFormatter(Type)"/>
-    /// that uses compile-time type safety via generics.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// // Generic unregistration (compile-time type safety)
-    /// bool unregistered = ValueFormatter.UnregisterFormatter&lt;MyCustomType&gt;();
-    /// </code>
-    /// </example>
-    public static bool UnregisterFormatter<T>()
-    => UnregisterFormatter(typeof(T));
-
-    /// <summary>
-    /// Checks if a custom formatter is registered for a specific type.
-    /// </summary>
-    /// <param name="type">The type to check. Cannot be null.</param>
-    /// <returns>
-    /// <see langword="true"/> if a formatter is registered for this type;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="type"/> is <see langword="null"/>.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// if (ValueFormatter.IsFormatterRegistered(typeof(MyCustomType)))
-    /// {
-    ///     // Custom formatter is active
-    /// }
-    /// </code>
-    /// </example>
-    public static bool IsFormatterRegistered(Type type)
-    => _registry.ContainsKey(NotNull(type, nameof(type)));
-
-    /// <summary>
-    /// Checks if a custom formatter is registered for a specific type using a generic type parameter.
-    /// </summary>
-    /// <typeparam name="T">The type to check.</typeparam>
-    /// <returns>
-    /// <see langword="true"/> if a formatter is registered for this type;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This is a convenience overload of <see cref="IsFormatterRegistered(Type)"/>
-    /// that uses compile-time type safety via generics.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// if (ValueFormatter.IsFormatterRegistered&lt;MyCustomType&gt;())
-    /// {
-    ///     // Custom formatter is active
-    /// }
-    /// </code>
-    /// </example>
-    public static bool IsFormatterRegistered<T>()
-    => IsFormatterRegistered(typeof(T));
-
-    /// <summary>
-    /// Clears all registered custom formatters.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
-    /// Uses <see cref="ConcurrentDictionary{TKey, TValue}.Clear"/> which is atomic.
-    /// </para>
-    /// <para>
-    /// <strong>Usage:</strong> Typically called during test teardown or when resetting the
-    /// formatter to its default st.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// // Clear all custom formatters (e.g., in test cleanup)
-    /// ValueFormatter.ClearFormatters();
-    /// </code>
-    /// </example>
-    public static void ClearFormatters()
-    => _registry.Clear();
-
-    #endregion
+        // - string, ITuple (Tuple/ValueTuple) and KeyValuePair
+        //   must be checked before IEnumerable
+        //   (since these implement or may implement IEnumerable).
+        // - IDictionary is checked separately in Format(IEnumerable)
+        //   to delegate to FormatDictionary(IDictionary, string?).
+        null                    => null,
+        char ch                 => Format(ch),
+        string str              => Format(str),
+        Type type               => Format(type),
+        DateTime dt             => Format(dt.ToString, context: "O"),
+        DateTimeOffset dto      => Format(dto.ToString, context: "O"),
+        Guid guid               => Format(guid.ToString, context: "D"),
+        byte[] bytes            => Format(BitConverter.ToString, context: bytes),
+        Exception ex            => Format(ex),
+        _ when IsKeyValuePair(
+            obj,
+            out var key,
+            out var value)      => Format(key, value),
+        ITuple tuple            => Format(tuple),
+        Delegate del            => Format(del),
+        IEnumerable coll        => Format(coll),
+        Stream stream           => Format(stream),
+        _                       => obj.ToString() ?? null,
+    };
 
     #region Private formatter methods
 
     /// <summary>
     /// Formats an object by invoking a provided formatting function.
     /// </summary>
-    /// <typeparam name="T">The expectedType of the context object to format.</typeparam>
+    /// <typeparam name="T">The type of the context object to format.</typeparam>
     /// <param name="toString">A function that converts the context object to a string representation.</param>
     /// <param name="context">The object instance to format.</param>
     /// <returns>The result of invoking <paramref name="toString"/> with <paramref name="context"/>, or <see langword="null"/> if the function returns null.</returns>
     /// <remarks>
     /// <para>
-    /// This generic helper method enables delegation of formatting to expectedType-specific methods
+    /// This generic helper method enables delegation of formatting to type-specific methods
     /// like <see cref="DateTime.ToString(string)"/> or <see cref="Guid.ToString(string)"/>,
     /// avoiding code duplication for types that support parameterized string formatting.
     /// </para>
@@ -572,7 +274,7 @@ public static class ValueFormatter
     /// Formats a <see cref="char"/> value with single quotes.
     /// </summary>
     /// <param name="ch">The character to format.</param>
-    /// <returns>A string in the form <ch>'ch'</ch> where <ch>ch</ch> is the character value.</returns>
+    /// <returns>A string in the form <c>'ch'</c> where the character is enclosed in single quotes.</returns>
     /// <remarks>
     /// <para>
     /// Uses single quotes to distinguish characters from strings and match C# literal syntax.
@@ -591,16 +293,9 @@ public static class ValueFormatter
     /// </code>
     /// </example>
     private static string? Format(char ch)
-    {
-        var IsAsciiPrintable = ch >= 32 && ch < 127;
-
-        if (IsAsciiPrintable)
-        {
-            return CharFormats[ch - 32];
-        }
-
-        return $"'{ch}'";
-    }
+    => ch >= AsciiPrintableStart && ch <= AsciiPrintableEnd ?
+        CharFormats[ch - AsciiPrintableStart]
+        : $"'{ch}'";
 
     /// <summary>
     /// Formats a <see cref="string"/> value with double quotes.
@@ -639,8 +334,11 @@ public static class ValueFormatter
             return NullString;
         }
 
-        // Zero-allocation string building: "str"
-        var totalLength = 2 + str.Length; // Two quote characters + string content
+        var twoQuoteCharsCount = 2;
+        var totalLength =
+            str.Length +
+            twoQuoteCharsCount;
+
         return string.Create(
             totalLength,
             str,
@@ -654,7 +352,7 @@ public static class ValueFormatter
     }
 
     /// <summary>
-    /// Formats an <see cref="Exception"/> as its expectedType name followed by its message.
+    /// Formats an <see cref="Exception"/> as its type name followed by its message.
     /// </summary>
     /// <param name="exception">The exception to format.</param>
     /// <returns>A string in the form <ch>"ExceptionType: Message"</ch>.</returns>
@@ -665,11 +363,11 @@ public static class ValueFormatter
     /// other detailed information.
     /// </para>
     /// <para>
-    /// <strong>Note:</strong> Uses <see cref="Type.Name"/> (not <ch>FullName</ch>) to keep
+    /// <strong>Note:</strong> Uses <see cref="Type"/>'s <c>Name</c> property (not <c>FullName</c>) to keep
     /// output concise (e.g., <ch>ArgumentException</ch> instead of <ch>System.ArgumentException</ch>).
     /// </para>
     /// <para>
-    /// <strong>Performance:</strong> Uses <see cref="Formatter.CreateSeparatedString"/> for zero-allocation
+    /// <strong>Performance:</strong> Uses <see cref="CreateSeparatedString"/> for zero-allocation
     /// string construction. Exception formatting is a hot path when used with <c>TestDataReturns&lt;TException&gt;</c>
     /// for exception-based test case generation, where it's called for every parameterized test case.
     /// </para>
@@ -684,18 +382,10 @@ public static class ValueFormatter
     /// </code>
     /// </example>
     private static string? Format(Exception exception)
-    {
-        const string separator = ": ";
-        var typeName = exception.GetType().Name;
-        var message = exception.Message;
-        var totalLength = typeName.Length + separator.Length + message.Length;
-
-        return CreateSeparatedString(
-            totalLength,
-            typeName,
-            separator,
-            message);
-    }
+    => CreateSeparatedString(
+        baseString: exception.GetType().Name,
+        separator: ": ",
+        appendix: exception.Message);
 
     /// <summary>
     /// Formats a KeyValuePair's key and value into a readable string.
@@ -719,9 +409,11 @@ public static class ValueFormatter
     {
         var formattedKey = FallbackIfNull(Format(key));
         var formattedValue = FallbackIfNull(Format(value));
-
-        // Zero-allocation string building: {key: value}
-        var totalLength = 4 + formattedKey.Length + formattedValue.Length; // "{", ": ", "}"
+        var additionalCharsCount = 4; // "{", ": ", "}"
+        var totalLength =
+            formattedKey.Length +
+            formattedValue.Length +
+            additionalCharsCount;
         return string.Create(
             totalLength,
             (formattedKey, formattedValue),
@@ -753,7 +445,7 @@ public static class ValueFormatter
     /// <remarks>
     /// <para>
     /// Uses the <see cref="ITuple"/> interface to access tuple elements generically,
-    /// supporting both <see cref="Tuple"/> (reference expectedType) and <see cref="ValueTuple"/> (value expectedType)
+    /// supporting both <see cref="Tuple"/> (reference type) and <see cref="ValueTuple"/> (value type)
     /// of any arity (1-8+ elements, including nested tuples).
     /// </para>
     /// <para>
@@ -763,7 +455,7 @@ public static class ValueFormatter
     /// </para>
     /// <para>
     /// <strong>Why use ITuple instead of Tuple.ToString()?</strong>
-    /// While <see cref="Tuple.ToString"/> produces <ch>(item1, item2)</ch> output,
+    /// While <see cref="Tuple"/>'s <c>ToString()</c> method produces <ch>(item1, item2)</ch> output,
     /// this method applies our custom formatting rules recursively. For example,
     /// strings are double-quoted, chars are single-quoted, and dates use ISO 8601 format.
     /// </para>
@@ -795,7 +487,7 @@ public static class ValueFormatter
     }
 
     /// <summary>
-    /// Formats a <see cref="Delegate"/> showing its expectedType and method name.
+    /// Formats a <see cref="Delegate"/> showing its type and method name.
     /// </summary>
     /// <param name="del">The delegate to format.</param>
     /// <returns>
@@ -806,8 +498,8 @@ public static class ValueFormatter
     /// <para>
     /// Formats delegates (including <see cref="Func{TResult}"/>, <see cref="Action"/>, 
     /// and custom delegate types) into readable strings suitable for test case names.
-    /// The output includes the delegate's expectedType with generic parameters formatted using
-    /// <see cref="Format(Type)"/> for C#-friendly expectedType names.
+    /// The output includes the delegate's type with generic parameters formatted using
+    /// <see cref="Format(Type)"/> for C#-friendly type names.
     /// </para>
     /// <para>
     /// <strong>Method Name Detection:</strong> Distinguishes between:
@@ -818,7 +510,7 @@ public static class ValueFormatter
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because delegate formatting involves expectedType formatting and string operations. Delegate
+    /// because delegate formatting involves type formatting and string operations. Delegate
     /// formatting is infrequent compared to primitive types.
     /// </para>
     /// </remarks>
@@ -849,11 +541,18 @@ public static class ValueFormatter
         var methodName = del.Method.Name;
 
         // Detect compiler-generated names for anonymous methods/lambdas
-        var isAnonymous = methodName.Contains('<') || methodName.Contains('>') || methodName.StartsWith(lambdaPrefix);
-        var displayName = isAnonymous ? anonymousMethodName : methodName;
+        var isAnonymous = methodName.Contains('<') ||
+            methodName.Contains('>') ||
+            methodName.StartsWith(lambdaPrefix);
+        var displayName = isAnonymous ?
+            anonymousMethodName
+            : methodName;
+        var spaceAndParensCount = 3; // " (", ")"
 
         // Zero-allocation string building: DelegateType (displayName)
-        var totalLength = delegateType!.Length + 3 + displayName.Length; // " (", ")"
+        var totalLength = delegateType!.Length +
+            spaceAndParensCount +
+            displayName.Length;
         return string.Create(
             totalLength,
             (delegateType, displayName),
@@ -875,11 +574,11 @@ public static class ValueFormatter
     }
 
     /// <summary>
-    /// Formats a <see cref="Type"/> into a C#-friendly expectedType name.
+    /// Formats a <see cref="Type"/> into a C#-friendly type name.
     /// </summary>
-    /// <param name="type">The expectedType to format.</param>
+    /// <param name="type">The type to format.</param>
     /// <returns>
-    /// A C#-friendly expectedType name using aliases (e.g., "int" instead of "Int32"), 
+    /// A C#-friendly type name using aliases (e.g., "int" instead of "Int32"), 
     /// with generic parameters (e.g., "List&lt;string&gt;"), array notation (e.g., "int[]"),
     /// and nullable syntax (e.g., "int?").
     /// </returns>
@@ -933,7 +632,7 @@ public static class ValueFormatter
             return FormatGenericType(type);
         }
 
-        // Use C# expectedType aliases for primitive types
+        // Use C# type aliases for primitive types
         // or fallback to type name for non-primitive types
         return GetCSharpAliasOrTypeName(type);
     }
@@ -954,11 +653,11 @@ public static class ValueFormatter
     /// </para>
     /// <para>
     /// <strong>Dictionary Handling:</strong> If the collection implements <see cref="IDictionary"/>,
-    /// delegates to <see cref="Format(IDictionary, string?)"/> for specialized key-value pair formatting.
+    /// delegates to <see cref="FormatDictionary(IDictionary, string?)"/> for specialized key-value pair formatting.
     /// </para>
     /// <para>
     /// <strong>Recursive Formatting:</strong> Each item is formatted via <see cref="Format(object?)"/>
-    /// to apply expectedType-specific formatting rules (strings quoted, chars single-quoted, etc.).
+    /// to apply type-specific formatting rules (strings quoted, chars single-quoted, etc.).
     /// Null items are replaced with the <see cref="NullString"/> constant.
     /// </para>
     /// <para>
@@ -977,14 +676,16 @@ public static class ValueFormatter
     /// </example>
     private static string? Format(IEnumerable coll)
     {
+        // Take one extra to check if there are more than MaxCount
         var materializedObjects = coll
             .Cast<object?>()
             .Take(MaxCount + 1)
             .ToList();
         var count = materializedObjects.Count;
         var hasMore = count > MaxCount;
+
         var prefix = hasMore ?
-            $"First {MaxCount} of {count}+"
+            $"First {MaxCount} of {MaxCount}+"
             : $"{count}";
 
         if (coll is IDictionary dictionary)
@@ -994,17 +695,17 @@ public static class ValueFormatter
 
         var items = materializedObjects
             .Take(MaxCount)
-            .Select(item => Format(item) ?? NullString);
+            .Select(item => FallbackIfNull(Format(item)));
 
         return $"[{prefix}]: [{JoinWithComma(items)}]";
     }
 
     /// <summary>
-    /// Formats a <see cref="Stream"/> showing its expectedType, length, and current position.
+    /// Formats a <see cref="Stream"/> showing its type, length, and current position.
     /// </summary>
     /// <param name="stream">The stream to format.</param>
     /// <returns>
-    /// A string showing the stream's expectedType name, length (if seekable), and current position;
+    /// A string showing the stream's type name, length (if seekable), and current position;
     /// or <see langword="null"/> if accessing stream properties throws an exception.
     /// </returns>
     /// <remarks>
@@ -1017,7 +718,7 @@ public static class ValueFormatter
     /// <para>
     /// <strong>Error Handling:</strong> Returns <see langword="null"/> if accessing stream properties
     /// throws an exception (e.g., disposed stream, network stream with disconnected socket).
-    /// This allows callers to use fallback formatting via <see cref="Resolver.FallbackIfNullOrWhiteSpace"/>.
+    /// This allows callers to use fallback formatting.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -1042,12 +743,9 @@ public static class ValueFormatter
 
         try
         {
-            if (stream.CanSeek)
-            {
-                return $"{typeName} (Length: {stream.Length}, Position: {stream.Position})";
-            }
-
-            return $"{typeName} (Position: {stream.Position})";
+            return stream.CanSeek ?
+                $"{typeName} (Length: {stream.Length}, Position: {stream.Position})"
+                : $"{typeName} (Position: {stream.Position})";
         }
         catch
         {
@@ -1057,7 +755,64 @@ public static class ValueFormatter
 
     #endregion
 
-    #region Format helper methods
+    #region Helpers
+
+    #region char helpers
+
+    private const int AsciiPrintableStart = ' ';
+    private const int AsciiPrintableEnd = '~';
+
+    /// <summary>
+    /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This cache eliminates string allocations for ~95% of character formatting operations.
+    /// Characters are formatted with single quotes: <ch>'a'</ch>, <ch>'Z'</ch>, <ch>'0'</ch>, etc.
+    /// </para>
+    /// <para>
+    /// Non-printable characters (control characters, extended ASCII, Unicode) are formatted
+    /// on-demand and are not cached.
+    /// </para>
+    /// </remarks>
+    private static readonly string[] CharFormats =
+        [.. Enumerable.Range(
+            AsciiPrintableStart,
+            AsciiPrintableEnd - AsciiPrintableStart + 1)
+        .Select(i => $"'{(char)i}'")];
+
+    #endregion
+
+    #region Span<char> helpers
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Span<char> InsertCharAndIncrement(
+        Span<char> span,
+        char ch,
+        int index,
+        out int incremented)
+    {
+        span[index] = ch;
+        incremented = index + 1;
+        return span;
+    }
+
+    private static Span<char> CopyAndInsertChar(
+        string str,
+        Span<char> span,
+        char ch,
+        int index,
+        out int incremented)
+    {
+        CopyAsSpan(str, span, index);
+        incremented = index + str.Length;
+        span[incremented] = ch;
+        return span;
+    }
+
+    #endregion
+
+    #region Formatting helpers
 
     #region KeyValuePair formatting helpers
 
@@ -1092,20 +847,14 @@ public static class ValueFormatter
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because it contains early returns, expectedType checks, and reflection. KeyValuePair detection is
+    /// because it contains early returns, type checks, and reflection. KeyValuePair detection is
     /// infrequent compared to primitive formatting.
     /// </para>
     /// </remarks>
-    private static bool IsKeyValuePair(object? obj, out object? key, out object? value)
+    private static bool IsKeyValuePair(object obj, out object? key, out object? value)
     {
         key = null;
         value = null;
-
-        if (obj is null)
-        {
-            return false;
-        }
-
         var type = obj.GetType();
 
         if (!type.IsGenericType ||
@@ -1135,12 +884,12 @@ public static class ValueFormatter
     /// </para>
     /// <para>
     /// <strong>Recursive Formatting:</strong> Keys and values are formatted via <see cref="Format(object?, object?)"/>
-    /// which recursively applies expectedType-specific formatting rules.
+    /// which recursively applies type-specific formatting rules.
     /// </para>
     /// <para>
     /// <strong>Reflection Usage:</strong> For generic <ch>Dictionary&lt;TKey, TValue&gt;</ch>, uses reflection
-    /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> expectedType,
-    /// avoiding the need for multiple overloads for every possible key/value expectedType combination.
+    /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> type,
+    /// avoiding the need for multiple overloads for every possible key/value type combination.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -1186,17 +935,15 @@ public static class ValueFormatter
 
     private static string FormatArrayType(Type type)
     {
-        var elementType = type.GetElementType();
-        if (elementType is null)
-        {
-            return type.Name;
-        }
+        var elementType = type.GetElementType()!;
         var formattedElement = Format(elementType)!;
         var rank = type.GetArrayRank();
+        var bracketsCount = 2; // "[]"
         if (rank == 1)
         {
+
             // Zero-allocation string building: elementType[]
-            var totalLength = formattedElement.Length + 2; // "[]"
+            var totalLength = formattedElement.Length + bracketsCount;
             return string.Create(
                 totalLength,
                 formattedElement,
@@ -1211,7 +958,7 @@ public static class ValueFormatter
         {
             // Zero-allocation string building: elementType[,,,]
             var commaCount = rank - 1;
-            var totalLength = formattedElement.Length + 2 + commaCount; // "[" + commas + "]"
+            var totalLength = formattedElement.Length + bracketsCount + commaCount; // "[" + commas + "]"
             return string.Create(
                 totalLength,
                 (formattedElement, commaCount),
@@ -1222,14 +969,16 @@ public static class ValueFormatter
                     var ch = '[';
                     span = CopyAndInsertChar(element, span, ch, 0, out var index);
 
+                    ch = ',';
                     index++;
 
                     for (int i = 0; i < count; i++)
                     {
-                        span = InsertCharAndIncrement(span, ',', index, out index);
+                        span = InsertCharAndIncrement(span, ch, index, out index);
                     }
 
-                    span[index] = ']';
+                    ch = ']';
+                    span[index] = ch;
                 });
         }
     }
@@ -1237,9 +986,10 @@ public static class ValueFormatter
     private static string FormatUnderlyingType(Type underlyingType)
     {
         var formattedUnderlying = Format(underlyingType)!;
+        var questionMarkCount = 1; // "?"
 
         // Zero-allocation string building: underlyingType?
-        var totalLength = formattedUnderlying.Length + 1; // "?"
+        var totalLength = formattedUnderlying.Length + questionMarkCount;
         return string.Create(
             totalLength,
             formattedUnderlying,
@@ -1264,10 +1014,11 @@ public static class ValueFormatter
 
         // Format generic arguments
         var genericArgs = type.GetGenericArguments();
-        var formattedArgs = JoinWithComma(genericArgs.Select(t => Format(t) ?? t.Name));
+        var formattedArgs = JoinWithComma(genericArgs.Select(t => Format(t)));
+        var angleBracketsCount = 2; // "<", ">"
 
         // Zero-allocation string building: TypeName<args>
-        var totalLength = typeName.Length + 2 + formattedArgs.Length; // "<", ">"
+        var totalLength = typeName.Length + angleBracketsCount + formattedArgs.Length;
         return string.Create(
             totalLength,
             (typeName, formattedArgs),
@@ -1286,70 +1037,43 @@ public static class ValueFormatter
     }
 
     /// <summary>
-    /// Gets the C# expectedType alias for common BCL types.
+    /// Gets the C# type alias for common BCL types.
     /// </summary>
-    /// <param name="type">The expectedType to get an alias for.</param>
-    /// <returns>The C# alias (e.g., "int") if available; otherwise, <see cref="Type.Name"/>.</returns>
+    /// <param name="type">The type to get an alias for.</param>
+    /// <returns>The C# alias (e.g., "int") if available; otherwise, <see cref="Type"/>'s <c>Name</c> property.</returns>
     /// <remarks>
     /// <para>
-    /// Maps BCL expectedType names to their C# keywords for improved readability.
+    /// Maps BCL type names to their C# keywords for improved readability.
     /// Called by <see cref="Format(Type)"/> after handling arrays, nullables, and generics.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because the switch expression is large and this is called only at the end of expectedType-formatting logic.
+    /// because the switch expression is large and this is called only at the end of type-formatting logic.
     /// </para>
     /// </remarks>
     private static string GetCSharpAliasOrTypeName(Type type)
     => type.FullName switch
     {
         "System.Boolean" => "bool",
-        "System.Byte" => "byte",
-        "System.SByte" => "sbyte",
-        "System.Char" => "char",
+        "System.Byte"    => "byte",
+        "System.SByte"   => "sbyte",
+        "System.Char"    => "char",
         "System.Decimal" => "decimal",
-        "System.Double" => "double",
-        "System.Single" => "float",
-        "System.Int32" => "int",
-        "System.UInt32" => "uint",
-        "System.Int64" => "long",
-        "System.UInt64" => "ulong",
-        "System.Int16" => "short",
-        "System.UInt16" => "ushort",
-        "System.Object" => "object",
-        "System.String" => "string",
-        "System.Void" => "void",
-        _ => type.Name
+        "System.Double"  => "double",
+        "System.Single"  => "float",
+        "System.Int32"   => "int",
+        "System.UInt32"  => "uint",
+        "System.Int64"   => "long",
+        "System.UInt64"  => "ulong",
+        "System.Int16"   => "short",
+        "System.UInt16"  => "ushort",
+        "System.Object"  => "object",
+        "System.String"  => "string",
+        "System.Void"    => "void",
+        _                => type.Name
     };
 
     #endregion
-
-    #region Span<char> helpers
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Span<char> InsertCharAndIncrement(
-        Span<char> span,
-        char ch,
-        int index,
-        out int incremented)
-    {
-        span[index] = ch;
-        incremented = index + 1;
-        return span;
-    }
-
-    private static Span<char> CopyAndInsertChar(
-        string str,
-        Span<char> span,
-        char ch,
-        int index,
-        out int incremented)
-    {
-        CopyAsSpan(str, span, index);
-        incremented = index + str.Length;
-        span[incremented] = ch;
-        return span;
-    }
 
     #endregion
 

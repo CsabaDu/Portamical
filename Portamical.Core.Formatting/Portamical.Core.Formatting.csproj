@@ -1,0 +1,102 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Build Settings -->
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SonarQubeTestProject>False</SonarQubeTestProject>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <!-- Package Info -->
+    <Version>1.0.0</Version>
+    <Title>Portamical.Core.Formatting</Title>
+    <Authors>CsabaDu</Authors>
+    <Company>CsabaDu</Company>
+    <Description>Extensible formatting infrastructure for Portamical test data framework. Provides type-specific formatters, custom formatter registry, and zero-allocation string building for human-readable test case names and diagnostic output.</Description>
+    <Copyright>(c) 2026. Csaba Dudas (CsabaDu)</Copyright>
+
+    <!-- Package Assets -->
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+
+    <!-- Repository -->
+    <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical.Core.Formatting</RepositoryUrl>
+    <PackageTags>formatting; testdata; extensible; performant; zeroallocation; logging; customformat; portamical;</PackageTags>
+
+    <!-- Release Notes -->
+    <PackageReleaseNotes>
+      v1.0.0 (2026-06-24) - Initial Release
+
+      Core Features:
+      - IFormatter and IFormatter&lt;T&gt; interfaces for custom formatter implementations
+      - Formatter&lt;T&gt; abstract base class with Template Method pattern
+      - DefaultFormatter with specialized formatting for 12+ .NET types
+        • Strings (quoted), chars (single-quoted), dates (ISO 8601)
+        • Collections, tuples, dictionaries (first 3 items with truncation)
+        • Exceptions, Types (C#-friendly names), Delegates, KeyValuePair
+        • Byte arrays (hex), Guid, Stream metadata
+      - Formatter (non-generic, static) for thread-safe custom formatter registration
+        • ConcurrentDictionary-based registry for lock-free reads/writes
+        • RegisterFormatter, UnregisterFormatter, GetFormatter, Format methods
+        • Custom formatters consulted before built-in pattern matching
+      - Builder utilities for zero-allocation string construction
+        • CreateSeparatedString: Span-based three-part string assembly
+        • JoinWithComma/JoinWithSeparator: Optimized for 0-3 item collections
+        • CopyAsSpan: Inline helper for efficient character copying
+        • FallbackIfNull: Consistent null-to-"null" conversion
+
+      Performance Optimizations:
+      - Zero-allocation string building using string.Create() with Span&lt;char&gt;
+        • 66-75% fewer allocations for common formatting scenarios
+        • Direct span writes for quoted strings, tuples, key-value pairs
+        • Allocation-free delegate and type name formatting
+      - Aggressive inlining for hot-path helpers (CopyAsSpan, FallbackIfNull)
+      - Optimized pattern matching with method overloading for type dispatch
+
+      Documentation:
+      - Comprehensive XML documentation for all public APIs
+        • Detailed type-specific formatting tables
+        • Formatter registration examples and patterns
+        • Performance characteristics and thread-safety notes
+        • Extensive code samples for all scenarios
+      - README with feature overview, quick start, and extensibility guide
+
+      Thread Safety:
+      - All public APIs are thread-safe for concurrent use
+      - FormatterRegister uses ConcurrentDictionary for lock-free operations
+      - DefaultFormatter is stateless and safe for parallel test execution
+    </PackageReleaseNotes>
+
+    <!-- Package Generation -->
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageOutputPath>$(OutputPath)</PackageOutputPath>
+
+    <!-- Symbols -->
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Documentation -->
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

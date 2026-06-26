@@ -6,168 +6,176 @@ Define test data **once** and consume it across test frameworks using adapter pa
 
 ---
 
-## What's New in v3.3.0
+## What's New in v4.0.0
 
-**Extensibility, Performance & Documentation Release**
+**Major Architectural Evolution: Standalone Formatting Library & API Refinement**
 
-This version introduces a powerful extensibility model through custom formatters, significant performance improvements via span-based optimizations, and comprehensive documentation enhancements across the test data type hierarchy.
+This major release extracts the formatting system into a standalone library (`Portamical.Core.Formatting`), refines the formatter API for better extensibility, and streamlines the core architecture.
 
 ### Breaking Changes
 
-1. **Formatter Architecture Refactoring**
-   - **Extracted:** Shared formatting logic from `ValueFormatter` into new `Formatter` base class
-   - **Moved:** Helper methods (`FallbackIfNull`, `JoinWithComma`) to `Formatter` base class
-   - **Impact:** Code using `using static Portamical.Core.Formatting.ValueFormatter;` may need updating
-   - **Migration:** Change to `using static Portamical.Core.Formatting.Model.Formatter;` for helper access
+1. **Formatting Library Extracted**
+   - **New Package:** `Portamical.Core.Formatting` - Standalone formatting library
+   - **Impact:** Formatting utilities are now in a separate NuGet package (automatically included as dependency)
+   - **Migration:** Update to `Portamical.Core` v4.0.0 - `Portamical.Core.Formatting` is included automatically
+
+2. **Formatter API Refinement**
+   - **Renamed:** `ValueFormatter` → `DefaultFormatter` (better intent clarity)
+   - **Moved:** `IFormatter` and `IFormatter<T>` to `Portamical.Core.Formatting.CustomFormatters` namespace
+   - **Changed:** `IFormatter<T>.Format(T)` return type: `string?` → `string` (non-nullable)
+   - **New:** `Formatter<T>` abstract base class for easier custom formatter implementation
+   - **Impact:** Code using `using static Portamical.Core.Formatting.ValueFormatter;` needs updating
+   - **Migration:** 
+     ```csharp
+     // Before (v3.3.0)
+     using static Portamical.Core.Formatting.ValueFormatter;
+     using Portamical.Core.Formatting;
+     
+     // After (v4.0.0)
+     using static Portamical.Core.Formatting.Builder;
+     using Portamical.Core.Formatting.CustomFormatters;
+     ```
+
+3. **Formatter Registry API Changes**
+   - **Removed:** `ValueFormatter.Registry`, `RegisterFormatter`, `UnregisterFormatter`, `IsFormatterRegistered`, `ClearFormatters`
+   - **New:** `Formatter` static class with simplified registration API
+   - **Migration:**
+     ```csharp
+     // Before (v3.3.0)
+     ValueFormatter.Registry[typeof(ProductId)] = new ProductIdFormatter();
+     ValueFormatter.RegisterFormatter<ProductId>(new ProductIdFormatter());
+     ValueFormatter.UnregisterFormatter<ProductId>();
+     
+     // After (v4.0.0) - via Portamical.Core.Formatting package
+     Formatter.RegisterFormatter<ProductId>(new ProductIdFormatter());
+     Formatter.UnregisterFormatter<ProductId>();
+     ```
 
 ### New Features
 
-1. **Custom Formatter Registry**
-   ```csharp
-   // Register custom formatter for your domain types
-   public class ProductIdFormatter : IFormatter<ProductId>
-   {
-       public string Format(ProductId value) => $"PROD-{value.Id:D6}";
-   }
+1. **Standalone Formatting Library (`Portamical.Core.Formatting`)**
+   - **Separate Package:** Independently versioned and maintained (automatically referenced by Portamical.Core)
+   - **Builder Utilities:** `Builder` class with span-based string building helpers
+     - `FallbackIfNull(string?)` - Null-to-"null" conversion
+     - `JoinWithComma(IEnumerable<string?>)` - Optimized joining
+     - `JoinWithSeparator(IEnumerable<string?>)` - Flexible separator insertion
+     - `CreateSeparatedString(string, string, string)` - Zero-allocation concatenation
+     - `CopyAsSpan(string, Span<char>, int)` - Efficient span copying
+   - **Singleton Pattern:** `DefaultFormatter.Instance` for reusable formatter access
 
-   // Register it globally
-   ValueFormatter.Registry[typeof(ProductId)] = new ProductIdFormatter();
+2. **Improved Formatter Base Class**
+   - **New:** `Formatter<T>` abstract base class simplifies custom formatter implementation
+   - **Pattern:** Sealed `IFormatter.Format(object?)` with abstract `Format(T)` override
+   - **Example:**
+     ```csharp
+     public sealed class ProductIdFormatter : Formatter<ProductId>
+     {
+         public override string Format(ProductId value)
+         {
+             return value is null ? NullString : $"PROD-{value.Id:D6}";
+         }
+     }
+     ```
 
-   // Now all test cases format ProductId automatically
-   var test = CreateTestDataReturns(
-       definition: "Get product by ID",
-       expected: productResult,
-       arg1: new ProductId(42));
-   // TestCaseName: "Get product by ID => returns PROD-000042" ?
-   ```
+3. **Enhanced Documentation**
+   - Comprehensive XML docs for all formatter infrastructure
+   - Performance notes and design pattern explanations
+   - Thread-safety guarantees documented
 
-2. **IFormatter Interface & Formatter Base Class**
-   - **`IFormatter<T>`**: Type-safe extensibility contract for custom formatters
-   - **`Formatter`**: Shared utilities for all formatters
-     - `FallbackIfNull(string?)`: Null-to-"null" conversion
-     - `JoinWithComma(IEnumerable<string?>)`: Optimized comma-separated list building
-     - `CreateSeparatedString(string, string, string)`: Zero-allocation concatenation
-     - Span-based helpers for high-performance string operations
+### Architecture Changes
 
-3. **Delegate Formatting**
-   ```csharp
-   // Distinguishes named methods from anonymous lambdas
-   Func<int, string> lambda = x => x.ToString();
-   // Formats as: "Func<int, string> (anonymous)"
+```
+Portamical.Core/                 (Core test data types)
+├── Identity/
+├── TestDataTypes/
+├── Factories/
+├── Safety/
+└── Strategy/
 
-   Action<string> method = Console.WriteLine;
-   // Formats as: "Action<string> (WriteLine)"
-   ```
+Portamical.Core.Formatting/     (NEW - Standalone formatting library)
+├── Formatter.cs                (Custom formatter registry, formatting pipeline)
+├── Builder.cs                  (String building utilities)
+├── DefaultFormatter.cs         (Singleton built-in formatter, 12+ type patterns)
+└── CustomFormatters/
+    ├── IFormatter.cs           (Formatter contracts)
+    └── Model/
+        └── Formatter.cs        (Abstract generic base class)
+```
 
 ### Performance Improvements
 
-- **Span-Based String Building**
-  - `Formatter.JoinWithComma()`: 66-75% fewer allocations for 2-3 item collections
-  - `ValueFormatter.Format()`: Zero-copy operations throughout hot paths
-  - `string.Create<TState>()`: Eliminates intermediate allocations
-  - Particularly beneficial in test case name generation (tuples, type arguments, small collections)
+- **Optimized Character Formatting:** Pre-cached ASCII printable characters (32-126)
+- **Span-Based Operations:** Zero-allocation string building throughout
+- **Singleton Pattern:** `DefaultFormatter.Instance` eliminates repeated instantiation
 
-### Enhanced Documentation
+### Migration Guide (v3.3.0 → v4.0.0)
 
-- **ValueFormatter**: Comprehensive XML documentation with formatting table for 12+ types
-- **TestDataExpected, TestDataReturns, TestDataThrows**: Enhanced XML comments with detailed examples
-- **IFormatter & Formatter**: Complete API documentation
-- **T4 Templates**: All templates now include `#nullable enable` directives
-  - `TestDataExpected.tt` ? **NEW**
-  - `TestDataReturns.tt`
-  - `TestDataThrows.tt`
+#### Step 1: Update Package Version
 
-### Migration from v3.2.x
-
-```csharp
-// Before (v3.2.x)
-using static Portamical.Core.Formatting.ValueFormatter;
-
-// After (v3.3.0)
-using static Portamical.Core.Formatting.Model.Formatter;
+```bash
+# Update to Portamical.Core v4.0.0 (automatically includes Portamical.Core.Formatting)
+dotnet add package Portamical.Core --version 4.0.0
 ```
 
-All existing `ValueFormatter.Format()` calls work unchanged. Performance improvements apply automatically.
+#### Step 2: Update Namespaces
 
----
+```csharp
+// Before (v3.3.0)
+using static Portamical.Core.Formatting.ValueFormatter;
+using Portamical.Core.Formatting;
 
-<details>
-<summary><strong>What's New in v3.2.0</strong> (Click to expand)</summary>
+// After (v4.0.0)
+using static Portamical.Core.Formatting.Builder;  // For helper methods
+using Portamical.Core.Formatting.CustomFormatters;  // For IFormatter
+```
 
-## What's New in v3.2.0
+#### Step 3: Update Formatter Registration
 
-🚨 **Breaking Architectural Improvements + Intelligent Formatting**
+```csharp
+// Before (v3.3.0)
+ValueFormatter.RegisterFormatter<ProductId>(new ProductIdFormatter());
+var formatted = ValueFormatter.Format(productId);
 
-This version introduces significant enhancements to the test data type hierarchy and adds intelligent value formatting for readable test case names.
+// After (v4.0.0)
+Formatter.RegisterFormatter<ProductId>(new ProductIdFormatter());
+var formatted = DefaultFormatter.Format(productId);
+// or
+var formatted = DefaultFormatter.Instance.Format(productId);
+```
 
-### Breaking Changes
+#### Step 4: Update Custom Formatters
 
-1. **TestDataReturns Type Constraint Relaxation**
-   - **Changed:** `TestDataReturns<TStruct>` → `TestDataReturns<TResult>` with `notnull` constraint
-   - **Now Supports:** Both value types AND reference types (strings, collections, custom classes)
-   - **Impact:** Type parameter renamed from `TStruct` to `TResult`
+```csharp
+// Before (v3.3.0)
+public class ProductIdFormatter : IFormatter<ProductId>
+{
+    public string? Format(ProductId value) => ...;
+    string? IFormatter.Format(object value) => value is ProductId p ? Format(p) : null;
+}
 
-### New Features
+// After (v4.0.0) - Easier with base class
+public sealed class ProductIdFormatter : Formatter<ProductId>
+{
+    public override string Format(ProductId value) => ...;
+    // IFormatter.Format(object) is handled by base class
+}
+```
 
-1. **Reference Type Support in TestDataReturns**
-   ```csharp
-   // ✅ NEW in v3.2.0 - Reference types now supported
-   CreateTestDataReturns(
-       definition: "Get user name",
-       expected: "John Doe",  // String
-       arg1: 123);
+#### Step 5: Verify Breaking Changes
 
-   CreateTestDataReturns(
-       definition: "Get items",
-       expected: new List<int> { 1, 2, 3 },  // Collection
-       arg1: userId);
-   
-   // ✅ Still supported - Value types
-   CreateTestDataReturns(
-       definition: "Add numbers",
-       expected: 5,  // int
-       arg1: 2,
-       arg2: 3);
-   ```
-
-2. **Intelligent Value Formatting (ValueFormatter)**
-   - **NEW:** `Portamical.Core.Formatting.ValueFormatter` class for type-specific formatting
-   - **Automatic formatting** for char, string, DateTime, Guid, collections, exceptions, tuples, and more
-   - **Readable test case names** without manual string conversion  
-
-   **Supported Formats:**  
-
-   | Type | Format Example |
-   |------|----------------|
-   | `char` | `'a'` (single-quoted) |
-   | `string` | `"hello"` (double-quoted) |
-   | `DateTime` | `2026-01-15T10:30:00.0000000Z` (ISO 8601) |
-   | `Guid` | `12345678-1234-1234-1234-123456789012` (hyphenated) |
-   | `byte[]` | `01-02-03-FF` (hex string) |
-   | `Exception` | `ArgumentException: Value cannot be null` |
-   | `Type` | `int`, `List<string>`, `int?`, `int[]` (C# aliases) |
-   | `IEnumerable` | `[3]: [1, 2, 3]` (first 3 items with count) |
-   | `IDictionary` | `[2]: {{"a": 1}, {"b": 2}}` (key-value pairs) |
-   | `KeyValuePair` | `{"key": "value"}` |
-   | `Tuple`/`ValueTuple` | `(1, "test", true)` (parenthesized) |
-   | `Stream` | `MemoryStream (Length: 1024, Position: 0)` |
-
-3. **Enhanced Code Generation**
-   - All T4-generated files now include `#nullable enable` directives
-   - Improved XML documentation completeness
-   - Added missing `<returns>` tags in factory methods
-   - **NEW:** `TestDataExpected.tt` template for generating `TestDataExpected<TResult, T1...T9>` classes
-     - Completes the T4 template trio alongside `TestDataReturns.tt` and `TestDataThrows.tt`
-     - Generates 9 generic variants (1-9 type parameters) for flexible test data composition
-     - Integrated into verification scripts (`verify-generated.ps1` and `verify-generated.sh`)
-
-</details>
+- ✅ `Portamical.Core` v4.0.0 package installed (includes `Portamical.Core.Formatting` dependency)
+- ✅ Namespace imports updated
+- ✅ `ValueFormatter` → `DefaultFormatter`
+- ✅ Custom formatter implementations updated
+- ✅ Formatter registration calls updated
+- ✅ Tests rebuild and pass
 
 ---
 
 ## Install
 
 ```bash
+# Core test data library (automatically includes Portamical.Core.Formatting)
 dotnet add package Portamical.Core
 ```
 
@@ -201,14 +209,14 @@ public sealed class CalculatorCases
 }
 ```
 
-### Return Value Test Data (v3.2.0 - Reference Type Support + Intelligent Formatting)
+### Return Value Test Data (with Intelligent Formatting)
 
 ```csharp
 public sealed class UserServiceCases
 {
     public static IEnumerable<TestDataReturns<string, int>> GetUserName()
     {
-        // ✅ NEW: String return values with automatic quote formatting
+        // ✅ String return values with automatic quote formatting
         yield return CreateTestDataReturns(
             definition: "valid user ID",
             expected: "John Doe",
@@ -224,7 +232,7 @@ public sealed class UserServiceCases
 
     public static IEnumerable<TestDataReturns<List<int>, int>> GetNumbers()
     {
-        // ✅ NEW: Collection return values with count and item display
+        // ✅ Collection return values with count and item display
         yield return CreateTestDataReturns(
             definition: "department numbers",
             expected: new List<int> { 1, 2, 3 },
@@ -244,44 +252,42 @@ public sealed class UserServiceCases
 }
 ```
 
-### Exception Test Data (v3.2.0 - Enhanced Exception Formatting)
+### Custom Formatters (v4.0.0)
 
 ```csharp
-public sealed class ValidationCases
-{
-    public static IEnumerable<TestDataThrows<ArgumentNullException, string>> InvalidArgs()
-    {
-        yield return CreateTestDataThrows(
-            definition: "null name",
-            expected: new ArgumentNullException("name", "Value cannot be null"),
-            arg1: null);
-        // TestCaseName: "null name => throws ArgumentNullException: Value cannot be null (Parameter 'name')" ✅
-    }
+using Portamical.Core.Formatting.CustomFormatters;
+using Portamical.Core.Formatting.CustomFormatters.Model;
 
-    public static IEnumerable<TestDataThrows<InvalidOperationException>> ClosedState()
+// Define a custom formatter using base class
+public sealed class ProductIdFormatter : Formatter<ProductId>
+{
+    public override string Format(ProductId value)
     {
-        yield return CreateTestDataThrows(
-            definition: "operation when closed",
-            expected: new InvalidOperationException("Cannot perform operation on closed object"),
-            arg1: null);
-        // TestCaseName: "operation when closed => throws InvalidOperationException: Cannot perform operation on closed object" ✅
+        if (value is null) return NullString;
+        return $"PROD-{value.Id:D6}";
     }
 }
+
+// Register globally
+Formatter.RegisterFormatter<ProductId>(new ProductIdFormatter());
+
+// All test cases now use custom formatting
+var test = CreateTestDataReturns(
+    definition: "Get product by ID",
+    expected: new ProductId(42),
+    arg1: request);
+// TestCaseName: "Get product by ID => returns PROD-000042" ✅
 ```
 
 ---
 
 ## Architecture
 
-### Namespace Organization
+### Namespace Organization (v4.0.0)
 
 ```
 Portamical.Core/
 ├── Factories/              # Factory methods for test data creation
-├── Formatting/             # ⭐ NEW: Value formatting utilities
-│   ├── IFormatter.cs       # Extensibility contract for custom formatters
-│   ├── Model/              # Abstract base with shared formatting utilities
-│   └── ValueFormatter.cs   # Intelligent type-specific formatting
 ├── Identity/               # Test case identity and equality contracts
 │   ├── INamedCase.cs       # Core interface for test case naming and equality
 │   └── Model/              # Abstract base with equality comparer and display name creation (NamedCase)
@@ -296,12 +302,21 @@ Portamical.Core/
         ├── IExpected.cs    # Base for tests with expected outcomes
         ├── IReturns.cs     # Marker for return value tests
         └── IThrows.cs      # Marker for exception tests
+
+Portamical.Core.Formatting/ (NEW - Standalone package)
+├── Formatter.cs            # Formatting utilities (custom formatter registry, formatting pipeline)
+├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
+├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
+└── CustomFormatters/
+    ├── IFormatter.cs       # Extensibility contracts for custom formatters
+    └── Model/
+        └── Formatter.cs    # Abstract generic base class + registry for custom formatters
 ```
 
-### Four-Layer Model
+### Four-Layer Test Data Model
 
-| Layer | Role | Example Types |
-|-------|------|--------------|
+|  Layer |  Role  | Example Types |
+|------------|------------|-------|
 | **Identity** | Test case naming, equality & deduplication | `ITestData` |
 | **Core Abstraction** | Universal access across all test types | `INamedCase`, `NamedCase` |
 | **Pattern Markers** | Intent discovery, pattern matching & compile-time type safety | Marker interfaces: `IExpected`, `IReturns`, `IThrows`; Generic constraints: `IExpected<TResult>`, `IReturns<TResult>`, `IThrows<TException>` |
@@ -309,18 +324,18 @@ Portamical.Core/
 
 ---
 
-## Test Data Types (v3.2.0)
+## Test Data Types
 
-### Updated Type Hierarchy
+### Type Hierarchy
 
 ```
 TestDataBase (abstract)
-├── TestData<T1...T9>                    # General test data
-└── TestDataExpected<TResult> (abstract) # Base for expected outcomes
-    ├── TestDataReturns<TResult>         # ⭐ notnull constraint (was struct)
+├── TestData<T1...T9>                           # General test data
+└── TestDataExpected<TResult> (abstract)        # Base for expected outcomes
+    ├── TestDataReturns<TResult>                # notnull constraint
     │   └── TestDataReturns<TResult, T1...T9>   # Supports value AND reference types
     └── TestDataThrows<TException>
-        └── TestDataThrows<TException, T1...T9>
+        └── TestDataThrows<TException, T1...T9> # Exception constraint
 ```
 
 ### Factory Methods
@@ -331,75 +346,12 @@ All test data types are created via T4-generated factory methods:
 // General test data
 CreateTestData<T1, T2>(definition, result, arg1, arg2)
 
-// Return value test data (⭐ now supports reference types)
+// Return value test data (supports reference types)
 CreateTestDataReturns<TResult, T1>(definition, expected, arg1)
 
 // Exception test data
 CreateTestDataThrows<TException, T1>(definition, expected, arg1)
 ```
-
----
-
-## Migration Guide (v2.2.0 → v3.2.0)
-
-### Step 1: Update TestDataReturns Type Parameters (Optional)
-
-```csharp
-// v2.2.0 (Old naming)
-TestDataReturns<TStruct, int>  // Still compiles, but TStruct is legacy
-
-// v3.2.0 (Recommended naming)
-TestDataReturns<TResult, int>  // Clearer intent
-```
-
-### Step 2: Leverage Reference Type Support
-
-```csharp
-// v2.2.0 ❌ Compile error
-// TestDataReturns<string, int>  // Error: string is not a struct
-
-// v3.2.0 ✅ Now works!
-var testData = CreateTestDataReturns(
-    definition: "Get username",
-    expected: "Alice",
-    arg1: 42);
-// TestCaseName: "Get username => returns \"Alice\"" ✅ Automatically formatted!
-```
-
-### Step 3: Benefit from Automatic Formatting
-
-```csharp
-// ✅ No ToString() override needed for common types
-CreateTestDataReturns(
-    definition: "Get timestamp",
-    expected: DateTime.UtcNow,  // Automatic ISO 8601 formatting
-    arg1: userId);
-
-CreateTestDataReturns(
-    definition: "Get items",
-    expected: new List<int> { 1, 2, 3 },  // Automatic "[3]: [1, 2, 3]" formatting
-    arg1: query);
-
-// ⚠️ For custom types, override ToString() for best results
-public class User
-{
-    public string Name { get; init; }
-    public override string ToString() => Name;
-}
-
-var userData = CreateTestDataReturns(
-    definition: "Get user",
-    expected: new User { Name = "Bob" },
-    arg1: userId);
-// TestCaseName: "Get user => returns Bob" ✅
-```
-
-### Step 4: Verify Breaking Changes
-
-- ✅ Type parameter updated: `TStruct` → `TResult` (if referencing explicitly)
-- ✅ Reference types now supported in `TestDataReturns`
-- ✅ Automatic formatting applies to all expected values
-- ✅ Tests rebuild and pass
 
 ---
 
@@ -413,7 +365,7 @@ Every test case has a deterministic `TestCaseName`:
 "{scenario description} => {expected outcome}"
 ```
 
-**Examples (v3.2.0 with automatic formatting):**
+**Examples (with automatic formatting):**
 - `"Add(2,3) => returns 5"`
 - `"Validate(null) => throws ArgumentException: Value cannot be null"`
 - `"Get user name => returns \"John Doe\""` ← Reference type with quotes
@@ -437,39 +389,50 @@ Combined with **`PropsCode`**:
 
 ## Design Rationale
 
-### Why `notnull` Instead of `struct`?
+### Why Standalone Formatting Library?
 
-| Aspect | `struct` (v2.2.0) | `notnull` (v3.2.0) |
-|--------|-------------------|-------------------|
-| **Supported Types** | Value types only | Value + reference types |
-| **Real-world APIs** | ⚠️Limited | ✅ Matches actual method signatures |
-| **Type Safety** | ✅ Non-null guaranteed | ✅ Non-null guaranteed |
-| **API Complexity** | ❌ Multiple specialized types needed | ✅ Unified API |
-| **Formatting** | ✅ Always meaningful (ToString) | ✅ Automatic intelligent formatting (ValueFormatter) |
+| Aspect | Embedded (v3.3.0) | Standalone (v4.0.0) |
+|--------|-------------------|---------------------|
+| **Reusability** | ❌ Tightly coupled to test data | ✅ Usable in any .NET project |
+| **Separation of Concerns** | ❌ Mixed with core domain | ✅ Clean architectural boundary |
+| **Extensibility** | ⚠️ Limited to test scenarios | ✅ Extensible formatter infrastructure |
+| **Maintenance** | ❌ Harder to version independently | ✅ Independent versioning and releases |
 
-### Why ValueFormatter?
+> **Note:** While `Portamical.Core.Formatting` is architecturally separate, it remains specialized for Portamical's test data formatting needs (particularly `TestDataExpected` types). It is automatically included as a dependency when you install `Portamical.Core`.
 
-**Before (v2.2.0):**
+### Why Formatter<T> Base Class?
+
+**Before (v3.3.0 - Manual Implementation):**  
 ```csharp
-// Relied on ToString() - inconsistent across types
-Expected = "John Doe"  // TestCase name: "... => returns John Doe" ❌ No quotes
-Expected = DateTime.Now  // TestCase name: "... => returns 1/15/2026 10:30:00 AM" ❌ Ambiguous
-Expected = new List<int> { 1, 2 }  // TestCase name: "... => returns System.Collections.Generic.List`1[System.Int32]" ❌ Unreadable
+public class ProductIdFormatter : IFormatter<ProductId>
+{
+    public string? Format(ProductId value) => $"PROD-{value.Id:D6}";
+    
+    // Boilerplate for IFormatter.Format(object)
+    string? IFormatter.Format(object value)
+    {
+        return value is ProductId id ? Format(id) : null;
+    }
+}
 ```
 
-**After (v3.2.0):**
+**After (v4.0.0 - Base Class Simplification):**
 ```csharp
-// Intelligent type-specific formatting
-Expected = "John Doe"  // TestCase name: "... => returns \"John Doe\"" ✅ Quoted
-Expected = DateTime.Now  // TestCase name: "... => returns 2026-01-15T10:30:00.0000000Z" ✅ ISO 8601
-Expected = new List<int> { 1, 2 }  // TestCase name: "... => returns [2]: [1, 2]" ✅ Readable
+public sealed class ProductIdFormatter : Formatter<ProductId>
+{
+    public override string Format(ProductId value)
+    {
+        return value is null ? NullString : $"PROD-{value.Id:D6}";
+    }
+    // IFormatter.Format(object) automatically implemented by base class
+}
 ```
 
 **Key Benefits:**
-- ✅ **Consistency** - Same formatting rules across all test data
-- ✅ **Readability** - Human-friendly output for test runners
-- ✅ **C# alignment** - Matches C# literal syntax (char `'a'`, string `"text"`, etc.)
-- ✅ **Extensibility** - Pattern-matching dispatch enables new formatters
+- ✅ **Less Boilerplate** - No manual type checking
+- ✅ **Type Safety** - Base class handles casting safely
+- ✅ **Consistent Pattern** - All custom formatters follow same structure
+- ✅ **Built-in Utilities** - Access to `NullString`, `FallbackIfNull`, etc.
 
 ---
 
@@ -505,7 +468,7 @@ dotnet build
 
 ---
 
-## Performance (v2.2.0 Baseline)
+## Performance
 
 | Operation | Before | After | Speedup |
 |-----------|--------|-------|---------|
@@ -514,6 +477,7 @@ dotnet build
 | Enum validation | ~12 cycles | ~3 cycles | 4x |
 | ToString() | ~10 cycles | ~2 cycles | 5x |
 | Constructor (3 validations) | ~30 cycles | ~6 cycles | 5x |
+| Character formatting | ~5 cycles | ~1 cycle | 5x (cached ASCII) |
 
 **Real-world impact:** Creating 1000 test data objects - reduced from ~35-50 μs to ~7-10 μs.
 
@@ -539,285 +503,161 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 |--------|------------------------------|-----------------|
 | Data Model | Record-based | Immutable classes |
 | Identity | Basic equality | Value Object pattern |
-| Type Support | Value types only | ✅ Value + reference types (v3.2.0) |
-| Formatting | ToString() only | ✅ Intelligent ValueFormatter (v3.2.0) |
-| Performance | Baseline | 5x faster (v2.2.0) |
+| Type Support | Value types only | ✅ Value + reference types (v3.2.0+) |
+| Formatting | ToString() only | ✅ Intelligent DefaultFormatter (v3.2.0+) |
+| Extensibility | ❌ Monolithic | ✅ Standalone formatting library (v4.0.0) |
+| Performance | Baseline | 5x faster (v2.2.0+) |
 | Documentation | Minimal | Comprehensive XML docs |
 
 ---
 
 ## Changelog
 
-### **Version 3.2.0** (2026-06-05)
+### **Version 4.0.0 - Current** (2026-06-25)
 
-**Breaking Changes:**
-- Changed `TestDataReturns<TStruct>` → `TestDataReturns<TResult>` with `notnull` constraint
-- Type parameter rename across generated code
+**Architectural Evolution: Standalone Formatting Library**
 
-**New Features:**
-- Reference type support in `TestDataReturns` (strings, collections, custom classes)
-- **NEW:** `Portamical.Core.Formatting.ValueFormatter` class for intelligent formatting
-- Automatic type-specific formatting for 12+ common types (char, string, DateTime, Guid, collections, exceptions, tuples, etc.)
-- All T4-generated files now include `#nullable enable` directives
+This major release extracts the formatting system into an independent library, refines the formatter API, and simplifies extensibility patterns.
 
-**Improvements:**
-- Enhanced XML documentation across TestDataExpected, TestDataReturns, TestDataThrows
-- Improved test case name readability with automatic formatting
-- Expanded test coverage for formatting scenarios
+**Breaking Changes**
 
-**Migration:**
-- Type parameters: Update `TStruct` → `TResult` if referencing explicitly
-- See [Migration Guide](#migration-guide-v220--v320)
+1. **Formatting Library Extracted**
+   - Created standalone `Portamical.Core.Formatting` NuGet package
+   - Formatting utilities automatically included as dependency of `Portamical.Core` v4.0.0
+   - **Migration:** Update to `Portamical.Core` v4.0.0
+
+2. **Formatter API Refinement**
+   - **Renamed:** `ValueFormatter` → `DefaultFormatter` for clarity
+   - **Moved:** `IFormatter` to `Portamical.Core.Formatting.CustomFormatters` namespace
+   - **Changed:** `IFormatter<T>.Format(T)` return type: `string?` → `string` (non-nullable)
+   - **New:** `Formatter<T>` abstract base class for custom formatters
+   - **Removed:** `ValueFormatter.Registry` property (use `Formatter` static class instead)
+
+3. **Builder Class Reorganization**
+   - Helper methods moved from `Model.Formatter` to `Builder` static class
+   - **Migration:** Change `using static Portamical.Core.Formatting.Model.Formatter;` to `using static Portamical.Core.Formatting.Builder;`
+
+**Added**
+
+- **Standalone Formatting Package:** `Portamical.Core.Formatting` independently versioned and maintained
+- **Formatter<T> Base Class:** Simplified custom formatter implementation with sealed base method pattern
+- **Builder Utilities:** Centralized string building helpers (`FallbackIfNull`, `JoinWithComma`, `CreateSeparatedString`, `CopyAsSpan`)
+- **Singleton Pattern:** `DefaultFormatter.Instance` for reusable formatter access
+- **ASCII Character Caching:** Pre-cached formats for printable ASCII characters (32-126) with 5x performance improvement
+
+**Improved**
+
+- Simplified custom formatter API surface
+- Comprehensive XML documentation across formatter infrastructure
+- Thread-safety guarantees documented for all formatters
+- Performance optimizations in character formatting hot paths
+
+**Documentation**
+
+- Complete migration guide from v3.3.0
+- Updated architecture diagrams showing standalone library
+- Enhanced custom formatter examples using `Formatter<T>` base class
+- Design rationale for standalone library approach
+
+**Migration from v3.3.0**
+
+```csharp
+// 1. Update package version
+dotnet add package Portamical.Core --version 4.0.0
+
+// 2. Update using statements
+// Before
+using static Portamical.Core.Formatting.ValueFormatter;
+using Portamical.Core.Formatting;
+
+// After
+using static Portamical.Core.Formatting.Builder;
+using Portamical.Core.Formatting.CustomFormatters;
+
+// 3. Update formatter usage
+// Before
+ValueFormatter.Format(value);
+ValueFormatter.RegisterFormatter<T>(formatter);
+
+// After
+DefaultFormatter.Format(value);
+Formatter.RegisterFormatter<T>(formatter);
+
+// 4. Update custom formatters
+// Before
+public class MyFormatter : IFormatter<T>
+{
+    public string? Format(T value) => ...;
+    string? IFormatter.Format(object value) => ...;
+}
+
+// After - Easier with base class
+public sealed class MyFormatter : Formatter<T>
+{
+    public override string Format(T value) => ...;
+}
+```
 
 ---
 
-##### **Version 3.2.1** (2026-06-06)
-
-**Documentation:**
-- Enhanced XML documentation for `ValueFormatter` class with comprehensive method-level docs
-- Added performance notes explaining `AggressiveInlining` decisions for hot-path methods (Format(char), Format(string), FallbackIfNull, JoinWithComma)
-- Documented design rationale for complex formatting methods (Type, Stream, Dictionary, ITuple, Exception)
-- Updated `TestDataExpected.GetExpected()` docs with performance characteristics
-- Added usage context and caller information across all formatter methods
-
-**No breaking changes** - documentation-only improvements for better API understanding and maintainability.
-
----
-
-##### **Version 3.2.2** (2026-06-08)
-
-**Bug Fixes**
-- **ValueFormatter.JoinWithComma**: Fixed incorrect return value for empty collections
-- Empty collections now correctly return empty string (`""`) instead of `"null"`
-- Distinguishes between empty collection and collection with single null item
-- Aligns behavior with `string.Join(", ", items)` semantics
-
-**No Breaking Changes**
-This is a patch release that fixes a bug in internal formatting behavior. Existing code continues to work as expected, with improved correctness for edge cases.
-
-**Impact**
-- Tuple formatting: `Format(ValueTuple.Create())` now produces `"()"` instead of `"(null)"`
-- Empty array formatting: `Format(Array.Empty<int>())` now produces `"[0]: []"` instead of `"[0]: [null]"`
-- Generic type formatting with no type parameters (edge case) improved
-
----
-
-#### **Version 3.3.0 - Current** (2026-06-13)
+### **Version 3.3.0** (2026-06-13)
 
 **Extensibility, Performance & Documentation Release**
 
-This version introduces a powerful extensibility model, significant performance improvements through span-based optimizations, and comprehensive documentation enhancements across the test data type hierarchy.
+See master branch README for full v3.3.0 details.
 
-**Breaking Changes**
-- **Formatter Architecture Refactoring**
-  - Extracted shared formatting logic from `ValueFormatter` into a new base class `Formatter`
-  - Helper methods (`FallbackIfNull`, `JoinWithComma`) moved to `Formatter` base class
-  - **Impact:** Code using `using static Portamical.Core.Formatting.ValueFormatter;` may need updating
-  - **Migration:** Change to `using static Portamical.Core.Formatting.Model.Formatter;` for helper access
+**Key Features:**
+- Custom formatter registry (`ValueFormatter.Registry`)
+- `IFormatter` interface for extensibility
+- Delegate formatting
+- Span-based string building optimizations
+- 66-75% fewer allocations in hot paths
 
-**Added**
-- **Custom Formatter Registry**
-  - `ValueFormatter.Registry`: Register custom `IFormatter` implementations for specific types
-  - Registry-based lookup executes **before** built-in pattern matching
-  - Enables domain-specific formatting without modifying core library
+---
 
-- **IFormatter Interface**
-  - New extensibility contract for custom formatter implementations
-  - Type-safe formatting abstraction
-  - Supports both generic (`IFormatter<T>`) and non-generic (`IFormatter`) patterns
+### **Version 3.2.0** (2026-06-05)
 
-- **Formatter Base Class**
-  - Shared utilities: `NullString`, `MaxCount`, `Separator` constants
-  - `FallbackIfNull(string?)`: Null-to-"null" conversion
-  - `JoinWithComma(IEnumerable<string?>)`: Optimized comma-separated list building
-  - `CreateSeparatedString(string, string, string)`: Zero-allocation concatenation helper
-  - `CopyAsSpan(string)`: Span-based string copying utility
-  - Other span-based helpers for zero-allocation string operations
+**Breaking Architectural Improvements + Intelligent Formatting**
 
-- **Delegate Formatting**
-  - Formats `Func<>`, `Action<>`, `Predicate<>`, and custom delegate types
-  - Distinguishes named methods from anonymous lambdas
-  - Examples:
-    - `Func<int, string> (anonymous)` for lambda expressions
-    - `Action<string> (WriteLine)` for method references
+**Breaking Changes:**
+- Changed `TestDataReturns<TStruct>` → `TestDataReturns<TResult>` with `notnull` constraint
 
-**Performance**
-- **Span-Based String Building**
-  - `Formatter.JoinWithComma()`: 66-75% fewer allocations for 2-3 item collections using `string.Create<TState>()`
-  - `ValueFormatter.Format(string)`: Direct span write for quoted strings
-  - `ValueFormatter.Format(object?, object?)`: Zero-copy key-value pair formatting
-  - `ValueFormatter.Format(Delegate)`: Allocation-free delegate name construction
-  - `ValueFormatter.Format(Type)`: Span-based array/nullable/generic formatting
-  - `Span<char>`-based construction eliminates intermediate allocations
-  - Zero-allocation success paths preserved throughout hot paths
-  - Particularly beneficial in test case name generation (tuples, type arguments, small collections)
-  - `CreateSeparatedString`: Shared by ValueFormatter and TestDataBase for zero-copy concatenation
+**New Features:**
+- Reference type support in `TestDataReturns`
+- `ValueFormatter` class for intelligent formatting
+- Automatic type-specific formatting for 12+ types
 
-**Improved**
-- Optimized pattern matching in ValueFormatter (removed redundant string check)
-- Extracted `GetKvpPropValues` helper for KeyValuePair property access
-- Simplified `TestDataBase.CreateTestCaseName()` using CreateSeparatedString helper
-- Enhanced null-handling consistency across all formatters
-- Reduced GC pressure in hot paths
+---
 
-**Documentation**
-- **ValueFormatter**: Comprehensive XML documentation
-  - Detailed type-specific formatting table for 12+ types
-  - Formatter registration API fully documented
-  - Performance characteristics and thread-safety notes
-  - Extensive examples for all formatting scenarios
-- **TestDataExpected**: Enhanced XML documentation
-  - Comprehensive Format() method documentation with type table
-  - GetResult() documentation with fallback strategy details
-  - Null handling strategy explanation
-  - Integration with Resolver.FallbackIfNullOrWhiteSpace documented
-- **TestDataReturns**: Updated XML comments
-  - Clarified base class formatting (not ToString)
-  - Added references to Format() method
-  - Improved examples with actual formatted output
-  - Enhanced GetResultPrefix() and ToArgs() documentation
-- **TestDataThrows**: Updated XML comments for consistency
-  - Exception formatting via base class clarified
-  - Fixed incorrect type reference (TStruct ? TResult)
-  - Enhanced examples showing exception type and message
-  - Improved GetResultPrefix() and ToArgs() documentation
-- **IFormatter and Formatter**: Added comprehensive XML docs
-- Created PERFORMANCE_STRING_CREATE_OPTIMIZATION.md with detailed benchmarks
-- Updated all method docs to reflect "expectedType" terminology
+### **Version 2.2.0** (2026-04-23)
 
-**T4 Template Fixes**
-- All T4 templates now include `#nullable enable` directives
-  - `TestDataExpected.tt`, `TestDataReturns.tt`, `TestDataThrows.tt`
-  - Ensures CS8669 compiler warnings are suppressed
-  - Regenerated all `.generated.cs` files with proper nullable context
+**Performance Optimizations**
 
-**Testing**
-- Added 433 lines of tests for Formatter base class
-- Added 217 lines of tests for custom formatter registry
-- Added test parallelization control and cleanup for registry tests
-
-#### Migration from v3.2.x
-- **Using statements**: Change `using static Portamical.Core.Formatting.ValueFormatter;` to `using static Portamical.Core.Formatting.Model.Formatter;` (for FallbackIfNull, JoinWithComma access)
-- **Custom formatters**: Implement `IFormatter<T>` and register in `ValueFormatter.Registry` (optional)
-- **Existing code**: All existing `ValueFormatter.Format()` calls work unchanged
-- **Performance improvements**: Apply automatically without code changes
+- Aggressive inlining for hot path methods (5x performance improvement)
+- Zero-allocation success paths maintained
 
 ---
 
 ### **Version 2.0.0** (2026-03-13)
 
-**Note:** This version does not introduce breaking changes in `Portamical.Core` itself. The major version bump to 2.0.0 aligns with the Portamical extension packages, where new versions may introduce breaking changes.
+**Comprehensive XML Documentation**
 
-**Added** - Comprehensive XML Documentation
-- Extensive XML documentation comments across entire codebase (65 files updated)
-- Documented design patterns (Template Method, Strategy, Adapter, Decorator, Factory Method)
-- Detailed usage examples with code samples for all public APIs
-- Architecture diagrams and inheritance chains in documentation
-
-**Changed** - Core Infrastructure Improvements
-- **NamedCase**:
-  - Added `[SuppressMessage]` attributes with justifications for SonarLint rules
-  - Improved `CreateTestCaseName()` performance using `string.Create` for zero-allocation concatenation
-  - Enhanced `Equals` and `GetHashCode` implementations with detailed explanations
-- **EnumValidator**:
-  - Renamed `GetResultPrefix` ? `GetValidResultPrefix` for clarity
-- **Resolver**:
-  - Improved `FallbackIfNullOrWhiteSpace` with `string.Create` and `CultureInfo.InvariantCulture`
-  - Changed `Trace.WriteLine` ? `Trace.TraceWarning` for better diagnostic categorization
-  - Added thread-safety documentation for `ResetLogCounter` atomic operations
-- **TestDataBase**:
-  - Optimized `CreateTestCaseName()` using `string.Create` (zero-copy concatenation)
-
-**Changed** - T4 Template Improvements
-- **SharedHelpers.ttinclude**: Fixed encoding issue (BOM removed)
-- Maintained single source of truth for `MaxArity = 9`
-
-**Changed** - Build Configuration
-- Updated version to 2.0.0
-- Cleared `PackageReleaseNotes` (prepared for final release notes)
-- Added `PackageOutputPath` configuration
-
-**Fixed** - Code Quality Improvements
-- Fixed typo: "Cmbines" ? "Combines" in `INamedCase`
-- Removed unused "TrimTestCaseName" placeholders
-- Enhanced null-safety compliance throughout
-- Added `ArgumentOutOfRangeException` documentation where applicable
-- Improved parameter name consistency (`paramName` validation)
-
-**Documentation Themes**
-- Design Patterns: Template Method, Strategy, Adapter, Decorator, Identity Object
-- Performance: O(n) complexity notes, zero-allocation techniques, atomic operations
-- Thread Safety: Immutability patterns, concurrent access documentation
-- Framework Integration: xUnit v2/v3, NUnit 3/4, MSTest examples
-- Migration Support: Comparisons with previous API versions
-
----
-
-##### **Version 2.0.1** (2026-04-02)
-
-**Changed**
-- `NamedCase.CreateDisplayName(MethodInfo?, params object?[]?)` now validates that `args[0]` is `string` or `INamedCase` before delegating to the `string`-based overload; returns `null` early for non-matching types
-- Moved type-check from call sites into core method for consistency
-- Minor formatting fixes in `NamedCase` class declaration
-
----
-
-#### **Version 2.2.0** (2026-04-23)
-
-**Added**
-- Performance optimizations via `MethodImpl(AggressiveInlining)` in 7 hot path methods:
-  - `Validator.NotNull<T>` - 5x faster null validation (eliminates method call overhead)
-  - `Validator.NotNullOrEmpty<T>` - 3-5x faster collection validation
-  - `EnumValidator.Defined<TEnum>` - 4x faster enum validation
-  - `Resolver.ResetLogCounter` - 5x faster atomic counter reset
-  - `NamedCase.ToString()` - 3-5x faster string conversion (eliminates virtual dispatch)
-  - `NamedCase` implicit string operator - 5x faster implicit conversions
-  - `TestDataBase.ToArgs(ArgsCode)` - 2x faster wrapper method
-
-**Changed**
-- Internal performance improvements: critical methods now use aggressive inlining
-- Enhanced XML documentation with performance notes for optimized methods
-
-**Performance**
-- Test data instantiation: ~5x faster (reduced overhead from ~35-50 ?s to ~7-10 ?s per 1000 objects)
-- Constructor validation: Eliminates guard clause overhead (NotNull/NotNullOrEmpty inlined)
-- String operations: Removes virtual dispatch and method call overhead
-- Zero-allocation success paths maintained
-- Negligible assembly size increase (<1 KB)
-
-#### Migration
-- Fully backward compatible - no code changes required
-- Existing code automatically benefits from performance improvements upon upgrade
-- No API changes, only performance enhancements
+- Extensive documentation across entire codebase
+- Design pattern documentation
+- Performance and thread-safety notes
 
 ---
 
 ### **Version 1.0.0** (2026-03-04)
 
-**Added**
-- Initial release of Portamical.Core
+**Initial Release**
 
----
+- Core test data types
+- Factory methods
+- Identity system
+- Strategy pattern support
 
-##### **Version 1.0.1** (2026-03-06)
-
-**Changed**
-- `Portamical.Core.Safety.EnumValidator.Defined`: `string paramName` changed to non-nullable type
-- README.md replaced with comprehensive documentation
-
----
-
-##### **Version 1.0.2** (2026-03-07)
-
-**Added**
-- Link to migration guide (MIGRATION.md) in README.md
-
----
-
-##### **Version 1.0.3** (2026-03-08)
-
-**Changed**
-- T4 Generated Code: All generated files (`TestDataFactory.generated.cs`, `TestData.generated.cs`, `TestDataReturns.generated.cs`, `TestDataThrows.generated.cs`) include explicit `#nullable enable` directives
+</details>
 
 ---
 

@@ -1,11 +1,11 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using System.Runtime.CompilerServices;
-using static Portamical.Core.Formatting.Model.Formatter;
+using static Portamical.Core.Formatting.Builder;
 
 namespace Portamical.Core.TestDataTypes.Models;
 
@@ -40,13 +40,19 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// <para>
 /// <strong>Helper Methods for Derived Classes:</strong>
 /// <list type="bullet">
-///   <item><see cref="Extend{T}(Func{ArgsCode, object?[]}, ArgsCode, T?)"/> - Add arguments to base array</item>
+///   <item><see cref="Extend{T}(Func{ArgsCode, object[]}, ArgsCode, T)"/> - Add arguments to base array</item>
 ///   <item><see cref="Trim(Func{ArgsCode, PropsCode, object?[]}, ArgsCode, PropsCode, bool)"/> - Remove first argument conditionally</item>
 /// </list>
 /// </para>
 /// <para>
+/// <strong>Thread-Safety:</strong> This class is immutable after construction (primary constructor
+/// parameter is captured as readonly). Instances can be safely shared across threads. All virtual
+/// methods create new objects rather than mutating state. Static helper methods are stateless.
+/// See BASE_CLASSES_THREAD_SAFETY.md for detailed analysis and safe publication guidance.
+/// </para>
+/// <para>
 /// <strong>Performance Optimization:</strong> The <see cref="CreateTestCaseName()"/> method uses
-/// <see cref="string.Create(int, TState, SpanAction{char, TState})"/> for zero-copy string concatenation,
+/// <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/> for zero-copy string concatenation,
 /// minimizing allocations during test data creation. The <see cref="ToArgs(ArgsCode)"/> convenience
 /// wrapper is marked for aggressive inlining to eliminate wrapper overhead.
 /// </para>
@@ -54,11 +60,6 @@ namespace Portamical.Core.TestDataTypes.Models;
 public abstract class TestDataBase(string definition)
     : NamedCase, ITestData
 {
-    #region Fields
-    private const string DefinitionString = "definition";
-    private const string Separator = " => ";
-    #endregion
-
     #region Methods
     /// <summary>
     /// Gets the definition string for the current instance.
@@ -67,9 +68,13 @@ public abstract class TestDataBase(string definition)
     /// A string containing the definition. If no definition is set, a fallback value is returned.
     /// </returns>
     public string GetDefinition()
-    => DefinitionString.FallbackIfNullOrWhiteSpace(
-        definition,
-        nameof(GetDefinition));
+    {
+        const string defaultDefinition = "definition";
+
+        return defaultDefinition.FallbackIfNullOrWhiteSpace(
+            definition,
+            nameof(GetDefinition));
+    }
 
     /// <summary>
     /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:
@@ -114,21 +119,40 @@ public abstract class TestDataBase(string definition)
         }
 
         var args = ToObjectArray(argsCode);
+        var count = args?.Length ?? 0;
 
-        return args.Length == 0 ?
-            throw new ArgumentOutOfRangeException(
-                nameof(propsCode),
-                $"Invalid 'TestDataBase' implementation: 'PropsCode.{propsCode}' produced no arguments. " +
-                $"Custom TestData types must override 'ToObjectArray()' to include additional properties beyond 'TestCaseName'. " +
-                "Use 'PropsCode.All' to include 'TestCaseName', or ensure your implementation adds at least one property.")
-            : args;
+        return count == 0 ?
+            throw new InvalidOperationException(getMessage())
+            : args!;
+
+        #region Local methods
+        string getMessage()
+        {
+            const string messageStart =
+                "Invalid 'TestDataBase' implementation produced no arguments. " +
+                "Custom TestData types must override 'ToObjectArray()' to include ";
+
+            var containsTestCaseNameOnly =
+                argsCode == ArgsCode.Properties &&
+                propsCode != PropsCode.All &&
+                args is not null;
+
+            var messageEnd = containsTestCaseNameOnly ?
+                "additional properties beyond 'TestCaseName'. " +
+                "Use 'PropsCode.All' to include 'TestCaseName', " +
+                "or ensure your implementation adds at least one property."
+                : "at least one element.";
+
+            return $"{messageStart}{messageEnd}";
+        }
+        #endregion
     }
 
     /// <summary>
     /// When implemented in a derived class, returns the result of the operation as a string.
     /// </summary>
     /// <returns>
-    /// A string that represents the result of the operation. The meaning and formatExpected of the result are defined by the
+    /// A string that represents the result of the operation. The meaning and format of the result are defined by the
     /// derived class implementation.
     /// </returns>
     public abstract string GetResult();
@@ -143,26 +167,16 @@ public abstract class TestDataBase(string definition)
     /// </returns>
     /// <remarks>
     /// <para>
-    /// <strong>Performance:</strong> This method uses <see cref="string.Create(int, TState, SpanAction{char, TState})"/>
+    /// <strong>Performance:</strong> This method uses <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/>
     /// for optimal performance, pre-calculating the total length and performing a single allocation with
     /// span-based copying. This is the most efficient string concatenation approach in .NET.
     /// </para>
     /// </remarks>
     protected string CreateTestCaseName()
-    {
-        var def = GetDefinition();
-        var result = GetResult();
-        var totalLength =
-            def.Length +
-            Separator.Length +
-            result.Length;
-
-        return CreateSeparatedString(
-            totalLength,
-            def,
-            Separator,
-            result);
-    }
+    => CreateSeparatedString(
+        baseString: GetDefinition(),
+        separator: " => ",
+        appendix: GetResult());
 
     /// <summary>
     /// Converts the test data to an argument array based on the specified <see cref="ArgsCode"/> parameter.

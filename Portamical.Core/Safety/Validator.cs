@@ -28,8 +28,8 @@ namespace Portamical.Core.Safety;
 /// <para>
 /// <strong>Key Methods:</strong>
 /// <list type="bullet">
-///   <item><see cref="NotNull{T}(T?, string?)"/> - Validates non-null values</item>
-///   <item><see cref="NotNullOrEmpty{T}(IEnumerable{T}?, string?)"/> - Validates non-empty sequences</item>
+///   <item><see cref="NotNull{T}(T, string)"/> - Validates non-null values</item>
+///   <item><see cref="NotNullOrEmpty{T}(IEnumerable{T}, string)"/> - Validates non-empty sequences</item>
 /// </list>
 /// </para>
 /// </remarks>

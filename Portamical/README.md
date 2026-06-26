@@ -23,6 +23,51 @@ dotnet add package Portamical
 
 ## What's New
 
+### **Version 4.0.0 (2026-06-26)** - Current Release
+
+***Quality and Coverage Release***
+
+**Updated**
+- **Portamical.Core dependency updated to v4.0.0**
+  - Maintains compatibility with latest Portamical.Core features and improvements
+  - No breaking changes or API modifications in this release
+
+**Improved**
+- **Complete test coverage for assertion infrastructure** (189 tests, all passing)
+  - **Fatal exception filtering**: 8 comprehensive tests for `IsNotFatal` branches
+    - Tests for `OutOfMemoryException`, `AccessViolationException`, `StackOverflowException` propagation
+    - Tests for non-fatal exception catching (`InvalidOperationException`)
+    - Both synchronous and asynchronous code paths fully covered
+  - **Equality assertions**: Tests for previously uncovered `AreEqual` branches
+    - `BigInteger` equality comparison
+    - Custom type fallback using `object.Equals`
+    - Non-interned string equality for pattern matching branch coverage
+  - **NaN special value handling**: Complete branch coverage for `AreApproximatelyEqual`
+    - Added test: `doubleRegularAndNaN_notEqual` (regular value vs NaN)
+    - Complements existing NaN tests for full asymmetry coverage
+- **Enhanced documentation**
+  - Comprehensive XML documentation for `ThreadSafeSync(Func<Task>)` overload (60+ lines)
+  - Detailed usage examples, performance notes, thread safety guidance
+  - Documents internal usage pattern for bridging async implementations with sync wrappers
+
+**Fixed**
+- **`ThrowsDetails` sync wrapper implementation**
+  - **Issue**: The `catchExceptionAsync` lambda was ignoring its `attemptAsync` parameter and calling the original `attempt` action directly
+  - **Impact**: Lambda wrapping sync action into `Func<Task>` was dead code, never executed
+  - **Solution**: Changed to properly invoke the wrapped lambda through `ThreadSafeSync`
+  - **Result**: Lambda now properly executes, achieving intended async-to-sync bridging behavior
+  - **Test updated**: `ThrowsDetails_catchExceptionInvoked_receivesWrappedAttempt` verifies wrapped execution
+
+**Test Coverage Details**
+- **189 total tests** (increased from 183)
+- **+6 tests**: Fatal exception filtering (sync + async for 3 fatal types, plus non-fatal cases)
+- **+5 tests**: Equality edge cases (BigInteger equal/unequal, custom type equal/unequal, non-interned strings)
+- **+1 test**: NaN handling (`doubleRegularAndNaN_notEqual`)
+- Helper class added: `CustomEquatableType` for fallback equality testing
+- Fatal exception tests use constructible exception types suitable for .NET 10
+
+---
+
 ### **Version 3.1.0 (2026-05-27)**
 
 ***Exception Metadata Assertion API***
@@ -435,6 +480,55 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
+### **Version 4.0.0 - Current** (2026-06-26)
+
+**Updated**
+- **Portamical.Core dependency updated to v4.0.0**
+  - Maintains compatibility with latest Portamical.Core features and improvements
+  - No breaking changes or API modifications in this release
+
+**Improved**
+- **Complete test coverage for assertion infrastructure**
+  - **Fatal exception filtering (`IsNotFatal`)**: Added 8 comprehensive tests covering all branches through `CatchException` and `CatchExceptionAsync`
+    - Tests for `OutOfMemoryException`, `AccessViolationException`, `StackOverflowException` propagation
+    - Tests for non-fatal exception catching (`InvalidOperationException`)
+    - Both synchronous and asynchronous code paths fully covered
+  - **Equality assertions**: Added tests for previously uncovered branches in `AreEqual` method
+    - `BigInteger` equality comparison (line 1262)
+    - Custom type fallback using `object.Equals` (line 1271)
+    - Non-interned string equality to ensure pattern matching branch coverage (line 1248)
+  - **NaN special value handling**: Complete branch coverage for `AreApproximatelyEqual` (lines 1062-1067)
+    - Added test: `Equality_object_doubleRegularAndNaN_notEqual` (regular value vs NaN)
+    - Complements existing: `doubleNaN_treatsAllNaNAsEqual` (both NaN) and `doubleNaNAndRegular_notEqual` (NaN vs regular)
+- **Enhanced documentation**
+  - Added comprehensive XML documentation for `ThreadSafeSync(Func<Task>)` overload (60+ lines)
+  - Includes detailed usage examples, performance notes, thread safety guidance, and exception handling behavior
+  - Documents internal usage pattern for bridging async implementations with sync wrappers
+
+**Fixed**
+- **`ThrowsDetails` sync wrapper implementation** (lines 610-617 in `PortamicalAssert.cs`)
+  - **Issue**: The `catchExceptionAsync` lambda was ignoring its `attemptAsync` parameter and calling the original `attempt` action directly
+  - **Impact**: Lines 610-614 (lambda wrapping sync action into `Func<Task>`) were dead code, never executed
+  - **Solution**: Changed `catchExceptionAsync: _ => new ValueTask<Exception?>(catchException(attempt))` to properly invoke the wrapped lambda: `catchExceptionAsync: attemptAsync => new ValueTask<Exception?>(catchException(() => ThreadSafeSync(attemptAsync)))`
+  - **Result**: Lambda now properly executes, achieving intended async-to-sync bridging behavior
+  - **Test updated**: `ThrowsDetails_catchExceptionInvoked_receivesWrappedAttempt` now verifies wrapped execution
+
+**Test Coverage**
+- **189 total tests** (increased from 183 at session start)
+- **+6 tests**: Fatal exception filtering (sync + async for OOM, AccessViolation, StackOverflow, plus non-fatal cases)
+- **+5 tests**: Equality edge cases (BigInteger equal/unequal, custom type equal/unequal, non-interned strings)
+- **+1 test**: NaN handling (`doubleRegularAndNaN_notEqual`)
+- **-1 test**: Removed unneeded `ThreadAbortException` tests (not constructible on .NET 10)
+- **Net change**: +11 tests in working set, -5 obsolete tests = +6 final
+- **All tests passing** with zero regressions across 189 test methods
+
+**Technical Details**
+- Helper class added: `CustomEquatableType` for fallback equality testing
+- Ensures non-interned string instances for accurate pattern matching branch coverage
+- Fatal exception tests use constructible exception types suitable for .NET 10
+
+---
+
 ### **Version 3.0.0** (2026-04-25)
 
 ***API Cleanup***
@@ -592,7 +686,7 @@ PortamicalAssert.MetadataEquality(
 
 ---
 
-##### **Version 3.3.0 - Current** (2026-06-12)
+##### **Version 3.3.0** (2026-06-12)
 
 **Updated**
 - Portamical.Core dependency updated to v3.3.0

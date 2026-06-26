@@ -4,7 +4,6 @@
 namespace Portamical.Core.TestDataTypes.Patterns;
 
 /// <summary>
-/// <summary>
 /// Marker interface for test cases validating exception throwing behavior.
 /// </summary>
 /// <remarks>
@@ -54,7 +53,7 @@ namespace Portamical.Core.TestDataTypes.Patterns;
 /// </code>
 /// </example>
 public interface IThrows
-    : IExpected;
+: IExpected;
 
 /// <summary>
 /// Defines a strongly-typed contract for test cases that verify exception throwing behavior.
@@ -127,6 +126,6 @@ public interface IThrows
 /// </code>
 /// </example>
 public interface IThrows<out TException>
-    : IExpected<TException>,
-      IThrows
+: IExpected<TException>,
+IThrows
 where TException : Exception;

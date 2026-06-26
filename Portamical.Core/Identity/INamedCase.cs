@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 namespace Portamical.Core.Identity;
@@ -26,7 +26,7 @@ namespace Portamical.Core.Identity;
 /// <strong>Thread Safety:</strong> Implementations should be immutable to ensure thread safety.
 /// </para>
 /// <example>
-/// Typical display name formatExpected:
+/// Typical display name format:
 /// <code>"Login with invalid credentials => throws AuthenticationException"</code>
 /// </example>
 /// </remarks>
@@ -76,7 +76,7 @@ public interface INamedCase : IEquatable<INamedCase>
     /// </returns>
     /// <remarks>
     /// <para>
-    /// <strong>Typical Format:</strong>
+    /// <strong>Typical format:</strong>
     /// <list type="bullet">
     ///   <item>With method name: <c>"MethodName(testData: scenario =&gt; outcome)"</c></item>
     ///   <item>Without method name: <c>"scenario =&gt; outcome"</c></item>

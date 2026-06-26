@@ -17,6 +17,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// Test data implementation for exception-throwing tests with 1 additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 public class TestDataThrows<TException, T1>
 : TestDataThrows<TException>
@@ -45,6 +46,7 @@ where TException : Exception
 /// Test data implementation for exception-throwing tests with 2 additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 public class TestDataThrows<TException, T1, T2>
@@ -74,6 +76,7 @@ where TException : Exception
 /// Test data implementation for exception-throwing tests with 3 additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
@@ -104,6 +107,7 @@ where TException : Exception
 /// Test data implementation for exception-throwing tests with 4 additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
@@ -135,6 +139,7 @@ where TException : Exception
 /// Test data implementation for exception-throwing tests with 5 additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
@@ -167,6 +172,7 @@ where TException : Exception
 /// Test data implementation for exception-throwing tests with 6 additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
@@ -200,6 +206,7 @@ where TException : Exception
 /// Test data implementation for exception-throwing tests with 7 additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
@@ -234,6 +241,7 @@ where TException : Exception
 /// Test data implementation for exception-throwing tests with 8 additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>
@@ -269,6 +277,7 @@ where TException : Exception
 /// Test data implementation for exception-throwing tests with 9 additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataThrows{TException}"/>
+/// <typeparam name="TException">The type of the exception.</typeparam>
 /// <typeparam name="T1">The type of the first test argument.</typeparam>
 /// <typeparam name="T2">The type of the second test argument.</typeparam>
 /// <typeparam name="T3">The type of the third test argument.</typeparam>

@@ -1,91 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Core.Formatting;
-
-/// <summary>
-/// Defines a contract for custom value formatters that convert objects to string representations
-/// for test case naming.
-/// </summary>
-/// <remarks>
-/// <para>
-/// This interface provides the extensibility mechanism for the Portamical formatting system.
-/// Custom formatters can be registered in <see cref="ValueFormatter.Registry"/> to override
-/// or extend the built-in formatting behavior for specific types.
-/// </para>
-/// <para>
-/// <strong>Registry Integration:</strong> Formatters registered in <c>ValueFormatter.Registry</c>
-/// are consulted <em>before</em> the built-in pattern matching logic, enabling domain-specific
-/// formatting without modifying the core library.
-/// </para>
-/// <para>
-/// <strong>Thread Safety:</strong> Formatter implementations should be thread-safe as they may
-/// be called concurrently from multiple test threads. Avoid mutable state or use appropriate
-/// synchronization.
-/// </para>
-/// <para>
-/// <strong>Design Pattern:</strong> Prefer implementing <see cref="IFormatter{T}"/> for type-safe
-/// formatters. The non-generic <see cref="IFormatter"/> interface is primarily for internal use
-/// and registry storage.
-/// </para>
-/// </remarks>
-/// <example>
-/// <code>
-/// // Implement a custom formatter for domain types
-/// public class ProductIdFormatter : IFormatter&lt;ProductId&gt;
-/// {
-///     public string Format(ProductId value)
-///     {
-///         return $"PROD-{value.Id:D6}";
-///     }
-///     
-///     // Explicit interface implementation for non-generic version
-///     string? IFormatter.Format(object value)
-///     {
-///         return value is ProductId id ? Format(id) : null;
-///     }
-/// }
-/// 
-/// // Register the formatter globally
-/// ValueFormatter.Registry[typeof(ProductId)] = new ProductIdFormatter();
-/// 
-/// // Now all test cases automatically use custom formatting
-/// var testData = CreateTestDataReturns(
-///     definition: "Get product",
-///     expected: new ProductId(42),
-///     arg1: userId);
-/// // TestCaseName: "Get product =&gt; returns PROD-000042" ✅
-/// </code>
-/// </example>
-/// <seealso cref="IFormatter{T}"/>
-/// <seealso cref="ValueFormatter"/>
-public interface IFormatter
-{
-    /// <summary>
-    /// Formats the specified value as a string for test case naming.
-    /// </summary>
-    /// <param name="value">The value to format. May be null.</param>
-    /// <returns>
-    /// A formatted string representation of the value, or <see langword="null"/> if the formatter
-    /// does not support the value's type.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Implementation Guidance:</strong>
-    /// <list type="bullet">
-    ///   <item>Return <see langword="null"/> if the formatter does not support the value's type</item>
-    ///   <item>Return <c>"null"</c> (the string literal) for null values if the type is supported</item>
-    ///   <item>Avoid throwing exceptions; return <see langword="null"/> for unsupported types instead</item>
-    ///   <item>Ensure thread-safety if the formatter maintains state</item>
-    /// </list>
-    /// </para>
-    /// <para>
-    /// <strong>Note:</strong> This method is primarily used by the registry lookup mechanism.
-    /// Type-safe implementations should prefer <see cref="IFormatter{T}.Format(T)"/>.
-    /// </para>
-    /// </remarks>
-    string? Format(object value);
-}
+namespace Portamical.Core.Formatting.CustomFormatters;
 
 /// <summary>
 /// Defines a type-safe contract for custom value formatters that convert values of type <typeparamref name="T"/>
@@ -105,8 +21,8 @@ public interface IFormatter
 /// enables contravariance, allowing a formatter for a base type to handle derived types:
 /// </para>
 /// <code>
-/// IFormatter&lt;object&gt; baseFormatter = new ObjectFormatter();
-/// IFormatter&lt;string&gt; stringFormatter = baseFormatter;  // ✅ Valid due to contravariance
+/// ICustomFormatter&lt;object&gt; baseFormatter = new ObjectFormatter();
+/// ICustomFormatter&lt;string&gt; stringFormatter = baseFormatter;  // ✅ Valid due to contravariance
 /// </code>
 /// <para>
 /// <strong>Implementation Pattern:</strong> Implement both <see cref="Format(T)"/> (type-safe)
@@ -126,7 +42,7 @@ public interface IFormatter
 /// <example>
 /// <code>
 /// // Type-safe formatter for custom domain types
-/// public sealed class MoneyFormatter : IFormatter&lt;Money&gt;
+/// public sealed class MoneyFormatter : ICustomFormatter&lt;Money&gt;
 /// {
 ///     // Type-safe method - preferred for implementation
 ///     public string Format(Money value)
@@ -135,17 +51,17 @@ public interface IFormatter
 ///     }
 ///     
 ///     // Explicit interface implementation for registry support
-///     string? IFormatter.Format(object value)
+///     string? ICustomFormatter.Format(object value)
 ///     {
 ///         return value is Money money ? Format(money) : null;
 ///     }
 /// }
 /// 
 /// // Register and use
-/// ValueFormatter.Registry[typeof(Money)] = new MoneyFormatter();
+/// FormatterRegister.RegisterFormatter&lt;Money&gt;(new MoneyFormatter());
 /// 
 /// var price = new Money { Currency = "USD", Amount = 99.99m };
-/// var formatted = ValueFormatter.Format(price);
+/// var formatted = FormatterRegister.Format(price);
 /// // Result: "USD 99.99" ✅
 /// 
 /// // Automatically applied in test data
@@ -157,8 +73,7 @@ public interface IFormatter
 /// </code>
 /// </example>
 /// <seealso cref="IFormatter"/>
-/// <seealso cref="ValueFormatter.Registry"/>
-/// <seealso cref="Formatting.Model.Formatter"/>
+/// <seealso cref="Formatter.Registry"/>
 public interface IFormatter<in T> : IFormatter
 {
     /// <summary>
@@ -189,7 +104,7 @@ public interface IFormatter<in T> : IFormatter
     /// <example>
     /// <code>
     /// // Example implementation for a custom type
-    /// public class EmailFormatter : IFormatter&lt;EmailAddress&gt;
+    /// public class EmailFormatter : ICustomFormatter&lt;EmailAddress&gt;
     /// {
     ///     public string Format(EmailAddress value)
     ///     {
@@ -200,7 +115,7 @@ public interface IFormatter<in T> : IFormatter
     ///         return $"\"{value.LocalPart}@{value.Domain}\"";
     ///     }
     ///     
-    ///     string? IFormatter.Format(object value)
+    ///     string? ICustomFormatter.Format(object value)
     ///     {
     ///         return value is EmailAddress email ? Format(email) : null;
     ///     }
@@ -212,5 +127,5 @@ public interface IFormatter<in T> : IFormatter
     /// formatter.Format(null);  // "null"
     /// </code>
     /// </example>
-    string? Format(T value);
+    string Format(T value);
 }

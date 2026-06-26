@@ -33,6 +33,7 @@ namespace Portamical.Core.TestDataTypes.Models.Specialized;
 /// Test data implementation for return-value tests with <#= n #> additional argument(s).
 /// </summary>
 /// <inheritdoc cref="TestDataReturns{TResult}"/>
+/// <typeparam name="TResult">The type of the result.</typeparam>
 <# for (int i = 1; i <= n; i++) { #>
 /// <typeparam name="T<#= i #>">The type of the <#= Ordinals[i] #> test argument.</typeparam>
 <# } #>

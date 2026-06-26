@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Safety;
@@ -12,7 +12,7 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// <remarks>
 /// <para>
 /// This class extends <see cref="TestDataBase"/> to provide a general-purpose test data foundation
-/// without the constraints of <see cref="TestDataReturns{TStruct}"/> or <see cref="TestDataThrows{TException}"/>.
+/// without the constraints of <see cref="Specialized.TestDataReturns{TResult}"/> or <see cref="Specialized.TestDataThrows{TException}"/>.
 /// It allows fully custom result formatting specified as a string parameter in the constructor.
 /// </para>
 /// <para>
@@ -27,8 +27,8 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// <para>
 /// <strong>Comparison with Specialized Classes:</strong>
 /// <list type="bullet">
-///   <item><see cref="TestDataReturns{TStruct}"/> - For value type returns with automatic "returns {value}" formatting</item>
-///   <item><see cref="TestDataThrows{TException}"/> - For exception testing with automatic "throws {type}" formatting</item>
+///   <item><see cref="Specialized.TestDataReturns{TResult}"/> - For value type returns with automatic "returns {value}" formatting</item>
+///   <item><see cref="Specialized.TestDataThrows{TException}"/> - For exception testing with automatic "throws {type}" formatting</item>
 ///   <item><see cref="TestData"/> - For custom result formatting with no type constraints</item>
 /// </list>
 /// </para>
@@ -44,7 +44,7 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// </remarks>
 /// <example>
 /// <code>
-/// // Custom result formatExpected
+/// // Custom result format
 /// public class MyTestData : TestData
 /// {
 ///     public MyTestData(string definition, string result, string arg)
@@ -62,17 +62,17 @@ namespace Portamical.Core.TestDataTypes.Models.General;
 /// // Usage with custom result
 /// var test = new MyTestData(
 ///     "Process complex data",
-///     "succeeds with warnings",  // ✅ Custom formatExpected
+///     "succeeds with warnings",  // ✅ Custom format
 ///     "input.json");
 /// // Test case name: "Process complex data => succeeds with warnings"
 /// 
 /// // Compare with TestDataReturns (constrained):
 /// var returnsTest = new TestDataReturns&lt;int&gt;("Add(2,3)", 5);
-/// // Test case name: "Add(2,3) => returns 5"  ✅ Fixed formatExpected
+/// // Test case name: "Add(2,3) => returns 5"  ✅ Fixed format
 /// 
 /// // Compare with TestDataThrows (constrained):
 /// var throwsTest = new TestDataThrows&lt;ArgumentException&gt;("Validate(null)", new ArgumentException());
-/// // Test case name: "Validate(null) => throws ArgumentException"  ✅ Fixed formatExpected
+/// // Test case name: "Validate(null) => throws ArgumentException"  ✅ Fixed format
 /// </code>
 /// </example>
 public abstract class TestData
@@ -86,7 +86,7 @@ public abstract class TestData
     /// </param>
     /// <param name="result">
     /// The pre-formatted result string for the test case (right side of "=&gt;").
-    /// Unlike <see cref="TestDataReturns{TStruct}"/> or <see cref="TestDataThrows{TException}"/>,
+    /// Unlike <see cref="Specialized.TestDataReturns{TResult}"/> or <see cref="Specialized.TestDataThrows{TException}"/>,
     /// this is the exact string that will appear in the test case name without additional formatting.
     /// </param>
     /// <remarks>
@@ -102,9 +102,20 @@ public abstract class TestData
     /// This provides stronger immutability than an <c>init</c> property.
     /// </para>
     /// <para>
-    /// <strong>Result Formatting:</strong> Unlike specialized classes that formatExpected results automatically
+    /// <strong>Result Formatting:</strong> Unlike specialized classes that format results automatically
     /// (e.g., "returns {value}"), this class uses the result exactly as provided. This allows
     /// complete control over test case name formatting.
+    /// </para>
+    /// <para>
+    /// <strong>Thread-Safety:</strong> Instances are immutable after construction (<c>readonly</c> field,
+    /// <c>init</c> accessors). When sharing instances across threads, ensure proper safe publication:
+    /// <list type="bullet">
+    ///   <item>Use <c>volatile</c> fields for static/shared references</item>
+    ///   <item>Use <see cref="Lazy{T}"/> for thread-safe lazy initialization</item>
+    ///   <item>Use <see cref="System.Collections.Immutable"/> collections for thread-safe storage</item>
+    ///   <item>Use <see cref="Interlocked"/> for atomic reference updates</item>
+    /// </list>
+    /// See BASE_CLASSES_THREAD_SAFETY.md for detailed guidance.
     /// </para>
     /// </remarks>
     /// <example>
@@ -153,9 +164,9 @@ public abstract class TestData
     /// <returns>A string containing the result. If the result is null or empty, a fallback value is returned instead.</returns>
     public override sealed string GetResult()
     {
-        const string resultString = "result";
+        const string defaultResult = "result";
 
-        return resultString.FallbackIfNullOrWhiteSpace(_result, nameof(GetResult));
+        return defaultResult.FallbackIfNullOrWhiteSpace(_result, nameof(GetResult));
     }
 
     /// <summary>

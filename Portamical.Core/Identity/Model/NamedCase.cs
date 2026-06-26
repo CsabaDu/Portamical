@@ -21,7 +21,14 @@ namespace Portamical.Core.Identity.Model;
 /// <see langword="init"/> accessor to ensure immutability.
 /// </para>
 /// <para>
-/// <strong>Thread Safety:</strong> This class is thread-safe when derived types maintain immutability.
+/// <strong>Thread Safety:</strong> This class is thread-safe when derived types maintain immutability:
+/// <list type="bullet">
+///   <item>All static methods are stateless</item>
+///   <item>The <see cref="Comparer"/> uses a stateless, sealed <see cref="IEqualityComparer{T}"/> implementation</item>
+///   <item>Instance methods operate on immutable <see cref="TestCaseName"/> property</item>
+///   <item><see cref="StringComparer.Ordinal"/> is thread-safe (stateless singleton)</item>
+/// </list>
+/// See BASE_CLASSES_THREAD_SAFETY.md for detailed analysis.
 /// </para>
 /// <para>
 /// <strong>Performance:</strong> Critical methods (<see cref="ToString()"/> and implicit string conversion)
@@ -95,7 +102,7 @@ public abstract class NamedCase : INamedCase
     /// <strong>Comparison Logic:</strong>
     /// <list type="bullet">
     ///   <item>Uses <see cref="StringComparer.Ordinal"/> for case-sensitive comparison</item>
-    ///   <item>Reference equality (<see cref="ReferenceEquals"/>) returns <see langword="true"/></item>
+    ///   <item>Reference equality (<see cref="object.ReferenceEquals"/>) returns <see langword="true"/></item>
     ///   <item>Null instances are considered equal to each other but not to non-null instances</item>
     /// </list>
     /// </para>
@@ -241,10 +248,11 @@ public abstract class NamedCase : INamedCase
     /// </para>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public sealed override string ToString()
+    public override sealed string ToString()
     => TestCaseName;
 
     #region Static Methods
+
     /// <summary>
     /// Implicitly converts a <see cref="NamedCase"/> instance to its <see cref="TestCaseName"/> string.
     /// </summary>
@@ -343,5 +351,6 @@ public abstract class NamedCase : INamedCase
 
         return snapshot.Contains(namedCase, Comparer);
     }
+
     #endregion Static Methods
 }

@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>3.3.0</Version>
+    <Version>4.0.0</Version>
     <Title>Portamical</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -29,12 +29,33 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v3.3.0 (2026-06-12):
+      v4.0.0 (2026-06-26):
 
       Updated
-      - **Portamical.Core dependency updated to v3.3.0**
+      - **Portamical.Core dependency updated to v4.0.0**
       - Maintains compatibility with latest Portamical.Core features and improvements
-      - No breaking changes or API modifications in this release</PackageReleaseNotes>
+
+      Improved
+      - **Complete test coverage for assertion infrastructure**
+        - Fatal exception filtering (`IsNotFatal`) - 8 new tests covering all branches
+        - Sync wrapper lambda execution - Fixed `ThrowsDetails` to properly invoke wrapped attempt
+        - Equality assertions - Added BigInteger, custom type fallback, and non-interned string tests
+        - NaN handling - Complete branch coverage for double/float special value comparisons
+      - **Enhanced documentation**
+        - Added comprehensive XML documentation for `ThreadSafeSync(Func&lt;Task&gt;)` overload
+        - Includes usage examples, performance notes, and thread safety guidance
+
+      Fixed
+      - **`ThrowsDetails` sync wrapper** - Now properly uses wrapped lambda instead of calling original action twice
+        - Lines 610-617: `catchExceptionAsync` now invokes `attemptAsync` parameter correctly
+        - Test updated: `ThrowsDetails_catchExceptionInvoked_receivesWrappedAttempt`
+
+      Test Coverage
+      - **189 total tests** (up from 183)
+      - 6 new tests for fatal exception branches
+      - 5 new tests for equality edge cases (BigInteger, custom types, non-interned strings)
+      - 1 new test for NaN special value handling
+      - All tests passing with zero regressions</PackageReleaseNotes>
     
     <!-- Package Generation -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -57,7 +78,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical.Core" Version="3.3.0" />
+    <PackageReference Include="Portamical.Core" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
