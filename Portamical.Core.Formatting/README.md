@@ -176,7 +176,7 @@ Console.WriteLine($"Active custom formatters: {count}");
 ### Namespace Organization
 
 ```
-Portamical.Core.Formatting/ (NEW - Standalone package)
+Portamical.Core.Formatting/
 ├── Formatter.cs            # Formatting utilities (registry for custom formatters + formatting pipeline)
 ├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
 ├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
