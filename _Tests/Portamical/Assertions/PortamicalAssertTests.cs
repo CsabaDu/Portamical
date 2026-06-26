@@ -23,6 +23,21 @@ public class PortamicalAssertTests
             => GetFullName(obj);
     }
 
+    private sealed class CustomEquatableType(int value)
+    {
+        private readonly int _value = value;
+
+        public override bool Equals(object? obj)
+        {
+            return obj is CustomEquatableType other && _value == other._value;
+        }
+
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
+        }
+    }
+
     private static void AssertContainsOrdinal(string value, string substring)
         => Assert.Contains(substring, value);
 
@@ -1160,6 +1175,18 @@ public class PortamicalAssertTests
     }
 
     [TestMethod]
+    public void Equality_object_equalStringsNonInterned_doesNotCallAssertFail()
+    {
+        bool failCalled = false;
+        string str1 = new("hello".ToCharArray());
+        string str2 = new("hello".ToCharArray());
+        // Ensure they're not reference-equal (not interned)
+        Assert.IsFalse(ReferenceEquals(str1, str2));
+        PortamicalAssert.Equality(str1, str2, () => failCalled = true);
+        Assert.IsFalse(failCalled);
+    }
+
+    [TestMethod]
     public void Equality_object_equalDoublesWithinTolerance_doesNotCallAssertFail()
     {
         bool failCalled = false;
@@ -1753,6 +1780,14 @@ public class PortamicalAssertTests
     }
 
     [TestMethod]
+    public void Equality_object_doubleRegularAndNaN_notEqual()
+    {
+        bool failCalled = false;
+        PortamicalAssert.Equality(1.0, double.NaN, () => failCalled = true);
+        Assert.IsTrue(failCalled);
+    }
+
+    [TestMethod]
     public void Equality_object_floatNaNAndRegular_notEqual()
     {
         bool failCalled = false;
@@ -1971,6 +2006,46 @@ public class PortamicalAssertTests
         nuint value = 12345;
         PortamicalAssert.Equality(value, value, () => failCalled = true);
         Assert.IsFalse(failCalled);
+    }
+
+    [TestMethod]
+    public void Equality_object_equalBigIntegers_doesNotCallAssertFail()
+    {
+        bool failCalled = false;
+        var big1 = new System.Numerics.BigInteger(123456789012345);
+        var big2 = new System.Numerics.BigInteger(123456789012345);
+        PortamicalAssert.Equality(big1, big2, () => failCalled = true);
+        Assert.IsFalse(failCalled);
+    }
+
+    [TestMethod]
+    public void Equality_object_unequalBigIntegers_callsAssertFail()
+    {
+        bool failCalled = false;
+        var big1 = new System.Numerics.BigInteger(123456789012345);
+        var big2 = new System.Numerics.BigInteger(987654321098765);
+        PortamicalAssert.Equality(big1, big2, () => failCalled = true);
+        Assert.IsTrue(failCalled);
+    }
+
+    [TestMethod]
+    public void Equality_object_customTypeWithEquals_usesObjectEquals()
+    {
+        bool failCalled = false;
+        var obj1 = new CustomEquatableType(42);
+        var obj2 = new CustomEquatableType(42);
+        PortamicalAssert.Equality(obj1, obj2, () => failCalled = true);
+        Assert.IsFalse(failCalled);
+    }
+
+    [TestMethod]
+    public void Equality_object_customTypeNotEqual_callsAssertFail()
+    {
+        bool failCalled = false;
+        var obj1 = new CustomEquatableType(42);
+        var obj2 = new CustomEquatableType(99);
+        PortamicalAssert.Equality(obj1, obj2, () => failCalled = true);
+        Assert.IsTrue(failCalled);
     }
 
     #endregion

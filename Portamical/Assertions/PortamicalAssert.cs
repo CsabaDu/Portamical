@@ -607,15 +607,14 @@ public abstract class PortamicalAssert
         _ = NotNull(assertFail, nameof(assertFail));
 
         return ThreadSafeSync(ThrowsDetailsAsync(
-            () =>
+            attempt: () =>
             {
                 attempt();
                 return Task.CompletedTask;
             },
-            expected,
+            expected: expected,
             catchExceptionAsync: attemptAsync => new ValueTask<Exception?>(
-                catchException(
-                    () => attemptAsync().GetAwaiter().GetResult())),
+                catchException(() => ThreadSafeSync(attemptAsync))),
             assertIsTypeAsync: (e, a) =>
             {
                 assertIsType(e, a);
@@ -1216,6 +1215,9 @@ public abstract class PortamicalAssert
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static T ThreadSafeSync<T>(ValueTask<T> assertion)
     => assertion.ConfigureAwait(false).GetAwaiter().GetResult();
+
+    private static void ThreadSafeSync(Func<Task> attemptAsync)
+    => attemptAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
     /// <summary>
     /// Determines whether two values are equal using built-in a support and tolerance for floating-point.
