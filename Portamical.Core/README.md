@@ -309,13 +309,13 @@ Portamical.Core/
         └── IThrows.cs      # Marker for exception tests
 
 Portamical.Core.Formatting/ (NEW - Standalone package)
-├── Formatter.cs            # Formatting utilities (custom formatter registry, formatting pipeline)
+├── Formatter.cs            # Formatting utilities (registry for custom formatters + formatting pipeline)
 ├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
 ├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
 └── CustomFormatters/
     ├── IFormatter.cs       # Extensibility contracts for custom formatters
     └── Model/
-        └── Formatter.cs    # Abstract generic base class + registry for custom formatters
+        └── Formatter.cs    # Abstract generic base class
 ```
 
 ### Four-Layer Test Data Model

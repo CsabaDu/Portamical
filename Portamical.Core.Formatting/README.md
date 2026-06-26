@@ -173,6 +173,20 @@ Console.WriteLine($"Active custom formatters: {count}");
 
 ## Architecture
 
+### Namespace Organization
+
+```
+Portamical.Core.Formatting/ (NEW - Standalone package)
+├── Formatter.cs            # Formatting utilities (registry for custom formatters + formatting pipeline)
+├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
+├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
+└── CustomFormatters/
+    ├── IFormatter.cs       # Extensibility contracts for custom formatters
+    └── Model/
+        └── Formatter.cs    # Abstract generic base class
+```
+
+
 ### Formatter Hierarchy
 
 ```
@@ -185,9 +199,6 @@ IFormatter (non-generic)
 			└── Formatter<T> (abstract base class)
 					│
 					└── [Your Custom Formatters]
-
-Formatter (non-generic, static)
-	(custom formatter registry, formatting pipeline)
 ```
 
 ### Formatting Pipeline
