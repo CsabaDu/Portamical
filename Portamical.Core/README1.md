@@ -598,9 +598,6 @@ public sealed class MyFormatter : Formatter<T>
 
 ---
 
-<details>
-<summary><strong>Previous Versions</strong> (Click to expand)</summary>
-
 ### **Version 3.3.0** (2026-06-13)
 
 **Extensibility, Performance & Documentation Release**

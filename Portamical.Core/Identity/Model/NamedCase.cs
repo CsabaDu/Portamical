@@ -248,10 +248,11 @@ public abstract class NamedCase : INamedCase
     /// </para>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public sealed override string ToString()
+    public override sealed string ToString()
     => TestCaseName;
 
     #region Static Methods
+
     /// <summary>
     /// Implicitly converts a <see cref="NamedCase"/> instance to its <see cref="TestCaseName"/> string.
     /// </summary>
@@ -350,5 +351,6 @@ public abstract class NamedCase : INamedCase
 
         return snapshot.Contains(namedCase, Comparer);
     }
+
     #endregion Static Methods
 }
