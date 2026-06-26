@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
 [![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 > **Extensible formatters, zero-allocation string building, and thread-safe custom formatter registry for human-readable test case names and diagnostic output.**
 
@@ -74,9 +75,9 @@ Install-Package Portamical.Core.Formatting
 using Portamical.Core.Formatting;
 
 // Format various types
-var result1 = Formatter.Format("hello");          // ""hello""
-var result2 = Formatter.Format('a');              // "'a'"
-var result3 = Formatter.Format(42);               // "42"
+var result1 = Formatter.Format("hello");           // ""hello""
+var result2 = Formatter.Format('a');               // "'a'"
+var result3 = Formatter.Format(42);                // "42"
 var result4 = Formatter.Format(new[] { 1, 2, 3 }); // "[3]: [1, 2, 3]"
 
 // Format tuples
@@ -445,34 +446,34 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
   - `IFormatter` and `IFormatter<T>` interfaces for custom formatter implementations  
   - `Formatter<T>` abstract base class with Template Method pattern  
   - `DefaultFormatter` with specialized formatting for 12+ .NET types 
-    • Strings (quoted), chars (single-quoted), dates (ISO 8601)  
-    • Collections, tuples, dictionaries (first 3 items with truncation)  
-    • Exceptions, Types (C#-friendly names), Delegates, KeyValuePair  
-    • Byte arrays (hex), Guid, Stream metadata  
+    - Strings (quoted), chars (single-quoted), dates (ISO 8601)  
+    - Collections, tuples, dictionaries (first 3 items with truncation)  
+    - Exceptions, Types (C#-friendly names), Delegates, KeyValuePair  
+    - Byte arrays (hex), Guid, Stream metadata  
   - `Formatter` (non-generic, static) for thread-safe custom formatter registration  
-    • `ConcurrentDictionary`-based registry for lock-free reads/writes  
-    • `RegisterFormatter`, `UnregisterFormatter`, `GetFormatter`, `Format` methods  
-    • Custom formatters consulted before built-in pattern matching  
+    - `ConcurrentDictionary`-based registry for lock-free reads/writes  
+    - `RegisterFormatter`, `UnregisterFormatter`, `GetFormatter`, `Format` methods  
+    - Custom formatters consulted before built-in pattern matching  
   - Builder utilities for zero-allocation string construction  
-    • `CreateSeparatedString`: Span-based three-part string assembly  
-    • `JoinWithComma`/`JoinWithSeparator`: Optimized for 0-3 item collections  
-    • `CopyAsSpan`: Inline helper for efficient character copying  
-    • `FallbackIfNull`: Consistent null-to-"null" conversion  
+    - `CreateSeparatedString`: Span-based three-part string assembly  
+    - `JoinWithComma`/`JoinWithSeparator`: Optimized for 0-3 item collections  
+    - `CopyAsSpan`: Inline helper for efficient character copying  
+    - `FallbackIfNull`: Consistent null-to-"null" conversion  
   
 - **Performance Optimizations:**  
   - Zero-allocation string building using `string.Create()` with `Span<char>`  
-    • 66-75% fewer allocations for common formatting scenarios  
-    • Direct span writes for quoted strings, tuples, key-value pairs  
-    • Allocation-free delegate and type name formatting  
+    - 66-75% fewer allocations for common formatting scenarios  
+    - Direct span writes for quoted strings, tuples, key-value pairs  
+    - Allocation-free delegate and type name formatting  
   - Aggressive inlining for hot-path helpers (`CopyAsSpan`, `FallbackIfNull`)  
   - Optimized pattern matching with method overloading for type dispatch  
   
 - **Documentation:**  
   - Comprehensive XML documentation for all public APIs  
-    • Detailed type-specific formatting tables  
-    • Formatter registration examples and patterns  
-    • Performance characteristics and thread-safety notes  
-    • Extensive code samples for all scenarios  
+    - Detailed type-specific formatting tables  
+    - Formatter registration examples and patterns  
+    - Performance characteristics and thread-safety notes  
+    - Extensive code samples for all scenarios  
   - README with feature overview, quick start, and extensibility guide  
   
 - **Thread Safety:**  
