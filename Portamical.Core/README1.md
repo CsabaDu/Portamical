@@ -307,7 +307,7 @@ Portamical.Core.Formatting/ (NEW - Standalone package)
 ├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
 ├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
 └── CustomFormatters/
-    ├── IFormatter.cs       # Extensibility contract for custom formatters
+    ├── IFormatter.cs       # Extensibility contracts for custom formatters
     └── Model/
         └── Formatter.cs    # Abstract generic base class + registry for custom formatters
 ```
@@ -329,12 +329,12 @@ Portamical.Core.Formatting/ (NEW - Standalone package)
 
 ```
 TestDataBase (abstract)
-├── TestData<T1...T9>                    # General test data
-└── TestDataExpected<TResult> (abstract) # Base for expected outcomes
-    ├── TestDataReturns<TResult>         # notnull constraint
+├── TestData<T1...T9>                           # General test data
+└── TestDataExpected<TResult> (abstract)        # Base for expected outcomes
+    ├── TestDataReturns<TResult>                # notnull constraint
     │   └── TestDataReturns<TResult, T1...T9>   # Supports value AND reference types
     └── TestDataThrows<TException>
-        └── TestDataThrows<TException, T1...T9>
+        └── TestDataThrows<TException, T1...T9> # Exception constraint
 ```
 
 ### Factory Methods
