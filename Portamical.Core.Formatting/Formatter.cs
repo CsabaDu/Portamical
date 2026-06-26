@@ -44,7 +44,7 @@ namespace Portamical.Core.Formatting;
 /// </para>
 /// </remarks>
 /// <example>
-/// <code>
+/// <code><![CDATA[
 /// // Define a custom formatter
 /// public class PersonFormatter : ICustomFormatter
 /// {
@@ -56,7 +56,7 @@ namespace Portamical.Core.Formatting;
 /// }
 /// 
 /// // Register the formatter
-/// FormatterRegister.RegisterFormatter&lt;Person&gt;(new PersonFormatter());
+/// FormatterRegister.RegisterFormatter<Person>(new PersonFormatter());
 /// 
 /// // Use it directly
 /// var person = new Person { FirstName = "John", LastName = "Doe", Age = 30 };
@@ -68,8 +68,8 @@ namespace Portamical.Core.Formatting;
 /// // Returns: "John Doe (Age: 30)"
 /// 
 /// // Cleanup
-/// FormatterRegister.UnregisterFormatter&lt;Person&gt;();
-/// </code>
+/// FormatterRegister.UnregisterFormatter<Person>();
+/// ]]></code>
 /// </example>
 public static class Formatter
 {
@@ -144,7 +144,7 @@ public static class Formatter
     /// Thrown if <paramref name="type"/> or <paramref name="formatter"/> is <see langword="null"/>.
     /// </exception>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Register a custom formatter for MyCustomType
     /// public class MyCustomFormatter : ICustomFormatter
     /// {
@@ -164,7 +164,7 @@ public static class Formatter
     ///     var result = formatter.Format(new MyCustomType { Id = 42 });
     ///     // Returns: "Custom[42]"
     /// }
-    /// </code>
+    /// ]]></code>
     /// </example>
     public static bool RegisterFormatter(Type type, IFormatter formatter)
     {
@@ -196,10 +196,10 @@ public static class Formatter
     /// Thrown if <paramref name="formatter"/> is <see langword="null"/>.
     /// </exception>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Generic registration (compile-time type safety)
-    /// bool registered = FormatterRegister.RegisterFormatter&lt;MyCustomType&gt;(new MyCustomFormatter());
-    /// </code>
+    /// bool registered = FormatterRegister.RegisterFormatter<MyCustomType>(new MyCustomFormatter());
+    /// ]]></code>
     /// </example>
     public static bool RegisterFormatter<T>(IFormatter formatter)
     => RegisterFormatter(typeof(T), formatter);
@@ -227,14 +227,14 @@ public static class Formatter
     /// Thrown if <paramref name="type"/> is <see langword="null"/>.
     /// </exception>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Unregister a formatter
     /// bool unregistered = FormatterRegister.UnregisterFormatter(typeof(MyCustomType));
     /// if (unregistered)
     /// {
     ///     // Formatter removed, will use default formatting now
     /// }
-    /// </code>
+    /// ]]></code>
     /// </example>
     public static bool UnregisterFormatter(Type type)
     {
@@ -261,10 +261,10 @@ public static class Formatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Generic unregistration (compile-time type safety)
-    /// bool unregistered = FormatterRegister.UnregisterFormatter&lt;MyCustomType&gt;();
-    /// </code>
+    /// bool unregistered = FormatterRegister.UnregisterFormatter<MyCustomType>();
+    /// ]]></code>
     /// </example>
     public static bool UnregisterFormatter<T>()
     => UnregisterFormatter(typeof(T));
@@ -286,12 +286,12 @@ public static class Formatter
     /// Thrown if <paramref name="type"/> is <see langword="null"/>.
     /// </exception>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// if (FormatterRegister.IsFormatterRegistered(typeof(MyCustomType)))
     /// {
     ///     // Custom formatter is active
     /// }
-    /// </code>
+    /// ]]></code>
     /// </example>
     public static bool IsFormatterRegistered(Type type)
     {
@@ -318,12 +318,12 @@ public static class Formatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
-    /// if (FormatterRegister.IsFormatterRegistered&lt;MyCustomType&gt;())
+    /// <code><![CDATA[
+    /// if (FormatterRegister.IsFormatterRegistered<MyCustomType>())
     /// {
     ///     // Custom formatter is active
     /// }
-    /// </code>
+    /// ]]></code>
     /// </example>
     public static bool IsFormatterRegistered<T>()
     => IsFormatterRegistered(typeof(T));
@@ -342,10 +342,10 @@ public static class Formatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Clear all custom formatters (e.g., in test cleanup)
     /// FormatterRegister.ClearFormatters();
-    /// </code>
+    /// ]]></code>
     /// </example>
     public static void ClearFormatters()
     => _registry.Clear();
@@ -373,18 +373,18 @@ public static class Formatter
     /// Thrown if <paramref name="type"/> is <see langword="null"/>.
     /// </exception>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Get formatter for a type (custom or default)
     /// var formatter = FormatterRegister.GetFormatter(typeof(MyCustomType));
     /// var result = formatter.Format(myObject);
     /// 
     /// // Example with registered custom formatter
-    /// FormatterRegister.RegisterFormatter&lt;MyType&gt;(new MyCustomFormatter());
+    /// FormatterRegister.RegisterFormatter<MyType>(new MyCustomFormatter());
     /// var customFormatter = FormatterRegister.GetFormatter(typeof(MyType)); // Returns MyCustomFormatter
     /// 
     /// // Example without registered formatter
     /// var defaultFormatter = FormatterRegister.GetFormatter(typeof(int)); // Returns DefaultFormatter.Instance
-    /// </code>
+    /// ]]></code>
     /// </example>
     public static IFormatter GetFormatter(Type type)
     {

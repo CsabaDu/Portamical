@@ -30,7 +30,7 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v1.0.0 (2026-06-24) - Initial Release
+      v1.0.0 (2026-06-26) - Initial Release
 
       Core Features:
       - IFormatter and IFormatter&lt;T&gt; interfaces for custom formatter implementations

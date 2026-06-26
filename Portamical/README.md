@@ -2,6 +2,10 @@
 
 **Shared utilities and base classes for cross-framework test data solutions in .NET.**
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
+[![Version](https://img.shields.io/badge/version-4.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+
 Portamical provides framework-agnostic converters, assertions, and test base classes that bridge between Portamical.Core and framework-specific adapters.
 
 ---

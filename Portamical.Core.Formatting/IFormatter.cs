@@ -56,7 +56,7 @@ namespace Portamical.Core.Formatting;
 ///     definition: "Get product",
 ///     expected: new ProductId(42),
 ///     arg1: userId);
-/// // TestCaseName: "Get product =&gt; returns PROD-000042" ✅
+/// // TestCaseName: "Get product => returns PROD-000042" ✅
 /// </code>
 /// </example>
 /// <seealso cref="IFormatter{T}"/>

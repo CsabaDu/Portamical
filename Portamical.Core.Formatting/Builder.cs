@@ -41,7 +41,7 @@ public static class Builder
     /// <remarks>
     /// <para>
     /// Limits collection output to the first 3 items to keep formatted strings concise and readable.
-    /// When collections exceed this limit, output is truncated with a prefix like <c>"First 3 of 5+"</c>.
+    /// When collections exceed this limit, output is truncated with a prefix like <c>"First 3 of 5+</c>.
     /// </para>
     /// <para>
     /// This value balances readability with diagnostic usefulness, providing enough context without
@@ -286,15 +286,15 @@ public static class Builder
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Internal usage examples (items are already formatted)
-    /// JoinWithSeparator(Array.Empty&lt;string&gt;())             // Returns: "" (empty, not "null")
-    /// JoinWithSeparator(new string?[] { null })          // Returns: "null" (one null element)
-    /// JoinWithSeparator(new[] { "'a'", "\"test\"", "42" })  // Returns: "'a', \"test\", 42"
+    /// JoinWithSeparator(Array.Empty<string>())              // Returns: "" (empty, not "null")
+    /// JoinWithSeparator(new string?[] { null })             // Returns: "null" (one null element)
+    /// JoinWithSeparator(new[] { "'a'", "\"test\"", "42" })  // Returns: "'a', "test", 42"
     /// JoinWithSeparator(new[] { "1", "2", "3" })            // Returns: "1, 2, 3"
-    /// JoinWithSeparator(new[] { "null", "\"x\"" })          // Returns: "null, \"x\""
+    /// JoinWithSeparator(new[] { "null", "\"x\"" })          // Returns: "null, "x""
     /// JoinWithSeparator(new string?[] { "a", null, "b" })   // Returns: "a, null, b"
-    /// </code>
+    /// ]]></code>
     /// </example>
     public static string JoinWithComma(IEnumerable<string?> items)
     => JoinWithSeparator(items, Comma_);

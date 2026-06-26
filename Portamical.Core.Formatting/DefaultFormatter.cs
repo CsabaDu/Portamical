@@ -60,14 +60,14 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Use the singleton instance directly
     /// var formatter = DefaultFormatter.Instance;
     /// var result = formatter.Format(42);  // Returns: "42"
     /// 
     /// // Or use it via the interface
     /// ICustomFormatter formatter = DefaultFormatter.Instance;
-    /// </code>
+    /// ]]></code>
     /// </example>
     public static readonly IFormatter Instance = new DefaultFormatter();
 
@@ -163,7 +163,7 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Primitive types
     /// Format('a')         // Returns: "'a'"
     /// Format(42)          // Returns: "42"
@@ -182,8 +182,8 @@ public sealed class DefaultFormatter : IFormatter
     /// Format(new[] { 1, 2, 3, 4, 5 })     // Returns: "[First 3 of 5+]: [1, 2, 3]"
     /// 
     /// // KeyValuePair
-    /// Format(new KeyValuePair&lt;string, int&gt;("age", 30))  // Returns: "{\"age\": 30}"
-    /// Format(new KeyValuePair&lt;int, string&gt;(1, "first")) // Returns: "{1: \"first\"}"
+    /// Format(new KeyValuePair<string, int>("age", 30))  // Returns: "{\"age\": 30}"
+    /// Format(new KeyValuePair<int, string>(1, "first")) // Returns: "{1: \"first\"}"
     /// 
     /// // Tuples (both Tuple and ValueTuple)
     /// Format((1, 2, 3))                              // Returns: "(1, 2, 3)"
@@ -191,7 +191,7 @@ public sealed class DefaultFormatter : IFormatter
     /// Format(Tuple.Create('a', "test"))             // Returns: "('a', \"test\")"
     /// 
     /// // Dictionaries
-    /// var dictionary = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2 };
+    /// var dictionary = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 };
     /// Format(dictionary)  // Returns: "[2]: {{\"a\": 1}, {\"b\": 2}}"
     /// 
     /// // Exceptions
@@ -200,20 +200,20 @@ public sealed class DefaultFormatter : IFormatter
     /// 
     /// // Type objects
     /// Format(typeof(int))                          // Returns: "int"
-    /// Format(typeof(List&lt;string&gt;))                 // Returns: "List&lt;string&gt;"
-    /// Format(typeof(Dictionary&lt;int, string&gt;))      // Returns: "Dictionary&lt;int, string&gt;"
+    /// Format(typeof(List<string>))                 // Returns: "List<string>"
+    /// Format(typeof(Dictionary<int, string>))      // Returns: "Dictionary<int, string>"
     /// Format(typeof(int?))                         // Returns: "int?"
     /// Format(typeof(int[]))                        // Returns: "int[]"
     /// 
     /// // Delegates
-    /// Func&lt;int, string&gt; func = x => x.ToString();
-    /// Format(func)                                 // Returns: "Func&lt;int, string&gt; (anonymous)"
-    /// Action&lt;string&gt; action = Console.WriteLine;
-    /// Format(action)                               // Returns: "Action&lt;string&gt; (WriteLine)"
+    /// Func<int, string> func = x => x.ToString();
+    /// Format(func)                                 // Returns: "Func<int, string> (anonymous)"
+    /// Action<string> action = Console.WriteLine;
+    /// Format(action)                               // Returns: "Action<string> (WriteLine)"
     /// 
     /// // Null (signals failure)
     /// Format(null)  // Returns: null
-    /// </code>
+    /// ]]></code>
     /// </example>
     public static string? Format(object? obj)
     => obj switch
@@ -465,12 +465,12 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// Format((1, 2, 3))                    // Returns: "(1, 2, 3)"
     /// Format(("hello", 'a', true))         // Returns: "(\"hello\", 'a', True)"
     /// Format(Tuple.Create(1, "test"))     // Returns: "(1, \"test\")"
     /// Format(("date", DateTime.UtcNow))    // Returns: "(\"date\", 2026-01-15T10:30:00.0000000Z)"
-    /// </code>
+    /// ]]></code>
     /// </example>
     private static string? Format(ITuple tuple)
     {
@@ -515,23 +515,23 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// // Anonymous lambda
-    /// Func&lt;int, string&gt; func = x => x.ToString();
-    /// Format(func)  // Returns: "Func&lt;int, string&gt; (anonymous)"
+    /// Func<int, string> func = x => x.ToString();
+    /// Format(func)  // Returns: "Func<int, string> (anonymous)"
     /// 
     /// // Named method reference
-    /// Action&lt;string&gt; action = Console.WriteLine;
-    /// Format(action)  // Returns: "Action&lt;string&gt; (WriteLine)"
+    /// Action<string> action = Console.WriteLine;
+    /// Format(action)  // Returns: "Action<string> (WriteLine)"
     /// 
     /// // Simple Action
     /// Action simple = () => Console.WriteLine("test");
     /// Format(simple)  // Returns: "Action (anonymous)"
     /// 
     /// // Custom delegate
-    /// Predicate&lt;int&gt; pred = IsPositive;
-    /// Format(pred)  // Returns: "Predicate&lt;int&gt; (IsPositive)"
-    /// </code>
+    /// Predicate<int> pred = IsPositive;
+    /// Format(pred)  // Returns: "Predicate<int> (IsPositive)"
+    /// ]]></code>
     /// </example>
     private static string? Format(Delegate del)
     {
@@ -600,16 +600,16 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// Format(typeof(int))                          // "int"
     /// Format(typeof(string))                       // "string"
-    /// Format(typeof(List&lt;int&gt;))                    // "List&lt;int&gt;"
-    /// Format(typeof(Dictionary&lt;string, int&gt;))      // "Dictionary&lt;string, int&gt;"
+    /// Format(typeof(List&lt;int&gt;))                    // "List<int>"
+    /// Format(typeof(Dictionary&lt;string, int&gt;))      // "Dictionary<string, int>"
     /// Format(typeof(int?))                         // "int?"
     /// Format(typeof(int[]))                        // "int[]"
     /// Format(typeof(int[,]))                       // "int[,]"
-    /// Format(typeof(List&lt;int?&gt;))                   // "List&lt;int?&gt;"
-    /// </code>
+    /// Format(typeof(List&lt;int?&gt;))                   // "List<int?>"
+    /// ]]></code>
     /// </example>
     private static string? Format(Type type)
     {
@@ -667,12 +667,12 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// Format(new[] { 1, 2, 3 })           // Returns: "[3]: [1, 2, 3]"
     /// Format(new[] { 1, 2, 3, 4, 5 })     // Returns: "[First 3 of 4+]: [1, 2, 3]"
     /// Format(new[] { "a", null, "ch" })    // Returns: "[3]: [\"a\", null, \"ch\"]"
-    /// Format(new List&lt;char&gt; { 'x', 'y' })  // Returns: "[2]: ['x', 'y']"
-    /// </code>
+    /// Format(new List<char> { 'x', 'y' })  // Returns: "[2]: ['x', 'y']"
+    /// ]]></code>
     /// </example>
     private static string? Format(IEnumerable coll)
     {
@@ -726,7 +726,7 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// var ms = new MemoryStream(new byte[1024]);
     /// Format(ms)  // Returns: "MemoryStream (Length: 1024, Position: 0)"
     /// 
@@ -735,7 +735,7 @@ public sealed class DefaultFormatter : IFormatter
     /// 
     /// disposedStream.Dispose();
     /// Format(disposedStream)  // Returns: null (exception caught)
-    /// </code>
+    /// ]]></code>
     /// </example>
     private static string? Format(Stream stream)
     {
@@ -897,13 +897,13 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// </remarks>
     /// <example>
-    /// <code>
-    /// var dictionary = new Dictionary&lt;string, int&gt; { ["a"] = 1, ["b"] = 2, ["ch"] = 3 };
+    /// <code><![CDATA[
+    /// var dictionary = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2, ["ch"] = 3 };
     /// Format(dictionary, "3")  // Returns: "[3]: {{\"a\": 1}, {\"b\": 2}, {\"ch\": 3}}"
     /// 
-    /// var largeDict = new Dictionary&lt;int, string&gt; { [1] = "one", [2] = "two", [3] = "three", [4] = "four" };
+    /// var largeDict = new Dictionary<int, string> { [1] = "one", [2] = "two", [3] = "three", [4] = "four" };
     /// Format(largeDict, "First 3 of 4+")  // Returns: "[First 3 of 4+]: {{1: \"one\"}, {2: \"two\"}, {3: \"three\"}}"
-    /// </code>
+    /// ]]></code>
     /// </example>
     private static string? FormatDictionary(IDictionary dictionary, string? prefix)
     {

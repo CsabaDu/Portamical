@@ -1,5 +1,9 @@
 # Portamical.Core
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
+[![Version](https://img.shields.io/badge/version-4.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+
 **Framework-agnostic foundation of Portamical**: Universal, identity-driven test data modeling for .NET 10.
 
 Define test data **once** and consume it across test frameworks using adapter packages - without rewriting the data or sacrificing strong typing.
@@ -513,7 +517,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
-### **Version 4.0.0 - Current** (2026-06-25)
+### **Version 4.0.0 - Current** (2026-06-26)
 
 **Architectural Evolution: Standalone Formatting Library**
 

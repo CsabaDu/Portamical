@@ -69,7 +69,7 @@ namespace Portamical.Core.Formatting.CustomFormatters;
 ///     definition: "Get product price",
 ///     expected: price,
 ///     arg1: productId);
-/// // TestCaseName: "Get product price =&gt; returns USD 99.99" ✅
+/// // TestCaseName: "Get product price => returns USD 99.99" ✅
 /// </code>
 /// </example>
 /// <seealso cref="IFormatter"/>
