@@ -8,7 +8,7 @@ Define test data **once** and consume it across test frameworks using adapter pa
 
 ## What's New in v4.0.0
 
-**🎯 Major Architectural Evolution: Standalone Formatting Library & API Refinement**
+**Major Architectural Evolution: Standalone Formatting Library & API Refinement**
 
 This major release extracts the formatting system into a standalone library (`Portamical.Core.Formatting`), refines the formatter API for better extensibility, and streamlines the core architecture.
 
@@ -303,18 +303,19 @@ Portamical.Core/
         └── IThrows.cs      # Marker for exception tests
 
 Portamical.Core.Formatting/ (NEW - Standalone package)
+├── Formatter.cs            # Formatting utilities (Custom formatter registry, formatting pipeline)
 ├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
-├── DefaultFormatter.cs     # Singleton formatter with intelligent type-specific formatting
+├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
 └── CustomFormatters/
     ├── IFormatter.cs       # Extensibility contract for custom formatters
     └── Model/
-        └── Formatter.cs    # Abstract base class + registry for custom formatters
+        └── Formatter.cs    # Abstract generic base class + registry for custom formatters
 ```
 
 ### Four-Layer Test Data Model
 
-| Layer | Role | Example Types |
-|-------|------|--------------|
+|  Layer |  Role  | Example Types |
+|--------|--------|---------------|
 | **Identity** | Test case naming, equality & deduplication | `ITestData` |
 | **Core Abstraction** | Universal access across all test types | `INamedCase`, `NamedCase` |
 | **Pattern Markers** | Intent discovery, pattern matching & compile-time type safety | Marker interfaces: `IExpected`, `IReturns`, `IThrows`; Generic constraints: `IExpected<TResult>`, `IReturns<TResult>`, `IThrows<TException>` |
