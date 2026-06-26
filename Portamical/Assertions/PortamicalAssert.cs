@@ -1216,6 +1216,63 @@ public abstract class PortamicalAssert
     private static T ThreadSafeSync<T>(ValueTask<T> assertion)
     => assertion.ConfigureAwait(false).GetAwaiter().GetResult();
 
+    /// <summary>
+    /// Executes a <see cref="Func{Task}"/> synchronously in a thread-safe manner (void-returning overload).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This overload handles async operations that do not return a value. It invokes the provided
+    /// function, waits for the resulting <see cref="Task"/> to complete, and returns control to
+    /// the caller synchronously.
+    /// </para>
+    /// <para>
+    /// Uses <c>ConfigureAwait(false)</c> to prevent deadlocks in synchronization contexts.
+    /// This is safe for test frameworks (NUnit, xUnit, MSTest) which typically don't have
+    /// a <see cref="SynchronizationContext"/>.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Marked for aggressive inlining to eliminate method call overhead
+    /// in hot paths (exception handling and assertion validation).
+    /// </para>
+    /// <para>
+    /// <strong>Usage Pattern:</strong> This method is used internally to bridge async implementation
+    /// methods with synchronous public APIs. For example, sync wrappers like <c>ThrowsDetails</c>
+    /// delegate to async implementations like <c>ThrowsDetailsAsync</c>, using this method to
+    /// execute the async code synchronously.
+    /// </para>
+    /// </remarks>
+    /// <param name="attemptAsync">
+    /// A function that returns a <see cref="Task"/> representing the asynchronous operation to execute.
+    /// The function is invoked immediately and the resulting task is awaited synchronously.
+    /// </param>
+    /// <exception cref="AggregateException">
+    /// If the task completes with an exception, that exception is propagated to the caller.
+    /// Multiple exceptions may be wrapped in an <see cref="AggregateException"/>.
+    /// </exception>
+    /// <example>
+    /// <para><strong>Internal usage in sync wrapper:</strong></para>
+    /// <code>
+    /// // Sync wrapper delegates to async implementation
+    /// public static TException ThrowsDetails&lt;TException&gt;(
+    ///     Action attempt,
+    ///     TException expected,
+    ///     Func&lt;Action, Exception?&gt; catchException,
+    ///     ...)
+    /// {
+    ///     return ThreadSafeSync(ThrowsDetailsAsync(
+    ///         () =&gt; {
+    ///             attempt();
+    ///             return Task.CompletedTask;
+    ///         },
+    ///         expected,
+    ///         catchExceptionAsync: attemptAsync =&gt; 
+    ///             new ValueTask&lt;Exception?&gt;(
+    ///                 catchException(() =&gt; ThreadSafeSync(attemptAsync))),
+    ///         ...));
+    /// }
+    /// </code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ThreadSafeSync(Func<Task> attemptAsync)
     => attemptAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
