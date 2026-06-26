@@ -11,7 +11,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>3.3.0</Version>
+    <Version>4.0.0</Version>
     <Title>Portamical.Core</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -30,79 +30,48 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v3.3.0 (2026-06-13) - Extensibility, Performance &amp; Documentation Release
+      v4.0.0 (2026-06-26) - Major Architectural Evolution: Standalone Formatting Library &amp; API Refinement
 
       BREAKING CHANGES:
-      - DefaultFormatter refactored to use Formatter base class
-      - Helper methods (FallbackIfNull, JoinWithComma) moved to Formatter base class
+      1. Formatting Library Extracted
+         - NEW: Portamical.Core.Formatting standalone package (auto-included as dependency)
+         - IMPACT: Formatting utilities now in separate NuGet package
+         - MIGRATION: Update to Portamical.Core v4.0.0 (includes Portamical.Core.Formatting automatically)
 
-      Added:
-      - IFormatter interface for custom formatter implementations
-        • IFormatter (non-generic) for object formatting
-        • IFormatter&lt;T&gt; (generic) for type-safe formatting
-      - Formatter abstract base class with shared formatting utilities
-        • Constants: NullString, MaxCount, Separator
-        • Helpers: FallbackIfNull, JoinWithComma, CreateSeparatedString, CopyAsSpan
-      - Custom formatter registry in DefaultFormatter
-        • Static Registry property for registering custom formatters by Type
-        • Format() checks registry before built-in pattern matching
-        • Enables extensibility without modifying DefaultFormatter source
-      - Delegate formatting support in DefaultFormatter.Format() method
-        • Formats Func&lt;T&gt;, Action&lt;T&gt;, Predicate&lt;T&gt;, and custom delegate types
-        • Distinguishes between named methods (e.g., "WriteLine") and anonymous lambdas
-        • Output format: "DelegateType (methodName)" or "DelegateType (anonymous)"
+      2. Formatter API Refinement
+         - RENAMED: ValueFormatter → DefaultFormatter (better clarity)
+         - MOVED: IFormatter to Portamical.Core.Formatting.CustomFormatters namespace
+         - CHANGED: IFormatter&lt;T&gt;.Format(T) return type: string? → string (non-nullable)
+         - NEW: Formatter&lt;T&gt; abstract base class for easier custom formatter implementation
+         - MIGRATION: Change 'using static Portamical.Core.Formatting.ValueFormatter;' to 'using static Portamical.Core.Formatting.Builder;'
 
-      Performance Optimizations:
-      - Zero-allocation string building using string.Create() with Span&lt;char&gt;
-        • JoinWithComma: 66-75% fewer allocations for 2-3 item collections
-        • Format(string): Direct span write for quoted strings
-        • Format(object?, object?): Zero-copy key-value pair formatting
-        • Format(Delegate): Allocation-free delegate name construction
-        • Format(Type): Span-based array/nullable/generic formatting
-      - Reduced GC pressure in hot paths (tuples, type arguments, small collections)
-      - CreateSeparatedString: Shared by DefaultFormatter and TestDataBase for zero-copy concatenation
+      3. Formatter Registry API Changes
+         - REMOVED: ValueFormatter.Registry, RegisterFormatter, UnregisterFormatter
+         - NEW: Formatter static class with simplified registration API
+         - MIGRATION: Use Formatter.RegisterFormatter&lt;T&gt;() instead of ValueFormatter.Registry
 
-      Improved:
-      - Optimized pattern matching in DefaultFormatter (removed redundant string check)
-      - Extracted GetKvpPropValues helper for KeyValuePair property access
-      - Simplified TestDataBase.CreateTestCaseName() using CreateSeparatedString helper
+      NEW FEATURES:
+      - Standalone Formatting Library (Portamical.Core.Formatting v1.0.0)
+        - Independently versioned formatting infrastructure
+        - Builder utilities: FallbackIfNull, JoinWithComma, CreateSeparatedString, CopyAsSpan
+        - Singleton pattern: DefaultFormatter.Instance
+      - Formatter&lt;T&gt; abstract base class simplifies custom formatter implementation
+      - ASCII character caching (5x performance improvement for printable chars 32-126)
+      - Comprehensive XML documentation with thread-safety guarantees
 
-      Documentation:
-      - Added comprehensive XML documentation for IFormatter and Formatter
-      - Added comprehensive XML documentation for DefaultFormatter
-        • Detailed type-specific formatting table for 12+ types
-        • Formatter registration API fully documented
-        • Performance characteristics and thread-safety notes
-        • Extensive examples for all formatting scenarios
-      - Enhanced TestDataExpected XML documentation
-        • Comprehensive Format() method documentation with type table
-        • GetResult() documentation with fallback strategy details
-        • Null handling strategy and integration with Resolver documented
-      - Updated TestDataReturns and TestDataThrows XML comments
-        • Clarified base class formatting (not ToString)
-        • Fixed incorrect type references
-        • Improved examples with actual formatted output
-        • Enhanced GetResultPrefix() and ToArgs() documentation
-      - Added delegate formatting examples to Format() method documentation
-      - Created PERFORMANCE_STRING_CREATE_OPTIMIZATION.md with detailed benchmarks
-      - Updated all method docs to reflect "expectedType" terminology
+      IMPROVEMENTS:
+      - Simplified custom formatter API surface
+      - Zero-allocation span-based string building
+      - Enhanced performance in character formatting hot paths
+      - Complete migration guide included in README
 
-      T4 Template Fixes:
-      - All T4 templates now include #nullable enable directives
-        • TestDataExpected.tt, TestDataReturns.tt, TestDataThrows.tt
-        • Ensures CS8669 compiler warnings are suppressed
-        • Regenerated all .generated.cs files with proper nullable context
+      MIGRATION GUIDE:
+      Step 1: Update package - dotnet add package Portamical.Core --version 4.0.0
+      Step 2: Update namespaces - 'using static Portamical.Core.Formatting.Builder;'
+      Step 3: Update formatter calls - DefaultFormatter.Format() instead of ValueFormatter.Format()
+      Step 4: Update custom formatters - inherit from Formatter&lt;T&gt; base class
 
-      Testing:
-      - Added 433 lines of tests for Formatter base class
-      - Added 217 lines of tests for custom formatter registry
-      - Added test parallelization control and cleanup for registry tests
-
-      Migration Guide:
-      - Change: using static Portamical.Core.Formatting.DefaultFormatter; 
-        To: using static Portamical.Core.Formatting.Model.Formatter;
-        (for FallbackIfNull, JoinWithComma access)
-      - Custom formatters: Implement IFormatter&lt;T&gt; and register in DefaultFormatter.Registry
+      For full details see: https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core/README.md
     </PackageReleaseNotes>
 
     <!-- Package Generation -->
