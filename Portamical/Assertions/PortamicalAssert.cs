@@ -613,8 +613,9 @@ public abstract class PortamicalAssert
                 return Task.CompletedTask;
             },
             expected,
-            catchExceptionAsync: _ => new ValueTask<Exception?>(
-                catchException(attempt)),
+            catchExceptionAsync: attemptAsync => new ValueTask<Exception?>(
+                catchException(
+                    () => attemptAsync().GetAwaiter().GetResult())),
             assertIsTypeAsync: (e, a) =>
             {
                 assertIsType(e, a);

@@ -57,7 +57,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical.Core" Version="3.3.0" />
+    <PackageReference Include="Portamical.Core" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
