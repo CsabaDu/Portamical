@@ -303,7 +303,7 @@ Portamical.Core/
         └── IThrows.cs      # Marker for exception tests
 
 Portamical.Core.Formatting/ (NEW - Standalone package)
-├── Formatter.cs            # Formatting utilities (Custom formatter registry, formatting pipeline)
+├── Formatter.cs            # Formatting utilities (custom formatter registry, formatting pipeline)
 ├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
 ├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
 └── CustomFormatters/
@@ -315,7 +315,7 @@ Portamical.Core.Formatting/ (NEW - Standalone package)
 ### Four-Layer Test Data Model
 
 |  Layer |  Role  | Example Types |
-|--------|--------|---------------|
+|------------|------------|-------|
 | **Identity** | Test case naming, equality & deduplication | `ITestData` |
 | **Core Abstraction** | Universal access across all test types | `INamedCase`, `NamedCase` |
 | **Pattern Markers** | Intent discovery, pattern matching & compile-time type safety | Marker interfaces: `IExpected`, `IReturns`, `IThrows`; Generic constraints: `IExpected<TResult>`, `IReturns<TResult>`, `IThrows<TException>` |
