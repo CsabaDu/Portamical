@@ -1,4 +1,4 @@
-# Portamical.Core.Formatting
+﻿# Portamical.Core.Formatting
 
 **Extensible, High-Performance Formatting Infrastructure for Portamical Test Data Framework**
 
@@ -181,12 +181,12 @@ All formatting types are in the root `Portamical.Core.Formatting` namespace:
 
 ```
 IFormatter (non-generic, public)
-	│
-	├── DefaultFormatter (built-in, 12+ type patterns)
-	│
-	└── Formatter<T> (abstract base class)
-			│
-			└── [Your Custom Formatters]
+	â”‚
+	â”śâ”€â”€ DefaultFormatter (built-in, 12+ type patterns)
+	â”‚
+	â””â”€â”€ Formatter<T> (abstract base class)
+			â”‚
+			â””â”€â”€ [Your Custom Formatters]
 ```
 
 ### Formatting Pipeline
@@ -444,7 +444,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 - Removed generic `IFormatter<T>` interface (replaced by `Formatter<T>` base class)
   - All custom formatters must now inherit from abstract `Formatter<T>` base class
   - Eliminates interface segregation - single inheritance model
-  - **Migration:** Change `IFormatter<T>` ? `Formatter<T>` and inherit instead of implement
+  - **Migration:** Change `IFormatter<T>` -> `Formatter<T>` and inherit instead of implement
 - Deleted CustomFormatters namespace and folder structure
   - All formatter types now in root `Portamical.Core.Formatting` namespace
 
@@ -452,7 +452,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 - Simplified formatter type hierarchy
   - Before: IFormatter (non-generic) + IFormatter<in T> interface + Formatter<T> base class
   - After: IFormatter (non-generic) + Formatter<T> abstract base class
-  - Reduced complexity: 3 types ? 2 types
+  - Reduced complexity: 3 types -> 2 types
 - Consolidated namespace structure
   - All formatting types in single `Portamical.Core.Formatting` namespace
   - Removed nested CustomFormatters/Model folder hierarchy
@@ -481,8 +481,8 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
   - Null element handling in tuples
   - Both `Tuple` and `ValueTuple` coverage
 - **Test Results:** 225 total tests, 0 failures
-  - BuilderTests: 89/89 passed (77 ? 89)
-  - DefaultFormatterTests: 136/136 passed (128 ? 136)
+  - BuilderTests: 89/89 passed (77 → 89)
+  - DefaultFormatterTests: 136/136 passed (128 → 136)
 
 **CODE QUALITY:**
 - Removed contravariance complexity
