@@ -440,6 +440,13 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 
 **Architecture Simplification & API Refinement**
 
+**WHAT'S NEW:**
+- **Simplified formatter architecture** - 2 types instead of 3
+- **Single inheritance model** via `Formatter<T>` base class
+- **Flat namespace structure** for better discoverability
+- **Configurable `maxCount` parameter** for Builder join methods
+- **Enhanced XML documentation** (60+ fixes and clarifications)
+
 **BREAKING CHANGES:**
 - Removed generic `IFormatter<T>` interface (replaced by `Formatter<T>` base class)
   - All custom formatters must now inherit from abstract `Formatter<T>` base class
@@ -460,42 +467,36 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
   - Sealed `IFormatter.Format(object?)` implementation ensures consistent type checking
   - Simplified implementation: override single `Format(T)` method
 
+**BUILDER ENHANCEMENTS:**
+- Added **configurable `maxCount` parameter** to join methods
+  - `JoinWithComma(items, maxCount)` - default 3, configurable for different use cases
+  - `JoinWithSeparator(items, separator, maxCount)` - flexible truncation control
+  - Allows callers to control collection/tuple truncation threshold
+- Updated `DefaultFormatter.Format(ITuple)` to use `maxCount: 8`
+  - Tuples support up to 8 elements natively before nesting
+  - Ensures complete tuple formatting without truncation
+
 **DOCUMENTATION OVERHAUL:**
 - Complete XML documentation review and correction (60+ fixes)
 - Standardized all inline code tags and cref attributes
 - Enhanced API documentation for IFormatter, Formatter<T>, Builder, DefaultFormatter
-  - **Builder:** Clarified `maxCount` parameter behavior and configurability
-  - **DefaultFormatter:** Documented `maxCount: 8` rationale for tuple formatting
+  - **Builder:** Documented configurable `maxCount` parameter behavior
+  - **DefaultFormatter:** Explained `maxCount: 8` rationale for tuple formatting
 - Updated all code examples to use new architecture
 - Fixed cref attributes (e.g., `JoinWithComma` method signature correction)
 
-**TEST COVERAGE ENHANCEMENTS:**
-- **Added 12 new Builder tests** for `maxCount` parameter validation
-  - Tests for maxCount values: 1, 2, 3, 5, 8
-  - Fast path vs fallback behavior verification
-  - Custom separators with various maxCount values
-  - Null handling with different maxCount settings
-- **Added 8 new tuple formatting tests**
-  - Tuples with 4, 5, 6, 7, and 8 elements
-  - Mixed type tuples with `maxCount: 8`
-  - Null element handling in tuples
-  - Both `Tuple` and `ValueTuple` coverage
-- **Test Results:** 225 total tests, 0 failures
-  - BuilderTests: 89/89 passed (77 → 89)
-  - DefaultFormatterTests: 136/136 passed (128 → 136)
-
 **CODE QUALITY:**
 - Removed contravariance complexity
-- Improved test coverage alignment
+- Comprehensive test coverage for new features
 - All tests passing with simplified architecture
 
 **BENEFITS:**
-- Simpler API surface: Fewer types to learn and understand
-- Single inheritance model: Clear extension point via `Formatter<T>`
-- Flat namespace: Better IDE auto-completion and discoverability
-- Better documentation: Corrected and standardized across all files
-- Comprehensive test coverage: `maxCount` parameter fully validated
-- Maintained performance: Zero-allocation formatting still intact
+- ✅ Simpler API surface: Fewer types to learn and understand
+- ✅ Single inheritance model: Clear extension point via `Formatter<T>`
+- ✅ Flat namespace: Better IDE auto-completion and discoverability
+- ✅ Flexible truncation: Configurable `maxCount` for various use cases
+- ✅ Better documentation: Corrected and standardized across all files
+- ✅ Maintained performance: Zero-allocation formatting still intact
 
 ---
 
