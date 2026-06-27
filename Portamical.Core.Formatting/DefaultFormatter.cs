@@ -462,6 +462,8 @@ public sealed class DefaultFormatter : IFormatter
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
     /// due to the loop and recursive formatting. Tuple formatting is not a hot path in typical usage.
+    /// Uses <c>maxCount: 8</c> instead of the default <c>3</c> when calling <see cref="Builder.JoinWithComma(IEnumerable{string?}, int)"/>
+    /// because tuples can contain up to 8 elements in their primary structure (with nesting for additional elements).
     /// </para>
     /// </remarks>
     /// <example>
@@ -483,7 +485,7 @@ public sealed class DefaultFormatter : IFormatter
             items.Add(FallbackIfNull(Format(item)));
         }
 
-        return $"({JoinWithComma(items)})";
+        return $"({JoinWithComma(items, maxCount: 8)})";
     }
 
     /// <summary>

@@ -72,7 +72,7 @@ public static class Builder
     /// <para>
     /// This helper centralizes null-to-"null" conversion across the formatter, maintaining consistent
     /// null representation in formatted output. Used by <see cref="DefaultFormatter"/> methods for
-    /// formatting tuples, collections, and dictionaries, and by <see cref="JoinWithComma(IEnumerable{string?})"/>.
+    /// formatting tuples, collections, and dictionaries, and by <see cref="JoinWithComma(IEnumerable{string?}, int)"/>.
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -128,7 +128,7 @@ public static class Builder
     /// multi-part strings where lengths are known in advance.
     /// </para>
     /// <para>
-    /// <see cref="JoinWithComma(IEnumerable{string?})"/> (for two-item list fast path), and potentially
+    /// <see cref="JoinWithComma(IEnumerable{string?}, int)"/> (for two-item list fast path), and potentially
     /// other formatters requiring three-part string assembly.
     /// </para>
     /// </remarks>
@@ -213,7 +213,7 @@ public static class Builder
     /// </para>
     /// <para>
     /// <strong>Used By:</strong> <see cref="CreateSeparatedString(string, string, string)"/>,
-    /// <see cref="JoinWithComma(IEnumerable{string?})"/>, and various <c>DefaultFormatter.Format</c> overloads
+    /// <see cref="JoinWithComma(IEnumerable{string?}, int)"/>, and various <c>DefaultFormatter.Format</c> overloads
     /// for strings, key-value pairs, delegates, types (arrays, nullable, generics), and other composite types.
     /// </para>
     /// </remarks>
@@ -256,6 +256,7 @@ public static class Builder
     /// Joins a collection of pre-formatted string items into a comma-separated string.
     /// </summary>
     /// <param name="items">The collection of formatted string items to join. May contain null elements.</param>
+    /// <param name="maxCount">The maximum number of items to include before falling back to standard joining. Defaults to <see cref="MaxCount"/> (3).</param>
     /// <returns>
     /// A comma-separated string representation of the items. Returns an empty string for empty collections,
     /// distinguishing them from collections containing a single null element (which returns <c>"null"</c>).
@@ -277,11 +278,11 @@ public static class Builder
     /// clear distinction between empty collections and collections with null elements.
     /// </para>
     /// <para>
-    /// <strong>Performance:</strong> Optimized for the common case of <see cref="List{T}"/> with 0-3 items.
-    /// Uses <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/> for 2-3 item lists
-    /// to avoid intermediate string allocations via interpolation. This zero-allocation approach directly writes
-    /// to the final string buffer using <see cref="Span{T}"/>, eliminating GC pressure for the most common cases
-    /// (tuples, small collections, generic type arguments). The method is intentionally not inlined due to its
+    /// <strong>Performance:</strong> Optimized for the common case of <see cref="List{T}"/> with up to <paramref name="maxCount"/> items
+    /// (default 3, configurable up to 8 for tuples). Uses <see cref="string.Create{TState}(int, TState, System.Buffers.SpanAction{char, TState})"/>
+    /// for lists with 2 to <paramref name="maxCount"/> items to avoid intermediate string allocations via interpolation.
+    /// This zero-allocation approach directly writes to the final string buffer using <see cref="Span{T}"/>, eliminating GC pressure
+    /// for the most common cases (tuples, small collections, generic type arguments). The method is intentionally not inlined due to its
     /// size and complexity, but the fast paths are optimized for minimal overhead.
     /// </para>
     /// </remarks>
@@ -296,21 +297,22 @@ public static class Builder
     /// JoinWithSeparator(new string?[] { "a", null, "b" })   // Returns: "a, null, b"
     /// ]]></code>
     /// </example>
-    public static string JoinWithComma(IEnumerable<string?> items)
-    => JoinWithSeparator(items, Comma_);
+    public static string JoinWithComma(IEnumerable<string?> items, int maxCount = MaxCount)
+    => JoinWithSeparator(items, Comma_, maxCount);
 
     /// <summary>
     /// Joins a collection of pre-formatted string items with a custom separator.
     /// </summary>
     /// <param name="items">The collection of formatted string items to join. May contain null elements or be null itself.</param>
     /// <param name="separator">The separator to use between items. If null, defaults to <c>", "</c>.</param>
+    /// <param name="maxCount">The maximum number of items to include before falling back to standard joining. Defaults to <see cref="MaxCount"/> (3).</param>
     /// <returns>
     /// A separator-delimited string representation of the items. Returns <c>"null"</c> if <paramref name="items"/> 
     /// is null, or an empty string for empty collections.
     /// </returns>
     /// <remarks>
     /// <para>
-    /// This is the core joining method that <see cref="JoinWithComma(IEnumerable{string?})"/> delegates to.
+    /// This is the core joining method that <see cref="JoinWithComma(IEnumerable{string?}, int)"/> delegates to.
     /// It provides flexibility for using custom separators beyond the default comma-space separator.
     /// </para>
     /// <para>
@@ -323,7 +325,7 @@ public static class Builder
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Uses optimized code paths for <see cref="IList{T}"/> collections
-    /// with up to <see cref="MaxCount"/> items, employing zero-allocation string building techniques.
+    /// with up to <paramref name="maxCount"/> items, employing zero-allocation string building techniques.
     /// </para>
     /// </remarks>
     /// <example>
@@ -338,7 +340,7 @@ public static class Builder
     /// JoinWithSeparator(new[] { "a", null }, " - ")       // Returns: "a - null"
     /// </code>
     /// </example>
-    public static string JoinWithSeparator(IEnumerable<string?> items, string separator)
+    public static string JoinWithSeparator(IEnumerable<string?> items, string separator, int maxCount = MaxCount)
     {
         if (items is null)
         {
@@ -357,7 +359,7 @@ public static class Builder
 
         if (collection is IList<string?> list)
         {
-            return JoinWithSeparator(list, separator);
+            return JoinWithSeparator(list, separator, maxCount);
         }
 
         return joinWithSeparatorBase();
@@ -370,16 +372,16 @@ public static class Builder
 
     #region Private methods
 
-    private static string JoinWithSeparator(IList<string?> list, string separator)
+    private static string JoinWithSeparator(IList<string?> list, string separator, int maxCount)
     {
-        // Fast path for common case: List<string> with not more than MaxCount items
+        // Fast path for common case: List<string> with not more than maxCount items
 
         var i = 0;
         var result = getIndexedItem();
 
         if (isCountEqualToIncrementedIndex()) return result;
 
-        while (i < MaxCount)
+        while (i < maxCount)
         {
             var item = getIndexedItem();
             result = CreateSeparatedString(
@@ -390,7 +392,7 @@ public static class Builder
             if (isCountEqualToIncrementedIndex()) return result;
         }
 
-        // Fallback to standard join for more than MaxCount items
+        // Fallback to standard join for more than maxCount items
         return JoinWithSeparatorBase(list, separator);
 
         #region Local methods

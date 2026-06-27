@@ -556,7 +556,7 @@ public abstract class Formatter<T> : IFormatter//<T>
     /// <strong>Base Class Utilities:</strong> Implementations can leverage helper methods from <see cref="Builder"/>:
     /// <list type="bullet">
     ///   <item><see cref="Builder.FallbackIfNull(string?)"/> - Convert null to <c>"null"</c></item>
-    ///   <item><see cref="Builder.JoinWithComma(IEnumerable{string?})"/> - Join formatted parts</item>
+    ///   <item><see cref="Builder.JoinWithComma(IEnumerable{string?}, int)"/> - Join formatted parts</item>
     ///   <item><see cref="Builder.CreateSeparatedString(string, string, string)"/> - Zero-allocation string assembly</item>
     ///   <item><see cref="Builder.CopyAsSpan(string, Span{char}, int)"/> - Efficient string copying</item>
     /// </list>
