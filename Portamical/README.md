@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-4.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-4.1.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 Portamical provides framework-agnostic converters, assertions, and test base classes that bridge between Portamical.Core and framework-specific adapters.
@@ -28,7 +28,31 @@ dotnet add package Portamical
 
 ## What's New
 
-### **Version 4.0.0 (2026-06-26)** - Current Release
+### **Version 4.1.0 (2026-06-28)** - Current Release
+
+***Formatter API Simplification***
+
+**Updated**
+- **Portamical.Core dependency updated to v4.1.0**
+  - Simplified formatter API: removed `IFormatter<T>` interface, use `Formatter<T>` base class directly
+  - Added configurable `maxCount` parameter for optimized string joining operations
+  - Enhanced tuple formatting capabilities with comprehensive test coverage
+  - No breaking changes for Portamical consumers
+
+**Improved**
+- **Enhanced formatter integration**
+  - Improved Builder and formatter test coverage with new tuple and join method tests
+  - Updated documentation to reflect Portamical.Core v4.1.0 formatter API simplifications
+  - Seamless integration with new `maxCount` optimization for string joining
+
+**Benefits**
+- **Simpler API surface**: Direct use of `Formatter<T>` base class eliminates interface abstraction layer
+- **Better performance**: Configurable `maxCount` reduces allocations in large collection formatting
+- **Enhanced capabilities**: Improved tuple formatting support for complex test data scenarios
+
+---
+
+### **Version 4.0.0 (2026-06-26)**
 
 ***Quality and Coverage Release***
 
@@ -485,7 +509,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
-### **Version 4.0.0 - Current** (2026-06-26)
+### **Version 4.0.0** (2026-06-26)
 
 **Updated**
 - **Portamical.Core dependency updated to v4.0.0**
@@ -531,6 +555,28 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 - Helper class added: `CustomEquatableType` for fallback equality testing
 - Ensures non-interned string instances for accurate pattern matching branch coverage
 - Fatal exception tests use constructible exception types suitable for .NET 10
+
+---
+
+#### **Version 4.1.0 - Current** (2026-06-28)
+
+**Updated**
+- **Portamical.Core dependency updated to v4.1.0**
+  - Simplified formatter API: removed `IFormatter<T>` interface, use `Formatter<T>` base class directly
+  - Added configurable `maxCount` parameter for optimized string joining operations
+  - Enhanced tuple formatting capabilities with comprehensive test coverage
+  - No breaking changes for Portamical consumers
+
+**Improved**
+- **Enhanced formatter integration**
+  - Improved Builder and formatter test coverage with new tuple and join method tests
+  - Updated documentation to reflect Portamical.Core v4.1.0 formatter API simplifications
+  - Seamless integration with new `maxCount` optimization for string joining
+
+**Benefits**
+- **Simpler API surface**: Direct use of `Formatter<T>` base class eliminates interface abstraction layer
+- **Better performance**: Configurable `maxCount` reduces allocations in large collection formatting
+- **Enhanced capabilities**: Improved tuple formatting support for complex test data scenarios
 
 ---
 
