@@ -692,6 +692,70 @@ public class DefaultFormatterTests
         var result = DefaultFormatter.Format(tuple);
         Assert.AreEqual("(42)", result);
     }
+
+    [TestMethod]
+    public void Format_withValueTupleFourItems_returnsParenthesizedItems()
+    {
+        var tuple = (1, 2, 3, 4);
+        var result = DefaultFormatter.Format(tuple);
+        Assert.AreEqual("(1, 2, 3, 4)", result);
+    }
+
+    [TestMethod]
+    public void Format_withValueTupleFiveItems_returnsParenthesizedItems()
+    {
+        var tuple = (1, 2, 3, 4, 5);
+        var result = DefaultFormatter.Format(tuple);
+        Assert.AreEqual("(1, 2, 3, 4, 5)", result);
+    }
+
+    [TestMethod]
+    public void Format_withValueTupleSixItems_returnsParenthesizedItems()
+    {
+        var tuple = (1, 2, 3, 4, 5, 6);
+        var result = DefaultFormatter.Format(tuple);
+        Assert.AreEqual("(1, 2, 3, 4, 5, 6)", result);
+    }
+
+    [TestMethod]
+    public void Format_withValueTupleSevenItems_returnsParenthesizedItems()
+    {
+        var tuple = (1, 2, 3, 4, 5, 6, 7);
+        var result = DefaultFormatter.Format(tuple);
+        Assert.AreEqual("(1, 2, 3, 4, 5, 6, 7)", result);
+    }
+
+    [TestMethod]
+    public void Format_withValueTupleEightItems_returnsAllItems()
+    {
+        var tuple = (1, 2, 3, 4, 5, 6, 7, 8);
+        var result = DefaultFormatter.Format(tuple);
+        Assert.AreEqual("(1, 2, 3, 4, 5, 6, 7, 8)", result);
+    }
+
+    [TestMethod]
+    public void Format_withValueTupleEightMixedTypes_formatsAllCorrectly()
+    {
+        var tuple = ("a", 1, 'b', true, 42, (string?)null, "test", 99);
+        var result = DefaultFormatter.Format(tuple);
+        Assert.AreEqual("(\"a\", 1, 'b', True, 42, null, \"test\", 99)", result);
+    }
+
+    [TestMethod]
+    public void Format_withTupleEightItems_returnsAllItems()
+    {
+        var tuple = Tuple.Create(1, 2, 3, 4, 5, 6, 7, 8);
+        var result = DefaultFormatter.Format(tuple);
+        Assert.AreEqual("(1, 2, 3, 4, 5, 6, 7, 8)", result);
+    }
+
+    [TestMethod]
+    public void Format_withValueTupleContainingNulls_formatsNullsCorrectly()
+    {
+        var tuple = ("first", (string?)null, "third", (string?)null, "fifth");
+        var result = DefaultFormatter.Format(tuple);
+        Assert.AreEqual("(\"first\", null, \"third\", null, \"fifth\")", result);
+    }
     #endregion
 
     #region Format(IEnumerable) - Collections

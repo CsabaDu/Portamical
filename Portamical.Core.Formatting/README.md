@@ -1,10 +1,10 @@
-# Portamical.Core.Formatting
+﻿# Portamical.Core.Formatting
 
 **Extensible, High-Performance Formatting Infrastructure for Portamical Test Data Framework**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 > **Extensible formatters, zero-allocation string building, and thread-safe custom formatter registry for human-readable test case names and diagnostic output.**
@@ -13,12 +13,33 @@
 
 ---
 
+## What's New in v2.0.0
+
+**Architecture Simplification & API Refinement**
+
+**WHAT'S NEW:**  
+- **Simplified formatter architecture** - 2 types instead of 3
+- **Single inheritance model** via `Formatter<T>` base class
+- **Flat namespace structure** for better discoverability
+- **Configurable `maxCount` parameter** for Builder join methods
+- **Enhanced XML documentation** (60+ fixes and clarifications)
+
+**BREAKING CHANGES:**  
+- Removed generic `IFormatter<T>` interface (replaced by `Formatter<T>` base class)
+  - All custom formatters must now inherit from abstract `Formatter<T>` base class
+  - Eliminates interface segregation - single inheritance model
+  - **Migration:** Change `IFormatter<T>` -> `Formatter<T>` and inherit instead of implement
+- Deleted CustomFormatters namespace and folder structure
+  - All formatter types now in root `Portamical.Core.Formatting` namespace
+
+---
+
 ## Features
 
 ### **Extensible Formatter System**
-- **`IFormatter` & `IFormatter<T>` interfaces** - Define custom formatters for domain types
-- **`Formatter<T>` abstract base class** - Template Method pattern with type safety
-- **Thread-safe formatter registry** - Register/unregister formatters at runtime
+- **`IFormatter` interface** - Base contract for all formatters
+- **`Formatter<T>` abstract base class** - Template Method pattern with type safety for custom formatters
+- **Thread-safe formatter registry** - Register/unregister formatters at runtime via `Formatter` static class
 - **Priority system** - Custom formatters consulted before built-in patterns
 
 ### **High Performance**
@@ -48,9 +69,10 @@
 
 ### **Utility Helpers**
 - **`Builder.CreateSeparatedString`** - Zero-copy three-part string assembly
-- **`Builder.JoinWithComma`** - Optimized for 0-3 item lists
+- **`Builder.JoinWithSeparator`, `Builder.JoinWithComma`** - Optimized for 0-3 item lists
 - **`Builder.CopyAsSpan`** - Efficient character copying for `Span<char>`
-- **`Builder.FallbackIfNull`** - Consistent `null` ? `"null"` conversion
+- **`Builder.FallbackIfNull`** - Consistent `null` -> `"null"` conversion
+- **`Builder.FallbackIfNullSeparator`** - Consistent `null` -> `", "` conversion
 
 ---
 
@@ -97,21 +119,15 @@ using Portamical.Core.Formatting;
 // 1. Define a custom type
 public record ProductId(int Id);
 
-// 2. Implement IFormatter<T>
-public sealed class ProductIdFormatter : IFormatter<ProductId>
+// 2. Inherit from Formatter<T> base class
+public sealed class ProductIdFormatter : Formatter<ProductId>
 {
-	public string Format(ProductId value)
+	public override string Format(ProductId value)
 	{
 		if (value is null)
-			return "null";
+			return Builder.NullString;
 
 		return $"PROD-{value.Id:D6}";
-	}
-
-	// Explicit interface implementation for non-generic version
-	string? IFormatter.Format(object? obj)
-	{
-		return obj is ProductId id ? Format(id) : null;
 	}
 }
 
@@ -127,15 +143,15 @@ var formatted = Formatter.Format(productId);
 ### Using Formatter<T> Base Class
 
 ```csharp
-using Portamical.Core.Formatting.Model;
+using Portamical.Core.Formatting;
 
-// Inherit from Formatter<T> for easier implementation
+// Inherit from Formatter<T> for type-safe implementation
 public sealed class MoneyFormatter : Formatter<Money>
 {
 	public override string Format(Money value)
 	{
 		if (value is null)
-			return FallbackIfNull(null);  // Use base class helper
+			return Builder.FallbackIfNull(null);  // Use Builder helper
 
 		return $"{value.Currency} {value.Amount:N2}";
 	}
@@ -153,7 +169,7 @@ var formatted = Formatter.Format(price);
 
 ```csharp
 // Check if a formatter is registered
-if (Formatter.IsFormattered<ProductId>())
+if (Formatter.IsFormatterRegistered<ProductId>())
 {
 	Console.WriteLine("ProductId formatter is active");
 }
@@ -164,9 +180,9 @@ bool removed = Formatter.UnregisterFormatter<ProductId>();
 // Clear all custom formatters (useful in test cleanup)
 Formatter.ClearFormatters();
 
-// Get current count
-int count = Formatter.RegisteredFormatterCount;
-Console.WriteLine($"Active custom formatters: {count}");
+// Access the registry (read-only view)
+var registry = Formatter.Registry;
+Console.WriteLine($"Active custom formatters: {registry.Count}");
 ```
 
 ---
@@ -175,35 +191,27 @@ Console.WriteLine($"Active custom formatters: {count}");
 
 ### Namespace Organization
 
-```
-Portamical.Core.Formatting/
-├── IFormatter.cs           # Base contract for formatters
-├── Formatter.cs            # Formatting utilities (registry for custom formatters + formatting pipeline)
-├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
-├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
-└── CustomFormatters/
-    ├── IFormatter.cs       # Extensibility contract for custom formatters
-    └── Model/
-        └── Formatter.cs    # Abstract generic base class
-```
+All formatting types are in the root `Portamical.Core.Formatting` namespace:
+
+- **`IFormatter.cs`** - Public base contract for all formatters
+- **`Formatter.cs`** - Static registry + formatting pipeline class + abstract `Formatter<T>` base class  
+- **`Builder.cs`** - String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
+- **`DefaultFormatter.cs`** - Singleton built-in formatter with intelligent type-specific formatting
 
 
 ### Formatter Hierarchy
 
 ```
-IFormatter (non-generic)
+IFormatter (non-generic, public)
 	│
 	├── DefaultFormatter (built-in, 12+ type patterns)
 	│
-	└── IFormatter<T> (generic)
+	└── Formatter<T> (abstract base class)
 			│
-			└── Formatter<T> (abstract base class)
-					│
-					└── [Your Custom Formatters]
+			└── [Your Custom Formatters]
 ```
 
 ### Formatting Pipeline
-
 ![Portamical_Core_Formatting_FormatterSelection](https://raw.githubusercontent.com/CsabaDu/Portamical/refs/heads/dev/_Images/Portamical_Core_Formatting_FormatterSelection.svg)
 
 
@@ -298,8 +306,8 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | `RegisterFormatter(Type, IFormatter)` | `bool`| Register a custom formatter for a type |
 | `UnregisterFormatter<T>()` | `bool`| Remove the formatter for type `T` |
 | `UnregisterFormatter(Type)` | `bool`| Remove the formatter for a type |
-| `IsFormattered<T>()` | `bool`| Check if a formatter is registered for `T` |
-| `IsFormattered(Type)` | `bool`| Check if a formatter is registered for a type |
+| `IsFormatterRegistered<T>()` | `bool`| Check if a formatter is registered for `T` |
+| `IsFormatterRegistered(Type)` | `bool`| Check if a formatter is registered for a type |
 | `GetFormatter<T>()` | `IFormatter`| Get the formatter for `T` (custom or default) |
 | `GetFormatter(Type)` | `IFormatter`| Get the formatter for a type (custom or default) |
 | `ClearFormatters()` | (void) | Remove all custom formatters |
@@ -332,8 +340,14 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 
 | Constant | Type | Value | Description |
 |----------|------|-------|-------------|
-| `Builder.MaxCount` | `int` | `3` | Max items shown in collections/tuples |
+| `Builder.MaxCount` | `int` | `3` | Max items shown in collections |
 | `Builder.NullString` | `string` | `"null"` | String representation of `null` |
+
+### Abstract Methods
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `Formatter<T>.Format(T)` | `string` | Abstract method to implement custom formatting logic for type `T` |
 
 ---
 
@@ -405,11 +419,11 @@ public sealed class RangeFormatter : Formatter<Range>
 	public override string Format(Range value)
 	{
 		if (value is null)
-			return FallbackIfNull(null);  // Use base class helper
+			return Builder.FallbackIfNull(null);  // Use Builder helper
 
-		// Use JoinWithComma for consistent formatting
+		// Use Builder.JoinWithComma for consistent formatting
 		var parts = new[] { value.Start.ToString(), value.End.ToString() };
-		return $"[{JoinWithComma(parts)}]";
+		return $"[{Builder.JoinWithComma(parts)}]";
 	}
 }
 ```
@@ -450,7 +464,71 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 
 ## Changelog
 
-### **Version 1.0.0 - Current** (2026-06-26)
+### **Version 2.0.0 - Current** (2026-06-27)
+
+**Architecture Simplification & API Refinement**
+
+**WHAT'S NEW:**  
+- **Simplified formatter architecture** - 2 types instead of 3
+- **Single inheritance model** via `Formatter<T>` base class
+- **Flat namespace structure** for better discoverability
+- **Configurable `maxCount` parameter** for Builder join methods
+- **Enhanced XML documentation** (60+ fixes and clarifications)
+
+**BREAKING CHANGES:**  
+- Removed generic `IFormatter<T>` interface (replaced by `Formatter<T>` base class)
+  - All custom formatters must now inherit from abstract `Formatter<T>` base class
+  - Eliminates interface segregation - single inheritance model
+  - **Migration:** Change `IFormatter<T>` -> `Formatter<T>` and inherit instead of implement
+- Deleted CustomFormatters namespace and folder structure
+  - All formatter types now in root `Portamical.Core.Formatting` namespace
+
+**ARCHITECTURE IMPROVEMENTS:**  
+- Simplified formatter type hierarchy
+  - Before: IFormatter (non-generic) + IFormatter<in T> interface + Formatter<T> base class
+  - After: IFormatter (non-generic) + Formatter<T> abstract base class
+  - Reduced complexity: 3 types -> 2 types
+- Consolidated namespace structure
+  - All formatting types in single `Portamical.Core.Formatting` namespace
+  - Removed nested CustomFormatters/Model folder hierarchy
+- Enhanced `Formatter<T>` base class
+  - Sealed `IFormatter.Format(object?)` implementation ensures consistent type checking
+  - Simplified implementation: override single `Format(T)` method
+
+**BUILDER ENHANCEMENTS:**  
+- Added **configurable `maxCount` parameter** to join methods
+  - `JoinWithComma(items, maxCount)` - default 3, configurable for different use cases
+  - `JoinWithSeparator(items, separator, maxCount)` - flexible truncation control
+  - Allows callers to control collection/tuple truncation threshold
+- Updated `DefaultFormatter.Format(ITuple)` to use `maxCount: 8`
+  - Tuples support up to 8 elements natively before nesting
+  - Ensures complete tuple formatting without truncation
+
+**DOCUMENTATION OVERHAUL:**  
+- Complete XML documentation review and correction (60+ fixes)
+- Standardized all inline code tags and cref attributes
+- Enhanced API documentation for IFormatter, Formatter<T>, Builder, DefaultFormatter
+  - **Builder:** Documented configurable `maxCount` parameter behavior
+  - **DefaultFormatter:** Explained `maxCount: 8` rationale for tuple formatting
+- Updated all code examples to use new architecture
+- Fixed cref attributes (e.g., `JoinWithComma` method signature correction)
+
+**CODE QUALITY:**  
+- Removed contravariance complexity
+- Comprehensive test coverage for new features
+- All tests passing with simplified architecture
+
+**BENEFITS:**  
+- ✅ Simpler API surface: Fewer types to learn and understand
+- ✅ Single inheritance model: Clear extension point via `Formatter<T>`
+- ✅ Flat namespace: Better IDE auto-completion and discoverability
+- ✅ Flexible truncation: Configurable `maxCount` for various use cases
+- ✅ Better documentation: Corrected and standardized across all files
+- ✅ Maintained performance: Zero-allocation formatting still intact
+
+---
+
+### **Version 1.0.0** (2026-06-26)
 
 **Initial Release**
 
@@ -471,7 +549,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
     - `JoinWithComma`/`JoinWithSeparator`: Optimized for 0-3 item collections  
     - `CopyAsSpan`: Inline helper for efficient character copying  
     - `FallbackIfNull`: Consistent null-to-"null" conversion  
-  
+
 - **Performance Optimizations:**  
   - Zero-allocation string building using `string.Create()` with `Span<char>`  
     - 66-75% fewer allocations for common formatting scenarios  
@@ -479,7 +557,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
     - Allocation-free delegate and type name formatting  
   - Aggressive inlining for hot-path helpers (`CopyAsSpan`, `FallbackIfNull`)  
   - Optimized pattern matching with method overloading for type dispatch  
-  
+
 - **Documentation:**  
   - Comprehensive XML documentation for all public APIs  
     - Detailed type-specific formatting tables  
@@ -487,11 +565,11 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
     - Performance characteristics and thread-safety notes  
     - Extensive code samples for all scenarios  
   - README with feature overview, quick start, and extensibility guide  
-  
+
 - **Thread Safety:**  
   - All public APIs are thread-safe for concurrent use  
   - `Formatter.Registry` uses `ConcurrentDictionary` for lock-free operations  
-  - `DefaultFormatter` is stateless and safe for parallel test execution  
+  - `DefaultFormatter` is stateless and safe for parallel test execution
 
 ---
 

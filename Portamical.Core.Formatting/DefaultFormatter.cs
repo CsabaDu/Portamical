@@ -88,7 +88,7 @@ public sealed class DefaultFormatter : IFormatter
     /// <strong>Implementation:</strong> First checks the <see cref="Formatter"/> for custom formatters registered
     /// for the object's type. If no custom formatter is found, uses pattern matching to dispatch to type-specific
     /// overloaded helper methods. Each specialized method handles formatting for a particular type or type family
-    /// (e.g., internal <ch>Format(char)</ch>, <ch>Format(string)</ch>, <ch>Format(IEnumerable)</ch> formatters).
+    /// (e.g., internal <c>Format(char)</c>, <c>Format(string)</c>, <c>Format(IEnumerable)</c> formatters).
     /// This design separates concerns and improves maintainability while allowing extensibility.
     /// </para>
     /// <para>
@@ -100,55 +100,55 @@ public sealed class DefaultFormatter : IFormatter
     ///   </listheader>
     ///   <item>
     ///     <term><see cref="char"/></term>
-    ///     <description>Single-quoted: <ch>'ch'</ch> (via internal <ch>Format(char)</ch> formatter)</description>
+    ///     <description>Single-quoted: <c>'c'</c> (via internal <c>Format(char)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="string"/></term>
-    ///     <description>Double-quoted: <ch>"text"</ch> (except for literal "null") (via internal <ch>Format(string)</ch> formatter)</description>
+    ///     <description>Double-quoted: <c>"text"</c> (except for literal "null") (via internal <c>Format(string)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="DateTime"/>, <see cref="DateTimeOffset"/></term>
-    ///     <description>ISO 8601 (round-trippable): <ch>2026-01-15T10:30:00.0000000Z</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with "O" format)</description>
+    ///     <description>ISO 8601 (round-trippable): <c>2026-01-15T10:30:00.0000000Z</c> (via internal <c>Format&lt;T&gt;(Func, T)</c> helper with "O" format)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Guid"/></term>
-    ///     <description>Hyphenated format: <ch>12345678-1234-1234-1234-123456789012</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with "D" format)</description>
+    ///     <description>Hyphenated format: <c>12345678-1234-1234-1234-123456789012</c> (via internal <c>Format&lt;T&gt;(Func, T)</c> helper with "D" format)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="byte"/>[]</term>
-    ///     <description>Hex string: <ch>01-02-03-FF</ch> (via internal <ch>Format&lt;T&gt;(Func, T)</ch> helper with <see cref="BitConverter.ToString(byte[])"/>)</description>
+    ///     <description>Hex string: <c>01-02-03-FF</c> (via internal <c>Format&lt;T&gt;(Func, T)</c> helper with <see cref="BitConverter.ToString(byte[])"/>)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="KeyValuePair{TKey, TValue}"/></term>
-    ///     <description>Key-value pair: <ch>{key: value}</ch> (via internal <ch>Format(object?, object?)</ch> formatter)</description>
+    ///     <description>Key-value pair: <c>{key: value}</c> (via internal <c>Format(object?, object?)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Tuple"/> and <see cref="ValueTuple"/> (all arities)</term>
-    ///     <description>Parenthesized items: <ch>(item1, item2, ...)</ch> (via internal <ch>Format(ITuple)</ch> formatter)</description>
+    ///     <description>Parenthesized items: <c>(item1, item2, ...)</c> (via internal <c>Format(ITuple)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Exception"/></term>
-    ///     <description>Type and message: <ch>ArgumentException: Value cannot be null</ch> (via internal <ch>Format(Exception)</ch> formatter)</description>
+    ///     <description>Type and message: <c>ArgumentException: Value cannot be null</c> (via internal <c>Format(Exception)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Type"/></term>
-    ///     <description>C#-friendly type name: <ch>int</ch>, <ch>List&lt;string&gt;</ch>, <ch>int?</ch>, <ch>int[]</ch> (via internal <ch>Format(Type)</ch> formatter)</description>
+    ///     <description>C#-friendly type name: <c>int</c>, <c>List&lt;string&gt;</c>, <c>int?</c>, <c>int[]</c> (via internal <c>Format(Type)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Delegate"/></term>
-    ///     <description>Type and method name: <ch>Func&lt;int, string&gt; (MethodName)</ch> or <ch>Action (anonymous)</ch> (via internal <ch>Format(Delegate)</ch> formatter)</description>
+    ///     <description>Type and method name: <c>Func&lt;int, string&gt; (MethodName)</c> or <c>Action (anonymous)</c> (via internal <c>Format(Delegate)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IEnumerable"/></term>
-    ///     <description>First <see cref="MaxCount"/> (3) items: <ch>[3]: [1, 2, 3]</ch> or <ch>[First 3 of 5+]: [1, 2, 3]</ch> (via internal <ch>Format(IEnumerable)</ch> formatter)</description>
+    ///     <description>First <see cref="Builder.MaxCount"/> (3) items: <c>[3]: [1, 2, 3]</c> or <c>[First 3 of 5+]: [1, 2, 3]</c> (via internal <c>Format(IEnumerable)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="IDictionary"/></term>
-    ///     <description>First <see cref="MaxCount"/> (3) pairs: <ch>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</ch> (via internal <ch>Format(IDictionary, string?)</ch> formatter)</description>
+    ///     <description>First <see cref="Builder.MaxCount"/> (3) pairs: <c>[3]: {{key1: value1}, {key2: value2}, {key3: value3}}</c> (via internal <c>FormatDictionary(IDictionary, string?)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term><see cref="Stream"/></term>
-    ///     <description>Type, length, position: <ch>MemoryStream (Length: 1024, Position: 0)</ch> (via internal <ch>Format(Stream)</ch> formatter)</description>
+    ///     <description>Type, length, position: <c>MemoryStream (Length: 1024, Position: 0)</c> (via internal <c>Format(Stream)</c> formatter)</description>
     ///   </item>
     ///   <item>
     ///     <term>Other types</term>
@@ -259,7 +259,7 @@ public sealed class DefaultFormatter : IFormatter
     /// avoiding code duplication for types that support parameterized string formatting.
     /// </para>
     /// <para>
-    /// <strong>Usage Example:</strong> <ch>Format(dt.ToString, "O")</ch> delegates to <ch>dt.ToString("O")</ch>.
+    /// <strong>Usage Example:</strong> <c>Format(dt.ToString, "O")</c> delegates to <c>dt.ToString("O")</c>.
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -302,14 +302,14 @@ public sealed class DefaultFormatter : IFormatter
     /// </summary>
     /// <param name="str">The string to format.</param>
     /// <returns>
-    /// A double-quoted string (e.g., <ch>"text"</ch>), or the literal <ch>null</ch> (unquoted)
-    /// if the input is the exact string <ch>"null"</ch>.
+    /// A double-quoted string (e.g., <c>"text"</c>), or the literal <c>null</c> (unquoted)
+    /// if the input is the exact string <c>"null"</c>.
     /// </returns>
     /// <remarks>
     /// <para>
-    /// <strong>Special Case:</strong> The literal string <ch>"null"</ch> is returned unquoted
+    /// <strong>Special Case:</strong> The literal string <c>"null"</c> is returned unquoted
     /// to distinguish it from actual null values in formatted output. This prevents confusion
-    /// when displaying test case names where <ch>"null"</ch> as a string is different from
+    /// when displaying test case names where <c>"null"</c> as a string is different from
     /// a missing/null value.
     /// </para>
     /// <para>
@@ -355,7 +355,7 @@ public sealed class DefaultFormatter : IFormatter
     /// Formats an <see cref="Exception"/> as its type name followed by its message.
     /// </summary>
     /// <param name="exception">The exception to format.</param>
-    /// <returns>A string in the form <ch>"ExceptionType: Message"</ch>.</returns>
+    /// <returns>A string in the form <c>"ExceptionType: Message"</c>.</returns>
     /// <remarks>
     /// <para>
     /// Provides a concise representation of exceptions suitable for test case names
@@ -364,10 +364,10 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Note:</strong> Uses <see cref="Type"/>'s <c>Name</c> property (not <c>FullName</c>) to keep
-    /// output concise (e.g., <ch>ArgumentException</ch> instead of <ch>System.ArgumentException</ch>).
+    /// output concise (e.g., <c>ArgumentException</c> instead of <c>System.ArgumentException</c>).
     /// </para>
     /// <para>
-    /// <strong>Performance:</strong> Uses <see cref="CreateSeparatedString"/> for zero-allocation
+    /// <strong>Performance:</strong> Uses <see cref="Builder.CreateSeparatedString"/> for zero-allocation
     /// string construction. Exception formatting is a hot path when used with <c>TestDataThrows&lt;TException&gt;</c>
     /// for exception-based test case generation, where it's called for every parameterized test case.
     /// </para>
@@ -392,12 +392,12 @@ public sealed class DefaultFormatter : IFormatter
     /// </summary>
     /// <param name="key">The key object (may be null for reference types).</param>
     /// <param name="value">The value object (may be null for reference types).</param>
-    /// <returns>A formatted string in the form <ch>"{key: value}"</ch>.</returns>
+    /// <returns>A formatted string in the form <c>"{key: value}"</c>.</returns>
     /// <remarks>
     /// <para>
     /// Recursively calls <see cref="Format(object?)"/> for both key and value to ensure
     /// consistent formatting (e.g., strings are quoted, chars are single-quoted, etc.).
-    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <ch>"null"</ch>.
+    /// Uses <see cref="Builder.FallbackIfNull(string?)"/> to convert null formatting results to <c>"null"</c>.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
@@ -441,7 +441,7 @@ public sealed class DefaultFormatter : IFormatter
     /// Formats a <see cref="Tuple"/> or <see cref="ValueTuple"/> into a human-readable string.
     /// </summary>
     /// <param name="tuple">The tuple to format (accessed via <see cref="ITuple"/> interface).</param>
-    /// <returns>A formatted string in the form <ch>"(item1, item2, ...)"</ch>.</returns>
+    /// <returns>A formatted string in the form <c>"(item1, item2, ...)"</c>.</returns>
     /// <remarks>
     /// <para>
     /// Uses the <see cref="ITuple"/> interface to access tuple elements generically,
@@ -451,17 +451,20 @@ public sealed class DefaultFormatter : IFormatter
     /// <para>
     /// Recursively calls <see cref="Format(object?)"/> for each element to ensure
     /// consistent formatting across all types (strings quoted, dates in ISO 8601, etc.).
-    /// Uses <see cref="FallbackIfNull(string?)"/> to convert null formatting results to <ch>"null"</ch>.
+    /// Uses <see cref="Builder.FallbackIfNull(string?)"/> to convert null formatting results to <c>"null"</c>.
     /// </para>
     /// <para>
     /// <strong>Why use ITuple instead of Tuple.ToString()?</strong>
-    /// While <see cref="Tuple"/>'s <c>ToString()</c> method produces <ch>(item1, item2)</ch> output,
+    /// While <see cref="Tuple"/>'s <c>ToString()</c> method produces <c>(item1, item2)</c> output,
     /// this method applies our custom formatting rules recursively. For example,
     /// strings are double-quoted, chars are single-quoted, and dates use ISO 8601 format.
     /// </para>
     /// <para>
     /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
     /// due to the loop and recursive formatting. Tuple formatting is not a hot path in typical usage.
+    /// Uses <c>maxCount: 8</c> instead of the default <see cref="Builder.MaxCount"/> (3) 
+    /// when calling <see cref="Builder.JoinWithComma(IEnumerable{string?}, int)"/>
+    /// because tuples can contain up to 8 elements in their primary structure (with nesting for additional elements).
     /// </para>
     /// </remarks>
     /// <example>
@@ -483,7 +486,7 @@ public sealed class DefaultFormatter : IFormatter
             items.Add(FallbackIfNull(Format(item)));
         }
 
-        return $"({JoinWithComma(items)})";
+        return $"({JoinWithComma(items, maxCount: 8)})";
     }
 
     /// <summary>
@@ -491,8 +494,8 @@ public sealed class DefaultFormatter : IFormatter
     /// </summary>
     /// <param name="del">The delegate to format.</param>
     /// <returns>
-    /// A string in the form <ch>"DelegateType (MethodName)"</ch> for named methods,
-    /// or <ch>"DelegateType (anonymous)"</ch> for anonymous methods and lambdas.
+    /// A string in the form <c>"DelegateType (MethodName)"</c> for named methods,
+    /// or <c>"DelegateType (anonymous)"</c> for anonymous methods and lambdas.
     /// </returns>
     /// <remarks>
     /// <para>
@@ -504,8 +507,8 @@ public sealed class DefaultFormatter : IFormatter
     /// <para>
     /// <strong>Method Name Detection:</strong> Distinguishes between:
     /// <list type="bullet">
-    ///   <item><strong>Named methods:</strong> Shows the actual method name (e.g., <ch>WriteLine</ch>, <ch>ToString</ch>)</item>
-    ///   <item><strong>Anonymous methods/lambdas:</strong> Shows <ch>"anonymous"</ch> for compiler-generated names</item>
+    ///   <item><strong>Named methods:</strong> Shows the actual method name (e.g., <c>WriteLine</c>, <c>ToString</c>)</item>
+    ///   <item><strong>Anonymous methods/lambdas:</strong> Shows <c>"anonymous"</c> for compiler-generated names</item>
     /// </list>
     /// </para>
     /// <para>
@@ -638,18 +641,18 @@ public sealed class DefaultFormatter : IFormatter
     }
 
     /// <summary>
-    /// Formats an <see cref="IEnumerable"/> collection showing the first <see cref="MaxCount"/> items.
+    /// Formats an <see cref="IEnumerable"/> collection showing the first <see cref="Builder.MaxCount"/> items.
     /// </summary>
     /// <param name="coll">The collection to format.</param>
     /// <returns>
-    /// A string in the form <ch>"[count]: [item1, item2, item3]"</ch> or
-    /// <ch>"[First 3 of 5+]: [item1, item2, item3]"</ch> if there are more than <see cref="MaxCount"/> items.
+    /// A string in the form <c>"[count]: [item1, item2, item3]"</c> or
+    /// <c>"[First 3 of 5+]: [item1, item2, item3]"</c> if there are more than <see cref="Builder.MaxCount"/> items.
     /// </returns>
     /// <remarks>
     /// <para>
-    /// <strong>Collection Truncation:</strong> Only the first <see cref="MaxCount"/> (3) items are included
+    /// <strong>Collection Truncation:</strong> Only the first <see cref="Builder.MaxCount"/> (3) items are included
     /// to keep output concise. If the collection contains more items, the prefix shows
-    /// <ch>"First 3 of N+"</ch> to indicate truncation.
+    /// <c>"First 3 of N+"</c> to indicate truncation.
     /// </para>
     /// <para>
     /// <strong>Dictionary Handling:</strong> If the collection implements <see cref="IDictionary"/>,
@@ -658,11 +661,11 @@ public sealed class DefaultFormatter : IFormatter
     /// <para>
     /// <strong>Recursive Formatting:</strong> Each item is formatted via <see cref="Format(object?)"/>
     /// to apply type-specific formatting rules (strings quoted, chars single-quoted, etc.).
-    /// Null items are replaced with the <see cref="NullString"/> constant.
+    /// Null items are replaced with the <see cref="Builder.NullString"/> constant.
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Uses <see cref="Enumerable.Take{TSource}(IEnumerable{TSource}, int)"/>
-    /// to materialize only <see cref="MaxCount"/> + 1 items, avoiding full enumeration of large collections.
+    /// to materialize only <see cref="Builder.MaxCount"/> + 1 items, avoiding full enumeration of large collections.
     /// Not marked with <see cref="MethodImplOptions.AggressiveInlining"/> due to complexity.
     /// </para>
     /// </remarks>
@@ -768,7 +771,7 @@ public sealed class DefaultFormatter : IFormatter
     /// <remarks>
     /// <para>
     /// This cache eliminates string allocations for ~95% of character formatting operations.
-    /// Characters are formatted with single quotes: <ch>'a'</ch>, <ch>'Z'</ch>, <ch>'0'</ch>, etc.
+    /// Characters are formatted with single quotes: <c>'a'</c>, <c>'Z'</c>, <c>'0'</c>, etc.
     /// </para>
     /// <para>
     /// Non-printable characters (control characters, extended ASCII, Unicode) are formatted
@@ -869,25 +872,25 @@ public sealed class DefaultFormatter : IFormatter
     }
 
     /// <summary>
-    /// Formats an <see cref="IDictionary"/> showing the first <see cref="MaxCount"/> key-value pairs.
+    /// Formats an <see cref="IDictionary"/> showing the first <see cref="Builder.MaxCount"/> key-value pairs.
     /// </summary>
     /// <param name="dictionary">The dictionary to format.</param>
-    /// <param name="prefix">A prefix string describing the count (e.g., <ch>"3"</ch> or <ch>"First 3 of 5+"</ch>).</param>
+    /// <param name="prefix">A prefix string describing the count (e.g., <c>"3"</c> or <c>"First 3 of 5+"</c>).</param>
     /// <returns>
-    /// A string in the form <ch>"[prefix]: {{key1: value1}, {key2: value2}, {key3: value3}}"</ch>.
+    /// A string in the form <c>"[prefix]: {{key1: value1}, {key2: value2}, {key3: value3}}"</c>.
     /// </returns>
     /// <remarks>
     /// <para>
     /// <strong>Dictionary Entry Handling:</strong> Supports both <see cref="DictionaryEntry"/> (non-generic)
     /// and <see cref="KeyValuePair{TKey,TValue}"/> (generic) via reflection. This enables formatting
-    /// of both <ch>IDictionary</ch> and <ch>IDictionary&lt;TKey, TValue&gt;</ch> implementations.
+    /// of both <c>IDictionary</c> and <c>IDictionary&lt;TKey, TValue&gt;</c> implementations.
     /// </para>
     /// <para>
     /// <strong>Recursive Formatting:</strong> Keys and values are formatted via <see cref="Format(object?, object?)"/>
     /// which recursively applies type-specific formatting rules.
     /// </para>
     /// <para>
-    /// <strong>Reflection Usage:</strong> For generic <ch>Dictionary&lt;TKey, TValue&gt;</ch>, uses reflection
+    /// <strong>Reflection Usage:</strong> For generic <c>Dictionary&lt;TKey, TValue&gt;</c>, uses reflection
     /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> type,
     /// avoiding the need for multiple overloads for every possible key/value type combination.
     /// </para>

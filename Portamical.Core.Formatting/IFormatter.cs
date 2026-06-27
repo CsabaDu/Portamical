@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Formatting.CustomFormatters;
-
 namespace Portamical.Core.Formatting;
 
 /// <summary>
@@ -16,7 +14,7 @@ namespace Portamical.Core.Formatting;
 /// or extend the built-in formatting behavior for specific types.
 /// </para>
 /// <para>
-/// <strong>Registry Integration:</strong> Formatters registered in <c>FormatterRegister.Registry</c>
+/// <strong>Registry Integration:</strong> Formatters registered in <see cref="Formatter.Registry"/>
 /// are consulted <em>before</em> the built-in pattern matching logic, enabling domain-specific
 /// formatting without modifying the core library.
 /// </para>
@@ -26,7 +24,7 @@ namespace Portamical.Core.Formatting;
 /// synchronization.
 /// </para>
 /// <para>
-/// <strong>Design Pattern:</strong> Prefer implementing <see cref="IFormatter{T}"/> for type-safe
+/// <strong>Design Pattern:</strong> Prefer implementing <see cref="Formatter{T}"/> for type-safe
 /// formatters. The non-generic <see cref="IFormatter"/> interface is primarily for internal use
 /// and registry storage.
 /// </para>
@@ -34,22 +32,22 @@ namespace Portamical.Core.Formatting;
 /// <example>
 /// <code>
 /// // Implement a custom formatter for domain types
-/// public class ProductIdFormatter : ICustomFormatter&lt;ProductId&gt;
+/// public class ProductIdFormatter : Formatter&lt;ProductId&gt;
 /// {
-///     public string Format(ProductId value)
+///     public override string Format(ProductId value)
 ///     {
 ///         return $"PROD-{value.Id:D6}";
 ///     }
 ///     
 ///     // Explicit interface implementation for non-generic version
-///     string? ICustomFormatter.Format(object value)
+///     string? IFormatter.Format(object? value)
 ///     {
 ///         return value is ProductId id ? Format(id) : null;
 ///     }
 /// }
 /// 
 /// // Register the formatter globally
-/// FormatterRegister.RegisterFormatter&lt;ProductId&gt;(new ProductIdFormatter());
+/// Formatter.RegisterFormatter&lt;ProductId&gt;(new ProductIdFormatter());
 /// 
 /// // Now all test cases automatically use custom formatting
 /// var testData = CreateTestDataReturns(
@@ -59,7 +57,7 @@ namespace Portamical.Core.Formatting;
 /// // TestCaseName: "Get product => returns PROD-000042" ✅
 /// </code>
 /// </example>
-/// <seealso cref="IFormatter{T}"/>
+/// <seealso cref="Formatter{T}"/>
 /// <seealso cref="DefaultFormatter"/>
 public interface IFormatter
 {
@@ -83,7 +81,7 @@ public interface IFormatter
     /// </para>
     /// <para>
     /// <strong>Note:</strong> This method is primarily used by the registry lookup mechanism.
-    /// Type-safe implementations should prefer <see cref="IFormatter{T}.Format(T)"/>.
+    /// Type-safe implementations should prefer <see cref="Formatter{T}.Format(T)"/>.
     /// </para>
     /// </remarks>
     string? Format(object? obj);
