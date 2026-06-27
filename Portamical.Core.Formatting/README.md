@@ -177,11 +177,12 @@ Console.WriteLine($"Active custom formatters: {count}");
 
 ```
 Portamical.Core.Formatting/
+├── IFormatter.cs           # Base contract for formatters
 ├── Formatter.cs            # Formatting utilities (registry for custom formatters + formatting pipeline)
 ├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
 ├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
 └── CustomFormatters/
-    ├── IFormatter.cs       # Extensibility contracts for custom formatters
+    ├── IFormatter.cs       # Extensibility contract for custom formatters
     └── Model/
         └── Formatter.cs    # Abstract generic base class
 ```
