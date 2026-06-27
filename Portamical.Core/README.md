@@ -142,14 +142,11 @@ Portamical.Core/                 (Core test data types)
 ├── Safety/
 └── Strategy/
 
-Portamical.Core.Formatting/     (NEW - Standalone formatting library)
-├── Formatter.cs                (Custom formatter registry, formatting pipeline)
+Portamical.Core.Formatting/     (Standalone formatting library)
+├── IFormatter.cs               (Base contract for all formatters)
+├── Formatter.cs                (Formatting utilities + abstract `Formatter<T>` base class)
 ├── Builder.cs                  (String building utilities)
-├── DefaultFormatter.cs         (Singleton built-in formatter, 12+ type patterns)
-└── CustomFormatters/
-    ├── IFormatter.cs           (Formatter contracts)
-    └── Model/
-        └── Formatter.cs        (Abstract generic base class)
+└── DefaultFormatter.cs         (Singleton built-in formatter, 12+ type patterns)
 ```
 
 ### Performance Improvements
@@ -333,7 +330,7 @@ var test = CreateTestDataReturns(
 
 ## Architecture
 
-### Namespace Organization (v4.0.0)
+### Namespace Organization (v4.1.0)
 
 ```
 Portamical.Core/
@@ -353,15 +350,11 @@ Portamical.Core/
         ├── IReturns.cs     # Marker for return value tests
         └── IThrows.cs      # Marker for exception tests
 
-Portamical.Core.Formatting/ (NEW - Standalone package)
+Portamical.Core.Formatting/
 ├── IFormatter.cs           # Base contract for formatters
-├── Formatter.cs            # Formatting utilities (registry for custom formatters + formatting pipeline)
+├── Formatter.cs            # Formatting utilities (registry for custom formatters + formatting pipeline) + abstract `Formatter<T>` base class)
 ├── Builder.cs              # String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
-├── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
-└── CustomFormatters/
-    ├── IFormatter.cs       # Extensibility contract for custom formatters
-    └── Model/
-        └── Formatter.cs    # Abstract generic base class
+└── DefaultFormatter.cs     # Singleton built-in formatter with intelligent type-specific formatting
 ```
 
 ### Four-Layer Test Data Model
