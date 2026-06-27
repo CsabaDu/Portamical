@@ -13,6 +13,27 @@
 
 ---
 
+## What's New in v2.0.0
+
+**Architecture Simplification & API Refinement**
+
+**WHAT'S NEW:**  
+- **Simplified formatter architecture** - 2 types instead of 3
+- **Single inheritance model** via `Formatter<T>` base class
+- **Flat namespace structure** for better discoverability
+- **Configurable `maxCount` parameter** for Builder join methods
+- **Enhanced XML documentation** (60+ fixes and clarifications)
+
+**BREAKING CHANGES:**  
+- Removed generic `IFormatter<T>` interface (replaced by `Formatter<T>` base class)
+  - All custom formatters must now inherit from abstract `Formatter<T>` base class
+  - Eliminates interface segregation - single inheritance model
+  - **Migration:** Change `IFormatter<T>` -> `Formatter<T>` and inherit instead of implement
+- Deleted CustomFormatters namespace and folder structure
+  - All formatter types now in root `Portamical.Core.Formatting` namespace
+
+---
+
 ## Features
 
 ### **Extensible Formatter System**
@@ -447,14 +468,14 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 
 **Architecture Simplification & API Refinement**
 
-**WHAT'S NEW:**
+**WHAT'S NEW:**  
 - **Simplified formatter architecture** - 2 types instead of 3
 - **Single inheritance model** via `Formatter<T>` base class
 - **Flat namespace structure** for better discoverability
 - **Configurable `maxCount` parameter** for Builder join methods
 - **Enhanced XML documentation** (60+ fixes and clarifications)
 
-**BREAKING CHANGES:**
+**BREAKING CHANGES:**  
 - Removed generic `IFormatter<T>` interface (replaced by `Formatter<T>` base class)
   - All custom formatters must now inherit from abstract `Formatter<T>` base class
   - Eliminates interface segregation - single inheritance model
@@ -462,7 +483,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 - Deleted CustomFormatters namespace and folder structure
   - All formatter types now in root `Portamical.Core.Formatting` namespace
 
-**ARCHITECTURE IMPROVEMENTS:**
+**ARCHITECTURE IMPROVEMENTS:**  
 - Simplified formatter type hierarchy
   - Before: IFormatter (non-generic) + IFormatter<in T> interface + Formatter<T> base class
   - After: IFormatter (non-generic) + Formatter<T> abstract base class
@@ -474,7 +495,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
   - Sealed `IFormatter.Format(object?)` implementation ensures consistent type checking
   - Simplified implementation: override single `Format(T)` method
 
-**BUILDER ENHANCEMENTS:**
+**BUILDER ENHANCEMENTS:**  
 - Added **configurable `maxCount` parameter** to join methods
   - `JoinWithComma(items, maxCount)` - default 3, configurable for different use cases
   - `JoinWithSeparator(items, separator, maxCount)` - flexible truncation control
@@ -483,7 +504,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
   - Tuples support up to 8 elements natively before nesting
   - Ensures complete tuple formatting without truncation
 
-**DOCUMENTATION OVERHAUL:**
+**DOCUMENTATION OVERHAUL:**  
 - Complete XML documentation review and correction (60+ fixes)
 - Standardized all inline code tags and cref attributes
 - Enhanced API documentation for IFormatter, Formatter<T>, Builder, DefaultFormatter
@@ -492,12 +513,12 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 - Updated all code examples to use new architecture
 - Fixed cref attributes (e.g., `JoinWithComma` method signature correction)
 
-**CODE QUALITY:**
+**CODE QUALITY:**  
 - Removed contravariance complexity
 - Comprehensive test coverage for new features
 - All tests passing with simplified architecture
 
-**BENEFITS:**
+**BENEFITS:**  
 - ✅ Simpler API surface: Fewer types to learn and understand
 - ✅ Single inheritance model: Clear extension point via `Formatter<T>`
 - ✅ Flat namespace: Better IDE auto-completion and discoverability
