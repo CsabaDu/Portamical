@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Formatting.CustomFormatters;
-using Portamical.Core.Formatting.CustomFormatters.Model;
+using Portamical.Core.Formatting;
 using static Portamical.Core.Formatting.Builder;
 
 namespace Tests.Portamical.Core.Formatting.Model;
@@ -80,7 +79,7 @@ public class CustomFormatterTests
     public void CustomFormatterT_implementsICustomFormatterT()
     {
         var formatter = new TestCustomFormatterInt();
-        Assert.IsInstanceOfType<IFormatter<int>>(formatter);
+        Assert.IsInstanceOfType<Formatter<int>>(formatter);
     }
 
     [TestMethod]
@@ -90,14 +89,6 @@ public class CustomFormatterTests
         object value = 99;
         var result = formatter.Format(value);
         Assert.AreEqual("INT:99", result);
-    }
-
-    [TestMethod]
-    public void CustomFormatterT_ICustomFormatterTFormat_callsTypeSafeMethod()
-    {
-        IFormatter<int> formatter = new TestCustomFormatterInt();
-        var result = formatter.Format(55);
-        Assert.AreEqual("INT:55", result);
     }
     #endregion
 
@@ -518,22 +509,6 @@ public class CustomFormatterTests
 
         var result = formatter.Format(attempt);
         Assert.IsTrue(result?.StartsWith("ACTION:"));
-    }
-    #endregion
-
-    #region CustomFormatter<T> - Pattern Matching Edge Cases
-
-    [TestMethod]
-    public void CustomFormatterT_withContravariance_handlesBaseTypeCustomFormatters()
-    {
-        // ICustomFormatter<in T> is contravariant
-        IFormatter<Exception> baseCustomFormatter = new TestCustomFormatterException();
-
-        // Can assign to more derived type through interface
-        var exception = new ArgumentException("test");
-        var result = baseCustomFormatter.Format(exception);
-
-        Assert.IsTrue(result?.StartsWith("EX:"));
     }
     #endregion
 
