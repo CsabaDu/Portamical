@@ -531,7 +531,7 @@ public static class Formatter
 /// <seealso cref="IFormatter"/>
 /// <seealso cref="Formatter{T}"/>
 /// <seealso cref="DefaultFormatter"/>
-public abstract class Formatter<T> : IFormatter//<T>
+public abstract class Formatter<T> : IFormatter
 {
     /// <summary>
     /// Formats a value of type <typeparamref name="T"/> into a human-readable string representation.
