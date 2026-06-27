@@ -48,9 +48,10 @@
 
 ### **Utility Helpers**
 - **`Builder.CreateSeparatedString`** - Zero-copy three-part string assembly
-- **`Builder.JoinWithComma`** - Optimized for 0-3 item lists
+- **`Builder.JoinWithSeparator`, `Builder.JoinWithComma`** - Optimized for 0-3 item lists
 - **`Builder.CopyAsSpan`** - Efficient character copying for `Span<char>`
-- **`Builder.FallbackIfNull`** - Consistent `null` ? `"null"` conversion
+- **`Builder.FallbackIfNull`** - Consistent `null` -> `"null"` conversion
+- **`Builder.FallbackIfNullSeparator`** - Consistent `null` -> `", "` conversion
 
 ---
 
@@ -172,7 +173,7 @@ Console.WriteLine($"Active custom formatters: {registry.Count}");
 All formatting types are in the root `Portamical.Core.Formatting` namespace:
 
 - **`IFormatter.cs`** - Public base contract for all formatters
-- **`Formatter.cs`** - Static registry class + abstract `Formatter<T>` base class  
+- **`Formatter.cs`** - Static registry + formatting pipeline class + abstract `Formatter<T>` base class  
 - **`Builder.cs`** - String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
 - **`DefaultFormatter.cs`** - Singleton built-in formatter with intelligent type-specific formatting
 
@@ -181,12 +182,12 @@ All formatting types are in the root `Portamical.Core.Formatting` namespace:
 
 ```
 IFormatter (non-generic, public)
-	â”‚
-	â”śâ”€â”€ DefaultFormatter (built-in, 12+ type patterns)
-	â”‚
-	â””â”€â”€ Formatter<T> (abstract base class)
-			â”‚
-			â””â”€â”€ [Your Custom Formatters]
+	│
+	├── DefaultFormatter (built-in, 12+ type patterns)
+	│
+	└── Formatter<T> (abstract base class)
+			│
+			└── [Your Custom Formatters]
 ```
 
 ### Formatting Pipeline
@@ -318,8 +319,14 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 
 | Constant | Type | Value | Description |
 |----------|------|-------|-------------|
-| `Builder.MaxCount` | `int` | `3` | Max items shown in collections/tuples |
+| `Builder.MaxCount` | `int` | `3` | Max items shown in collections |
 | `Builder.NullString` | `string` | `"null"` | String representation of `null` |
+
+### Abstract Methods
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `Formatter<T>.Format(T)` | `string` | Abstract method to implement custom formatting logic for type `T` |
 
 ---
 
