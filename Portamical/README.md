@@ -22,7 +22,7 @@ dotnet add package Portamical
 > - `Portamical.xUnit_v3` for xUnit v3
 > - `Portamical.MSTest` for MSTest 4
 > - `Portamical.NUnit` for NUnit 4
-> - `Portamical.TUnit` for TUnit
+> - `Portamical.TUnit` (***Preview***) for TUnit
 
 ---
 
