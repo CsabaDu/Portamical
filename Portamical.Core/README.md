@@ -412,9 +412,9 @@ Every test case has a deterministic `TestCaseName`:
 **Examples (with automatic formatting):**
 - `"Add(2,3) => returns 5"`
 - `"Validate(null) => throws ArgumentException: Value cannot be null"`
-- `"Get user name => returns \"John Doe\""` â† Reference type with quotes
-- `"Get timestamp => returns 2026-01-15T10:30:00.0000000Z"` â† ISO 8601 formatting
-- `"Get numbers => returns [3]: [1, 2, 3]"` â† Collection with count
+- "Get user name => returns \"John Doe\"" <- Reference type with quotes
+- "Get timestamp => returns 2026-01-15T10:30:00.0000000Z" <- ISO 8601 formatting
+- "Get numbers => returns [3]: [1, 2, 3]" <- Collection with count
 
 ### Strategy Pattern
 
