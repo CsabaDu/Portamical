@@ -38,12 +38,6 @@ namespace Portamical.Core.Formatting;
 ///     {
 ///         return $"PROD-{value.Id:D6}";
 ///     }
-///     
-///     // Explicit interface implementation for non-generic version
-///     string? IFormatter.Format(object? value)
-///     {
-///         return value is ProductId id ? Format(id) : null;
-///     }
 /// }
 /// 
 /// // Register the formatter globally
