@@ -7,10 +7,10 @@ Enhanced test coverage for the `Builder` class and tuple formatting in `DefaultF
 ## Current Implementation (Retained)
 
 The existing `JoinWithSeparator` implementation was **kept as-is** because:
-- ? Clear and maintainable
-- ? Already performs well for typical use cases  
-- ? No reported performance issues
-- ? Uses existing utilities consistently
+- Clear and maintainable
+- Already performs well for typical use cases  
+- No reported performance issues
+- Uses existing utilities consistently
 
 ## Test Coverage Additions
 
