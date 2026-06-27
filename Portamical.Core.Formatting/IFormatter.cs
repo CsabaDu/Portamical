@@ -14,7 +14,7 @@ namespace Portamical.Core.Formatting;
 /// or extend the built-in formatting behavior for specific types.
 /// </para>
 /// <para>
-/// <strong>Registry Integration:</strong> Formatters registered in <c>FormatterRegister.Registry</c>
+/// <strong>Registry Integration:</strong> Formatters registered in <see cref="Formatter.Registry"/>
 /// are consulted <em>before</em> the built-in pattern matching logic, enabling domain-specific
 /// formatting without modifying the core library.
 /// </para>
@@ -47,7 +47,7 @@ namespace Portamical.Core.Formatting;
 /// }
 /// 
 /// // Register the formatter globally
-/// FormatterRegister.RegisterFormatter&lt;ProductId&gt;(new ProductIdFormatter());
+/// Formatter.RegisterFormatter&lt;ProductId&gt;(new ProductIdFormatter());
 /// 
 /// // Now all test cases automatically use custom formatting
 /// var testData = CreateTestDataReturns(

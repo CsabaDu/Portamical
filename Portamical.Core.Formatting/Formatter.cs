@@ -46,7 +46,7 @@ namespace Portamical.Core.Formatting;
 /// <example>
 /// <code><![CDATA[
 /// // Define a custom formatter
-/// public class PersonFormatter : ICustomFormatter
+/// public class PersonFormatter : IFormatter
 /// {
 ///     public string? Format(object? obj) => obj switch
 ///     {
@@ -56,11 +56,11 @@ namespace Portamical.Core.Formatting;
 /// }
 /// 
 /// // Register the formatter
-/// FormatterRegister.RegisterFormatter<Person>(new PersonFormatter());
+/// Formatter.RegisterFormatter<Person>(new PersonFormatter());
 /// 
 /// // Use it directly
 /// var person = new Person { FirstName = "John", LastName = "Doe", Age = 30 };
-/// string result = FormatterRegister.Format(person);
+/// string result = Formatter.Format(person);
 /// // Returns: "John Doe (Age: 30)"
 /// 
 /// // Or use through DefaultFormatter (automatically uses registered formatter)
@@ -68,7 +68,7 @@ namespace Portamical.Core.Formatting;
 /// // Returns: "John Doe (Age: 30)"
 /// 
 /// // Cleanup
-/// FormatterRegister.UnregisterFormatter<Person>();
+/// Formatter.UnregisterFormatter<Person>();
 /// ]]></code>
 /// </example>
 public static class Formatter
@@ -146,7 +146,7 @@ public static class Formatter
     /// <example>
     /// <code><![CDATA[
     /// // Register a custom formatter for MyCustomType
-    /// public class MyCustomFormatter : ICustomFormatter
+    /// public class MyCustomFormatter : IFormatter
     /// {
     ///     public string? Format(object? obj) => obj switch
     ///     {
@@ -156,11 +156,11 @@ public static class Formatter
     /// }
     /// 
     /// // Thread-safe registration
-    /// bool registered = FormatterRegister.RegisterFormatter(typeof(MyCustomType), new MyCustomFormatter());
+    /// bool registered = Formatter.RegisterFormatter(typeof(MyCustomType), new MyCustomFormatter());
     /// if (registered)
     /// {
     ///     // Formatter registered successfully
-    ///     var formatter = FormatterRegister.GetFormatter(typeof(MyCustomType));
+    ///     var formatter = Formatter.GetFormatter(typeof(MyCustomType));
     ///     var result = formatter.Format(new MyCustomType { Id = 42 });
     ///     // Returns: "Custom[42]"
     /// }
@@ -198,7 +198,7 @@ public static class Formatter
     /// <example>
     /// <code><![CDATA[
     /// // Generic registration (compile-time type safety)
-    /// bool registered = FormatterRegister.RegisterFormatter<MyCustomType>(new MyCustomFormatter());
+    /// bool registered = Formatter.RegisterFormatter<MyCustomType>(new MyCustomFormatter());
     /// ]]></code>
     /// </example>
     public static bool RegisterFormatter<T>(IFormatter formatter)
@@ -229,7 +229,7 @@ public static class Formatter
     /// <example>
     /// <code><![CDATA[
     /// // Unregister a formatter
-    /// bool unregistered = FormatterRegister.UnregisterFormatter(typeof(MyCustomType));
+    /// bool unregistered = Formatter.UnregisterFormatter(typeof(MyCustomType));
     /// if (unregistered)
     /// {
     ///     // Formatter removed, will use default formatting now
@@ -263,7 +263,7 @@ public static class Formatter
     /// <example>
     /// <code><![CDATA[
     /// // Generic unregistration (compile-time type safety)
-    /// bool unregistered = FormatterRegister.UnregisterFormatter<MyCustomType>();
+    /// bool unregistered = Formatter.UnregisterFormatter<MyCustomType>();
     /// ]]></code>
     /// </example>
     public static bool UnregisterFormatter<T>()
@@ -287,7 +287,7 @@ public static class Formatter
     /// </exception>
     /// <example>
     /// <code><![CDATA[
-    /// if (FormatterRegister.IsFormatterRegistered(typeof(MyCustomType)))
+    /// if (Formatter.IsFormatterRegistered(typeof(MyCustomType)))
     /// {
     ///     // Custom formatter is active
     /// }
@@ -319,7 +319,7 @@ public static class Formatter
     /// </remarks>
     /// <example>
     /// <code><![CDATA[
-    /// if (FormatterRegister.IsFormatterRegistered<MyCustomType>())
+    /// if (Formatter.IsFormatterRegistered<MyCustomType>())
     /// {
     ///     // Custom formatter is active
     /// }
@@ -344,7 +344,7 @@ public static class Formatter
     /// <example>
     /// <code><![CDATA[
     /// // Clear all custom formatters (e.g., in test cleanup)
-    /// FormatterRegister.ClearFormatters();
+    /// Formatter.ClearFormatters();
     /// ]]></code>
     /// </example>
     public static void ClearFormatters()
@@ -375,15 +375,15 @@ public static class Formatter
     /// <example>
     /// <code><![CDATA[
     /// // Get formatter for a type (custom or default)
-    /// var formatter = FormatterRegister.GetFormatter(typeof(MyCustomType));
+    /// var formatter = Formatter.GetFormatter(typeof(MyCustomType));
     /// var result = formatter.Format(myObject);
     /// 
     /// // Example with registered custom formatter
-    /// FormatterRegister.RegisterFormatter<MyType>(new MyCustomFormatter());
-    /// var customFormatter = FormatterRegister.GetFormatter(typeof(MyType)); // Returns MyCustomFormatter
+    /// Formatter.RegisterFormatter<MyType>(new MyCustomFormatter());
+    /// var customFormatter = Formatter.GetFormatter(typeof(MyType)); // Returns MyCustomFormatter
     /// 
     /// // Example without registered formatter
-    /// var defaultFormatter = FormatterRegister.GetFormatter(typeof(int)); // Returns DefaultFormatter.Instance
+    /// var defaultFormatter = Formatter.GetFormatter(typeof(int)); // Returns DefaultFormatter.Instance
     /// ]]></code>
     /// </example>
     public static IFormatter GetFormatter(Type type)
@@ -485,18 +485,18 @@ public static class Formatter
 ///     public override string Format(ProductId value)
 ///     {
 ///         if (value is null)
-///             return NullString;  // Use base class constant
+///             return Builder.NullString;  // Use Builder constant
 ///         
 ///         return $"PROD-{value.Id:D6}";
 ///     }
 /// }
 /// 
-/// // Usage with FormatterRegister registry
+/// // Usage with Formatter registry
 /// var formatter = new ProductIdFormatter();
-/// FormatterRegister.RegisterFormatter&lt;ProductId&gt;(formatter);
+/// Formatter.RegisterFormatter&lt;ProductId&gt;(formatter);
 /// 
 /// var productId = new ProductId { Id = 42 };
-/// var formatted = FormatterRegister.Format(productId);
+/// var formatted = Formatter.Format(productId);
 /// // Result: "PROD-000042" ✅
 /// 
 /// // Automatic type safety
@@ -514,11 +514,11 @@ public static class Formatter
 ///     public override string Format(Range value)
 ///     {
 ///         if (value is null)
-///             return FallbackIfNull(null);  // Use base class helper
+///             return Builder.FallbackIfNull(null);  // Use Builder helper
 ///         
 ///         // Use JoinWithComma for consistent formatting
 ///         var parts = new[] { value.Start.ToString(), value.End.ToString() };
-///         return $"[{JoinWithComma(parts)}]";
+///         return $"[{Builder.JoinWithComma(parts)}]";
 ///     }
 /// }
 /// 
@@ -553,7 +553,7 @@ public abstract class Formatter<T> : IFormatter//<T>
     /// </list>
     /// </para>
     /// <para>
-    /// <strong>Base Class Utilities:</strong> Implementations can leverage inherited helper methods:
+    /// <strong>Base Class Utilities:</strong> Implementations can leverage helper methods from <see cref="Builder"/>:
     /// <list type="bullet">
     ///   <item><see cref="Builder.FallbackIfNull(string?)"/> - Convert null to <c>"null"</c></item>
     ///   <item><see cref="Builder.JoinWithComma(IEnumerable{string?})"/> - Join formatted parts</item>
@@ -583,14 +583,14 @@ public abstract class Formatter<T> : IFormatter//<T>
     /// </code>
     /// 
     /// <code>
-    /// // Nullable value formatter with base class utilities
+    /// // Nullable value formatter with Builder utilities
     /// public class OptionalStringFormatter : Formatter&lt;string?&gt;
     /// {
     ///     public override string Format(string? value)
     ///     {
-    ///         // Use base class helper for null handling
+    ///         // Use Builder helper for null handling
     ///         if (value is null)
-    ///             return FallbackIfNull(null);
+    ///             return Builder.FallbackIfNull(null);
     ///         
     ///         return $"\"{value}\"";
     ///     }

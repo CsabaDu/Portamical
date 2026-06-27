@@ -268,7 +268,7 @@ public static class Builder
     /// </para>
     /// <para>
     /// <strong>Usage Context:</strong> Called by <see cref="DefaultFormatter"/> methods such as
-    /// <c>Format(IEnumerable)</c>, <c>Format(IDictionary, string?)</c>, <c>Format(ITuple)</c>, and
+    /// <c>Format(IEnumerable)</c>, <c>FormatDictionary(IDictionary, string?)</c>, <c>Format(ITuple)</c>, and
     /// <c>Format(Type)</c> to combine pre-formatted elements into their final string representation.
     /// </para>
     /// <para>

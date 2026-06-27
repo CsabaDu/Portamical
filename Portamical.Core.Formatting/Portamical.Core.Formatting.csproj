@@ -11,7 +11,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <Title>Portamical.Core.Formatting</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -30,46 +30,104 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v1.0.0 (2026-06-26) - Initial Release
+      v2.0.0 (2026-06-28) - Architecture Simplification &amp; API Refinement
 
-      Core Features:
-      - IFormatter and IFormatter&lt;T&gt; interfaces for custom formatter implementations
-      - Formatter&lt;T&gt; abstract base class with Template Method pattern
-      - DefaultFormatter with specialized formatting for 12+ .NET types
-        • Strings (quoted), chars (single-quoted), dates (ISO 8601)
-        • Collections, tuples, dictionaries (first 3 items with truncation)
-        • Exceptions, Types (C#-friendly names), Delegates, KeyValuePair
-        • Byte arrays (hex), Guid, Stream metadata
-      - Formatter (non-generic, static) for thread-safe custom formatter registration
-        • ConcurrentDictionary-based registry for lock-free reads/writes
-        • RegisterFormatter, UnregisterFormatter, GetFormatter, Format methods
-        • Custom formatters consulted before built-in pattern matching
-      - Builder utilities for zero-allocation string construction
-        • CreateSeparatedString: Span-based three-part string assembly
-        • JoinWithComma/JoinWithSeparator: Optimized for 0-3 item collections
-        • CopyAsSpan: Inline helper for efficient character copying
-        • FallbackIfNull: Consistent null-to-"null" conversion
+      BREAKING CHANGES:
+      - Removed generic IFormatter&lt;T&gt; interface (replaced by Formatter&lt;T&gt; base class)
+        • IFormatter&lt;T&gt; with contravariant 'in T' parameter removed
+        • All custom formatters must now inherit from abstract Formatter&lt;T&gt; base class
+        • Eliminates interface segregation - single inheritance model
+        • Migration: Change 'IFormatter&lt;T&gt;' → 'Formatter&lt;T&gt;' and inherit instead of implement
+      - Deleted CustomFormatters namespace and folder structure
+        • Portamical.Core.Formatting.CustomFormatters.IFormatter&lt;T&gt; → removed
+        • Portamical.Core.Formatting.CustomFormatters.Model.Formatter&lt;T&gt; → removed
+        • All formatter types now in root Portamical.Core.Formatting namespace
 
-      Performance Optimizations:
-      - Zero-allocation string building using string.Create() with Span&lt;char&gt;
-        • 66-75% fewer allocations for common formatting scenarios
-        • Direct span writes for quoted strings, tuples, key-value pairs
-        • Allocation-free delegate and type name formatting
-      - Aggressive inlining for hot-path helpers (CopyAsSpan, FallbackIfNull)
-      - Optimized pattern matching with method overloading for type dispatch
+      ARCHITECTURE IMPROVEMENTS:
+      - Simplified formatter type hierarchy
+        • Before: IFormatter (non-generic) + IFormatter&lt;in T&gt; interface + Formatter&lt;T&gt; base class
+        • After: IFormatter (non-generic) + Formatter&lt;T&gt; abstract base class
+        • Reduced complexity: 3 types → 2 types
+        • Clearer design: Template Method pattern without contravariance complexity
+      - Consolidated namespace structure
+        • All formatting types in single Portamical.Core.Formatting namespace
+        • Removed nested CustomFormatters/Model folder hierarchy
+        • Improved discoverability and reduced cognitive load
+      - Enhanced Formatter&lt;T&gt; base class
+        • Now the primary and recommended way to create custom formatters
+        • Sealed IFormatter.Format(object?) implementation ensures consistent type checking
+        • Simplified implementation: override single Format(T) method
 
-      Documentation:
-      - Comprehensive XML documentation for all public APIs
-        • Detailed type-specific formatting tables
-        • Formatter registration examples and patterns
-        • Performance characteristics and thread-safety notes
-        • Extensive code samples for all scenarios
-      - README with feature overview, quick start, and extensibility guide
+      DOCUMENTATION OVERHAUL:
+      - Complete XML documentation review and correction (60+ fixes)
+        • Standardized all inline code tags: &lt;ch&gt; → &lt;c&gt; throughout
+        • Corrected all class references: FormatterRegister → Formatter
+        • Fixed all interface references: IFormatter&lt;T&gt; → Formatter&lt;T&gt;
+        • Updated method references to Builder.* static members
+        • Fixed cref attributes pointing to renamed/removed types
+      - Enhanced API documentation
+        • IFormatter: Clarified public visibility and usage patterns
+        • Formatter&lt;T&gt;: Enhanced Template Method pattern documentation
+        • Builder: Corrected method references (e.g., FormatDictionary)
+        • DefaultFormatter: Standardized formatting throughout (30+ tag fixes)
+      - Updated all code examples
+        • Replaced IFormatter&lt;T&gt; with Formatter&lt;T&gt; in examples
+        • Updated namespace references in sample code
+        • Corrected registry usage examples (Formatter.* instead of FormatterRegister.*)
 
-      Thread Safety:
-      - All public APIs are thread-safe for concurrent use
-      - FormatterRegister uses ConcurrentDictionary for lock-free operations
-      - DefaultFormatter is stateless and safe for parallel test execution
+      CODE QUALITY:
+      - Removed contravariance complexity
+        • 'in T' variance eliminated - simpler type relationships
+        • No more contravariant interface tests needed
+        • Easier to understand and maintain
+      - Improved test coverage alignment
+        • Updated CustomFormatterTests to test Formatter&lt;T&gt; base class
+        • Removed contravariance-specific test cases
+        • All tests passing with simplified architecture
+
+      MIGRATION GUIDE (v1.x → v2.0):
+
+      1. Update custom formatter declarations:
+         Before: public class MyFormatter : IFormatter&lt;MyType&gt;
+         After:  public class MyFormatter : Formatter&lt;MyType&gt;
+
+      2. Update namespace references (if using fully qualified names):
+         Before: using Portamical.Core.Formatting.CustomFormatters;
+         After:  using Portamical.Core.Formatting;
+
+      3. Remove explicit IFormatter.Format(object?) implementations if present:
+         - Formatter&lt;T&gt; base class provides this automatically
+         - Only override Format(T value) in derived classes
+
+      4. No changes needed for:
+         - DefaultFormatter usage
+         - Builder utility methods
+         - Format method signatures
+         - Registry behavior or thread-safety
+
+      BENEFITS:
+      - Simpler API surface: Fewer types to learn and understand
+      - Single inheritance model: Clear extension point via Formatter&lt;T&gt;
+      - Flat namespace: Better IDE auto-completion and discoverability
+      - Consistent naming: Formatter for both static registry and base class
+      - Better documentation: Corrected and standardized across all files
+      - Maintained performance: Zero-allocation formatting still intact
+
+      FILES CHANGED:
+      - Deleted: CustomFormatters/IFormatter.cs (131 lines)
+      - Deleted: CustomFormatters/Model/Formatter.cs (258 lines)
+      - Modified: Formatter.cs - generic Formatter&lt;T&gt; base class transferred from the deleted file (258 lines), documentation updates
+      - Modified: IFormatter.cs - made public (14 changes)
+      - Modified: DefaultFormatter.cs - documentation updates
+      - Updated: README.md file
+      - Updated: CustomFormatterTests.cs - aligned with new architecture
+
+      VALIDATION:
+      - ✓ All builds successful (Debug/Release)
+      - ✓ Zero XML documentation warnings
+      - ✓ All unit tests passing
+      - ✓ Backward compatibility in behavior (API signatures changed)
+      - ✓ Performance characteristics unchanged
     </PackageReleaseNotes>
 
     <!-- Package Generation -->
