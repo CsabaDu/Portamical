@@ -11,7 +11,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>4.0.0</Version>
+    <Version>4.1.0</Version>
     <Title>Portamical.Core</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -30,48 +30,38 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v4.0.0 (2026-06-26) - Major Architectural Evolution: Standalone Formatting Library &amp; API Refinement
+    v4.1.0 (2026-06-27) - Dependency Update: Enhanced Formatting Capabilities
 
-      BREAKING CHANGES:
-      1. Formatting Library Extracted
-         - NEW: Portamical.Core.Formatting standalone package (auto-included as dependency)
-         - IMPACT: Formatting utilities now in separate NuGet package
-         - MIGRATION: Update to Portamical.Core v4.0.0 (includes Portamical.Core.Formatting automatically)
+    DEPENDENCY UPDATES:
+    - Updated Portamical.Core.Formatting from v1.0.0 → v2.0.0
+        • Simplified formatter architecture (2 types instead of 3)
+        • Single inheritance model via Formatter&lt;T&gt; base class
+        • Flat namespace structure for better discoverability
+        • Configurable maxCount parameter for Builder join methods
+        • Enhanced tuple formatting (maxCount: 8 for complete 8-element tuples)
+        • Comprehensive XML documentation improvements (60+ fixes)
 
-      2. Formatter API Refinement
-         - RENAMED: ValueFormatter → DefaultFormatter (better clarity)
-         - MOVED: IFormatter to Portamical.Core.Formatting.CustomFormatters namespace
-         - CHANGED: IFormatter&lt;T&gt;.Format(T) return type: string? → string (non-nullable)
-         - NEW: Formatter&lt;T&gt; abstract base class for easier custom formatter implementation
-         - MIGRATION: Change 'using static Portamical.Core.Formatting.ValueFormatter;' to 'using static Portamical.Core.Formatting.Builder;'
+      NEW CAPABILITIES (via Portamical.Core.Formatting v2.0.0):
+      - Configurable collection/tuple truncation control
+        • Builder.JoinWithComma(items, maxCount) - now accepts custom maxCount
+        • Builder.JoinWithSeparator(items, separator, maxCount) - flexible truncation
+        • DefaultFormatter.Format(ITuple) uses maxCount: 8 for complete tuple formatting
+      - Improved formatter architecture reduces complexity
+      - Better discoverability with consolidated namespace structure
 
-      3. Formatter Registry API Changes
-         - REMOVED: ValueFormatter.Registry, RegisterFormatter, UnregisterFormatter
-         - NEW: Formatter static class with simplified registration API
-         - MIGRATION: Use Formatter.RegisterFormatter&lt;T&gt;() instead of ValueFormatter.Registry
-
-      NEW FEATURES:
-      - Standalone Formatting Library (Portamical.Core.Formatting v1.0.0)
-        - Independently versioned formatting infrastructure
-        - Builder utilities: FallbackIfNull, JoinWithComma, CreateSeparatedString, CopyAsSpan
-        - Singleton pattern: DefaultFormatter.Instance
-      - Formatter&lt;T&gt; abstract base class simplifies custom formatter implementation
-      - ASCII character caching (5x performance improvement for printable chars 32-126)
-      - Comprehensive XML documentation with thread-safety guarantees
+      COMPATIBILITY:
+      - No breaking changes to Portamical.Core public API
+      - Fully backward compatible with existing code using v4.0.0
+      - Transparent integration of Portamical.Core.Formatting v2.0.0 improvements
+      - No migration required for Portamical.Core consumers
 
       IMPROVEMENTS:
-      - Simplified custom formatter API surface
-      - Zero-allocation span-based string building
-      - Enhanced performance in character formatting hot paths
-      - Complete migration guide included in README
+      - Enhanced formatting output quality via dependency improvements
+      - Better maintainability through simplified formatter architecture
+      - Improved XML documentation inherited from updated formatting library
 
-      MIGRATION GUIDE:
-      Step 1: Update package - dotnet add package Portamical.Core --version 4.0.0
-      Step 2: Update namespaces - 'using static Portamical.Core.Formatting.Builder;'
-      Step 3: Update formatter calls - DefaultFormatter.Format() instead of ValueFormatter.Format()
-      Step 4: Update custom formatters - inherit from Formatter&lt;T&gt; base class
-
-      For full details see: https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core/README.md
+      For Portamical.Core.Formatting v2.0.0 details see:
+      https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md
     </PackageReleaseNotes>
 
     <!-- Package Generation -->
@@ -103,7 +93,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Portamical.Core.Formatting" Version="1.0.0" />
+    <PackageReference Include="Portamical.Core.Formatting" Version="2.0.0" />
   </ItemGroup>
 
   <!-- T4 tooling support -->

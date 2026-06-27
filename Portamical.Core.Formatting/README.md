@@ -464,7 +464,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 
 ## Changelog
 
-### **Version 2.0.0 - Current** (2026-06-28)
+### **Version 2.0.0 - Current** (2026-06-27)
 
 **Architecture Simplification & API Refinement**
 

@@ -2,12 +2,57 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-4.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-4.1.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 **Framework-agnostic foundation of Portamical**: Universal, identity-driven test data modeling for .NET 10.
 
 Define test data **once** and consume it across test frameworks using adapter packages - without rewriting the data or sacrificing strong typing.
+
+---
+
+## What's New in v4.1.0
+
+**Dependency Update: Enhanced Formatting Capabilities**
+
+This release updates the formatting library dependency, bringing simplified architecture and configurable collection/tuple truncation control - all with full backward compatibility.
+
+### Dependency Updates
+
+1. **Portamical.Core.Formatting v1.0.0 ? v2.0.0**
+   - **Impact:** Automatic via NuGet dependency resolution
+   - **Breaking Changes:** None for Portamical.Core consumers
+   - **Migration:** None required - fully backward compatible
+
+### New Capabilities
+
+1. **Configurable Collection/Tuple Truncation**
+   - `Builder.JoinWithComma(items, maxCount)` - now accepts custom `maxCount` parameter
+   - `Builder.JoinWithSeparator(items, separator, maxCount)` - flexible truncation control
+   - `DefaultFormatter.Format(ITuple)` uses `maxCount: 8` for complete 8-element tuple formatting
+   - **Example:**
+     ```csharp
+     var items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+     var formatted = Builder.JoinWithComma(items.Select(x => x.ToString()), maxCount: 5);
+     // Result: "1, 2, 3, 4, 5, ..." (first 5 items with ellipsis)
+     ```
+
+2. **Simplified Formatter Architecture** (via Portamical.Core.Formatting v2.0.0)
+   - Reduced from 3 types to 2 types (merged `IFormatter<T>` into `Formatter<T>`)
+   - Single inheritance model - cleaner, easier to understand
+   - Flat namespace structure - better discoverability
+   - **No changes to Portamical.Core public API** - improvements are internal
+
+### Improvements
+
+- Enhanced formatting output quality via dependency improvements
+- Better maintainability through simplified formatter architecture
+- Improved XML documentation (60+ fixes inherited from formatting library)
+- Thread-safety guarantees remain unchanged
+
+### For More Details
+
+See [Portamical.Core.Formatting v2.0.0 Release Notes](https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md)
 
 ---
 
@@ -519,7 +564,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
-### **Version 4.0.0 - Current** (2026-06-26)
+### **Version 4.0.0** (2026-06-26)
 
 **Architectural Evolution: Standalone Formatting Library**
 
@@ -606,18 +651,45 @@ public sealed class MyFormatter : Formatter<T>
 
 ---
 
-### **Version 3.3.0** (2026-06-13)
+#### **Version 4.1.0 - Current** (2026-06-27)
 
-**Extensibility, Performance & Documentation Release**
+**Dependency Update: Enhanced Formatting Capabilities**
 
-See master branch README for full v3.3.0 details.
+This release updates the `Portamical.Core.Formatting` dependency from v1.0.0 to v2.0.0, bringing simplified architecture, configurable collection/tuple truncation, and improved documentation - all with full backward compatibility.
 
-**Key Features:**
-- Custom formatter registry (`ValueFormatter.Registry`)
-- `IFormatter` interface for extensibility
-- Delegate formatting
-- Span-based string building optimizations
-- 66-75% fewer allocations in hot paths
+**Dependency Updates**
+
+1. **Portamical.Core.Formatting v1.0.0 ? v2.0.0**
+   - Simplified formatter architecture (2 types instead of 3)
+   - Single inheritance model via `Formatter<T>` base class
+   - Flat namespace structure for better discoverability
+   - Configurable `maxCount` parameter for `Builder` join methods
+   - Enhanced tuple formatting (`maxCount: 8` for complete 8-element tuples)
+   - Comprehensive XML documentation improvements (60+ fixes)
+
+**New Capabilities** (via Portamical.Core.Formatting v2.0.0)
+
+- **Configurable Collection/Tuple Truncation Control**
+  - `Builder.JoinWithComma(items, maxCount)` - now accepts custom `maxCount`
+  - `Builder.JoinWithSeparator(items, separator, maxCount)` - flexible truncation
+  - `DefaultFormatter.Format(ITuple)` uses `maxCount: 8` for complete tuple formatting
+- Improved formatter architecture reduces complexity
+- Better discoverability with consolidated namespace structure
+
+**Compatibility**
+
+- ? No breaking changes to Portamical.Core public API
+- ? Fully backward compatible with existing code using v4.0.0
+- ? Transparent integration of Portamical.Core.Formatting v2.0.0 improvements
+- ? No migration required for Portamical.Core consumers
+
+**Improvements**
+
+- Enhanced formatting output quality via dependency improvements
+- Better maintainability through simplified formatter architecture
+- Improved XML documentation inherited from updated formatting library
+
+**For Details:** See [Portamical.Core.Formatting v2.0.0 Release Notes](https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md)
 
 ---
 
@@ -633,14 +705,21 @@ See master branch README for full v3.3.0 details.
 - `ValueFormatter` class for intelligent formatting
 - Automatic type-specific formatting for 12+ types
 
+
 ---
 
-### **Version 2.2.0** (2026-04-23)
+#### **Version 3.3.0** (2026-06-13)
 
-**Performance Optimizations**
+**Extensibility, Performance & Documentation Release**
 
-- Aggressive inlining for hot path methods (5x performance improvement)
-- Zero-allocation success paths maintained
+See master branch README for full v3.3.0 details.
+
+**Key Features:**
+- Custom formatter registry (`ValueFormatter.Registry`)
+- `IFormatter` interface for extensibility
+- Delegate formatting
+- Span-based string building optimizations
+- 66-75% fewer allocations in hot paths
 
 ---
 
@@ -651,6 +730,15 @@ See master branch README for full v3.3.0 details.
 - Extensive documentation across entire codebase
 - Design pattern documentation
 - Performance and thread-safety notes
+
+---
+
+#### **Version 2.2.0** (2026-04-23)
+
+**Performance Optimizations**
+
+- Aggressive inlining for hot path methods (5x performance improvement)
+- Zero-allocation success paths maintained
 
 ---
 

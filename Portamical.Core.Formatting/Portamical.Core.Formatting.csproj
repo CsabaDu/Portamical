@@ -30,7 +30,7 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v2.0.0 (2026-06-28) - Architecture Simplification &amp; API Refinement
+      v2.0.0 (2026-06-27) - Architecture Simplification &amp; API Refinement
 
       WHAT'S NEW:
       - Simplified formatter architecture (2 types instead of 3)
