@@ -523,7 +523,7 @@ dotnet build
 | Constructor (3 validations) | ~30 cycles | ~6 cycles | 5x |
 | Character formatting | ~5 cycles | ~1 cycle | 5x (cached ASCII) |
 
-**Real-world impact:** Creating 1000 test data objects - reduced from ~35-50 ÎĽs to ~7-10 ÎĽs.
+**Real-world impact:** Creating 1000 test data objects - reduced from ~35-50 μs to ~7-10 μs.
 
 ---
 
