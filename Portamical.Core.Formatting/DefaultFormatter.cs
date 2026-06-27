@@ -368,6 +368,7 @@ public sealed class DefaultFormatter : IFormatter
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Uses <see cref="Builder.CreateSeparatedString"/> for zero-allocation
+
     /// string construction. Exception formatting is a hot path when used with <c>TestDataThrows&lt;TException&gt;</c>
     /// for exception-based test case generation, where it's called for every parameterized test case.
     /// </para>
