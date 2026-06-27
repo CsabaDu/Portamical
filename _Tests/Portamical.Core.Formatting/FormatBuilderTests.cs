@@ -701,6 +701,110 @@ public class BuilderTests
     }
     #endregion
 
+    #region MaxCount Parameter Tests
+    [TestMethod]
+    public void JoinWithComma_withMaxCount1_usesFastPathForSingleItem()
+    {
+        var items = new List<string?> { "first" };
+        var result = JoinWithComma(items, maxCount: 1);
+        Assert.AreEqual("first", result);
+    }
+
+    [TestMethod]
+    public void JoinWithComma_withMaxCount1_usesFallbackForTwoItems()
+    {
+        var items = new List<string?> { "first", "second" };
+        var result = JoinWithComma(items, maxCount: 1);
+        Assert.AreEqual("first, second", result);
+    }
+
+    [TestMethod]
+    public void JoinWithComma_withMaxCount5_joinsUpToFiveItems()
+    {
+        var items = new List<string?> { "a", "b", "c", "d", "e" };
+        var result = JoinWithComma(items, maxCount: 5);
+        Assert.AreEqual("a, b, c, d, e", result);
+    }
+
+    [TestMethod]
+    public void JoinWithComma_withMaxCount5_usesFallbackForSixItems()
+    {
+        var items = new List<string?> { "a", "b", "c", "d", "e", "f" };
+        var result = JoinWithComma(items, maxCount: 5);
+        Assert.AreEqual("a, b, c, d, e, f", result);
+    }
+
+    [TestMethod]
+    public void JoinWithComma_withMaxCount8_joinsEightItems()
+    {
+        var items = new List<string?> { "1", "2", "3", "4", "5", "6", "7", "8" };
+        var result = JoinWithComma(items, maxCount: 8);
+        Assert.AreEqual("1, 2, 3, 4, 5, 6, 7, 8", result);
+    }
+
+    [TestMethod]
+    public void JoinWithComma_withMaxCount8_usesFallbackForNineItems()
+    {
+        var items = new List<string?> { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+        var result = JoinWithComma(items, maxCount: 8);
+        Assert.AreEqual("1, 2, 3, 4, 5, 6, 7, 8, 9", result);
+    }
+
+    [TestMethod]
+    public void JoinWithComma_withMaxCountLargerThanCollection_joinsAllItems()
+    {
+        var items = new List<string?> { "x", "y" };
+        var result = JoinWithComma(items, maxCount: 10);
+        Assert.AreEqual("x, y", result);
+    }
+
+    [TestMethod]
+    public void JoinWithSeparator_withMaxCount2AndCustomSeparator_joinsTwoItems()
+    {
+        var items = new List<string?> { "alpha", "beta" };
+        var result = JoinWithSeparator(items, " | ", maxCount: 2);
+        Assert.AreEqual("alpha | beta", result);
+    }
+
+    [TestMethod]
+    public void JoinWithSeparator_withMaxCount2_usesFallbackForThreeItems()
+    {
+        var items = new List<string?> { "one", "two", "three" };
+        var result = JoinWithSeparator(items, " - ", maxCount: 2);
+        Assert.AreEqual("one - two - three", result);
+    }
+
+    [TestMethod]
+    public void JoinWithComma_withMaxCount3AndNulls_handlesNullsCorrectly()
+    {
+        var items = new List<string?> { "a", null, "c" };
+        var result = JoinWithComma(items, maxCount: 3);
+        Assert.AreEqual("a, null, c", result);
+    }
+
+    [TestMethod]
+    public void JoinWithSeparator_withMaxCount4AndEmptySeparator_joinsWithoutSeparator()
+    {
+        var items = new List<string?> { "w", "x", "y", "z" };
+        var result = JoinWithSeparator(items, "", maxCount: 4);
+        Assert.AreEqual("wxyz", result);
+    }
+
+    [TestMethod]
+    public void JoinWithComma_defaultMaxCount_usesConstantValue()
+    {
+        // Verify default maxCount is MaxCount (3)
+        var threeItems = new List<string?> { "a", "b", "c" };
+        var fourItems = new List<string?> { "a", "b", "c", "d" };
+
+        var result3 = JoinWithComma(threeItems);
+        var result4 = JoinWithComma(fourItems);
+
+        Assert.AreEqual("a, b, c", result3);
+        Assert.AreEqual("a, b, c, d", result4); // Falls back for 4 items
+    }
+    #endregion
+
     #region Performance and Stress Tests
     [TestMethod]
     public void JoinWithComma_withVeryLargeCollection_performsCorrectly()
