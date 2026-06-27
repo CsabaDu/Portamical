@@ -37,7 +37,7 @@ Added comprehensive testing for the `maxCount` parameter:
 - `JoinWithComma_defaultMaxCount_usesConstantValue`
 
 **Focus Areas:**
-- Verifying fast path is used when item count ? maxCount
+- Verifying fast path is used when item count <= maxCount
 - Verifying fallback to `string.Join` when item count > maxCount
 - Testing with various maxCount values (1, 2, 3, 5, 8)
 - Null handling with different maxCount settings
