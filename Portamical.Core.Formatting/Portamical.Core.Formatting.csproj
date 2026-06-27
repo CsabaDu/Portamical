@@ -68,12 +68,28 @@
       - Enhanced API documentation
         • IFormatter: Clarified public visibility and usage patterns
         • Formatter&lt;T&gt;: Enhanced Template Method pattern documentation
-        • Builder: Corrected method references (e.g., FormatDictionary)
-        • DefaultFormatter: Standardized formatting throughout (30+ tag fixes)
+        • Builder: Corrected method references and clarified maxCount parameter behavior
+        • DefaultFormatter: Standardized formatting and documented tuple maxCount usage (30+ tag fixes)
       - Updated all code examples
         • Replaced IFormatter&lt;T&gt; with Formatter&lt;T&gt; in examples
         • Updated namespace references in sample code
         • Corrected registry usage examples (Formatter.* instead of FormatterRegister.*)
+
+      TEST COVERAGE ENHANCEMENTS:
+      - Added 12 new Builder tests for maxCount parameter validation
+        • Tests for maxCount values: 1, 2, 3, 5, 8
+        • Fast path vs fallback behavior verification
+        • Custom separator with various maxCount values
+        • Null handling with different maxCount settings
+        • Default maxCount behavior validation
+      - Added 8 new tuple formatting tests
+        • Tuples with 4, 5, 6, 7, and 8 elements
+        • Mixed type tuples with maxCount: 8
+        • Null element handling in tuples
+        • Both Tuple and ValueTuple coverage
+      - Test results: 225 total tests, 0 failures
+        • BuilderTests: 89/89 passed (77 → 89)
+        • DefaultFormatterTests: 136/136 passed (128 → 136)
 
       CODE QUALITY:
       - Removed contravariance complexity
@@ -84,6 +100,10 @@
         • Updated CustomFormatterTests to test Formatter&lt;T&gt; base class
         • Removed contravariance-specific test cases
         • All tests passing with simplified architecture
+      - Documentation accuracy improvements
+        • Builder.JoinWithComma XML docs clarified for configurable maxCount
+        • DefaultFormatter.Format(ITuple) explains maxCount: 8 rationale
+        • Fixed cref attribute for JoinWithComma method signature
 
       MIGRATION GUIDE (v1.x → v2.0):
 
@@ -111,21 +131,25 @@
       - Flat namespace: Better IDE auto-completion and discoverability
       - Consistent naming: Formatter for both static registry and base class
       - Better documentation: Corrected and standardized across all files
+      - Comprehensive test coverage: maxCount parameter fully validated
       - Maintained performance: Zero-allocation formatting still intact
 
       FILES CHANGED:
       - Deleted: CustomFormatters/IFormatter.cs (131 lines)
       - Deleted: CustomFormatters/Model/Formatter.cs (258 lines)
-      - Modified: Formatter.cs - generic Formatter&lt;T&gt; base class transferred from the deleted file (258 lines), documentation updates
+      - Modified: Formatter.cs - generic Formatter&lt;T&gt; base class transferred from deleted file (258 lines), documentation updates
       - Modified: IFormatter.cs - made public (14 changes)
-      - Modified: DefaultFormatter.cs - documentation updates
+      - Modified: Builder.cs - documentation updates for maxCount parameter
+      - Modified: DefaultFormatter.cs - documentation updates for tuple maxCount usage
       - Updated: README.md file
       - Updated: CustomFormatterTests.cs - aligned with new architecture
+      - Added: BuilderTests - 12 new maxCount parameter tests
+      - Added: DefaultFormatterTests - 8 new tuple formatting tests
 
       VALIDATION:
       - ✓ All builds successful (Debug/Release)
       - ✓ Zero XML documentation warnings
-      - ✓ All unit tests passing
+      - ✓ All unit tests passing (225/225)
       - ✓ Backward compatibility in behavior (API signatures changed)
       - ✓ Performance characteristics unchanged
     </PackageReleaseNotes>

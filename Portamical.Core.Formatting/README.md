@@ -464,7 +464,25 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 - Complete XML documentation review and correction (60+ fixes)
 - Standardized all inline code tags and cref attributes
 - Enhanced API documentation for IFormatter, Formatter<T>, Builder, DefaultFormatter
+  - **Builder:** Clarified `maxCount` parameter behavior and configurability
+  - **DefaultFormatter:** Documented `maxCount: 8` rationale for tuple formatting
 - Updated all code examples to use new architecture
+- Fixed cref attributes (e.g., `JoinWithComma` method signature correction)
+
+**TEST COVERAGE ENHANCEMENTS:**
+- **Added 12 new Builder tests** for `maxCount` parameter validation
+  - Tests for maxCount values: 1, 2, 3, 5, 8
+  - Fast path vs fallback behavior verification
+  - Custom separators with various maxCount values
+  - Null handling with different maxCount settings
+- **Added 8 new tuple formatting tests**
+  - Tuples with 4, 5, 6, 7, and 8 elements
+  - Mixed type tuples with `maxCount: 8`
+  - Null element handling in tuples
+  - Both `Tuple` and `ValueTuple` coverage
+- **Test Results:** 225 total tests, 0 failures
+  - BuilderTests: 89/89 passed (77 ? 89)
+  - DefaultFormatterTests: 136/136 passed (128 ? 136)
 
 **CODE QUALITY:**
 - Removed contravariance complexity
@@ -476,6 +494,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 - Single inheritance model: Clear extension point via `Formatter<T>`
 - Flat namespace: Better IDE auto-completion and discoverability
 - Better documentation: Corrected and standardized across all files
+- Comprehensive test coverage: `maxCount` parameter fully validated
 - Maintained performance: Zero-allocation formatting still intact
 
 ---
