@@ -19,7 +19,7 @@ This release updates the formatting library dependency, bringing simplified arch
 
 ### Dependency Updates
 
-1. **Portamical.Core.Formatting v1.0.0 ? v2.0.0**
+1. **Portamical.Core.Formatting v1.0.0 → v2.0.0**
    - **Impact:** Automatic via NuGet dependency resolution
    - **Breaking Changes:** None for Portamical.Core consumers
    - **Migration:** None required - fully backward compatible

@@ -28,7 +28,7 @@
 - Removed generic `IFormatter<T>` interface (replaced by `Formatter<T>` base class)
   - All custom formatters must now inherit from abstract `Formatter<T>` base class
   - Eliminates interface segregation - single inheritance model
-  - **Migration:** Change `IFormatter<T>` -> `Formatter<T>` and inherit instead of implement
+  - **Migration:** Change `IFormatter<T>` → `Formatter<T>` and inherit instead of implement
 - Deleted CustomFormatters namespace and folder structure
   - All formatter types now in root `Portamical.Core.Formatting` namespace
 
@@ -71,8 +71,8 @@
 - **`Builder.CreateSeparatedString`** - Zero-copy three-part string assembly
 - **`Builder.JoinWithSeparator`, `Builder.JoinWithComma`** - Optimized for 0-3 item lists
 - **`Builder.CopyAsSpan`** - Efficient character copying for `Span<char>`
-- **`Builder.FallbackIfNull`** - Consistent `null` -> `"null"` conversion
-- **`Builder.FallbackIfNullSeparator`** - Consistent `null` -> `", "` conversion
+- **`Builder.FallbackIfNull`** - Consistent `null` → `"null"` conversion
+- **`Builder.FallbackIfNullSeparator`** - Consistent `null` → `", "` conversion
 
 ---
 
@@ -479,7 +479,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 - Removed generic `IFormatter<T>` interface (replaced by `Formatter<T>` base class)
   - All custom formatters must now inherit from abstract `Formatter<T>` base class
   - Eliminates interface segregation - single inheritance model
-  - **Migration:** Change `IFormatter<T>` -> `Formatter<T>` and inherit instead of implement
+  - **Migration:** Change `IFormatter<T>` → `Formatter<T>` and inherit instead of implement
 - Deleted CustomFormatters namespace and folder structure
   - All formatter types now in root `Portamical.Core.Formatting` namespace
 
@@ -487,7 +487,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 - Simplified formatter type hierarchy
   - Before: IFormatter (non-generic) + IFormatter<in T> interface + Formatter<T> base class
   - After: IFormatter (non-generic) + Formatter<T> abstract base class
-  - Reduced complexity: 3 types -> 2 types
+  - Reduced complexity: 3 types → 2 types
 - Consolidated namespace structure
   - All formatting types in single `Portamical.Core.Formatting` namespace
   - Removed nested CustomFormatters/Model folder hierarchy
