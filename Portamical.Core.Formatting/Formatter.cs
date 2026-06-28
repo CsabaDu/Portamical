@@ -531,7 +531,7 @@ public static class Formatter
 /// <seealso cref="IFormatter"/>
 /// <seealso cref="Formatter{T}"/>
 /// <seealso cref="DefaultFormatter"/>
-public abstract class Formatter<T> : IFormatter//<T>
+public abstract class Formatter<T> : IFormatter
 {
     /// <summary>
     /// Formats a value of type <typeparamref name="T"/> into a human-readable string representation.
@@ -701,13 +701,15 @@ public abstract class Formatter<T> : IFormatter//<T>
     /// </example>
     string? IFormatter.Format(object? obj)
     {
-        // Handle null for nullable types (reference types and Nullable<T>)
+        // Handle null for nullable types
+        // (reference types and Nullable<T>)
         if (obj is null && default(T) is null)
         {
             return Format(default!);
         }
 
-        // Type check and delegate to type-safe Format(T)
+        // Type check and delegate
+        // to type-safe Format(T)
         return obj is T value ?
             Format(value)
             : null;
