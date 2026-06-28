@@ -608,7 +608,8 @@ public abstract class Formatter<T> : IFormatter//<T>
     /// </summary>
     /// <param name="obj">The object to format. May be null.</param>
     /// <returns>
-    /// A formatted string representation of the object.
+    /// A formatted string representation of the object if the type matches <typeparamref name="T"/>;
+    /// otherwise, <see langword="null"/> to indicate the formatter cannot handle this type.
     /// </returns>
     /// <remarks>
     /// <para>
@@ -616,9 +617,24 @@ public abstract class Formatter<T> : IFormatter//<T>
     /// (used by the <see cref="Formatter"/> registry) and the type-safe <see cref="Format(T)"/> method.
     /// </para>
     /// <para>
-    /// <strong>Implementation:</strong> Uses pattern matching (<c>obj is T typedValue</c>) to perform
-    /// efficient type checking. If the type matches, delegates to the abstract <see cref="Format(T)"/>
-    /// method; otherwise, returns <see langword="null"/> to signal incompatibility.
+    /// <strong>Implementation:</strong> First checks if <paramref name="obj"/> is null and 
+    /// <typeparamref name="T"/> is a nullable type (by testing <c>default(T) is null</c>). If true,
+    /// delegates to <see cref="Format(T)"/> with <c>default(T)</c> (null). Otherwise, uses pattern 
+    /// matching (<c>obj is T value</c>) to perform efficient type checking. If the type matches, 
+    /// delegates to the abstract <see cref="Format(T)"/> method; otherwise, returns <see langword="null"/> 
+    /// to signal incompatibility.
+    /// </para>
+    /// <para>
+    /// <strong>Null Check Behavior:</strong> The implementation explicitly handles null values for nullable types:
+    /// <list type="bullet">
+    ///   <item><strong>Nullable reference types (e.g., <c>string?</c>):</strong> When <paramref name="obj"/> 
+    ///   is null and <typeparamref name="T"/> is a reference type, null is passed to <see cref="Format(T)"/>.</item>
+    ///   <item><strong>Non-nullable value types (e.g., <c>int</c>):</strong> When <paramref name="obj"/> 
+    ///   is null, returns <see langword="null"/> immediately (null cannot be a value type).</item>
+    ///   <item><strong>Nullable value types (e.g., <c>int?</c>):</strong> When <paramref name="obj"/> 
+    ///   is null and <typeparamref name="T"/> is <see cref="Nullable{T}"/>, null is passed to <see cref="Format(T)"/>.</item>
+    /// </list>
+    /// This ensures type safety: the formatter only processes values it explicitly supports.
     /// </para>
     /// <para>
     /// <strong>Why Sealed:</strong> This method is marked <see langword="sealed"/> to prevent subclasses
@@ -633,11 +649,6 @@ public abstract class Formatter<T> : IFormatter//<T>
     ///   <item><strong>Nullable types:</strong> Null check followed by underlying type verification</item>
     /// </list>
     /// No reflection is used, making this approach efficient even in hot paths.
-    /// </para>
-    /// <para>
-    /// <strong>Null Handling:</strong> Null values are passed through to <see cref="Format(T)"/> if
-    /// <typeparamref name="T"/> is a nullable type (reference type or <see cref="Nullable{T}"/>).
-    /// For non-nullable value types, null will fail the type check and return <see langword="null"/>.
     /// </para>
     /// </remarks>
     /// <example>
@@ -660,7 +671,7 @@ public abstract class Formatter<T> : IFormatter//<T>
     /// formatter.Format(obj2);      // null ✅ (type mismatch, string != int)
     /// 
     /// object? obj3 = null;
-    /// formatter.Format(obj3);      // null ✅ (null is not an int)
+    /// formatter.Format(obj3);      // null ✅ (null check fails for non-nullable value type)
     /// </code>
     /// 
     /// <code>
@@ -682,12 +693,23 @@ public abstract class Formatter<T> : IFormatter//<T>
     /// formatter.Format(obj1);      // "\"test\"" ✅ (type matches)
     /// 
     /// object? obj2 = null;
-    /// formatter.Format(obj2);      // "null" ✅ (null is valid for string?)
+    /// formatter.Format(obj2);      // "null" ✅ (null check passes for nullable reference type)
     /// 
     /// object obj3 = 123;
     /// formatter.Format(obj3);      // null ✅ (int != string)
     /// </code>
     /// </example>
     string? IFormatter.Format(object? obj)
-    => Format((T)obj!);
+    {
+        // Handle null for nullable types (reference types and Nullable<T>)
+        if (obj is null && default(T) is null)
+        {
+            return Format(default!);
+        }
+
+        // Type check and delegate to type-safe Format(T)
+        return obj is T value ?
+            Format(value)
+            : null;
+    }
 }

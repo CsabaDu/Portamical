@@ -657,4 +657,123 @@ public class CustomFormatterTests
     public TestContext TestContext { get; set; }
 
     #endregion
+
+    #region Null Check Tests
+    [TestMethod]
+    public void Format_NullableReferenceType_NullValue_PassesNullCheck()
+    {
+        // Arrange
+        var formatter = new TestCustomFormatterString();
+        object? obj = null;
+
+        // Act
+        string? result = ((IFormatter)formatter).Format(obj);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("null", result);
+    }
+
+    [TestMethod]
+    public void Format_NullableReferenceType_NonNullValue_PassesTypeCheck()
+    {
+        // Arrange
+        var formatter = new TestCustomFormatterString();
+        object obj = "test";
+
+        // Act
+        string? result = ((IFormatter)formatter).Format(obj);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("STR:test", result);
+    }
+
+    [TestMethod]
+    public void Format_NonNullableValueType_NullValue_FailsNullCheck()
+    {
+        // Arrange
+        var formatter = new TestCustomFormatterInt();
+        object? obj = null;
+
+        // Act
+        string? result = ((IFormatter)formatter).Format(obj);
+
+        // Assert
+        Assert.IsNull(result, "Null cannot be unboxed to a non-nullable value type");
+    }
+
+    [TestMethod]
+    public void Format_NonNullableValueType_BoxedValue_PassesTypeCheck()
+    {
+        // Arrange
+        var formatter = new TestCustomFormatterInt();
+        object obj = 42;
+
+        // Act
+        string? result = ((IFormatter)formatter).Format(obj);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("INT:42", result);
+    }
+
+    [TestMethod]
+    public void Format_NullableValueType_NullValue_PassesNullCheck()
+    {
+        // Arrange
+        var formatter = new TestCustomFormatterNullableInt();
+        object? obj = null;
+
+        // Act
+        string? result = ((IFormatter)formatter).Format(obj);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("null", result);
+    }
+
+    [TestMethod]
+    public void Format_NullableValueType_BoxedNullableWithValue_PassesTypeCheck()
+    {
+        // Arrange
+        var formatter = new TestCustomFormatterNullableInt();
+        object obj = (int?)42;
+
+        // Act
+        string? result = ((IFormatter)formatter).Format(obj);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("NULLABLE:42", result);
+    }
+
+    [TestMethod]
+    public void Format_TypeMismatch_ReturnsNull()
+    {
+        // Arrange
+        var formatter = new TestCustomFormatterString();
+        object obj = 123; // Wrong type
+
+        // Act
+        string? result = ((IFormatter)formatter).Format(obj);
+
+        // Assert
+        Assert.IsNull(result, "Type mismatch should return null");
+    }
+
+    [TestMethod]
+    public void Format_ValueTypeFormatter_WrongReferenceType_ReturnsNull()
+    {
+        // Arrange
+        var formatter = new TestCustomFormatterInt();
+        object obj = "not an int";
+
+        // Act
+        string? result = ((IFormatter)formatter).Format(obj);
+
+        // Assert
+        Assert.IsNull(result, "Type mismatch should return null");
+    }
+    #endregion
 }

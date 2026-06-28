@@ -210,6 +210,12 @@ public class DefaultFormatterTests
         public override string ToString() => $"CustomType:{Value}";
     }
 
+    private struct TestStruct
+    {
+        public int Value { get; set; }
+        public override string ToString() => $"TestStruct:{Value}";
+    }
+
     private class AnotherCustomType
     {
         public string Name { get; set; } = string.Empty;
@@ -1333,6 +1339,81 @@ public class DefaultFormatterTests
     public void Format_withNullableNoValue_returnsNull()
     {
         int? nullable = null;
+        var result = DefaultFormatter.Format(nullable);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableDoubleNoValue_returnsNull()
+    {
+        double? nullable = null;
+        var result = DefaultFormatter.Format(nullable);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableDecimalNoValue_returnsNull()
+    {
+        decimal? nullable = null;
+        var result = DefaultFormatter.Format(nullable);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableBoolNoValue_returnsNull()
+    {
+        bool? nullable = null;
+        var result = DefaultFormatter.Format(nullable);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableDateTimeNoValue_returnsNull()
+    {
+        DateTime? nullable = null;
+        var result = DefaultFormatter.Format(nullable);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableGuidNoValue_returnsNull()
+    {
+        Guid? nullable = null;
+        var result = DefaultFormatter.Format(nullable);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableEnumNoValue_returnsNull()
+    {
+        DayOfWeek? nullable = null;
+        var result = DefaultFormatter.Format(nullable);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void Format_withBoxedNullableIntNoValue_returnsNull()
+    {
+        int? nullable = null;
+        object? boxed = nullable; // Boxing null Nullable<int>
+        var result = DefaultFormatter.Format(boxed);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void Format_withBoxedNullableIntHasValue_returnsValue()
+    {
+        int? nullable = 42;
+        object boxed = nullable; // Boxing Nullable<int> with value boxes the int value
+        var result = DefaultFormatter.Format(boxed);
+        Assert.AreEqual("42", result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableStructNoValue_returnsNull()
+    {
+        // Test with custom struct
+        TestStruct? nullable = null;
         var result = DefaultFormatter.Format(nullable);
         Assert.IsNull(result);
     }
