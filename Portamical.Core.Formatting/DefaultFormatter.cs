@@ -335,8 +335,8 @@ public sealed class DefaultFormatter : IFormatter
     {
         // Optimization #4: Single unsigned comparison is faster than two signed comparisons
         uint offset = (uint)(ch - AsciiPrintableStart);
-        return offset < (uint)CharFormats.Length ?
-            CharFormats[offset]
+        return offset < (uint)CharFormats.Length
+            ? CharFormats[(int)offset]
             : $"'{ch}'";
     }
 
