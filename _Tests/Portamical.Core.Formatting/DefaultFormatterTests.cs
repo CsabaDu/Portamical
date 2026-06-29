@@ -3,7 +3,6 @@
 
 using Portamical.Core.Formatting;
 using System.Collections;
-using System.Diagnostics;
 
 namespace Tests.Portamical.Core.Formatting;
 
@@ -366,7 +365,7 @@ public class DefaultFormatterTests
     public void Format_withCharUnicodeBeyondAscii_returnsSingleQuoted()
     {
         // Unicode character far beyond ASCII range
-        var ch = '€';
+        var ch = 'Â€';
         var result = DefaultFormatter.Format(ch);
         Assert.AreEqual($"'{ch}'", result);
     }
