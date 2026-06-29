@@ -481,8 +481,8 @@ public class DefaultFormatterTests
     public void Format_withStringEmoji_returnsQuoted()
     {
         // String with emoji should be quoted
-        var result = DefaultFormatter.Format("Hello ??");
-        Assert.AreEqual("\"Hello ??\"", result);
+        var result = DefaultFormatter.Format("Hello \U0001F600");
+        Assert.AreEqual("\"Hello \U0001F600\"", result);
     }
     #endregion
 
