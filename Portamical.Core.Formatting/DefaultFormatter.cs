@@ -807,10 +807,9 @@ public sealed class DefaultFormatter : IFormatter
                 $"{typeName} (Length: {stream.Length}, Position: {stream.Position})"
                 : $"{typeName} (Position: {stream.Position})";
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            // Debug?only diagnostic: alert developer during testing without
-            // introducing runtime cost or logging dependencies in release builds.
+            // Debug-only diagnostic: alert developer during testing without
 #if DEBUG
             Debug.WriteLine(
                 $"[DefaultFormatter] Stream formatting failed for type '{typeName}'. " +
