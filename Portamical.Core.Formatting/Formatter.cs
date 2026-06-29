@@ -352,6 +352,8 @@ public static class Formatter
     public static void ClearFormatters()
     => _registry.Clear();
 
+    #endregion
+
     /// <summary>
     /// Gets the formatter registered for the specified type, or returns the default formatter if none is registered.
     /// </summary>
@@ -399,8 +401,6 @@ public static class Formatter
 
         return DefaultFormatter.Instance;
     }
-
-    #endregion
 
     /// <summary>
     /// Gets the formatter registered for the specified type, or returns the default formatter if none is registered.
