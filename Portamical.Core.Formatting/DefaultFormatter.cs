@@ -68,7 +68,7 @@ public sealed class DefaultFormatter : IFormatter
         [typeof(void)]      = "void"
     };
 
-    private static readonly SearchValues<char> _anonymousDelegateChars = SearchValues.Create('<', '>');
+    private static readonly SearchValues<char> _anonymousDelegateChars = SearchValues.Create("<>");
 
     private DefaultFormatter()
     {

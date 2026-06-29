@@ -237,8 +237,6 @@ public static class Builder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void CopyAsSpan(string insertStr, Span<char> baseSpan, int index)
     {
-        // Optimization #6: Remove Trace.TraceWarning allocation from hot path
-        // Clamp index to span length if it exceeds (defensive coding)
         var baseLength = baseSpan.Length;
         if (index > baseLength)
         {
@@ -401,8 +399,6 @@ public static class Builder
         #endregion
     }
 
-    // Optimization #3 & #9: Use StringBuilder with capacity pre-computation
-    // Pre-computing capacity eliminates reallocation during append operations
     private static string JoinWithSeparatorBase(IEnumerable<string?> items, string separator)
     {
         separator = FallbackIfNullSeparator(separator);
@@ -414,7 +410,6 @@ public static class Builder
             return string.Empty;
         }
 
-        // Optimization #9: Try to compute total capacity for small collections to avoid reallocations
         // For ICollection<T>, we know the count; for others, use heuristic
         int capacity = 0;
         // Average string length estimate: 16 chars per item (reasonable heuristic)
