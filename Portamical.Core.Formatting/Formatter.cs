@@ -73,6 +73,8 @@ namespace Portamical.Core.Formatting;
 /// </example>
 public static class Formatter
 {
+    #region Registry API
+
     /// <summary>
     /// Thread-safe registry of custom formatters for specific types.
     /// </summary>
@@ -349,6 +351,8 @@ public static class Formatter
     /// </example>
     public static void ClearFormatters()
     => _registry.Clear();
+
+    #endregion
 
     /// <summary>
     /// Gets the formatter registered for the specified type, or returns the default formatter if none is registered.
@@ -701,17 +705,16 @@ public abstract class Formatter<T> : IFormatter
     /// </example>
     string? IFormatter.Format(object? obj)
     {
-        // Handle null for nullable types
-        // (reference types and Nullable<T>)
+        if (obj is T value)
+        {
+            return Format(value);
+        }
+
         if (obj is null && default(T) is null)
         {
             return Format(default!);
         }
 
-        // Type check and delegate
-        // to type-safe Format(T)
-        return obj is T value ?
-            Format(value)
-            : null;
+        return null;
     }
 }
