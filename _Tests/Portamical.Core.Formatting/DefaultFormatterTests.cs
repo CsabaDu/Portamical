@@ -374,7 +374,7 @@ public class DefaultFormatterTests
     public void Format_withCharCJK_returnsSingleQuoted()
     {
         // Test with Chinese character
-        var ch = '?';
+        var ch = '\u4E2D';
         var result = DefaultFormatter.Format(ch);
         Assert.AreEqual($"'{ch}'", result);
     }
