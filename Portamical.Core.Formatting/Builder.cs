@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using System.Diagnostics;
-using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Portamical.Core.Formatting;
 
@@ -242,12 +241,8 @@ public static class Builder
         if (index > baseLength)
         {
             index = baseLength;
-            Trace.TraceWarning(string.Create(
-                CultureInfo.InvariantCulture,
-                $"Portamical Formatting log: CopyAsSpan index {index} " +
-                $"exceeds base span length {baseLength}. " +
-                $"Adjusted to {baseLength}."));
         }
+
         var insertSpan = insertStr.AsSpan();
         insertSpan.CopyTo(baseSpan[index..]);
     }
@@ -405,7 +400,40 @@ public static class Builder
     }
 
     private static string JoinWithSeparatorBase(IEnumerable<string?> items, string separator)
-    => string.Join(FallbackIfNullSeparator(separator), items.Select(FallbackIfNull));
+    {
+        separator = FallbackIfNullSeparator(separator);
+
+        using var enumerator = items.GetEnumerator();
+
+        if (!enumerator.MoveNext())
+        {
+            return string.Empty;
+        }
+
+        // For ICollection<T>, we know the count; for others, use heuristic
+        int capacity = 0;
+        // Average string length estimate: 16 chars per item (reasonable heuristic)
+        const int avgStringLengthEstimate = 16; // Reasonable heuristic for average string length
+        if (items is ICollection<string?> collection && collection.Count <= 32)
+        {
+            // Pre-compute approximate capacity for small collections
+            capacity = collection.Count
+                * avgStringLengthEstimate
+                + (collection.Count - 1)
+                * separator.Length;
+        }
+
+        var sb = capacity > 0 ? new StringBuilder(capacity) : new StringBuilder();
+        sb.Append(FallbackIfNull(enumerator.Current));
+
+        while (enumerator.MoveNext())
+        {
+            sb.Append(separator);
+            sb.Append(FallbackIfNull(enumerator.Current));
+        }
+
+        return sb.ToString();
+    }
 
     #endregion
 }

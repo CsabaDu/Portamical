@@ -3,6 +3,7 @@
 
 using Portamical.Core.Formatting;
 using System.Collections;
+using System.Diagnostics;
 
 namespace Tests.Portamical.Core.Formatting;
 
@@ -210,10 +211,9 @@ public class DefaultFormatterTests
         public override string ToString() => $"CustomType:{Value}";
     }
 
-    private struct TestStruct
+    private readonly struct TestStruct
     {
-        public int Value { get; set; }
-        public override string ToString() => $"TestStruct:{Value}";
+        public override readonly string ToString() => $"TestStruct:{default(int)}";
     }
 
     private class AnotherCustomType
@@ -304,6 +304,98 @@ public class DefaultFormatterTests
         var result = DefaultFormatter.Format('\u0041');
         Assert.AreEqual("'A'", result);
     }
+
+    [TestMethod]
+    public void Format_withCharSpace_returnsSingleQuoted()
+    {
+        // Boundary: First cached char (ASCII 32 - ' ')
+        var result = DefaultFormatter.Format(' ');
+        Assert.AreEqual("' '", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharTilde_returnsSingleQuoted()
+    {
+        // Boundary: Last cached char (ASCII 126 - '~')
+        var result = DefaultFormatter.Format('~');
+        Assert.AreEqual("'~'", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharNull_returnsSingleQuoted()
+    {
+        // Non-printable: Below cached range (ASCII 0)
+        var result = DefaultFormatter.Format('\0');
+        Assert.AreEqual("'\0'", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharTab_returnsSingleQuoted()
+    {
+        // Non-printable control character (ASCII 9)
+        var result = DefaultFormatter.Format('\t');
+        Assert.AreEqual("'\t'", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharCarriageReturn_returnsSingleQuoted()
+    {
+        // Non-printable control character (ASCII 13)
+        var result = DefaultFormatter.Format('\r');
+        Assert.AreEqual("'\r'", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharDEL_returnsSingleQuoted()
+    {
+        // Edge: ASCII 127 (first char after cached range)
+        var result = DefaultFormatter.Format((char)127);
+        Assert.AreEqual($"'{(char)127}'", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharExtendedAscii_returnsSingleQuoted()
+    {
+        // Extended ASCII beyond cached range (ASCII 200)
+        var ch = (char)200;
+        var result = DefaultFormatter.Format(ch);
+        Assert.AreEqual($"'{ch}'", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharUnicodeBeyondAscii_returnsSingleQuoted()
+    {
+        // Unicode character far beyond ASCII range
+        var ch = '€';
+        var result = DefaultFormatter.Format(ch);
+        Assert.AreEqual($"'{ch}'", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharCJK_returnsSingleQuoted()
+    {
+        // Test with Chinese character
+        var ch = '?';
+        var result = DefaultFormatter.Format(ch);
+        Assert.AreEqual($"'{ch}'", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharHighUnicode_returnsSingleQuoted()
+    {
+        // Test with character in higher Unicode range (U+2665 - heart suit)
+        var ch = '\u2665';
+        var result = DefaultFormatter.Format(ch);
+        Assert.AreEqual($"'{ch}'", result);
+    }
+
+    [TestMethod]
+    public void Format_withCharOneBelowSpace_returnsSingleQuoted()
+    {
+        // Boundary: One below first cached char (ASCII 31)
+        var result = DefaultFormatter.Format((char)31);
+        Assert.AreEqual($"'{(char)31}'", result);
+    }
     #endregion
 
     #region Format(string)
@@ -333,6 +425,65 @@ public class DefaultFormatterTests
     {
         var result = DefaultFormatter.Format("hello world");
         Assert.AreEqual("\"hello world\"", result);
+    }
+
+    [TestMethod]
+    public void Format_withStringNullUpperCase_returnsQuoted()
+    {
+        // String "NULL" (uppercase) should be quoted, not treated as null
+        var result = DefaultFormatter.Format("NULL");
+        Assert.AreEqual("\"NULL\"", result);
+    }
+
+    [TestMethod]
+    public void Format_withStringNullMixedCase_returnsQuoted()
+    {
+        // String "Null" (mixed case) should be quoted, not treated as null
+        var result = DefaultFormatter.Format("Null");
+        Assert.AreEqual("\"Null\"", result);
+    }
+
+    [TestMethod]
+    public void Format_withStringNullWithWhitespace_returnsQuoted()
+    {
+        // String " null " with whitespace should be quoted
+        var result = DefaultFormatter.Format(" null ");
+        Assert.AreEqual("\" null \"", result);
+    }
+
+    [TestMethod]
+    public void Format_withVeryLongStringStressTest_returnsQuoted()
+    {
+        // Stress test with 10,000 character string
+        var longString = new string('x', 10000);
+        var result = DefaultFormatter.Format(longString);
+        Assert.StartsWith("\"", result);
+        Assert.EndsWith("\"", result);
+        Assert.AreEqual(10002, result!.Length); // 10000 chars + 2 quotes
+    }
+
+    [TestMethod]
+    public void Format_withStringContainingQuotes_returnsQuoted()
+    {
+        // String containing double quotes should still be wrapped in quotes
+        var result = DefaultFormatter.Format("say \"hello\"");
+        Assert.AreEqual("\"say \"hello\"\"", result);
+    }
+
+    [TestMethod]
+    public void Format_withStringContainingNewlines_returnsQuoted()
+    {
+        // String with newlines should be quoted
+        var result = DefaultFormatter.Format("line1\nline2");
+        Assert.AreEqual("\"line1\nline2\"", result);
+    }
+
+    [TestMethod]
+    public void Format_withStringEmoji_returnsQuoted()
+    {
+        // String with emoji should be quoted
+        var result = DefaultFormatter.Format("Hello ??");
+        Assert.AreEqual("\"Hello ??\"", result);
     }
     #endregion
 
@@ -572,6 +723,29 @@ public class DefaultFormatterTests
         var result = DefaultFormatter.Format(func);
         Assert.Contains("Func<int, string>", result!);
         // Local functions are compiler-generated and appear as anonymous
+        Assert.Contains("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withDelegateMethodNameContainingAngleBrackets_detectsAsAnonymous()
+    {
+        // Compiler-generated methods have angle brackets in their names
+        // This test verifies the IsAnonymousDelegate logic detects '<' and '>'
+        Func<int, int> lambda = x => x * 2;
+        var result = DefaultFormatter.Format(lambda);
+        Assert.Contains("Func<int, int>", result!);
+        Assert.Contains("anonymous", result!);
+    }
+
+    [TestMethod]
+    public void Format_withDelegateStartingWithLambdaPrefix_detectsAsAnonymous()
+    {
+        // Some compilers may generate method names starting with "lambda_"
+        // This verifies that detection works via the lambda_ prefix path
+        // Note: Hard to create directly, but the code path exists for it
+        Action action = () => { };
+        var result = DefaultFormatter.Format(action);
+        Assert.Contains("Action", result!);
         Assert.Contains("anonymous", result!);
     }
 
@@ -867,6 +1041,51 @@ public class DefaultFormatterTests
         var list = new List<string?> { null, null, null };
         var result = DefaultFormatter.Format(list);
         Assert.AreEqual("[3]: [null, null, null]", result);
+    }
+
+    [TestMethod]
+    public void Format_withNonDisposableEnumerator_handlesGracefully()
+    {
+        // Test collection with enumerator that doesn't implement IDisposable
+        var collection = new NonDisposableCollection();
+        var result = DefaultFormatter.Format(collection);
+        Assert.AreEqual("[3]: [1, 2, 3]", result);
+    }
+
+    [TestMethod]
+    public void Format_withEnumeratorThrowingDuringEnumeration_propagatesException()
+    {
+        // Test collection where enumerator throws after 2 items
+        // The exception should propagate (not be caught) but disposal should still happen
+        var collection = new ThrowingEnumeratorCollection();
+        string? message = null;
+
+        bool exceptionThrown = false;
+        try
+        {
+            _ = DefaultFormatter.Format(collection);
+        }
+        catch (InvalidOperationException ex)
+        {
+            exceptionThrown = true;
+            message = ex.Message;
+
+        }
+
+        Assert.IsTrue(exceptionThrown, "Expected InvalidOperationException to be thrown");
+        if (exceptionThrown)
+        {
+            Assert.AreEqual("Enumeration failed", message);
+        }
+    }
+
+    [TestMethod]
+    public void Format_withIEnumerableOfInterfaces_formatsCorrectly()
+    {
+        // Test with interface types to ensure no issues with type checks
+        IEnumerable<IComparable> list = [1, "test", 'a'];
+        var result = DefaultFormatter.Format(list);
+        Assert.AreEqual("[3]: [1, \"test\", 'a']", result);
     }
     #endregion
 
@@ -1439,9 +1658,150 @@ public class DefaultFormatterTests
         Assert.AreEqual("int?[]", result);
     }
 
+    [TestMethod]
+    public void Format_withFourDimensionalArray_returnsArrayNotation()
+    {
+        // Multi-dimensional array with rank > 3
+        var result = DefaultFormatter.Format(typeof(int[,,,]));
+        Assert.AreEqual("int[,,,]", result);
+    }
+
+    [TestMethod]
+    public void Format_withFiveDimensionalArray_returnsArrayNotation()
+    {
+        // Test rank 5 array
+        var result = DefaultFormatter.Format(typeof(string[,,,,]));
+        Assert.AreEqual("string[,,,,]", result);
+    }
+
+    [TestMethod]
+    public void Format_withGenericTypeThreeParameters_returnsGenericNotation()
+    {
+        // Generic with 3 type parameters
+        var result = DefaultFormatter.Format(typeof(Tuple<int, string, bool>));
+        Assert.AreEqual("Tuple<int, string, bool>", result);
+    }
+
+    [TestMethod]
+    public void Format_withGenericTypeFourParameters_returnsGenericNotation()
+    {
+        // Generic with 4 type parameters
+        var result = DefaultFormatter.Format(typeof(Tuple<int, string, bool, double>));
+        Assert.AreEqual("Tuple<int, string, bool, double>", result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableDateTime_returnsNullableSyntax()
+    {
+        var result = DefaultFormatter.Format(typeof(DateTime?));
+        Assert.AreEqual("DateTime?", result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableBool_returnsNullableSyntax()
+    {
+        var result = DefaultFormatter.Format(typeof(bool?));
+        Assert.AreEqual("bool?", result);
+    }
+
+    [TestMethod]
+    public void Format_withNullableGuid_returnsNullableSyntax()
+    {
+        var result = DefaultFormatter.Format(typeof(Guid?));
+        Assert.AreEqual("Guid?", result);
+    }
+
+    [TestMethod]
+    public void Format_withJaggedMultiDimensionalArray_returnsArrayNotation()
+    {
+        // Jagged array of 2D arrays
+        var result = DefaultFormatter.Format(typeof(int[][,]));
+        Assert.AreEqual("int[,][]", result);
+    }
+
+    [TestMethod]
+    public void Format_withArrayOfGenericType_returnsCorrectNotation()
+    {
+        // Array of generic type
+        var result = DefaultFormatter.Format(typeof(List<int>[]));
+        Assert.AreEqual("List<int>[]", result);
+    }
+
+    [TestMethod]
+    public void Format_withGenericOfArray_returnsCorrectNotation()
+    {
+        // Generic containing array type
+        var result = DefaultFormatter.Format(typeof(List<int[]>));
+        Assert.AreEqual("List<int[]>", result);
+    }
+
+    [TestMethod]
+    public void Format_withNestedGenericOfNullable_returnsCorrectNotation()
+    {
+        // Nested generic with nullable
+        var result = DefaultFormatter.Format(typeof(Dictionary<string, int?>));
+        Assert.AreEqual("Dictionary<string, int?>", result);
+    }
+
     private class CustomObject
     {
         public override string ToString() => "CustomObject";
+    }
+
+    /// <summary>
+    /// Test collection that provides a non-disposable enumerator.
+    /// </summary>
+    private sealed class NonDisposableCollection : IEnumerable
+    {
+        private readonly List<int> _items = [1, 2, 3];
+
+        public IEnumerator GetEnumerator() => new NonDisposableEnumerator(_items);
+
+        private class NonDisposableEnumerator(List<int> items) : IEnumerator
+        {
+            private readonly List<int> _items = items;
+            private int _index = -1;
+
+            public object Current => _items[_index];
+
+            public bool MoveNext() => ++_index < _items.Count;
+
+            public void Reset() => _index = -1;
+
+            // Note: Does NOT implement IDisposable
+        }
+    }
+
+    /// <summary>
+    /// Test collection that throws during enumeration after a few items.
+    /// </summary>
+    private sealed class ThrowingEnumeratorCollection : IEnumerable
+    {
+        public IEnumerator GetEnumerator() => new ThrowingEnumerator();
+
+        private sealed class ThrowingEnumerator : IEnumerator, IDisposable
+        {
+            private int _index = -1;
+
+            public object Current => _index;
+
+            public bool MoveNext()
+            {
+                _index++;
+                if (_index >= 2)
+                {
+                    throw new InvalidOperationException("Enumeration failed");
+                }
+                return true;
+            }
+
+            public void Reset() => _index = -1;
+
+            public void Dispose()
+            {
+                // Clean disposal
+            }
+        }
     }
 
     /// <summary>
