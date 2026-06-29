@@ -64,10 +64,10 @@
 
 ## Potential Issues Found: NONE
 
-? **All AggressiveInlining attributes are correctly placed**
-? **No complex methods accidentally marked for inlining**
-? **All optimizations respect inlining boundaries**
-? **JIT will make final decisions based on method complexity**
+- All AggressiveInlining attributes are correctly placed
+- No complex methods accidentally marked for inlining
+- All optimizations respect inlining boundaries
+- JIT will make final decisions based on method complexity
 
 ## Recommendations
 
