@@ -210,10 +210,9 @@ public class DefaultFormatterTests
         public override string ToString() => $"CustomType:{Value}";
     }
 
-    private struct TestStruct
+    private readonly struct TestStruct
     {
-        public int Value { get; set; }
-        public override string ToString() => $"TestStruct:{Value}";
+        public override readonly string ToString() => $"TestStruct:{default(int)}";
     }
 
     private class AnotherCustomType
