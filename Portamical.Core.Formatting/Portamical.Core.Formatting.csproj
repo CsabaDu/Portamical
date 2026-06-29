@@ -107,7 +107,7 @@
 
       MIGRATION FROM v2.0.0:
       No migration needed. Update package reference:
-      
+
       dotnet add package Portamical.Core.Formatting --version 2.1.0
 
       VALIDATION:
@@ -117,6 +117,8 @@
       - ✓ Performance benchmarks show 5-100x improvements in specific hot paths
       - ✓ Thread-safety validated via concurrent stress tests
       - ✓ Memory profiling confirms reduced allocations
+      
+      For details: https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md
     </PackageReleaseNotes>
 
     <!-- Package Generation -->

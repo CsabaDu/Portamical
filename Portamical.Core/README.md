@@ -644,7 +644,7 @@ public sealed class MyFormatter : Formatter<T>
 
 ---
 
-#### **Version 4.1.0 - Current** (2026-06-27)
+#### **Version 4.1.0** (2026-06-27)
 
 **Dependency Update: Enhanced Formatting Capabilities**
 
@@ -686,7 +686,52 @@ This release updates the `Portamical.Core.Formatting` dependency from v1.0.0 to 
 
 ---
 
-### **Version 3.2.0** (2026-06-05)
+##### **Version 4.1.1 - Current** (2026-06-27)
+
+**Dependency Update: Performance Optimization**
+
+This release updates the `Portamical.Core.Formatting` dependency from v2.0.0 to v2.1.0, bringing significant performance optimizations and quality improvements - all with full backward compatibility.
+
+**Dependency Updates**
+
+1. **Portamical.Core.Formatting v2.0.0 → v2.1.0**
+   - 5-15% faster collection formatting (4-32 items) via pre-computed StringBuilder capacity
+   - 2-5x faster ASCII character formatting with single unsigned bounds check
+   - 10-100x faster KeyValuePair property access via compiled delegate accessors
+   - 2-3x faster type alias lookups using reference equality caching
+   - 2-5x faster delegate method detection using SearchValues with SIMD
+   - Eliminated redundant null checks and reduced allocation overhead
+   - Enhanced test coverage: 319 → 353 tests (+10.7%)
+
+**Performance Improvements** (via Portamical.Core.Formatting v2.1.0)
+
+- **Collection Formatting:** Pre-computed StringBuilder capacity eliminates reallocations for 4-32 item collections
+- **Character Formatting:** Single unsigned bounds check with cached ASCII characters (2-5x faster)
+- **KeyValuePair Access:** Compiled delegate accessors replace reflection (10-100x faster on 2nd+ access)
+- **Type Formatting:** Cached Type-to-C# alias mappings with reference equality (2-3x faster lookups)
+- **Delegate Formatting:** SearchValues optimization with SIMD support (2-5x faster method name detection)
+- **Enumerable Formatting:** Manual enumeration eliminates LINQ wrapper allocations
+
+**Quality Improvements**
+
+- Fixed XML documentation warnings (CS1570) with proper generic type encoding
+- Enhanced stream formatting diagnostics using `Debug.WriteLine`
+- Improved testability: DEBUG builds no longer throw assertions during exception handling
+- Added `#region` directives for better code organization
+- Cleaner hot paths by removing diagnostic logging from performance-critical methods
+
+**Compatibility**
+
+- ✅ No breaking changes to Portamical.Core public API
+- ✅ Fully backward compatible with v4.1.0
+- ✅ Drop-in replacement - simply update package version
+- ✅ No migration required for Portamical.Core consumers
+
+**For Details:** See [Portamical.Core.Formatting v2.1.0 Release Notes](https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md)
+
+---
+
+### **Version 3.2.0 - Major bump** (2026-06-05)
 
 **Breaking Architectural Improvements + Intelligent Formatting**
 

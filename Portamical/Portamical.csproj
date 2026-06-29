@@ -10,7 +10,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>4.1.0</Version>
+    <Version>4.1.1</Version>
     <Title>Portamical</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -29,13 +29,17 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v4.1.0 (2026-06-28):
-      - Updated Portamical.Core dependency to v4.1.0 for formatting API simplification
-      - Simplified formatter API: removed IFormatter&lt;T&gt; interface, use Formatter&lt;T&gt; base class directly
-      - Added configurable maxCount parameter for optimized string joining operations
-      - Enhanced tuple formatting capabilities with comprehensive test coverage
-      - Improved Builder and formatter test coverage with new tuple and join method tests
-      - Updated documentation to reflect API simplifications and new features
+      v4.1.1 (2026-06-29) - Dependency Update: Performance Optimization
+
+      Updated Portamical.Core v4.1.0 → v4.1.1 (Portamical.Core.Formatting v2.0.0 → v2.1.0)
+      - 5-15% faster collection formatting via pre-computed StringBuilder capacity
+      - 2-5x faster ASCII character formatting with single unsigned bounds check
+      - 10-100x faster KeyValuePair access via compiled delegate accessors
+      - 2-3x faster type alias lookups using reference equality caching
+      - 2-5x faster delegate formatting with SearchValues SIMD optimization
+      - Enhanced test coverage: 319 → 353 tests (+10.7%)
+      - Fixed XML documentation warnings (CS1570)
+      - Fully backward compatible, no API changes
     </PackageReleaseNotes>
     
     <!-- Package Generation -->
@@ -59,7 +63,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical.Core" Version="4.1.0" />
+    <PackageReference Include="Portamical.Core" Version="4.1.1" />
   </ItemGroup>
 
   <ItemGroup>
