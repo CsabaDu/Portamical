@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using static Portamical.Core.Formatting.Builder;
 
 namespace Portamical.Core.Formatting;
@@ -37,6 +36,12 @@ namespace Portamical.Core.Formatting;
 /// </remarks>
 public sealed class DefaultFormatter : IFormatter
 {
+    // Optimization #4: Pre-cache single-quoted char formats for printable ASCII characters (32-126)
+    private const int AsciiPrintableStart = ' ';
+
+    // Optimization #4: Pre-cache single-quoted char formats for printable ASCII characters (32-126)
+    private const int AsciiPrintableEnd = '~';
+
     // Optimization #1 & #12: Cache compiled delegate accessors for KeyValuePair Key/Value properties
     // This is 10-100x faster than PropertyInfo.GetValue after the first access
     private static readonly ConcurrentDictionary<Type, Func<object, (object?, object?)>> _kvpAccessorCache = new();
@@ -47,26 +52,26 @@ public sealed class DefaultFormatter : IFormatter
     // Optimization #5: Cache Type to C# alias mappings using Type reference equality
     private static readonly Dictionary<Type, string> _typeAliases = new()
     {
-        [typeof(bool)] = "bool",
-        [typeof(byte)] = "byte",
-        [typeof(sbyte)] = "sbyte",
-        [typeof(char)] = "char",
-        [typeof(decimal)] = "decimal",
-        [typeof(double)] = "double",
-        [typeof(float)] = "float",
-        [typeof(int)] = "int",
-        [typeof(uint)] = "uint",
-        [typeof(long)] = "long",
-        [typeof(ulong)] = "ulong",
-        [typeof(short)] = "short",
-        [typeof(ushort)] = "ushort",
-        [typeof(object)] = "object",
-        [typeof(string)] = "string",
-        [typeof(void)] = "void"
+        [typeof(bool)]      = "bool",
+        [typeof(byte)]      = "byte",
+        [typeof(sbyte)]     = "sbyte",
+        [typeof(char)]      = "char",
+        [typeof(decimal)]   = "decimal",
+        [typeof(double)]    = "double",
+        [typeof(float)]     = "float",
+        [typeof(int)]       = "int",
+        [typeof(uint)]      = "uint",
+        [typeof(long)]      = "long",
+        [typeof(ulong)]     = "ulong",
+        [typeof(short)]     = "short",
+        [typeof(ushort)]    = "ushort",
+        [typeof(object)]    = "object",
+        [typeof(string)]    = "string",
+        [typeof(void)]      = "void"
     };
 
     // Optimization #14: SearchValues for delegate detection - pre-compiled set for hardware-accelerated search
-    private static readonly SearchValues<char> _anonymousDelegateChars = SearchValues.Create(['<', '>']);
+    private static readonly SearchValues<char> _anonymousDelegateChars = SearchValues.Create('<', '>');
 
     private DefaultFormatter()
     {
@@ -187,7 +192,7 @@ public sealed class DefaultFormatter : IFormatter
     ///   </item>
     ///   <item>
     ///     <term>Other types</term>
-    ///     <description>Uses <see cref="object.ToString()"/> (returns null if ToString returns null)</description>
+    ///     <description>Uses <see cref="Object.ToString"/> (returns null if ToString returns null)</description>
     ///   </item>
     /// </list>
     /// </para>
@@ -620,24 +625,6 @@ public sealed class DefaultFormatter : IFormatter
     }
 
     /// <summary>
-    /// Checks if a delegate method name indicates an anonymous method or lambda.
-    /// </summary>
-    /// <param name="methodName">The method name to check.</param>
-    /// <returns><see langword="true"/> if the method name is compiler-generated; otherwise, <see langword="false"/>.</returns>
-    /// <remarks>
-    /// Optimization #14: Uses SearchValues for hardware-accelerated character search instead of IndexOfAny.
-    /// SearchValues compiles to vectorized SIMD instructions on modern CPUs for 2-5x faster searching.
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsAnonymousDelegate(string methodName)
-    {
-        const string lambdaPrefix = "lambda_";
-        var span = methodName.AsSpan();
-        return span.ContainsAny(_anonymousDelegateChars) || 
-               span.StartsWith(lambdaPrefix.AsSpan());
-    }
-
-    /// <summary>
     /// Formats a <see cref="Type"/> into a C#-friendly type name.
     /// </summary>
     /// <param name="type">The type to format.</param>
@@ -700,16 +687,16 @@ public sealed class DefaultFormatter : IFormatter
     }
 
     /// <summary>
-    /// Formats an <see cref="IEnumerable"/> collection showing the first <see cref="Builder.MaxCount"/> items.
+    /// Formats an <see cref="IEnumerable"/> collection showing the first <see cref="MaxCount"/> items.
     /// </summary>
     /// <param name="coll">The collection to format.</param>
     /// <returns>
     /// A string in the form <c>"[count]: [item1, item2, item3]"</c> or
-    /// <c>"[First 3 of 5+]: [item1, item2, item3]"</c> if there are more than <see cref="Builder.MaxCount"/> items.
+    /// <c>"[First 3 of 5+]: [item1, item2, item3]"</c> if there are more than <see cref="MaxCount"/> items.
     /// </returns>
     /// <remarks>
     /// <para>
-    /// <strong>Collection Truncation:</strong> Only the first <see cref="Builder.MaxCount"/> (3) items are included
+    /// <strong>Collection Truncation:</strong> Only the first <see cref="MaxCount"/> (3) items are included
     /// to keep output concise. If the collection contains more items, the prefix shows
     /// <c>"First 3 of N+"</c> to indicate truncation.
     /// </para>
@@ -720,11 +707,11 @@ public sealed class DefaultFormatter : IFormatter
     /// <para>
     /// <strong>Recursive Formatting:</strong> Each item is formatted via <see cref="Format(object?)"/>
     /// to apply type-specific formatting rules (strings quoted, chars single-quoted, etc.).
-    /// Null items are replaced with the <see cref="Builder.NullString"/> constant.
+    /// Null items are replaced with the <see cref="NullString"/> constant.
     /// </para>
     /// <para>
-    /// <strong>Performance:</strong> Optimization #8 - Uses manual enumeration instead of LINQ Cast<object?>()
-    /// to eliminate enumerator wrapper allocation. Materializes only <see cref="Builder.MaxCount"/> + 1 items,
+    /// <strong>Performance:</strong> Optimization #8 - Uses manual enumeration instead of LINQ Cast&lt;object?&gt;()
+    /// to eliminate enumerator wrapper allocation. Materializes only <see cref="MaxCount"/> + 1 items,
     /// avoiding full enumeration of large collections.
     /// Not marked with <see cref="MethodImplOptions.AggressiveInlining"/> due to complexity.
     /// </para>
@@ -838,7 +825,7 @@ public sealed class DefaultFormatter : IFormatter
     #region Dictionary formatting helpers
 
     /// <summary>
-    /// Formats an <see cref="IDictionary"/> showing the first <see cref="Builder.MaxCount"/> key-value pairs.
+    /// Formats an <see cref="IDictionary"/> showing the first <see cref="MaxCount"/> key-value pairs.
     /// </summary>
     /// <param name="dictionary">The dictionary to format.</param>
     /// <param name="prefix">A prefix string describing the count (e.g., <c>"3"</c> or <c>"First 3 of 5+"</c>).</param>
@@ -1193,10 +1180,29 @@ public sealed class DefaultFormatter : IFormatter
 
     #endregion
 
-    #region char helpers
+    #region Delegate helpers
 
-    private const int AsciiPrintableStart = ' ';
-    private const int AsciiPrintableEnd = '~';
+    /// <summary>
+    /// Checks if a delegate method name indicates an anonymous method or lambda.
+    /// </summary>
+    /// <param name="methodName">The method name to check.</param>
+    /// <returns><see langword="true"/> if the method name is compiler-generated; otherwise, <see langword="false"/>.</returns>
+    /// <remarks>
+    /// Optimization #14: Uses SearchValues for hardware-accelerated character search instead of IndexOfAny.
+    /// SearchValues compiles to vectorized SIMD instructions on modern CPUs for 2-5x faster searching.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsAnonymousDelegate(string methodName)
+    {
+        const string lambdaPrefix = "lambda_";
+        var span = methodName.AsSpan();
+        return span.ContainsAny(_anonymousDelegateChars) ||
+               span.StartsWith(lambdaPrefix.AsSpan());
+    }
+
+    #endregion
+
+    #region char helpers
 
     /// <summary>
     /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
