@@ -943,8 +943,8 @@ public sealed class DefaultFormatter : IFormatter
     /// dictionaries and KeyValuePairs of arbitrary types.
     /// </para>
     /// <para>
-    /// <strong>Design Note:</strong> Optimization #12 - Uses compiled delegate accessors for 10-100x faster
-    /// property access compared to reflection after the first access. The accessor is cached per KeyValuePair type.
+    /// <strong>Design Note:</strong> Optimization #12 - Caches Key/Value <see cref="PropertyInfo"/> lookups per KeyValuePair type
+    /// to reduce reflection overhead; the accessor wrapper is cached per type.
     /// </para>
     /// </remarks>
     private static (object? key, object? value) GetKvpPropValues(Type type, object kvp)
