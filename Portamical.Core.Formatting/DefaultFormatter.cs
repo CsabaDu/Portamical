@@ -635,8 +635,6 @@ public sealed class DefaultFormatter : IFormatter
             return FormatGenericType(type);
         }
 
-        // Use C# type aliases for primitive types
-        // or fallback to type name for non-primitive types
         return GetCSharpAliasOrTypeName(type);
     }
 
@@ -788,18 +786,26 @@ public sealed class DefaultFormatter : IFormatter
 
     #region Span<char> helpers
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Span<char> InsertCharAndIncrement(
-        Span<char> span,
-        char ch,
-        int index,
-        out int incremented)
-    {
-        span[index] = ch;
-        incremented = index + 1;
-        return span;
-    }
-
+    /// <summary>
+    /// Copies a string into a span starting at the specified index, then inserts a character immediately after,
+    /// and returns the index position after the inserted character.
+    /// </summary>
+    /// <param name="str">The string to copy into the span.</param>
+    /// <param name="span">The character span to modify.</param>
+    /// <param name="ch">The character to insert after the copied string.</param>
+    /// <param name="index">The zero-based index where the string copying should begin.</param>
+    /// <param name="incremented">When this method returns, contains the index position after both the string and the inserted character.</param>
+    /// <returns>The modified span.</returns>
+    /// <remarks>
+    /// <para>
+    /// This is a zero-allocation helper used in <see cref="string.Create"/> callbacks for efficient string building.
+    /// It combines two operations: copying a string and inserting a delimiter character, which is common when
+    /// building formatted output like generic types (e.g., <c>List&lt;int&gt;</c>).
+    /// </para>
+    /// <para>
+    /// <strong>Example:</strong> To build <c>"List&lt;"</c>, call <c>CopyAndInsertChar("List", span, '&lt;', 0, out index)</c>.
+    /// </para>
+    /// </remarks>
     private static Span<char> CopyAndInsertChar(
         string str,
         Span<char> span,
@@ -813,63 +819,42 @@ public sealed class DefaultFormatter : IFormatter
         return span;
     }
 
+    /// <summary>
+    /// Inserts a character into a span at the specified index and returns the incremented index.
+    /// </summary>
+    /// <param name="span">The character span to modify.</param>
+    /// <param name="ch">The character to insert.</param>
+    /// <param name="index">The zero-based index where the character should be inserted.</param>
+    /// <param name="incremented">When this method returns, contains the index incremented by 1.</param>
+    /// <returns>The modified span.</returns>
+    /// <remarks>
+    /// <para>
+    /// This is a zero-allocation helper used in <see cref="string.Create"/> callbacks for efficient string building.
+    /// The method is marked with <see cref="MethodImplOptions.AggressiveInlining"/> for optimal performance
+    /// in hot paths where single-character insertion is needed.
+    /// </para>
+    /// <para>
+    /// <strong>Performance Note:</strong> This method performs direct span indexing without bounds checking
+    /// for maximum performance. The caller must ensure the index is within valid bounds.
+    /// </para>
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Span<char> InsertCharAndIncrement(
+        Span<char> span,
+        char ch,
+        int index,
+        out int incremented)
+    {
+        span[index] = ch;
+        incremented = index + 1;
+        return span;
+    }
+
     #endregion
 
     #region Formatting helpers
 
-    #region KeyValuePair formatting helpers
-
-    private static (object? key, object? value) GetKvpPropValues(Type type, object kvp)
-    {
-        var key = getPropertyValue("Key");
-        var value = getPropertyValue("Value");
-
-        return (key, value);
-
-        #region Local methods
-        object? getPropertyValue(string propertyName)
-        {
-            var propertyInfo = type.GetProperty(propertyName);
-            return propertyInfo?.GetValue(kvp);
-        }
-        #endregion
-
-    }
-
-    /// <summary>
-    /// Checks if an object is a KeyValuePair and extracts its key and value.
-    /// </summary>
-    /// <param name="obj">The object to check.</param>
-    /// <param name="key">The extracted key, or null if not a KeyValuePair.</param>
-    /// <param name="value">The extracted value, or null if not a KeyValuePair.</param>
-    /// <returns><see langword="true"/> if the object is a KeyValuePair; otherwise, <see langword="false"/>.</returns>
-    /// <remarks>
-    /// <para>
-    /// Uses reflection to handle KeyValuePair&lt;,&gt; generically since we can't pattern match on open generic types.
-    /// This approach avoids creating overloads for every possible TKey/TValue combination.
-    /// </para>
-    /// <para>
-    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because it contains early returns, type checks, and reflection. KeyValuePair detection is
-    /// infrequent compared to primitive formatting.
-    /// </para>
-    /// </remarks>
-    private static bool IsKeyValuePair(object obj, out object? key, out object? value)
-    {
-        key = null;
-        value = null;
-        var type = obj.GetType();
-
-        if (!type.IsGenericType ||
-            type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
-        {
-            return false;
-        }
-
-        (key, value) = GetKvpPropValues(type, obj);
-
-        return true;
-    }
+    #region Dictionary formatting helpers
 
     /// <summary>
     /// Formats an <see cref="IDictionary"/> showing the first <see cref="Builder.MaxCount"/> key-value pairs.
@@ -934,8 +919,110 @@ public sealed class DefaultFormatter : IFormatter
 
     #endregion
 
+    #region KeyValuePair formatting helpers
+
+    /// <summary>
+    /// Checks if an object is a KeyValuePair and extracts its key and value.
+    /// </summary>
+    /// <param name="obj">The object to check.</param>
+    /// <param name="key">The extracted key, or null if not a KeyValuePair.</param>
+    /// <param name="value">The extracted value, or null if not a KeyValuePair.</param>
+    /// <returns><see langword="true"/> if the object is a KeyValuePair; otherwise, <see langword="false"/>.</returns>
+    /// <remarks>
+    /// <para>
+    /// Uses reflection to handle KeyValuePair&lt;,&gt; generically since we can't pattern match on open generic types.
+    /// This approach avoids creating overloads for every possible TKey/TValue combination.
+    /// </para>
+    /// <para>
+    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// because it contains early returns, type checks, and reflection. KeyValuePair detection is
+    /// infrequent compared to primitive formatting.
+    /// </para>
+    /// </remarks>
+    private static bool IsKeyValuePair(object obj, out object? key, out object? value)
+    {
+        key = null;
+        value = null;
+        var type = obj.GetType();
+
+        if (!type.IsGenericType ||
+            type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
+        {
+            return false;
+        }
+
+        (key, value) = GetKvpPropValues(type, obj);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Extracts the Key and Value property values from a <see cref="KeyValuePair{TKey,TValue}"/> object using reflection.
+    /// </summary>
+    /// <param name="type">The type of the KeyValuePair object (must be <c>KeyValuePair&lt;TKey, TValue&gt;</c>).</param>
+    /// <param name="kvp">The KeyValuePair instance to extract values from.</param>
+    /// <returns>A tuple containing the key and value objects, or <see langword="null"/> if the properties cannot be accessed.</returns>
+    /// <remarks>
+    /// <para>
+    /// This method uses reflection to access the Key and Value properties generically, avoiding the need to know
+    /// the specific <c>TKey</c> and <c>TValue</c> types at compile time. This is essential for formatting
+    /// dictionaries and KeyValuePairs of arbitrary types.
+    /// </para>
+    /// <para>
+    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// because it uses reflection. This method is only called during dictionary formatting, which is not a hot path.
+    /// </para>
+    /// </remarks>
+    private static (object? key, object? value) GetKvpPropValues(Type type, object kvp)
+    {
+        var key = getPropertyValue("Key");
+        var value = getPropertyValue("Value");
+
+        return (key, value);
+
+        #region Local methods
+        object? getPropertyValue(string propertyName)
+        {
+            var propertyInfo = type.GetProperty(propertyName);
+            return propertyInfo?.GetValue(kvp);
+        }
+        #endregion
+
+    }
+
+    #endregion
+
     #region Type formatting helpers
 
+    /// <summary>
+    /// Formats an array type into its C# syntax representation (e.g., <c>int[]</c>, <c>string[,]</c>).
+    /// </summary>
+    /// <param name="type">The array type to format. Must be an array type.</param>
+    /// <returns>
+    /// A string representing the array type in C# syntax:
+    /// <list type="bullet">
+    /// <item><description>Single-dimensional arrays: <c>elementType[]</c></description></item>
+    /// <item><description>Multi-dimensional arrays: <c>elementType[,,,]</c> (with commas for each dimension beyond the first)</description></item>
+    /// </list>
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Zero-Allocation Design:</strong> Uses <see cref="string.Create"/> with span-based operations
+    /// to build the result without intermediate allocations. For rank-1 arrays, this is a simple element + "[]".
+    /// For higher-rank arrays, commas are inserted between the brackets.
+    /// </para>
+    /// <para>
+    /// <strong>Recursive Formatting:</strong> The element type is formatted via <see cref="Format(Type)"/>,
+    /// which recursively handles nested arrays, generics, and other complex types.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code><![CDATA[
+    /// FormatArrayType(typeof(int[]))      // Returns: "int[]"
+    /// FormatArrayType(typeof(string[,]))  // Returns: "string[,]"
+    /// FormatArrayType(typeof(bool[,,]))   // Returns: "bool[,,]"
+    /// ]]></code>
+    /// </example>
     private static string FormatArrayType(Type type)
     {
         var elementType = type.GetElementType()!;
@@ -986,6 +1073,29 @@ public sealed class DefaultFormatter : IFormatter
         }
     }
 
+    /// <summary>
+    /// Formats a nullable value type by appending a question mark to its underlying type (e.g., <c>int?</c>).
+    /// </summary>
+    /// <param name="underlyingType">The underlying value type of a nullable type.</param>
+    /// <returns>
+    /// A string representing the nullable type in C# syntax: <c>underlyingType?</c>
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Zero-Allocation Design:</strong> Uses <see cref="string.Create"/> with span-based operations
+    /// to append the "?" suffix without intermediate string concatenations or allocations.
+    /// </para>
+    /// <para>
+    /// <strong>Usage Context:</strong> This method is called when formatting <see cref="Nullable{T}"/> types,
+    /// after extracting the underlying type <c>T</c> from <c>Nullable.GetUnderlyingType</c>.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code><![CDATA[
+    /// FormatUnderlyingType(typeof(int))      // Returns: "int?"
+    /// FormatUnderlyingType(typeof(DateTime)) // Returns: "DateTime?"
+    /// ]]></code>
+    /// </example>
     private static string FormatUnderlyingType(Type underlyingType)
     {
         var formattedUnderlying = Format(underlyingType)!;
@@ -1003,6 +1113,35 @@ public sealed class DefaultFormatter : IFormatter
             });
     }
 
+    /// <summary>
+    /// Formats a generic type into its C# syntax representation with type arguments (e.g., <c>List&lt;int&gt;</c>, <c>Dictionary&lt;string, object&gt;</c>).
+    /// </summary>
+    /// <param name="type">The generic type to format. Must be a constructed generic type.</param>
+    /// <returns>
+    /// A string representing the generic type in C# syntax: <c>TypeName&lt;T1, T2, ...&gt;</c>
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Generic Type Name Processing:</strong> Removes the backtick suffix (e.g., <c>List`1</c> becomes <c>List</c>)
+    /// that .NET uses internally to denote generic arity.
+    /// </para>
+    /// <para>
+    /// <strong>Zero-Allocation Design:</strong> Uses <see cref="string.Create"/> with span-based operations
+    /// to build the result without intermediate allocations. The formatted type arguments are joined with commas,
+    /// then the entire string is assembled as <c>TypeName&lt;args&gt;</c>.
+    /// </para>
+    /// <para>
+    /// <strong>Recursive Formatting:</strong> Type arguments are formatted via <see cref="Format(Type)"/>,
+    /// which recursively handles nested generics, arrays, and other complex types.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code><![CDATA[
+    /// FormatGenericType(typeof(List<int>))                    // Returns: "List<int>"
+    /// FormatGenericType(typeof(Dictionary<string, object>))   // Returns: "Dictionary<string, object>"
+    /// FormatGenericType(typeof(KeyValuePair<int, string[]>))  // Returns: "KeyValuePair<int, string[]>"
+    /// ]]></code>
+    /// </example>
     private static string FormatGenericType(Type type)
     {
         var genericTypeDef = type.GetGenericTypeDefinition();
