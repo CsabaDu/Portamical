@@ -37,13 +37,10 @@ namespace Portamical.Core.Formatting;
 /// </remarks>
 public sealed class DefaultFormatter : IFormatter
 {
-    // Optimization #4: Pre-cache single-quoted char formats for printable ASCII characters (32-126)
     private const int AsciiPrintableStart = ' ';
 
-    // Optimization #4: Pre-cache single-quoted char formats for printable ASCII characters (32-126)
     private const int AsciiPrintableEnd = '~';
 
-    // Optimization #1 & #12: Cache compiled delegate accessors for KeyValuePair Key/Value properties
     // This is 10-100x faster than PropertyInfo.GetValue after the first access
     private static readonly ConcurrentDictionary<Type, Func<object, (object?, object?)>> _kvpAccessorCache = new();
 
@@ -71,7 +68,6 @@ public sealed class DefaultFormatter : IFormatter
         [typeof(void)]      = "void"
     };
 
-    // Optimization #14: SearchValues for delegate detection - pre-compiled set for hardware-accelerated search
     private static readonly SearchValues<char> _anonymousDelegateChars = SearchValues.Create('<', '>');
 
     private DefaultFormatter()
