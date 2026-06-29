@@ -4,6 +4,7 @@
 using System.Buffers;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using static Portamical.Core.Formatting.Builder;
@@ -810,8 +811,16 @@ public sealed class DefaultFormatter : IFormatter
                 $"{typeName} (Length: {stream.Length}, Position: {stream.Position})"
                 : $"{typeName} (Position: {stream.Position})";
         }
-        catch
+        catch(Exception ex)
         {
+            // Debug?only diagnostic: alert developer during testing without
+            // introducing runtime cost or logging dependencies in release builds.
+#if DEBUG
+            Debug.WriteLine(
+                $"[DefaultFormatter] Stream formatting failed for type '{typeName}'. " +
+                $"Exception: {ex.GetType().Name}: {ex.Message}");
+#endif
+
             return null;
         }
     }

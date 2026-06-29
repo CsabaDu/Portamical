@@ -3,6 +3,7 @@
 
 using Portamical.Core.Formatting;
 using System.Collections;
+using System.Diagnostics;
 
 namespace Tests.Portamical.Core.Formatting;
 
