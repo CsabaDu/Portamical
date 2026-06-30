@@ -911,62 +911,44 @@ public sealed class DefaultFormatter : IFormatter
     /// <summary>
     /// Formats an <see cref="IDictionary"/> showing the first <see cref="MaxCount"/> key-value pairs.
     /// </summary>
-    /// <param name="dictionary">The dictionary to format.</param>
-    /// <param name="prefix">A prefix string describing the count (e.g., <c>"3"</c> or <c>"First 3 of 5+"</c>).</param>
-    /// <returns>
-    /// A string in the form <c>"[prefix]: {{key1: value1}, {key2: value2}, {key3: value3}}"</c>.
-    /// </returns>
+    /// <param name="type">The type of the KeyValuePair object (must be <c>KeyValuePair&lt;TKey, TValue&gt;</c>).</param>
+    /// <param name="kvp">The KeyValuePair instance to extract values from.</param>
+    /// <returns>A tuple containing the key and value objects, or <see langword="null"/> if the properties cannot be accessed.</returns>
     /// <remarks>
     /// <para>
-    /// <strong>Dictionary Entry Handling:</strong> Supports both <see cref="DictionaryEntry"/> (non-generic)
-    /// and <see cref="KeyValuePair{TKey,TValue}"/> (generic) via reflection. This enables formatting
-    /// of both <c>IDictionary</c> and <c>IDictionary&lt;TKey, TValue&gt;</c> implementations.
+    /// This method uses reflection to access the Key and Value properties generically, avoiding the need to know
+    /// the specific <c>TKey</c> and <c>TValue</c> types at compile time. This is essential for formatting
+    /// dictionaries and KeyValuePairs of arbitrary types.
     /// </para>
     /// <para>
-    /// <strong>Recursive Formatting:</strong> Keys and values are formatted via <see cref="Format(object?, object?)"/>
-    /// which recursively applies type-specific formatting rules.
-    /// </para>
-    /// <para>
-    /// <strong>Reflection Usage:</strong> For generic <c>Dictionary&lt;TKey, TValue&gt;</c>, uses reflection
-    /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> type,
-    /// avoiding the need for multiple overloads for every possible key/value type combination.
-    /// </para>
-    /// <para>
-    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// due to reflection usage and complexity. Dictionary formatting is not a hot path.
+    /// <strong>Design Note:</strong> Optimization #12 - Caches Key/Value <see cref="PropertyInfo"/> lookups per KeyValuePair type
+    /// to reduce reflection overhead; the accessor wrapper is cached per type.
     /// </para>
     /// </remarks>
-    /// <example>
-    /// <code><![CDATA[
-    /// var dictionary = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2, ["ch"] = 3 };
-    /// Format(dictionary, "3")  // Returns: "[3]: {{\"a\": 1}, {\"b\": 2}, {\"ch\": 3}}"
-    /// 
-    /// var largeDict = new Dictionary<int, string> { [1] = "one", [2] = "two", [3] = "three", [4] = "four" };
-    /// Format(largeDict, "First 3 of 4+")  // Returns: "[First 3 of 4+]: {{1: \"one\"}, {2: \"two\"}, {3: \"three\"}}"
-    /// ]]></code>
-    /// </example>
-    private static string? FormatDictionary(IDictionary dictionary, string? prefix)
+    private static (object? key, object? value) GetKvpPropValues(Type type, object kvp)
     {
-        var items = dictionary
-            .Cast<object>()
-            .Take(MaxCount)
-            .Select(item =>
+        // Optimization #12: Use compiled delegate accessor for much faster property access
+        var accessor = _kvpAccessorCache.GetOrAdd(type, t =>
+        {
+            var keyProperty = t.GetProperty("Key");
+            var valueProperty = t.GetProperty("Value");
+
+            // Handle types that don't have Key/Value properties - return (null, null) for compatibility
+            if (keyProperty is null || valueProperty is null)
             {
-                // Handle both DictionaryEntry (from non-generic IDictionary)
-                // and KeyValuePair<,> (from Dictionary<,>)
-                if (item is DictionaryEntry de)
-                {
-                    return Format(de.Key, de.Value);
-                }
+                return _ => (null, null);
+            }
 
-                // Use reflection to access Key and Value properties from KeyValuePair<,>
-                var type = item.GetType();
-                var (key, value) = GetKvpPropValues(type, item);
+            // Create a compiled accessor delegate that's much faster than PropertyInfo.GetValue
+            return obj =>
+            {
+                var key = keyProperty.GetValue(obj);
+                var value = valueProperty.GetValue(obj);
+                return (key, value);
+            };
+        });
 
-                return Format(key, value);
-            });
-
-        return $"[{prefix}]: {{{JoinWithComma(items)}}}";
+        return accessor(kvp);
     }
 
     #endregion

@@ -472,6 +472,7 @@ public static class Builder
             new StringBuilder(capacity)
             : new StringBuilder();
 
+
         sb.Append(FallbackIfNull(enumerator.Current));
 
         while (enumerator.MoveNext())
