@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-4.1.1-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-4.1.2-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 Portamical provides framework-agnostic converters, assertions, and test base classes that bridge between Portamical.Core and framework-specific adapters.
@@ -27,30 +27,6 @@ dotnet add package Portamical
 ---
 
 ## What's New
-
-### **Version 4.1.0 (2026-06-28)**
-
-***Formatter API Simplification***
-
-**Updated**
-- **Portamical.Core dependency updated to v4.1.0**
-  - Simplified formatter API: removed `IFormatter<T>` interface, use `Formatter<T>` base class directly
-  - Added configurable `maxCount` parameter for optimized string joining operations
-  - Enhanced tuple formatting capabilities with comprehensive test coverage
-  - No breaking changes for Portamical consumers
-
-**Improved**
-- **Enhanced formatter integration**
-  - Improved Builder and formatter test coverage with new tuple and join method tests
-  - Updated documentation to reflect Portamical.Core v4.1.0 formatter API simplifications
-  - Seamless integration with new `maxCount` optimization for string joining
-
-**Benefits**
-- **Simpler API surface**: Direct use of `Formatter<T>` base class eliminates interface abstraction layer
-- **Better performance**: Configurable `maxCount` reduces allocations in large collection formatting
-- **Enhanced capabilities**: Improved tuple formatting support for complex test data scenarios
-
----
 
 ### **Version 4.0.0 (2026-06-26)**
 
@@ -558,7 +534,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
-#### **Version 4.1.0** (2026-06-28)
+#### **Version 4.1.0** (2026-06-27)
 
 **Updated**
 - **Portamical.Core dependency updated to v4.1.0**
@@ -580,7 +556,7 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ---
 
-##### **Version 4.1.1 - Current** (2026-06-29)
+##### **Version 4.1.1** (2026-06-29)
 
 **Updated**
 - **Portamical.Core dependency updated to v4.1.1**
@@ -600,6 +576,39 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 - Enhanced stream formatting diagnostics using `Debug.WriteLine`
 - Improved testability: DEBUG builds no longer throw assertions during exception handling
 - Enhanced test coverage: 319 → 353 tests (+10.7%)
+
+---
+
+##### **Version 4.1.2 - Current** (2026-06-30)
+
+**Updated**
+- **Portamical.Core dependency updated to v4.1.2**
+  - Portamical.Core.Formatting v2.1.0 → v2.1.1 (transitive dependency)
+  - Fully backward compatible with no API changes
+
+**Documentation Enhancements** (via Portamical.Core.Formatting v2.1.1)
+- **Complete XML Coverage**: All private members, methods, constants, and fields now fully documented
+- **Enhanced Inline Documentation**: Detailed usage examples and design rationale
+- **Improved Cross-References**: Proper `<see cref/>` tags for better IDE navigation
+- **Comprehensive Remarks**: Optimization strategies and performance characteristics explained
+
+**String Building Optimizations** (via Portamical.Core.Formatting v2.1.1)
+- **Universal Capacity Pre-computation**: Removed arbitrary 32-item limit - ALL collections with known sizes benefit
+  - Uses 16-character average estimate per item plus separator length
+  - Eliminates StringBuilder reallocations during string assembly
+- **Fast-Path for Small Lists**: Optimized iterative joining for 1-3 items using `CreateSeparatedString`
+  - Common case: tuples and small collections
+  - Falls back to StringBuilder for 4+ items (more efficient)
+- **Tuple Formatting**: Uses `maxCount: 8` for complete formatting of all tuple elements before nesting
+- **Local Method Pattern**: Reduces closure allocations in tight loops
+  - `getIndexedItem()` eliminates repeated FallbackIfNull lambda allocations
+  - `isCountEqualToIncrementedIndex()` eliminates closure allocation for count checking
+
+**Code Quality Improvements**
+- Enhanced null handling with consistent `FallbackIfNull` and `FallbackIfNullSeparator` usage
+- Improved error handling in Stream formatting (uses `Debug.WriteLine` for diagnostics)
+- Better testability: DEBUG builds don't throw assertions during normal exception handling
+- Thread-safe concurrent caching for hot-path operations (KeyValuePair accessors, type checking, type aliases)
 
 ---
 

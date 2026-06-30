@@ -641,7 +641,7 @@ This release updates the `Portamical.Core.Formatting` dependency from v1.0.0 to 
 
 ---
 
-#### **Version 4.1.1** (2026-06-27)
+#### **Version 4.1.1** (2026-06-29)
 
 **Dependency Update: Performance Optimization**
 
