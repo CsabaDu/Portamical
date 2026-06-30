@@ -37,17 +37,68 @@ namespace Portamical.Core.Formatting;
 /// </remarks>
 public sealed class DefaultFormatter : IFormatter
 {
+    /// <summary>
+    /// The starting ASCII code for printable characters (space character, ASCII 32).
+    /// </summary>
+    /// <remarks>
+    /// Used with <see cref="AsciiPrintableEnd"/> to define the range of pre-cached
+    /// character formats in <see cref="CharFormats"/>. Printable ASCII characters
+    /// range from 32 (space) to 126 (tilde).
+    /// </remarks>
     private const int AsciiPrintableStart = ' ';
 
+    /// <summary>
+    /// The ending ASCII code for printable characters (tilde character, ASCII 126).
+    /// </summary>
+    /// <remarks>
+    /// Used with <see cref="AsciiPrintableStart"/> to define the range of pre-cached
+    /// character formats in <see cref="CharFormats"/>. Printable ASCII characters
+    /// range from 32 (space) to 126 (tilde).
+    /// </remarks>
     private const int AsciiPrintableEnd = '~';
 
-    // This is 10-100x faster than PropertyInfo.GetValue after the first access
+    /// <summary>
+    /// Cache of compiled delegate accessors for efficiently extracting Key and Value properties
+    /// from KeyValuePair&lt;TKey, TValue&gt; objects.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Optimization #1 &amp; #12: Caches compiled delegate accessors per KeyValuePair type,
+    /// providing 10-100x faster property access compared to reflection after the first access.
+    /// </para>
+    /// <para>
+    /// The delegate takes an object (the KeyValuePair instance) and returns a tuple of (key, value).
+    /// This approach uses compiled expressions instead of <see cref="PropertyInfo.GetValue(object)"/>
+    /// for each access, dramatically improving performance in dictionary and collection formatting.
+    /// </para>
+    /// </remarks>
     private static readonly ConcurrentDictionary<Type, Func<object, (object?, object?)>> _kvpAccessorCache = new();
 
-    // Optimization #2: Cache type checking results for KeyValuePair types
+    /// <summary>
+    /// Cache of type checking results to determine if a type is a KeyValuePair&lt;,&gt;.
+    /// </summary>
+    /// <remarks>
+    /// Optimization #2: Caches the result of checking whether a type is a constructed
+    /// KeyValuePair&lt;TKey, TValue&gt; to avoid repeated reflection calls to
+    /// <see cref="Type.GetGenericTypeDefinition"/>. Type checking is performed frequently
+    /// during dictionary enumeration and collection formatting.
+    /// </remarks>
     private static readonly ConcurrentDictionary<Type, bool> _isKvpCache = new();
 
-    // Optimization #5: Cache Type to C# alias mappings using Type reference equality
+    /// <summary>
+    /// Dictionary mapping BCL types to their C# keyword aliases for readable type name formatting.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Optimization #5: Uses Type reference equality lookup instead of string comparison,
+    /// providing O(1) lookup performance without string operations.
+    /// </para>
+    /// <para>
+    /// Maps types like <see cref="Int32"/> ? "int", <see cref="String"/> ? "string",
+    /// <see cref="Boolean"/> ? "bool", etc. Used by <see cref="GetCSharpAliasOrTypeName"/>
+    /// to produce C#-friendly type names in formatted output.
+    /// </para>
+    /// </remarks>
     private static readonly Dictionary<Type, string> _typeAliases = new()
     {
         [typeof(bool)]      = "bool",
@@ -68,12 +119,41 @@ public sealed class DefaultFormatter : IFormatter
         [typeof(void)]      = "void"
     };
 
+    /// <summary>
+    /// Pre-compiled search values for hardware-accelerated detection of anonymous delegate method names.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Optimization #14: Uses <see cref="SearchValues{T}"/> for SIMD-accelerated character searching
+    /// instead of <see cref="string.IndexOfAny(char[])"/>. Searches for angle brackets ('&lt;', '&gt;')
+    /// which appear in compiler-generated lambda and anonymous method names (e.g., "&lt;Main&gt;b__0_1").
+    /// </para>
+    /// <para>
+    /// SearchValues compiles to vectorized SIMD instructions on modern CPUs, providing 2-5x faster
+    /// searching compared to scalar implementations. Used by <see cref="IsAnonymousDelegate"/> to
+    /// quickly identify compiler-generated delegate names.
+    /// </para>
+    /// </remarks>
     private static readonly SearchValues<char> _anonymousDelegateChars = SearchValues.Create("<>");
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DefaultFormatter"/> class.
+    /// </summary>
+    /// <remarks>
+    /// Private constructor enforces singleton pattern via <see cref="Instance"/>.
+    /// </remarks>
     private DefaultFormatter()
     {
     }
 
+    /// <summary>
+    /// Formats an object into a string representation (explicit interface implementation).
+    /// </summary>
+    /// <param name="obj">The object to format.</param>
+    /// <returns>A formatted string, or <see langword="null"/> if formatting fails.</returns>
+    /// <remarks>
+    /// This explicit implementation delegates to the public static <see cref="Format(object?)"/> method.
+    /// </remarks>
     string? IFormatter.Format(object? obj)
     => Format(obj);
 
@@ -260,24 +340,24 @@ public sealed class DefaultFormatter : IFormatter
         //   (since these implement or may implement IEnumerable).
         // - IDictionary is checked separately in Format(IEnumerable)
         //   to delegate to FormatDictionary(IDictionary, string?).
-        null                    => null,
-        char ch                 => Format(ch),
-        string str              => Format(str),
-        Type type               => Format(type),
-        DateTime dt             => Format(dt.ToString, context: "O"),
-        DateTimeOffset dto      => Format(dto.ToString, context: "O"),
-        Guid guid               => Format(guid.ToString, context: "D"),
-        byte[] bytes            => Format(BitConverter.ToString, context: bytes),
-        Exception ex            => Format(ex),
+        null => null,
+        char ch => Format(ch),
+        string str => Format(str),
+        Type type => Format(type),
+        DateTime dt => Format(dt.ToString, context: "O"),
+        DateTimeOffset dto => Format(dto.ToString, context: "O"),
+        Guid guid => Format(guid.ToString, context: "D"),
+        byte[] bytes => Format(BitConverter.ToString, context: bytes),
+        Exception ex => Format(ex),
         _ when IsKeyValuePair(
             obj,
             out var key,
-            out var value)      => Format(key, value),
-        ITuple tuple            => Format(tuple),
-        Delegate del            => Format(del),
-        IEnumerable coll        => Format(coll),
-        Stream stream           => Format(stream),
-        _                       => obj.ToString() ?? null,
+            out var value) => Format(key, value),
+        ITuple tuple => Format(tuple),
+        Delegate del => Format(del),
+        IEnumerable coll => Format(coll),
+        Stream stream => Format(stream),
+        _ => obj.ToString() ?? null,
     };
 
     #region Private formatter methods
@@ -333,7 +413,6 @@ public sealed class DefaultFormatter : IFormatter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? Format(char ch)
     {
-        // Optimization #4: Single unsigned comparison is faster than two signed comparisons
         uint offset = (uint)(ch - AsciiPrintableStart);
         return offset < (uint)CharFormats.Length
             ? CharFormats[(int)offset]
@@ -522,10 +601,8 @@ public sealed class DefaultFormatter : IFormatter
     /// </example>
     private static string? Format(ITuple tuple)
     {
+        const int tupleMaxCount = 8;
         var length = tuple.Length;
-
-        // Optimization #7: Pre-allocate exact-size array
-        // Cannot use stackalloc for managed types (string[])
         var items = new string[length];
 
         for (int i = 0; i < length; i++)
@@ -534,7 +611,7 @@ public sealed class DefaultFormatter : IFormatter
             items[i] = FallbackIfNull(Format(item));
         }
 
-        return $"({JoinWithComma(items, maxCount: 8)})";
+        return $"({JoinWithComma(items, tupleMaxCount)})";
     }
 
     /// <summary>
@@ -589,18 +666,17 @@ public sealed class DefaultFormatter : IFormatter
         const string anonymousMethodName = "anonymous";
         var delegateType = Format(del.GetType());
         var methodName = del.Method.Name;
-
-        // Optimization #10: Use span-based operations for faster character detection
         var isAnonymous = IsAnonymousDelegate(methodName);
+        var spaceAndParensCount = 3; // " (", ")"
         var displayName = isAnonymous ?
             anonymousMethodName
             : methodName;
-        var spaceAndParensCount = 3; // " (", ")"
 
-        // Zero-allocation string building: DelegateType (displayName)
-        var totalLength = delegateType!.Length +
+        var totalLength =
+            delegateType!.Length +
             spaceAndParensCount +
             displayName.Length;
+
         return string.Create(
             totalLength,
             (delegateType, displayName),
@@ -723,15 +799,13 @@ public sealed class DefaultFormatter : IFormatter
     /// </example>
     private static string? Format(IEnumerable coll)
     {
-        // Optimization #8: Manual enumeration instead of LINQ Cast<object?>()
-        // to eliminate enumerator wrapper allocation
-        var materializedObjects = new List<object?>(MaxCount + 1);
+        const int moreThanMaxCount = MaxCount + 1;
+        var materializedObjects = new List<object?>(moreThanMaxCount);
         var enumerator = coll.GetEnumerator();
 
         try
         {
-            // Take MaxCount + 1 items to check if there are more
-            for (int i = 0; i <= MaxCount && enumerator.MoveNext(); i++)
+            for (int i = 0; i < moreThanMaxCount && enumerator.MoveNext(); i++)
             {
                 materializedObjects.Add(enumerator.Current);
             }
@@ -753,11 +827,18 @@ public sealed class DefaultFormatter : IFormatter
             return FormatDictionary(dictionary, prefix);
         }
 
-        // Format items (take only MaxCount if we have more)
-        var itemsToFormat = hasMore ? materializedObjects.Take(MaxCount) : materializedObjects;
-        var formattedItems = itemsToFormat.Select(item => FallbackIfNull(Format(item)));
+        var itemsToFormat = hasMore ?
+            materializedObjects.Take(MaxCount)
+            : materializedObjects;
+        var formattedItems = itemsToFormat.Select(
+            fallbackIfFormattedNull);
 
         return $"[{prefix}]: [{JoinWithComma(formattedItems)}]";
+
+        #region Local methods
+        static string fallbackIfFormattedNull(object? obj)
+        => FallbackIfNull(Format(obj));
+        #endregion
     }
 
     /// <summary>
@@ -809,7 +890,6 @@ public sealed class DefaultFormatter : IFormatter
         }
         catch (Exception ex)
         {
-            // Debug-only diagnostic: alert developer during testing without
 #if DEBUG
             Debug.WriteLine(
                 $"[DefaultFormatter] Stream formatting failed for type '{typeName}'. " +
@@ -830,107 +910,6 @@ public sealed class DefaultFormatter : IFormatter
 
     /// <summary>
     /// Formats an <see cref="IDictionary"/> showing the first <see cref="MaxCount"/> key-value pairs.
-    /// </summary>
-    /// <param name="dictionary">The dictionary to format.</param>
-    /// <param name="prefix">A prefix string describing the count (e.g., <c>"3"</c> or <c>"First 3 of 5+"</c>).</param>
-    /// <returns>
-    /// A string in the form <c>"[prefix]: {{key1: value1}, {key2: value2}, {key3: value3}}"</c>.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Dictionary Entry Handling:</strong> Supports both <see cref="DictionaryEntry"/> (non-generic)
-    /// and <see cref="KeyValuePair{TKey,TValue}"/> (generic) via reflection. This enables formatting
-    /// of both <c>IDictionary</c> and <c>IDictionary&lt;TKey, TValue&gt;</c> implementations.
-    /// </para>
-    /// <para>
-    /// <strong>Recursive Formatting:</strong> Keys and values are formatted via <see cref="Format(object?, object?)"/>
-    /// which recursively applies type-specific formatting rules.
-    /// </para>
-    /// <para>
-    /// <strong>Reflection Usage:</strong> For generic <c>Dictionary&lt;TKey, TValue&gt;</c>, uses reflection
-    /// to access Key and Value properties from the generic <see cref="KeyValuePair{TKey,TValue}"/> type,
-    /// avoiding the need for multiple overloads for every possible key/value type combination.
-    /// </para>
-    /// <para>
-    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// due to reflection usage and complexity. Dictionary formatting is not a hot path.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code><![CDATA[
-    /// var dictionary = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2, ["ch"] = 3 };
-    /// Format(dictionary, "3")  // Returns: "[3]: {{\"a\": 1}, {\"b\": 2}, {\"ch\": 3}}"
-    /// 
-    /// var largeDict = new Dictionary<int, string> { [1] = "one", [2] = "two", [3] = "three", [4] = "four" };
-    /// Format(largeDict, "First 3 of 4+")  // Returns: "[First 3 of 4+]: {{1: \"one\"}, {2: \"two\"}, {3: \"three\"}}"
-    /// ]]></code>
-    /// </example>
-    private static string? FormatDictionary(IDictionary dictionary, string? prefix)
-    {
-        var items = dictionary
-            .Cast<object>()
-            .Take(MaxCount)
-            .Select(item =>
-            {
-                // Handle both DictionaryEntry (from non-generic IDictionary)
-                // and KeyValuePair<,> (from Dictionary<,>)
-                if (item is DictionaryEntry de)
-                {
-                    return Format(de.Key, de.Value);
-                }
-
-                // Use reflection to access Key and Value properties from KeyValuePair<,>
-                var type = item.GetType();
-                var (key, value) = GetKvpPropValues(type, item);
-
-                return Format(key, value);
-            });
-
-        return $"[{prefix}]: {{{JoinWithComma(items)}}}";
-    }
-
-    #endregion
-
-    #region KeyValuePair formatting helpers
-
-    /// <summary>
-    /// Checks if an object is a KeyValuePair and extracts its key and value.
-    /// </summary>
-    /// <param name="obj">The object to check.</param>
-    /// <param name="key">The extracted key, or null if not a KeyValuePair.</param>
-    /// <param name="value">The extracted value, or null if not a KeyValuePair.</param>
-    /// <returns><see langword="true"/> if the object is a KeyValuePair; otherwise, <see langword="false"/>.</returns>
-    /// <remarks>
-    /// <para>
-    /// Uses reflection to handle KeyValuePair&lt;,&gt; generically since we can't pattern match on open generic types.
-    /// This approach avoids creating overloads for every possible TKey/TValue combination.
-    /// </para>
-    /// <para>
-    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// because it contains early returns, type checks, and reflection. KeyValuePair detection is
-    /// infrequent compared to primitive formatting.
-    /// </para>
-    /// </remarks>
-    private static bool IsKeyValuePair(object obj, out object? key, out object? value)
-    {
-        key = null;
-        value = null;
-        var type = obj.GetType();
-
-        // Optimization #2: Cache type checking results to avoid repeated GetGenericTypeDefinition calls
-        if (!_isKvpCache.GetOrAdd(type, t =>
-            t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)))
-        {
-            return false;
-        }
-
-        (key, value) = GetKvpPropValues(type, obj);
-
-        return true;
-    }
-
-    /// <summary>
-    /// Extracts the Key and Value property values from a <see cref="KeyValuePair{TKey,TValue}"/> object using reflection.
     /// </summary>
     /// <param name="type">The type of the KeyValuePair object (must be <c>KeyValuePair&lt;TKey, TValue&gt;</c>).</param>
     /// <param name="kvp">The KeyValuePair instance to extract values from.</param>
@@ -1184,6 +1163,29 @@ public sealed class DefaultFormatter : IFormatter
 
     #endregion
 
+    #region char helpers
+
+    /// <summary>
+    /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This cache eliminates string allocations for ~95% of character formatting operations.
+    /// Characters are formatted with single quotes: <c>'a'</c>, <c>'Z'</c>, <c>'0'</c>, etc.
+    /// </para>
+    /// <para>
+    /// Non-printable characters (control characters, extended ASCII, Unicode) are formatted
+    /// on-demand and are not cached.
+    /// </para>
+    /// </remarks>
+    private static readonly string[] CharFormats =
+        [.. Enumerable.Range(
+            AsciiPrintableStart,
+            AsciiPrintableEnd - AsciiPrintableStart + 1)
+        .Select(i => $"'{(char)i}'")];
+
+    #endregion
+
     #region Delegate helpers
 
     /// <summary>
@@ -1206,26 +1208,86 @@ public sealed class DefaultFormatter : IFormatter
 
     #endregion
 
-    #region char helpers
+    #region KeyValuePair helpers
 
     /// <summary>
-    /// Pre-formatted strings for printable ASCII characters (32-126), cached for performance.
+    /// Checks if an object is a KeyValuePair and extracts its key and value.
     /// </summary>
+    /// <param name="obj">The object to check.</param>
+    /// <param name="key">The extracted key, or null if not a KeyValuePair.</param>
+    /// <param name="value">The extracted value, or null if not a KeyValuePair.</param>
+    /// <returns><see langword="true"/> if the object is a KeyValuePair; otherwise, <see langword="false"/>.</returns>
     /// <remarks>
     /// <para>
-    /// This cache eliminates string allocations for ~95% of character formatting operations.
-    /// Characters are formatted with single quotes: <c>'a'</c>, <c>'Z'</c>, <c>'0'</c>, etc.
+    /// Uses reflection to handle KeyValuePair&lt;,&gt; generically since we can't pattern match on open generic types.
+    /// This approach avoids creating overloads for every possible TKey/TValue combination.
     /// </para>
     /// <para>
-    /// Non-printable characters (control characters, extended ASCII, Unicode) are formatted
-    /// on-demand and are not cached.
+    /// <strong>Design Note:</strong> Not marked with <see cref="MethodImplOptions.AggressiveInlining"/>
+    /// because it contains early returns, type checks, and reflection. KeyValuePair detection is
+    /// infrequent compared to primitive formatting.
     /// </para>
     /// </remarks>
-    private static readonly string[] CharFormats =
-        [.. Enumerable.Range(
-            AsciiPrintableStart,
-            AsciiPrintableEnd - AsciiPrintableStart + 1)
-        .Select(i => $"'{(char)i}'")];
+    private static bool IsKeyValuePair(object obj, out object? key, out object? value)
+    {
+        key = null;
+        value = null;
+        var type = obj.GetType();
+
+        // Optimization #2: Cache type checking results to avoid repeated GetGenericTypeDefinition calls
+        if (!_isKvpCache.GetOrAdd(type, t =>
+            t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)))
+        {
+            return false;
+        }
+
+        (key, value) = GetKvpPropValues(type, obj);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Extracts the Key and Value property values from a <see cref="KeyValuePair{TKey,TValue}"/> object using reflection.
+    /// </summary>
+    /// <param name="type">The type of the KeyValuePair object (must be <c>KeyValuePair&lt;TKey, TValue&gt;</c>).</param>
+    /// <param name="kvp">The KeyValuePair instance to extract values from.</param>
+    /// <returns>A tuple containing the key and value objects, or <see langword="null"/> if the properties cannot be accessed.</returns>
+    /// <remarks>
+    /// <para>
+    /// This method uses reflection to access the Key and Value properties generically, avoiding the need to know
+    /// the specific <c>TKey</c> and <c>TValue</c> types at compile time. This is essential for formatting
+    /// dictionaries and KeyValuePairs of arbitrary types.
+    /// </para>
+    /// <para>
+    /// <strong>Design Note:</strong> Optimization #12 - Caches Key/Value <see cref="PropertyInfo"/> lookups per KeyValuePair type
+    /// to reduce reflection overhead; the accessor wrapper is cached per type.
+    /// </para>
+    /// </remarks>
+    private static (object? key, object? value) GetKvpPropValues(Type type, object kvp)
+    {
+        // Optimization #12: Use compiled delegate accessor for much faster property access
+        var accessor = _kvpAccessorCache.GetOrAdd(type, t =>
+        {
+            var keyProperty = t.GetProperty("Key");
+            var valueProperty = t.GetProperty("Value");
+
+            // Handle types that don't have Key/Value properties - return (null, null) for compatibility
+            if (keyProperty is null || valueProperty is null)
+            {
+                return _ => (null, null);
+            }
+
+            // Create a compiled accessor delegate that's much faster than PropertyInfo.GetValue
+            return obj =>
+            {
+                var key = keyProperty.GetValue(obj);
+                var value = valueProperty.GetValue(obj);
+                return (key, value);
+            };
+        });
+
+        return accessor(kvp);
+    }
 
     #endregion
 

@@ -11,7 +11,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>4.1.0</Version>
+    <Version>4.1.2</Version>
     <Title>Portamical.Core</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -30,38 +30,23 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-    v4.1.0 (2026-06-27) - Dependency Update: Enhanced Formatting Capabilities
+    v4.1.2 (2026-06-30) - Dependency Update: Portamical.Core.Formatting v2.1.0 → v2.1.1
 
-    DEPENDENCY UPDATES:
-    - Updated Portamical.Core.Formatting from v1.0.0 → v2.0.0
-        • Simplified formatter architecture (2 types instead of 3)
-        • Single inheritance model via Formatter&lt;T&gt; base class
-        • Flat namespace structure for better discoverability
-        • Configurable maxCount parameter for Builder join methods
-        • Enhanced tuple formatting (maxCount: 8 for complete 8-element tuples)
-        • Comprehensive XML documentation improvements (60+ fixes)
+    This release updates the formatting library dependency to v2.1.1, bringing documentation completeness, string building optimizations, and code quality improvements - all with full backward compatibility.
 
-      NEW CAPABILITIES (via Portamical.Core.Formatting v2.0.0):
-      - Configurable collection/tuple truncation control
-        • Builder.JoinWithComma(items, maxCount) - now accepts custom maxCount
-        • Builder.JoinWithSeparator(items, separator, maxCount) - flexible truncation
-        • DefaultFormatter.Format(ITuple) uses maxCount: 8 for complete tuple formatting
-      - Improved formatter architecture reduces complexity
-      - Better discoverability with consolidated namespace structure
+    **Key Improvements** (via Portamical.Core.Formatting v2.1.1):
+    • Complete XML documentation for all private members and methods
+    • StringBuilder capacity pre-computation for ALL collection sizes (removed 32-item limit)
+    • Fast-path iterative joining for small lists (1-3 items) using CreateSeparatedString
+    • Tuple formatting optimized for up to 8 elements (maxCount: 8)
+    • Local method pattern reduces closure allocations in tight loops
+    • Enhanced null handling with explicit fallback strategies
+    • Better error handling in Stream formatting (Debug.WriteLine)
+    • Thread-safe concurrent caching for hot-path operations
 
-      COMPATIBILITY:
-      - No breaking changes to Portamical.Core public API
-      - Fully backward compatible with existing code using v4.0.0
-      - Transparent integration of Portamical.Core.Formatting v2.0.0 improvements
-      - No migration required for Portamical.Core consumers
+    **Compatibility**: ✅ No breaking changes, drop-in replacement for v4.1.1
 
-      IMPROVEMENTS:
-      - Enhanced formatting output quality via dependency improvements
-      - Better maintainability through simplified formatter architecture
-      - Improved XML documentation inherited from updated formatting library
-
-      For Portamical.Core.Formatting v2.0.0 details see:
-      https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md
+    For details: https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md
     </PackageReleaseNotes>
 
     <!-- Package Generation -->
@@ -93,7 +78,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Portamical.Core.Formatting" Version="2.0.0" />
+    <PackageReference Include="Portamical.Core.Formatting" Version="2.1.1" />
   </ItemGroup>
 
   <!-- T4 tooling support -->

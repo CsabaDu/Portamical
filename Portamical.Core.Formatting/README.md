@@ -13,62 +13,6 @@
 
 ---
 
-## What's New in v2.1.0
-
-**Performance Optimization and Quality Improvements**
-
-**PERFORMANCE ENHANCEMENTS:**
-- **Optimized `Formatter<T>.Format(object?)`** with type-check-first logic for faster hot-path execution
-- **Eliminated redundant null checks** in common formatting scenarios
-- **SearchValues optimization**: Replaced array allocation with string literal (S3878 fix)
-- **Pre-computed StringBuilder capacity** for medium collections (4-32 items) to eliminate reallocations
-- **Removed diagnostic overhead** from hot-path `CopyAsSpan` method
-- **Optimized character formatting** with single unsigned bounds check (2-5x faster for ASCII)
-- **Cached type checking results** for KeyValuePair detection
-- **Cached Type-to-C# alias mappings** using reference equality (2-3x faster lookups)
-- **Manual enumeration** instead of LINQ `Cast<object?>()` to eliminate wrapper allocations
-- **Compiled delegate accessors** for KeyValuePair property access (10-100x faster than reflection)
-- **Span-based operations** for faster delegate anonymous method detection (2-5x faster with SIMD)
-- **Exact-size array pre-allocation** for tuple formatting
-
-**CODE QUALITY IMPROVEMENTS:**
-- Fixed XML documentation warnings (CS1570) with proper generic type encoding
-- Enhanced stream formatting diagnostics using `Debug.WriteLine` instead of `Debug.Fail`
-- Improved testability: DEBUG builds no longer throw assertions during exception handling
-- Added `#region` directives for better code organization
-- Cleaner hot paths by removing diagnostic logging from performance-critical methods
-- Simplified error handling with defensive clamping maintaining safety without allocation
-
-**TESTING ENHANCEMENTS:**
-- Expanded test coverage from **319 to 353 tests** (+34 new tests, **+10.7% coverage**)
-- Comprehensive edge-case testing for:
-  - Character formatting (ASCII boundaries, non-printable chars, Unicode)
-  - Delegate anonymous method detection
-  - Enumerable disposal and exception handling
-  - Type formatting edge cases (generics, nested types, pointers)
-  - String null literal variations
-  - Stream disposal scenarios
-- **All 353 tests pass** in both DEBUG and RELEASE configurations
-
-**PERFORMANCE IMPACT:**
-
-| Scenario | v2.0.0 | v2.1.0 | Improvement |
-|----------|--------|--------|-------------|
-| 4-32 item collection | StringBuilder (default) | StringBuilder (pre-computed) | **5-15% faster** |
-| Character formatting (ASCII) | Cached | Single-check + cached | **2-5x faster** |
-| KeyValuePair property access (2nd+ access) | Reflection | Compiled delegate | **10-100x faster** |
-| Type alias lookup | String comparison | Reference equality | **2-3x faster** |
-| Enumerable formatting | LINQ Cast wrapper | Manual enumeration | **Fewer allocations** |
-| Delegate method name check | IndexOfAny | SearchValues (SIMD) | **2-5x faster** |
-
-**COMPATIBILITY:**
-- ✅ No breaking changes to public API surface
-- ✅ Fully backward compatible with v2.0.0
-- ✅ Drop-in replacement: simply update package version
-- ✅ Existing formatters continue to work without modification
-
----
-
 ## Features
 
 ### **Extensible Formatter System**
@@ -653,6 +597,61 @@ dotnet add package Portamical.Core.Formatting --version 2.1.0
 - ✅ Performance benchmarks show 5-100x improvements in specific hot paths
 - ✅ Thread-safety validated via concurrent stress tests
 - ✅ Memory profiling confirms reduced allocations
+
+---
+
+#### **Version 2.1.1 - Current** (2026-06-30)
+
+**Documentation and Quality Improvements**
+
+**DOCUMENTATION ENHANCEMENTS:**
+- Completed XML documentation for all private members and methods
+  - Added documentation for `JoinWithSeparator(IList<string?>, string, int)` private overload
+  - Added documentation for `JoinWithSeparatorBase(IEnumerable<string?>, string)` fallback method
+  - Documented all private constants: `AsciiPrintableStart`, `AsciiPrintableEnd`
+  - Documented all private static fields: caching dictionaries and SearchValues
+  - Documented private constructor and explicit interface implementation
+- Enhanced inline documentation with detailed usage examples and design rationale
+- Improved cross-references using proper `<see cref/>` tags for better IDE navigation
+- Added comprehensive remarks sections explaining optimization strategies and performance characteristics
+
+**STRING BUILDING OPTIMIZATIONS:**
+- **StringBuilder capacity pre-computation** for `ICollection<T>` without arbitrary size threshold
+  - Removed the 32-item limit from v2.1.0
+  - All collections with known sizes now benefit from optimized capacity allocation
+  - Uses 16-character average estimate per item plus separator length
+  - Reduces StringBuilder reallocations during string assembly
+- **Fast-path iterative joining** for small lists (1-3 items) using `CreateSeparatedString`
+  - Optimized for common case: tuples and small collections
+  - Falls back to StringBuilder for larger collections (more efficient for 4+ items)
+  - Documented performance trade-offs between iterative concatenation vs StringBuilder
+- **Zero-allocation string building** using `string.Create` and span operations throughout
+- **Tuple formatting optimized** for up to 8 elements (primary tuple structure)
+  - Uses `maxCount: 8` instead of default 3 for complete tuple formatting
+  - Handles all tuple elements without truncation before nesting occurs
+- **Local method pattern** for reduced closure allocations in tight loops
+  - `getIndexedItem()` eliminates repeated FallbackIfNull lambda allocations
+  - `isCountEqualToIncrementedIndex()` eliminates closure allocation for count checking
+
+**CODE QUALITY IMPROVEMENTS:**
+- Enhanced null handling with explicit fallback strategies
+  - Consistent use of `FallbackIfNull` for null-to-"null" conversion
+  - Consistent use of `FallbackIfNullSeparator` for separator defaults
+- Improved error handling in Stream formatting
+  - Uses `Debug.WriteLine` for diagnostics in DEBUG builds
+  - Better testability: no assertions thrown during normal exception handling
+- Thread-safe concurrent caching for hot-path operations
+  - `_kvpAccessorCache`: Compiled KeyValuePair property accessors (10-100x faster)
+  - `_isKvpCache`: Type checking results for KeyValuePair detection
+  - `_typeAliases`: Type-to-C# alias mappings using reference equality
+  - `_anonymousDelegateChars`: SearchValues for SIMD-accelerated delegate detection
+- Better code organization with `#region` directives and comprehensive XML documentation
+
+**COMPATIBILITY:**
+- ✅ No breaking changes to public API surface
+- ✅ Fully backward compatible with v2.1.0
+- ✅ Drop-in replacement: simply update package version
+- ✅ Existing formatters continue to work without modification
 
 ---
 
