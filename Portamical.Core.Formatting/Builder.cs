@@ -367,38 +367,87 @@ public static class Builder
 
     #region Private methods
 
+    /// <summary>
+    /// Optimized joining for <see cref="IList{T}"/> collections with up to <paramref name="maxCount"/> items.
+    /// </summary>
+    /// <param name="list">The list of formatted items to join.</param>
+    /// <param name="separator">The separator to use between items.</param>
+    /// <param name="maxCount">The maximum number of items to process using the fast path.</param>
+    /// <returns>
+    /// A separator-delimited string. Falls back to <see cref="JoinWithSeparatorBase"/> if the list
+    /// exceeds <paramref name="maxCount"/> items and <paramref name="maxCount"/> is greater than <see cref="MaxCount"/>.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Fast Path Optimization:</strong> For lists with up to <paramref name="maxCount"/> items,
+    /// uses <see cref="CreateSeparatedString"/> iteratively to avoid StringBuilder allocation overhead.
+    /// This is optimized for the common case of tuples (up to 8 items) and small collections (up to 3 items).
+    /// </para>
+    /// <para>
+    /// <strong>Performance Trade-off:</strong> The iterative string concatenation approach creates
+    /// intermediate string allocations (one per iteration), which is acceptable for 1-3 items but
+    /// becomes inefficient for larger counts. For lists exceeding <paramref name="maxCount"/> when
+    /// <paramref name="maxCount"/> &gt; <see cref="MaxCount"/>, delegates to <see cref="JoinWithSeparatorBase"/>
+    /// which uses StringBuilder for more efficient assembly.
+    /// </para>
+    /// </remarks>
     private static string JoinWithSeparator(IList<string?> list, string separator, int maxCount)
     {
-        // Fast path for common case: List<string> with not more than maxCount items
-
-        var i = 0;
-        var result = getIndexedItem();
-
-        if (isCountEqualToIncrementedIndex()) return result;
-
-        while (i < maxCount)
+        // Fast path for small lists (up to MaxCount items)
+        if (maxCount <= MaxCount || list.Count <= MaxCount)
         {
-            var item = getIndexedItem();
-            result = CreateSeparatedString(
-                baseString: FallbackIfNull(result),
-                separator: FallbackIfNullSeparator(separator),
-                appendix: FallbackIfNull(item));
+            var i = 0;
+            var result = getIndexedItem();
 
             if (isCountEqualToIncrementedIndex()) return result;
+
+            while (i < maxCount)
+            {
+                var item = getIndexedItem();
+                result = CreateSeparatedString(
+                    baseString: FallbackIfNull(result),
+                    separator: FallbackIfNullSeparator(separator),
+                    appendix: FallbackIfNull(item));
+
+                if (isCountEqualToIncrementedIndex()) return result;
+            }
+
+            #region Local methods
+            string getIndexedItem()
+            => FallbackIfNull(list[i]);
+
+            bool isCountEqualToIncrementedIndex()
+            => list.Count == ++i;
+            #endregion
         }
 
-        // Fallback to standard join for more than maxCount items
+        // Fallback for larger lists when maxCount is exceeded
         return JoinWithSeparatorBase(list, separator);
-
-        #region Local methods
-        string getIndexedItem()
-        => FallbackIfNull(list[i]);
-
-        bool isCountEqualToIncrementedIndex()
-        => list.Count == ++i;
-        #endregion
     }
 
+    /// <summary>
+    /// Base joining implementation using <see cref="StringBuilder"/> for efficient string assembly.
+    /// </summary>
+    /// <param name="items">The collection of formatted items to join.</param>
+    /// <param name="separator">The separator to use between items.</param>
+    /// <returns>
+    /// A separator-delimited string, or an empty string if the collection is empty.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This method provides the general-purpose string joining implementation used as a fallback
+    /// when fast-path optimizations don't apply (e.g., non-list enumerables, large lists).
+    /// </para>
+    /// <para>
+    /// <strong>Capacity Pre-computation:</strong> For <see cref="ICollection{T}"/> types, pre-computes
+    /// the StringBuilder capacity using an estimated average string length (16 characters per item).
+    /// This reduces reallocations during string assembly, improving performance for known-size collections.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Uses manual enumeration with <c>using</c> to ensure proper disposal.
+    /// StringBuilder's Append operations are efficient for building multi-part strings without intermediate allocations.
+    /// </para>
+    /// </remarks>
     private static string JoinWithSeparatorBase(IEnumerable<string?> items, string separator)
     {
         separator = FallbackIfNullSeparator(separator);
@@ -410,20 +459,19 @@ public static class Builder
             return string.Empty;
         }
 
-        // For ICollection<T>, we know the count; for others, use heuristic
         int capacity = 0;
-        // Average string length estimate: 16 chars per item (reasonable heuristic)
-        const int avgStringLengthEstimate = 16; // Reasonable heuristic for average string length
-        if (items is ICollection<string?> collection && collection.Count <= 32)
+        const int avgStringLengthEstimate = 16;
+
+        if (items is ICollection<string?> collection)
         {
-            // Pre-compute approximate capacity for small collections
-            capacity = collection.Count
-                * avgStringLengthEstimate
-                + (collection.Count - 1)
-                * separator.Length;
+            capacity = collection.Count * avgStringLengthEstimate +
+                (collection.Count - 1) * separator.Length;
         }
 
-        var sb = capacity > 0 ? new StringBuilder(capacity) : new StringBuilder();
+        var sb = capacity > 0 ?
+            new StringBuilder(capacity)
+            : new StringBuilder();
+
         sb.Append(FallbackIfNull(enumerator.Current));
 
         while (enumerator.MoveNext())

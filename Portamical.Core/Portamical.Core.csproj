@@ -30,7 +30,7 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-    v4.1.1 (2026-06-27) - Dependency Update: Portamical.Core.Formatting v2.0.0 → v2.1.0
+    v4.1.1 (2026-06-29) - Dependency Update: Portamical.Core.Formatting v2.0.0 → v2.1.0
 
     This release updates the formatting library dependency to v2.1.0, bringing significant performance optimizations and quality improvements - all with full backward compatibility.
 
