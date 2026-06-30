@@ -2,57 +2,12 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-4.1.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-4.1.2-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 **Framework-agnostic foundation of Portamical**: Universal, identity-driven test data modeling for .NET 10.
 
 Define test data **once** and consume it across test frameworks using adapter packages - without rewriting the data or sacrificing strong typing.
-
----
-
-## What's New in v4.1.0
-
-**Dependency Update: Enhanced Formatting Capabilities**
-
-This release updates the formatting library dependency, bringing simplified architecture and configurable collection/tuple truncation control - all with full backward compatibility.
-
-### Dependency Updates
-
-1. **Portamical.Core.Formatting v1.0.0 → v2.0.0**
-   - **Impact:** Automatic via NuGet dependency resolution
-   - **Breaking Changes:** None for Portamical.Core consumers
-   - **Migration:** None required - fully backward compatible
-
-### New Capabilities
-
-1. **Configurable Collection/Tuple Truncation**
-   - `Builder.JoinWithComma(items, maxCount)` - now accepts custom `maxCount` parameter
-   - `Builder.JoinWithSeparator(items, separator, maxCount)` - flexible truncation control
-   - `DefaultFormatter.Format(ITuple)` uses `maxCount: 8` for complete 8-element tuple formatting
-   - **Example:**
-     ```csharp
-     var items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-     var formatted = Builder.JoinWithComma(items.Select(x => x.ToString()), maxCount: 5);
-     // Result: "1, 2, 3, 4, 5, ..." (first 5 items with ellipsis)
-     ```
-
-2. **Simplified Formatter Architecture** (via Portamical.Core.Formatting v2.0.0)
-   - Reduced from 3 types to 2 types (merged `IFormatter<T>` into `Formatter<T>`)
-   - Single inheritance model - cleaner, easier to understand
-   - Flat namespace structure - better discoverability
-   - **No changes to Portamical.Core public API** - improvements are internal
-
-### Improvements
-
-- Enhanced formatting output quality via dependency improvements
-- Better maintainability through simplified formatter architecture
-- Improved XML documentation (60+ fixes inherited from formatting library)
-- Thread-safety guarantees remain unchanged
-
-### For More Details
-
-See [Portamical.Core.Formatting v2.0.0 Release Notes](https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md)
 
 ---
 
@@ -686,7 +641,7 @@ This release updates the `Portamical.Core.Formatting` dependency from v1.0.0 to 
 
 ---
 
-##### **Version 4.1.1 - Current** (2026-06-27)
+#### **Version 4.1.1** (2026-06-27)
 
 **Dependency Update: Performance Optimization**
 
@@ -728,6 +683,62 @@ This release updates the `Portamical.Core.Formatting` dependency from v2.0.0 to 
 - ✅ No migration required for Portamical.Core consumers
 
 **For Details:** See [Portamical.Core.Formatting v2.1.0 Release Notes](https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md)
+
+---
+
+#### **Version 4.1.2 - Current** (2026-06-30)
+
+**Dependency Update: Documentation and String Building Optimization**
+
+This release updates the `Portamical.Core.Formatting` dependency from v2.1.0 to v2.1.1, bringing complete documentation coverage, improved string building optimizations, and enhanced code quality - all with full backward compatibility.
+
+**Dependency Updates**
+
+1. **Portamical.Core.Formatting v2.1.0 → v2.1.1**
+   - Complete XML documentation for all private members and methods
+   - StringBuilder capacity pre-computation for ALL collection sizes (removed 32-item limit from v2.1.0)
+   - Fast-path iterative joining for small lists (1-3 items) using `CreateSeparatedString`
+   - Tuple formatting optimized for up to 8 elements (maxCount: 8)
+   - Local method pattern reduces closure allocations in tight loops
+   - Enhanced null handling with explicit fallback strategies
+   - Thread-safe concurrent caching for hot-path operations
+
+**Documentation Enhancements** (via Portamical.Core.Formatting v2.1.1)
+
+- **Complete XML Coverage:** All private members, methods, constants, and fields now fully documented
+- **Enhanced Inline Documentation:** Detailed usage examples and design rationale
+- **Improved Cross-References:** Proper `<see cref/>` tags for better IDE navigation
+- **Comprehensive Remarks:** Optimization strategies and performance characteristics explained
+
+**String Building Optimizations** (via Portamical.Core.Formatting v2.1.1)
+
+- **Universal Capacity Pre-computation:** Removed arbitrary 32-item limit - ALL collections with known sizes benefit
+  - Uses 16-character average estimate per item plus separator length
+  - Eliminates StringBuilder reallocations during string assembly
+- **Fast-Path for Small Lists:** Optimized iterative joining for 1-3 items using `CreateSeparatedString`
+  - Common case: tuples and small collections
+  - Falls back to StringBuilder for 4+ items (more efficient)
+- **Tuple Formatting:** Uses `maxCount: 8` for complete formatting of all tuple elements before nesting
+- **Local Method Pattern:** Reduces closure allocations in tight loops
+  - `getIndexedItem()` eliminates repeated FallbackIfNull lambda allocations
+  - `isCountEqualToIncrementedIndex()` eliminates closure allocation for count checking
+
+**Code Quality Improvements**
+
+- Enhanced null handling with consistent `FallbackIfNull` and `FallbackIfNullSeparator` usage
+- Improved error handling in Stream formatting (uses `Debug.WriteLine` for diagnostics)
+- Better testability: DEBUG builds don't throw assertions during normal exception handling
+- Thread-safe concurrent caching for hot-path operations (KeyValuePair accessors, type checking, type aliases)
+- Better code organization with `#region` directives and comprehensive XML documentation
+
+**Compatibility**
+
+- ✅ No breaking changes to Portamical.Core public API
+- ✅ Fully backward compatible with v4.1.1
+- ✅ Drop-in replacement - simply update package version
+- ✅ No migration required for Portamical.Core consumers
+
+**For Details:** See [Portamical.Core.Formatting v2.1.1 Release Notes](https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md)
 
 ---
 
