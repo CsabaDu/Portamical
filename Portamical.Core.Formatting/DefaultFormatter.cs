@@ -189,6 +189,21 @@ public sealed class DefaultFormatter : IFormatter
 
     #endregion
 
+    #region IFormatter implementation
+
+    /// <summary>
+    /// Formats an object into a string representation (explicit interface implementation).
+    /// </summary>
+    /// <param name="obj">The object to format.</param>
+    /// <returns>A formatted string, or <see langword="null"/> if formatting fails.</returns>
+    /// <remarks>
+    /// This explicit implementation delegates to the public static <see cref="Format(object?)"/> method.
+    /// </remarks>
+    string? IFormatter.Format(object? obj)
+    => Format(obj);
+
+    #endregion
+
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
     /// </summary>
@@ -360,21 +375,6 @@ public sealed class DefaultFormatter : IFormatter
         Stream stream           => Format(stream),
         _                       => obj.ToString() ?? null,
     };
-
-    #region IFormatter implementation
-
-    /// <summary>
-    /// Formats an object into a string representation (explicit interface implementation).
-    /// </summary>
-    /// <param name="obj">The object to format.</param>
-    /// <returns>A formatted string, or <see langword="null"/> if formatting fails.</returns>
-    /// <remarks>
-    /// This explicit implementation delegates to the public static <see cref="Format(object?)"/> method.
-    /// </remarks>
-    string? IFormatter.Format(object? obj)
-    => Format(obj);
-
-    #endregion
 
     #region Private formatter methods
 
