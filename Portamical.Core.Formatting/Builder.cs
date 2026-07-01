@@ -2,7 +2,6 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using System.Diagnostics;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text;
 
