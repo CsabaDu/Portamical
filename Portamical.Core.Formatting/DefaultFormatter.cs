@@ -37,6 +37,41 @@ namespace Portamical.Core.Formatting;
 /// </remarks>
 public sealed class DefaultFormatter : IFormatter
 {
+    #region Static fields
+
+    /// <summary>
+    /// Gets the singleton instance of the <see cref="DefaultFormatter"/>.
+    /// </summary>
+    /// <value>A shared, thread-safe <see cref="IFormatter"/> instance.</value>
+    /// <remarks>
+    /// <para>
+    /// This property provides a pre-initialized formatter instance that can be reused
+    /// throughout the application, avoiding unnecessary allocations. The formatter is
+    /// stateless and thread-safe, making it suitable for concurrent use.
+    /// </para>
+    /// <para>
+    /// <strong>Thread Safety:</strong> The formatter instance is immutable and thread-safe.
+    /// Multiple threads can safely call <see cref="Format(object?)"/> concurrently.
+    /// </para>
+    /// <para>
+    /// <strong>Usage:</strong> This instance is returned by <see cref="Formatter.GetFormatter(Type)"/>
+    /// when no custom formatter is registered for a type, serving as the fallback formatter.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code><![CDATA[
+    /// // Use the singleton instance directly
+    /// var formatter = DefaultFormatter.Instance;
+    /// var result = formatter.Format(42);  // Returns: "42"
+    /// 
+    /// // Or use it via the interface
+    /// ICustomFormatter formatter = DefaultFormatter.Instance;
+    /// ]]></code>
+    /// </example>
+    public static readonly IFormatter Instance = new DefaultFormatter();
+
+    #region Private static fields
+
     /// <summary>
     /// The starting ASCII code for printable characters (space character, ASCII 32).
     /// </summary>
@@ -136,6 +171,12 @@ public sealed class DefaultFormatter : IFormatter
     /// </remarks>
     private static readonly SearchValues<char> _anonymousDelegateChars = SearchValues.Create("<>");
 
+    #endregion
+
+    #endregion
+
+    #region Constructor
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultFormatter"/> class.
     /// </summary>
@@ -146,47 +187,7 @@ public sealed class DefaultFormatter : IFormatter
     {
     }
 
-    /// <summary>
-    /// Formats an object into a string representation (explicit interface implementation).
-    /// </summary>
-    /// <param name="obj">The object to format.</param>
-    /// <returns>A formatted string, or <see langword="null"/> if formatting fails.</returns>
-    /// <remarks>
-    /// This explicit implementation delegates to the public static <see cref="Format(object?)"/> method.
-    /// </remarks>
-    string? IFormatter.Format(object? obj)
-    => Format(obj);
-
-    /// <summary>
-    /// Gets the singleton instance of the <see cref="DefaultFormatter"/>.
-    /// </summary>
-    /// <value>A shared, thread-safe <see cref="IFormatter"/> instance.</value>
-    /// <remarks>
-    /// <para>
-    /// This property provides a pre-initialized formatter instance that can be reused
-    /// throughout the application, avoiding unnecessary allocations. The formatter is
-    /// stateless and thread-safe, making it suitable for concurrent use.
-    /// </para>
-    /// <para>
-    /// <strong>Thread Safety:</strong> The formatter instance is immutable and thread-safe.
-    /// Multiple threads can safely call <see cref="Format(object?)"/> concurrently.
-    /// </para>
-    /// <para>
-    /// <strong>Usage:</strong> This instance is returned by <see cref="Formatter.GetFormatter(Type)"/>
-    /// when no custom formatter is registered for a type, serving as the fallback formatter.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code><![CDATA[
-    /// // Use the singleton instance directly
-    /// var formatter = DefaultFormatter.Instance;
-    /// var result = formatter.Format(42);  // Returns: "42"
-    /// 
-    /// // Or use it via the interface
-    /// ICustomFormatter formatter = DefaultFormatter.Instance;
-    /// ]]></code>
-    /// </example>
-    public static readonly IFormatter Instance = new DefaultFormatter();
+    #endregion
 
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
@@ -359,6 +360,21 @@ public sealed class DefaultFormatter : IFormatter
         Stream stream           => Format(stream),
         _                       => obj.ToString() ?? null,
     };
+
+    #region IFormatter implementation
+
+    /// <summary>
+    /// Formats an object into a string representation (explicit interface implementation).
+    /// </summary>
+    /// <param name="obj">The object to format.</param>
+    /// <returns>A formatted string, or <see langword="null"/> if formatting fails.</returns>
+    /// <remarks>
+    /// This explicit implementation delegates to the public static <see cref="Format(object?)"/> method.
+    /// </remarks>
+    string? IFormatter.Format(object? obj)
+    => Format(obj);
+
+    #endregion
 
     #region Private formatter methods
 
