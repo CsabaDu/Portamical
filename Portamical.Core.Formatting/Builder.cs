@@ -2,6 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using System.Diagnostics;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -413,7 +414,7 @@ public static class Builder
         // Fast path for small lists (up to MaxCount items)
         if (maxCount <= MaxCount || list.Count <= MaxCount)
         {
-            var i = 0;
+            int i = 0;
             var result = getIndexedItem();
 
             if (isCountEqualToIncrementedIndex()) return result;
@@ -488,7 +489,6 @@ public static class Builder
         var sb = capacity > 0 ?
             new StringBuilder(capacity)
             : new StringBuilder();
-
 
         sb.Append(FallbackIfNull(enumerator.Current));
 
