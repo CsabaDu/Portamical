@@ -893,9 +893,8 @@ public sealed class DefaultFormatter : IFormatter
 #if DEBUG
             Debug.WriteLine(
                 $"[DefaultFormatter] Stream formatting failed for type '{typeName}'. " +
-                $"Exception: {ex.GetType().Name}: {ex.Message}");
+                $"Exception: {Format(ex)}");
 #endif
-
             return null;
         }
     }
@@ -1254,7 +1253,8 @@ public sealed class DefaultFormatter : IFormatter
 
         // Optimization #2: Cache type checking results to avoid repeated GetGenericTypeDefinition calls
         if (!_isKvpCache.GetOrAdd(type, t =>
-            t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)))
+            t.IsGenericType &&
+            t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)))
         {
             return false;
         }

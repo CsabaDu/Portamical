@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Diagnostics;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -240,10 +242,26 @@ public static class Builder
         var baseLength = baseSpan.Length;
         if (index > baseLength)
         {
+#if DEBUG
+            Debug.WriteLine($"Warning: CopyAsSpan index {index} exceeds baseSpan length {baseLength}. " +
+                $"Adjusted to {baseLength}.");
+#endif
             index = baseLength;
         }
 
         var insertSpan = insertStr.AsSpan();
+        var availableSpace = baseSpan.Length - index;
+
+        if (insertSpan.Length > availableSpace)
+        {
+#if DEBUG
+            Debug.WriteLine($"Warning: CopyAsSpan insufficient space. " +
+                $"String length {insertSpan.Length} exceeds available space {availableSpace} at index {index}. " +
+                $"Truncating to fit.");
+#endif
+            insertSpan = insertSpan[..availableSpace];
+        }
+
         insertSpan.CopyTo(baseSpan[index..]);
     }
 
