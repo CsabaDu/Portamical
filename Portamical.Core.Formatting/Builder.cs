@@ -35,6 +35,8 @@ namespace Portamical.Core.Formatting;
 /// </remarks>
 public static class Builder
 {
+    #region Constants
+
     /// <summary>
     /// The maximum number of items to include when formatting collections, tuples, and dictionaries.
     /// </summary>
@@ -60,6 +62,8 @@ public static class Builder
     public const string NullString = "null";
 
     private const string Comma_ = ", ";
+
+    #endregion
 
     /// <summary>
     /// Provides a fallback string when the input is null, ensuring non-null output.
