@@ -34,7 +34,7 @@
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <FileVersion>2..1.0</FileVersion>
+    <FileVersion>2.1.0</FileVersion>
     <Version>2.1.0</Version>
   </PropertyGroup>
 
