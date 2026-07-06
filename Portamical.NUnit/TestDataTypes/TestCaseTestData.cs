@@ -404,7 +404,9 @@ public abstract class TestCaseTestData
     /// </example>
     /// <seealso cref="HasFullNameProperty"/>
     /// <seealso cref="ITestData.GetDisplayName(string?)"/>
-    public static TTestCaseData SetHasFullNameProperty<TTestCaseData, TTestData>(
+    [Obsolete("this method does not have any functionality, use GetTestName instead to have test name " +
+        "and set HasFullName property with Property.Set method of TestCaseData.")]
+    internal static TTestCaseData SetHasFullNameProperty<TTestCaseData, TTestData>(
         TTestCaseData testCaseData,
         TTestData testData,
         string? testMethodName,
@@ -423,6 +425,15 @@ public abstract class TestCaseTestData
             : testData.TestCaseName;
 
         return testCaseData;
+    }
+
+    public static string GetTestName<TTestData>(TTestData testData, string? testMethodName, out bool hasFullName)
+    where TTestData : notnull, ITestData
+    {
+        hasFullName = !string.IsNullOrEmpty(testMethodName);
+
+        return hasFullName ?
+            testData.GetDisplayName(testMethodName)! : testData.TestCaseName;
     }
 
     /// <summary>
@@ -1054,19 +1065,26 @@ where TTestData : notnull, ITestData
         Properties.Set(
             PropertyNames.Description,
             testData.GetDefinition());
-
-        SetHasFullNameProperty(
-            this,
+        TestName = GetTestName(
             testData,
             testMethodName,
-            out string testName);
+            out bool hasFullName);
+        Properties.Set(
+            HasFullNameProperty,
+            hasFullName);
+
+        //_ = SetHasFullNameProperty(
+        //    this,
+        //    testData,
+        //    testMethodName,
+        //    out string testName);
 
         if (testData is IReturns returns)
         {
             ExpectedResult = returns.GetExpected();
         }
 
-        TestName = testName;
+        //TestName = testName;
         TypeArgs = GetTypeArgs(testData, argsCode);
         TestCaseName = testData.TestCaseName;
     }
