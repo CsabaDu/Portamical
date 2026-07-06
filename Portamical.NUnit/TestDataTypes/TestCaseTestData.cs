@@ -404,8 +404,8 @@ public abstract class TestCaseTestData
     /// </example>
     /// <seealso cref="HasFullNameProperty"/>
     /// <seealso cref="ITestData.GetDisplayName(string?)"/>
-    [Obsolete("this method does not have any functionality, use GetTestName instead to have test name " +
-        "and set HasFullName property with Property.Set method of TestCaseData.")]
+    [Obsolete("this method does not have any functionality. " +
+        "Set HasFullName property with Property.Set method of TestCaseData.")]
     internal static TTestCaseData SetHasFullNameProperty<TTestCaseData, TTestData>(
         TTestCaseData testCaseData,
         TTestData testData,
@@ -425,15 +425,6 @@ public abstract class TestCaseTestData
             : testData.TestCaseName;
 
         return testCaseData;
-    }
-
-    public static string GetTestName<TTestData>(TTestData testData, string? testMethodName, out bool hasFullName)
-    where TTestData : notnull, ITestData
-    {
-        hasFullName = !string.IsNullOrEmpty(testMethodName);
-
-        return hasFullName ?
-            testData.GetDisplayName(testMethodName)! : testData.TestCaseName;
     }
 
     /// <summary>
@@ -1062,16 +1053,26 @@ where TTestData : notnull, ITestData
         string? testMethodName)
     : base(TestCaseDataArgsFrom(testData, argsCode))
     {
+        TypeArgs = GetTypeArgs(testData, argsCode);
+        TestCaseName = testData.TestCaseName;
         Properties.Set(
             PropertyNames.Description,
             testData.GetDefinition());
-        TestName = GetTestName(
-            testData,
-            testMethodName,
-            out bool hasFullName);
+
+        bool hasFullName = !string.IsNullOrEmpty(testMethodName);
+
+        TestName = hasFullName ?
+            testData.GetDisplayName(testMethodName)!
+            : TestCaseName;
         Properties.Set(
             HasFullNameProperty,
             hasFullName);
+
+        if (testData is IReturns returns)
+        {
+            ExpectedResult = returns.GetExpected();
+        }
+
 
         //_ = SetHasFullNameProperty(
         //    this,
@@ -1079,14 +1080,7 @@ where TTestData : notnull, ITestData
         //    testMethodName,
         //    out string testName);
 
-        if (testData is IReturns returns)
-        {
-            ExpectedResult = returns.GetExpected();
-        }
-
         //TestName = testName;
-        TypeArgs = GetTypeArgs(testData, argsCode);
-        TestCaseName = testData.TestCaseName;
     }
 
     /// <summary>
