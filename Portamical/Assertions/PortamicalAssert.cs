@@ -21,7 +21,7 @@ namespace Portamical.Assertions;
 /// <para>
 /// Starting with version 2.0, this class follows modern .NET async-first design:
 /// </para>
-/// <list a="bullet">
+/// <list type="bullet">
 ///   <item>
 ///     <strong>Primary Implementation:</strong> All assertion logic is implemented in async methods
 ///     returning <see cref="ValueTask"/> or <see cref="ValueTask{TResult}"/>.
@@ -44,10 +44,10 @@ namespace Portamical.Assertions;
 /// </para>
 /// <para>
 /// Rather than directly coupling to a specific testing framework, this class accepts assertion
-/// delegates (a.g., <c>Func&lt;string, ValueTask&gt; assertFailAsync</c>) that encapsulate
+/// delegates (e.g., <c>Func&lt;string, ValueTask&gt; assertFailAsync</c>) that encapsulate
 /// framework-specific assertion behavior. This enables:
 /// </para>
-/// <list a="bullet">
+/// <list type="bullet">
 ///   <item>
 ///     <strong>Framework Independence:</strong> Core assertion logic works with MSTest, NUnit, xUnit,
 ///     TUnit, or custom test frameworks without modification.
@@ -63,7 +63,7 @@ namespace Portamical.Assertions;
 /// <para>
 /// <strong>Usage Patterns:</strong>
 /// </para>
-/// <list a="number">
+/// <list type="number">
 ///   <item>
 ///     <strong>Async Frameworks (TUnit, Modern MSTest):</strong> Use async methods directly.
 ///   </item>
@@ -114,6 +114,7 @@ public abstract class PortamicalAssert
     }
 
     #region Primary Implementation (Async)
+
     /// <summary>
     /// Verifies that the specified asynchronous action does not throw an exception.
     /// </summary>
@@ -194,7 +195,7 @@ public abstract class PortamicalAssert
     }
 
     /// <summary>
-    /// Executes the specified async function and verifies that it throws an exception of the expected a
+    /// Executes the specified async function and verifies that it throws an exception of the expected type
     /// with matching details (async version for async test methods).
     /// </summary>
     /// <remarks>
@@ -208,49 +209,54 @@ public abstract class PortamicalAssert
     /// </para>
     /// </remarks>
     /// <typeparam name="TException">
-    /// The a of exception expected to be thrown. Must be a non-null reference a derived from Exception.
+    /// The type of exception expected to be thrown. Must be a non-null reference type derived from Exception.
     /// </typeparam>
     /// <param name="attempt">The async function to execute, which is expected to throw an exception.</param>
-    /// <param name="expected">The expected exception instance, used as a reference for a and detail comparisons.</param>
+    /// <param name="expected">The expected exception instance, used as a reference for type and detail comparisons.</param>
     /// <param name="catchExceptionAsync">A delegate that executes the async action and returns the exception thrown, or null if no exception is thrown.</param>
     /// <param name="assertIsTypeAsync">
-    /// A delegate that asserts the exception exception is of the expected a. Returns a <see cref="ValueTask"/>.
+    /// A delegate that asserts the actual exception is of the expected type. Returns a <see cref="ValueTask"/>.
     /// </param>
     /// <param name="assertEqualityAsync">
-    /// A delegate that asserts equality between expected and exception values. Returns a <see cref="ValueTask"/>.
+    /// A delegate that asserts equality between expected and actual values. Returns a <see cref="ValueTask"/>.
     /// </param>
     /// <param name="assertFailAsync">
     /// A delegate that is called to indicate a failed assertion. Returns a <see cref="ValueTask"/>.
     /// </param>
     /// <returns>
-    /// A <see cref="ValueTask{TResult}"/> containing the exception exception that was thrown and verified.
+    /// A <see cref="ValueTask{TResult}"/> containing the actual exception that was thrown and verified.
     /// </returns>
     public static async ValueTask<TException> ThrowsDetailsAsync<TException>(
         Func<Task> attempt,
         TException expected,
-        Func<Func<Task>, ValueTask<Exception?>> catchExceptionAsync,
+        //Func<Func<Task>, ValueTask<TException>> catchExceptionAsync,
+        Func<Func<Task>, ValueTask<TException>> assertThrowsAnyAsync,
         Func<Type, object, ValueTask> assertIsTypeAsync,
-        Func<string, string?, ValueTask> assertEqualityAsync,
-        Func<string, ValueTask> assertFailAsync)
+        Func<string, string?, ValueTask> assertEqualityAsync/*,
+        Func<string, ValueTask> assertFailAsync*/)
     where TException : notnull, Exception
     {
         _ = NotNull(attempt, nameof(attempt));
-        _ = NotNull(catchExceptionAsync, nameof(catchExceptionAsync));
+        //_ = NotNull(catchExceptionAsync, nameof(catchExceptionAsync));
+        _ = NotNull(assertThrowsAnyAsync, nameof(assertThrowsAnyAsync));
         _ = NotNull(assertIsTypeAsync, nameof(assertIsTypeAsync));
         _ = NotNull(assertEqualityAsync, nameof(assertEqualityAsync));
-        _ = NotNull(assertFailAsync, nameof(assertFailAsync));
+        //_ = NotNull(assertFailAsync, nameof(assertFailAsync));
 
-        var exception = await catchExceptionAsync(attempt)
+        //var exception = await CatchExceptionAsync(attempt)
+        //    .ConfigureAwait(false);
+
+        var actual = await assertThrowsAnyAsync(attempt)
             .ConfigureAwait(false);
 
-        if (exception is null)
+        if (actual is null)
         {
             var message = GetExpectedExceptionOfTypeMessage(
                 expected,
                 GetThrownMessageEnd(false));
 
-            await assertFailAsync(message)
-                .ConfigureAwait(false);
+            //await assertFailAsync(message)
+            //    .ConfigureAwait(false);
 
             throw GetAssertionFailedException(message);  // Fallback
         }
@@ -258,10 +264,10 @@ public abstract class PortamicalAssert
         var expectedType = expected.GetType();
 
         // Type assertion - delegate to the injected assertion callback
-        await assertIsTypeAsync(expectedType, exception)
+        await assertIsTypeAsync(expectedType, actual)
             .ConfigureAwait(false);
 
-        var actual = (TException)exception;
+        //var actual = (TException)exception;
 
         // Metadata equality
         await MetadataEqualityAsync(expected, actual, assertEqualityAsync)
@@ -479,9 +485,11 @@ public abstract class PortamicalAssert
         => !actualMessage.StartsWith(guardMessageStart);
         #endregion
     }
+
     #endregion
 
     #region Convenience Wrappers (Sync delegates to Async)
+
     /// <summary>
     /// Verifies that the specified action does not throw an exception (sync version).
     /// </summary>
@@ -535,7 +543,7 @@ public abstract class PortamicalAssert
     /// <remarks>
     /// <para>
     /// <strong>This is a CONVENIENCE WRAPPER</strong> that delegates to
-    /// <see cref="ThrowsDetailsAsync{TException}(Func{Task}, TException, Func{Func{Task}, ValueTask{Exception?}}, Func{Type, Exception, ValueTask}, Func{object, object?, ValueTask}, Func{string, ValueTask})"/>
+    /// <see cref="ThrowsDetailsAsync{TException}(Func{Task}, TException, Func{Func{Task}, ValueTask{TException}}, Func{Type, object, ValueTask}, Func{string, string?, ValueTask})"/>
     /// via <see cref="ThreadSafeSync{T}(ValueTask{T})"/>.
     /// </para>
     /// <para>
@@ -594,17 +602,19 @@ public abstract class PortamicalAssert
     public static TException ThrowsDetails<TException>(
         Action attempt,
         TException expected,
-        Func<Action, Exception?> catchException,
+        //Func<Action, TException> catchException,
+        Func<Action, TException> assertThrowsAny,
         Action<Type, object> assertIsType,
-        Action<string, string?> assertEquality,
-        Action<string?> assertFail)
+        Action<string, string?> assertEquality/*,
+        Action<string?> assertFail*/)
     where TException : notnull, Exception
     {
         _ = NotNull(attempt, nameof(attempt));
-        _ = NotNull(catchException, nameof(catchException));
+        //_ = NotNull(catchException, nameof(catchException));
+        _ = NotNull(assertThrowsAny, nameof(assertThrowsAny));
         _ = NotNull(assertIsType, nameof(assertIsType));
         _ = NotNull(assertEquality, nameof(assertEquality));
-        _ = NotNull(assertFail, nameof(assertFail));
+        //_ = NotNull(assertFail, nameof(assertFail));
 
         return ThreadSafeSync(ThrowsDetailsAsync(
             attempt: () =>
@@ -613,8 +623,10 @@ public abstract class PortamicalAssert
                 return Task.CompletedTask;
             },
             expected: expected,
-            catchExceptionAsync: attemptAsync => new ValueTask<Exception?>(
-                catchException(() => ThreadSafeSync(attemptAsync))),
+            //catchExceptionAsync: attemptAsync => new ValueTask<TException>(
+            //    catchException(() => ThreadSafeSync(attemptAsync))),
+            assertThrowsAnyAsync: attemptAsync => new ValueTask<TException>(
+                assertThrowsAny(() => ThreadSafeSync(attemptAsync))),
             assertIsTypeAsync: (e, a) =>
             {
                 assertIsType(e, a);
@@ -624,12 +636,12 @@ public abstract class PortamicalAssert
             {
                 assertEquality(e, a);
                 return new ValueTask();
-            },
+            }/*,
             assertFailAsync: msg =>
             {
                 assertFail(msg);
                 return new ValueTask();
-            }));
+            }*/));
     }
 
     /// <summary>
@@ -792,6 +804,7 @@ public abstract class PortamicalAssert
 
     #region Helper methods
     #region Shared Helper Methods
+
     /// <summary>
     /// Asynchronously executes an action and catches any non-fatal exception that occurs.
     /// </summary>
@@ -830,7 +843,7 @@ public abstract class PortamicalAssert
     /// </param>
     /// <returns>
     /// A <see cref="ValueTask{TResult}"/> that resolves to:
-    /// <list a="bullet">
+    /// <list type="bullet">
     ///   <item>
     ///     <see langword="null"/> if <paramref name="attempt"/> completes successfully without
     ///     throwing an exception.
@@ -973,9 +986,11 @@ public abstract class PortamicalAssert
             return Task.CompletedTask;
         }));
     }
+
     #endregion
 
     #region Protected Helper Methods
+
     /// <summary>
     /// Gets the full runtime a name of the supplied object.
     /// </summary>
@@ -1010,6 +1025,7 @@ public abstract class PortamicalAssert
     #endregion
 
     #region Private Helper Methods
+
     /// <summary>
     /// Compares two float values with configurable tolerance.
     /// </summary>
@@ -1090,7 +1106,7 @@ public abstract class PortamicalAssert
     /// </para>
     /// <para>
     /// <strong>Fatal Exception Types:</strong>
-    /// <list a="bullet">
+    /// <list type="bullet">
     ///   <item>
     ///     <see cref="OutOfMemoryException"/> - Process has exhausted available memory. Catching this
     ///     can prevent proper cleanup and may cause cascading failures.
@@ -1332,6 +1348,7 @@ public abstract class PortamicalAssert
     #endregion
 
     #region Assertion message helpers
+
     private static string GetNotExpectedExceptionMessage(Exception exception)
     => $"Did not expect exception to be thrown, " +
         $"but exception of type {GetTypeFullName(exception)} was thrown. " +
@@ -1353,6 +1370,7 @@ public abstract class PortamicalAssert
     }
 
     private const string ExpectedExceptionMessageStart = "Expected exception";
+
     #endregion
     #endregion
 }
