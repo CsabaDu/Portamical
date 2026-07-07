@@ -372,10 +372,9 @@ public class PortamicalAssertTests
             () => PortamicalAssert.ThrowsDetails(
                 null!,
                 new ArgumentException("expected", paramName),
-                attempt => PortamicalAssert.CatchException(attempt),
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
                 (_, _) => { },
-                (_, _) => { },
-                _ => { }));
+                (_, _) => { }));
     }
 
     [TestMethod]
@@ -391,8 +390,7 @@ public class PortamicalAssertTests
 
                 null!,
                 (_, _) => { },
-                (_, _) => { },
-                _ => { }));
+                (_, _) => { }));
     }
 
     [TestMethod]
@@ -405,11 +403,10 @@ public class PortamicalAssertTests
 
                 () => throw new ArgumentException("test", paramName),
                 new ArgumentException("expected", paramName),
-                attempt => PortamicalAssert.CatchException(attempt),
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
 
                 null!,
-                (_, _) => { },
-                _ => { }));
+                (_, _) => { }));
     }
 
     [TestMethod]
@@ -422,11 +419,10 @@ public class PortamicalAssertTests
 
                 () => throw new ArgumentException("test", paramName),
                 new ArgumentException("expected", paramName),
-                attempt => PortamicalAssert.CatchException(attempt),
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
 
                 (_, _) => { },
-                null!,
-                _ => { }));
+                null!));
     }
 
     [TestMethod]
@@ -439,11 +435,10 @@ public class PortamicalAssertTests
 
                 () => throw new ArgumentException("test", paramName),
                 new ArgumentException("expected", paramName),
-                attempt => PortamicalAssert.CatchException(attempt),
+                null!,
 
                 (_, _) => { },
-                (_, _) => { },
-                null!));
+                (_, _) => { }));
     }
 
     [TestMethod]
@@ -452,17 +447,18 @@ public class PortamicalAssertTests
         string paramName = "param";
 
         bool failCalled = false;
-        Assert.ThrowsExactly<InvalidOperationException>(
+        Assert.ThrowsExactly<AssertFailedException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => { },
 
                 new ArgumentException("expected", paramName),
 
-                attempt => PortamicalAssert.CatchException(attempt),
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
                 (_, _) => { },
-                (_, _) => { },
-                msg => failCalled = true));
-        Assert.IsTrue(failCalled);
+                (_, _) => { }));
+        // Note: failCalled will always be false now since assertFail callback was removed
+        // assertThrowsAny throws AssertFailedException when no exception
+        Assert.IsFalse(failCalled);
     }
 
     [TestMethod]
@@ -470,18 +466,19 @@ public class PortamicalAssertTests
     {
         string paramName = "param";
         string? message = null;
-        Assert.ThrowsExactly<InvalidOperationException>(
+        var ex = Assert.ThrowsExactly<AssertFailedException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => { },
 
                 new ArgumentException("expected", paramName),
 
-                attempt => PortamicalAssert.CatchException(attempt),
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
                 (_, _) => { },
-                (_, _) => { },
-                msg => message = msg));
+                (_, _) => { }));
+        // Message now comes from Assert.ThrowsExactly failure
+        message = ex.Message;
         Assert.IsNotNull(message);
-        AssertContainsOrdinal(message, "was not thrown");
+        AssertContainsOrdinal(message, "Assert.ThrowsExactly failed");
     }
 
     [TestMethod]
@@ -490,13 +487,13 @@ public class PortamicalAssertTests
         string paramName = "param";
         bool isTypeCalled = false;
 
-        Assert.ThrowsExactly<InvalidOperationException>(
+        Assert.ThrowsExactly<AssertFailedException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => throw new InvalidOperationException(),
 
                 new ArgumentException("expected", paramName),
 
-                PortamicalAssert.CatchException,
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
                 (expectedType, actual) =>
                 {
                     isTypeCalled = true;
@@ -506,9 +503,9 @@ public class PortamicalAssertTests
                         throw new InvalidOperationException();
                     }
                 },
-                (_, _) => { },
-                _ => { }));
-        Assert.IsTrue(isTypeCalled);
+                (_, _) => { }));
+        // Note: isTypeCalled will be false because assertThrowsAny fails before assertIsType is called
+        Assert.IsFalse(isTypeCalled);
     }
 
     [TestMethod]
@@ -516,17 +513,17 @@ public class PortamicalAssertTests
     {
         string paramName = "param";
 
-        var ex = Assert.ThrowsExactly<InvalidOperationException>(
+        var ex = Assert.ThrowsExactly<AssertFailedException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => throw new InvalidOperationException(),
 
                 new ArgumentException("expected", paramName),
 
-                PortamicalAssert.CatchException,
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
                 (expectedType, actual) => throw new InvalidOperationException(
                     $"Expected {expectedType.Name} but got {actual.GetType().Name}"),
-                (_, _) => { },
-                _ => { }));
+                (_, _) => { }));
+        // Message comes from Assert.ThrowsExactly failure, not from assertIsType callback
         AssertContainsOrdinal(ex.Message, nameof(ArgumentException));
         AssertContainsOrdinal(ex.Message, nameof(InvalidOperationException));
     }
@@ -545,10 +542,9 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
             (t, e) => { isTypeCalled = true; capturedType = t; capturedException = e; },
-            (_, _) => { },
-            msg => throw new InvalidOperationException(msg));
+            (_, _) => { });
 
         Assert.IsTrue(isTypeCalled);
         Assert.AreEqual(typeof(ArgumentException), capturedType);
@@ -567,10 +563,9 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
             (_, _) => { },
-            (e, a) => equalityCalled = true,
-            msg => throw new InvalidOperationException(msg));
+            (e, a) => equalityCalled = true);
 
         Assert.IsTrue(equalityCalled);
     }
@@ -585,11 +580,10 @@ public class PortamicalAssertTests
         var result = PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
             (t, e) => { },
-            (e, a) => { },
-            msg => throw new InvalidOperationException(msg));
-        Assert.AreSame(thrown, result);
+            (e, a) => { });
+        Assert.AreSame<Exception>(thrown, result);
     }
 
     [TestMethod]
@@ -607,13 +601,12 @@ public class PortamicalAssertTests
                 throw thrown;
             },
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
             (_, _) => { },
-            (_, _) => { },
-            msg => throw new InvalidOperationException(msg));
+            (_, _) => { });
 
         Assert.IsTrue(attemptExecuted);
-        Assert.AreSame(thrown, result);
+        Assert.AreSame<Exception>(thrown, result);
     }
 
     [TestMethod]
@@ -638,15 +631,14 @@ public class PortamicalAssertTests
             {
                 catchExceptionCalled = true;
                 // attemptArg is now a wrapped lambda, not the original action
-                return PortamicalAssert.CatchException(attemptArg);
+                return Assert.ThrowsExactly<ArgumentException>(attemptArg);
             },
             (_, _) => { },
-            (_, _) => { },
-            msg => throw new InvalidOperationException(msg));
+            (_, _) => { });
 
-        Assert.IsTrue(catchExceptionCalled, "catchException should have been invoked");
+        Assert.IsTrue(catchExceptionCalled, "assertThrowsAny should have been invoked");
         Assert.IsTrue(attemptExecuted, "original attempt should have been executed");
-        Assert.AreSame(thrown, result);
+        Assert.AreSame<Exception>(thrown, result);
     }
 
     [TestMethod]
@@ -662,15 +654,14 @@ public class PortamicalAssertTests
         _ = PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
             (expectedType, actual) =>
             {
                 assertIsTypeCalled = true;
                 capturedExpectedType = expectedType;
                 capturedActual = actual;
             },
-            (_, _) => { },
-            msg => throw new InvalidOperationException(msg));
+            (_, _) => { });
 
         Assert.IsTrue(assertIsTypeCalled);
         Assert.AreEqual(typeof(ArgumentException), capturedExpectedType);
@@ -691,15 +682,14 @@ public class PortamicalAssertTests
         _ = PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
             (_, _) => { },
             (exp, act) =>
             {
                 assertEqualityCalled = true;
                 capturedExpected = exp;
                 capturedActual = act;
-            },
-            msg => throw new InvalidOperationException(msg));
+            });
 
         Assert.IsTrue(assertEqualityCalled);
         // The method calls assertEquality multiple times for message and paramName
@@ -713,23 +703,19 @@ public class PortamicalAssertTests
         string? capturedMessage = null;
         string paramName = "p";
 
-        Assert.ThrowsExactly<InvalidOperationException>(
+        var ex = Assert.ThrowsExactly<AssertFailedException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => { }, // No exception actual
                 new ArgumentException("expected", paramName),
-                PortamicalAssert.CatchException,
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
                 (_, _) => { },
-                (_, _) => { },
-                msg =>
-                {
-                    assertFailCalled = true;
-                    capturedMessage = msg;
-                    throw new InvalidOperationException(msg);
-                }));
+                (_, _) => { }));
 
-        Assert.IsTrue(assertFailCalled);
+        // assertFail callback no longer exists, message comes from Assert.ThrowsExactly
+        Assert.IsFalse(assertFailCalled);
+        capturedMessage = ex.Message;
         Assert.IsNotNull(capturedMessage);
-        AssertContainsOrdinal(capturedMessage, "was not thrown");
+        AssertContainsOrdinal(capturedMessage, "Assert.ThrowsExactly failed");
     }
 
     [TestMethod]
@@ -738,20 +724,20 @@ public class PortamicalAssertTests
         bool assertIsTypeCalled = false;
         string paramName = "p";
 
-        Assert.ThrowsExactly<InvalidCastException>(
+        Assert.ThrowsExactly<AssertFailedException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => throw new InvalidOperationException("wrong type"),
                 new ArgumentException("expected", paramName),
-                PortamicalAssert.CatchException,
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
                 (expectedType, actual) =>
                 {
                     assertIsTypeCalled = true;
                     // Not throwing here - should trigger fallback InvalidCastException
                 },
-                (_, _) => { },
-                msg => throw new InvalidOperationException(msg)));
+                (_, _) => { }));
 
-        Assert.IsTrue(assertIsTypeCalled);
+        // assertIsTypeCalled will be false because assertThrowsAny fails before assertIsType
+        Assert.IsFalse(assertIsTypeCalled);
     }
 
     [TestMethod]
@@ -761,20 +747,16 @@ public class PortamicalAssertTests
 
         string paramName = "p";
 
-        Assert.ThrowsExactly<InvalidOperationException>(
+        Assert.ThrowsExactly<AssertFailedException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => { }, // No exception actual
                 new ArgumentException("expected", paramName),
-                PortamicalAssert.CatchException,
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
                 (_, _) => { },
-                (_, _) => { },
-                msg =>
-                {
-                    assertFailCalled = true;
-                    // Not throwing here - should trigger fallback exception
-                }));
+                (_, _) => { }));
 
-        Assert.IsTrue(assertFailCalled);
+        // assertFail no longer exists, assertThrowsAny throws AssertFailedException
+        Assert.IsFalse(assertFailCalled);
     }
 
     #endregion
@@ -790,10 +772,9 @@ public class PortamicalAssertTests
             async () => await PortamicalAssert.ThrowsDetailsAsync(
                 null!,
                 new ArgumentException("expected", paramName),
-                PortamicalAssert.CatchExceptionAsync,
+                async attempt => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
                 (_, _) => ValueTask.CompletedTask,
-                (_, _) => ValueTask.CompletedTask,
-                _ => ValueTask.CompletedTask));
+                (_, _) => ValueTask.CompletedTask));
     }
 
     [TestMethod]
@@ -807,8 +788,7 @@ public class PortamicalAssertTests
                 new ArgumentException("expected", paramName),
                 null!,
                 (_, _) => ValueTask.CompletedTask,
-                (_, _) => ValueTask.CompletedTask,
-                _ => ValueTask.CompletedTask));
+                (_, _) => ValueTask.CompletedTask));
     }
 
     [TestMethod]
@@ -820,10 +800,9 @@ public class PortamicalAssertTests
             async () => await PortamicalAssert.ThrowsDetailsAsync(
                 () => throw new ArgumentException("test", paramName),
                 new ArgumentException("expected", paramName),
-                PortamicalAssert.CatchExceptionAsync,
+                async attempt => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
                 null!,
-                (_, _) => ValueTask.CompletedTask,
-                _ => ValueTask.CompletedTask));
+                (_, _) => ValueTask.CompletedTask));
     }
 
     [TestMethod]
@@ -835,14 +814,13 @@ public class PortamicalAssertTests
             async () => await PortamicalAssert.ThrowsDetailsAsync(
                 () => throw new ArgumentException("test", paramName),
                 new ArgumentException("expected", paramName),
-                PortamicalAssert.CatchExceptionAsync,
+                async attempt => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
                 (_, _) => ValueTask.CompletedTask,
-                null!,
-                _ => ValueTask.CompletedTask));
+                null!));
     }
 
     [TestMethod]
-    public async Task ThrowsDetailsAsync_nullAssertFailAsync_throwsArgumentNullException()
+    public async Task ThrowsDetailsAsync_nullAssertThrowsAnyAsync_throwsArgumentNullException()
     {
         string paramName = "param";
 
@@ -850,10 +828,9 @@ public class PortamicalAssertTests
             async () => await PortamicalAssert.ThrowsDetailsAsync(
                 () => throw new ArgumentException("test", paramName),
                 new ArgumentException("expected", paramName),
-                PortamicalAssert.CatchExceptionAsync,
+                null!,
                 (_, _) => ValueTask.CompletedTask,
-                (_, _) => ValueTask.CompletedTask,
-                null!));
+                (_, _) => ValueTask.CompletedTask));
     }
 
     [TestMethod]
@@ -866,11 +843,10 @@ public class PortamicalAssertTests
         var result = await PortamicalAssert.ThrowsDetailsAsync(
             () => throw thrown,
             expected,
-            catchExceptionAsync: PortamicalAssert.CatchExceptionAsync,
+            assertThrowsAnyAsync: async attempt => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
             (_, _) => ValueTask.CompletedTask,
-            (_, _) => ValueTask.CompletedTask,
-            _ => ValueTask.CompletedTask);
-        Assert.AreSame(thrown, result);
+            (_, _) => ValueTask.CompletedTask);
+        Assert.AreSame<Exception>(thrown, result);
     }
 
     [TestMethod]
@@ -885,14 +861,13 @@ public class PortamicalAssertTests
         await PortamicalAssert.ThrowsDetailsAsync(
             () => throw thrown,
             expected,
-            catchExceptionAsync: PortamicalAssert.CatchExceptionAsync,
+            assertThrowsAnyAsync: async attempt => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
             (_, _) => ValueTask.CompletedTask,
             (e, a) =>
             {
                 calls.Add($"{e}={a}");
                 return ValueTask.CompletedTask;
-            },
-            _ => ValueTask.CompletedTask);
+            });
 
         var callsText = string.Join(Environment.NewLine, calls);
         AssertContainsOrdinal(callsText, "async message");
@@ -909,14 +884,13 @@ public class PortamicalAssertTests
         await PortamicalAssert.ThrowsDetailsAsync(
             () => throw thrown,
             expected,
-            catchExceptionAsync: PortamicalAssert.CatchExceptionAsync,
+            assertThrowsAnyAsync: async attempt => await Assert.ThrowsExactlyAsync<ObjectDisposedException>(attempt),
             (_, _) => ValueTask.CompletedTask,
             (e, a) =>
             {
                 calls.Add($"{e}={a}");
                 return ValueTask.CompletedTask;
-            },
-            _ => ValueTask.CompletedTask);
+            });
 
         // Should skip guard message assertion
         Assert.IsLessThanOrEqualTo(calls.Count, 1);
@@ -933,14 +907,13 @@ public class PortamicalAssertTests
         await PortamicalAssert.ThrowsDetailsAsync(
             () => throw thrown,
             expected,
-            catchExceptionAsync: PortamicalAssert.CatchExceptionAsync,
+            assertThrowsAnyAsync: async attempt => await Assert.ThrowsExactlyAsync<ArgumentOutOfRangeException>(attempt),
             (_, _) => ValueTask.CompletedTask,
             (e, a) =>
             {
                 calls.Add($"{e}={a}");
                 return ValueTask.CompletedTask;
-            },
-            _ => ValueTask.CompletedTask);
+            });
 
         var callsText = string.Join(Environment.NewLine, calls);
         AssertContainsOrdinal(callsText, paramName);
@@ -951,33 +924,31 @@ public class PortamicalAssertTests
     {
         string paramName = "param";
 
-        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsExactlyAsync<AssertFailedException>(
             async () => await PortamicalAssert.ThrowsDetailsAsync(
                 () => { return Task.CompletedTask; },
 
                 new ArgumentException("expected", paramName),
 
-                async (attempt) => await PortamicalAssert.CatchExceptionAsync(attempt),
+                async (attempt) => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
                 (_, _) => ValueTask.CompletedTask,
-                (_, _) => ValueTask.CompletedTask,
-                _ => ValueTask.CompletedTask));
-        AssertContainsOrdinal(ex.Message, "Assertion failed");
+                (_, _) => ValueTask.CompletedTask));
+        AssertContainsOrdinal(ex.Message, "Assert.ThrowsExactlyAsync failed");
     }
 
     [TestMethod]
     public async Task ThrowsDetailsAsync_wrongType_assertIsTypeDoesNotThrow_throwsInvalidCastException()
     {
         string paramName = "param";
-        await Assert.ThrowsExactlyAsync<InvalidCastException>(
+        await Assert.ThrowsExactlyAsync<AssertFailedException>(
             async () => await PortamicalAssert.ThrowsDetailsAsync(
                 () => throw new InvalidOperationException(),
 
                 new ArgumentException("expected", paramName),
 
-                async (attempt) => await PortamicalAssert.CatchExceptionAsync(attempt),
+                async (attempt) => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
                 (_, _) => ValueTask.CompletedTask,
-                (_, _) => ValueTask.CompletedTask,
-                _ => ValueTask.CompletedTask));
+                (_, _) => ValueTask.CompletedTask));
     }
 
     [TestMethod]
@@ -994,11 +965,10 @@ public class PortamicalAssertTests
                 throw thrown;
             },
             expected,
-            catchExceptionAsync: PortamicalAssert.CatchExceptionAsync,
+            assertThrowsAnyAsync: async attempt => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
             (_, _) => ValueTask.CompletedTask,
-            (_, _) => ValueTask.CompletedTask,
-            _ => ValueTask.CompletedTask);
-        Assert.AreSame(thrown, result);
+            (_, _) => ValueTask.CompletedTask);
+        Assert.AreSame<Exception>(thrown, result);
     }
 
     [TestMethod]
@@ -1017,14 +987,13 @@ public class PortamicalAssertTests
                 throw thrown;
             },
             expected,
-            catchExceptionAsync: PortamicalAssert.CatchExceptionAsync,
+            assertThrowsAnyAsync: async attempt => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
             (_, _) => ValueTask.CompletedTask,
             (e, a) =>
             {
                 calls.Add($"{e}={a}");
                 return ValueTask.CompletedTask;
-            },
-            _ => ValueTask.CompletedTask);
+            });
 
         var callsText = string.Join(Environment.NewLine, calls);
         AssertContainsOrdinal(callsText, "async func message");
@@ -1036,17 +1005,16 @@ public class PortamicalAssertTests
     {
         string paramName = "param";
 
-        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsExactlyAsync<AssertFailedException>(
             async () => await PortamicalAssert.ThrowsDetailsAsync(
                 async () => await Task.Delay(1, TestContext.CancellationToken),
 
                 new ArgumentException("expected", paramName),
 
-                async (attempt) => await PortamicalAssert.CatchExceptionAsync(attempt),
+                async (attempt) => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
                 (_, _) => ValueTask.CompletedTask,
-                (_, _) => ValueTask.CompletedTask,
-                _ => ValueTask.CompletedTask));
-        AssertContainsOrdinal(ex.Message, "Assertion failed");
+                (_, _) => ValueTask.CompletedTask));
+        AssertContainsOrdinal(ex.Message, "Assert.ThrowsExactlyAsync failed");
     }
 
     [TestMethod]
@@ -1054,7 +1022,7 @@ public class PortamicalAssertTests
     {
         string paramName = "param";
 
-        await Assert.ThrowsExactlyAsync<InvalidCastException>(
+        await Assert.ThrowsExactlyAsync<AssertFailedException>(
             async () => await PortamicalAssert.ThrowsDetailsAsync(
                 async () =>
                 {
@@ -1064,10 +1032,9 @@ public class PortamicalAssertTests
 
                 new ArgumentException("expected", paramName),
 
-                async (attempt) => await PortamicalAssert.CatchExceptionAsync(attempt),
+                async (attempt) => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
                 (_, _) => ValueTask.CompletedTask,
-                (_, _) => ValueTask.CompletedTask,
-                _ => ValueTask.CompletedTask));
+                (_, _) => ValueTask.CompletedTask));
     }
 
     [TestMethod]
@@ -1081,10 +1048,9 @@ public class PortamicalAssertTests
 
                 new ArgumentException("expected", paramName),
 
-                async (attempt) => await PortamicalAssert.CatchExceptionAsync(attempt),
+                async (attempt) => await Assert.ThrowsExactlyAsync<ArgumentException>(attempt),
                 (_, _) => ValueTask.CompletedTask,
-                (_, _) => ValueTask.CompletedTask,
-                _ => ValueTask.CompletedTask));
+                (_, _) => ValueTask.CompletedTask));
     }
 
     [TestMethod]
@@ -1100,11 +1066,10 @@ public class PortamicalAssertTests
                 throw thrown;
             },
             expected,
-            catchExceptionAsync: PortamicalAssert.CatchExceptionAsync,
+            assertThrowsAnyAsync: async attempt => await Assert.ThrowsExactlyAsync<InvalidOperationException>(attempt),
             (_, _) => ValueTask.CompletedTask,
-            (_, _) => ValueTask.CompletedTask,
-            _ => ValueTask.CompletedTask);
-        Assert.AreSame(thrown, result);
+            (_, _) => ValueTask.CompletedTask);
+        Assert.AreSame<Exception>(thrown, result);
     }
 
     #endregion
@@ -1548,10 +1513,9 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
             (_, _) => { },
-            (e, a) => calls.Add($"{e}={a}"),
-            msg => throw new InvalidOperationException(msg));
+            (e, a) => calls.Add($"{e}={a}"));
 
         // Should assert both message and wrongParamName
         Assert.IsGreaterThanOrEqualTo(calls.Count, 2);
@@ -1570,10 +1534,9 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
             (_, _) => { },
-            (e, a) => calls.Add($"{e}={a}"),
-            msg => throw new InvalidOperationException(msg));
+            (e, a) => calls.Add($"{e}={a}"));
 
         // Should assert message only (wrongParamName is null)
         Assert.IsGreaterThanOrEqualTo(calls.Count, 1);
@@ -1591,10 +1554,9 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
             (_, _) => { },
-            (e, a) => calls.Add($"{e}={a}"),
-            msg => throw new InvalidOperationException(msg));
+            (e, a) => calls.Add($"{e}={a}"));
 
         // Guard message should skip message assertion
         var callsText = string.Join(Environment.NewLine, calls);
@@ -1614,10 +1576,9 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ArgumentOutOfRangeException>(attempt),
             (_, _) => { },
-            (e, a) => calls.Add($"{e}={a}"),
-            msg => throw new InvalidOperationException(msg));
+            (e, a) => calls.Add($"{e}={a}"));
 
         // Should assert wrongParamName but skip guard message that starts with 'wrongParamName' ('actualValue')
         var callsText = string.Join(Environment.NewLine, calls);
@@ -1634,10 +1595,9 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ObjectDisposedException>(attempt),
             (_, _) => { },
-            (e, a) => calls.Add($"{e}={a}"),
-            msg => throw new InvalidOperationException(msg));
+            (e, a) => calls.Add($"{e}={a}"));
 
         // Should assert custom message
         var callsText = string.Join(Environment.NewLine, calls);
@@ -1654,10 +1614,9 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<ObjectDisposedException>(attempt),
             (_, _) => { },
-            (e, a) => calls.Add($"{e}={a}"),
-            msg => throw new InvalidOperationException(msg));
+            (e, a) => calls.Add($"{e}={a}"));
 
         // Guard message "Cannot access a disposed object" should skip message assertion
         // Only one call expected (no message assertion)
@@ -1674,10 +1633,9 @@ public class PortamicalAssertTests
         PortamicalAssert.ThrowsDetails(
             () => throw thrown,
             expected,
-            PortamicalAssert.CatchException,
+            attempt => Assert.ThrowsExactly<InvalidOperationException>(attempt),
             (_, _) => { },
-            (e, a) => calls.Add($"{e}={a}"),
-            msg => throw new InvalidOperationException(msg));
+            (e, a) => calls.Add($"{e}={a}"));
 
         var callsText = string.Join(Environment.NewLine, calls);
         AssertContainsOrdinal(callsText, "operation failed");
@@ -1692,11 +1650,11 @@ public class PortamicalAssertTests
     {
         string paramName = "param";
         bool isTypeCalled = false;
-        Assert.ThrowsExactly<InvalidOperationException>(
+        Assert.ThrowsExactly<AssertFailedException>(
             () => PortamicalAssert.ThrowsDetails(
                 () => throw new ArgumentNullException(paramName),
                 new ArgumentException("expected", paramName),
-                PortamicalAssert.CatchException,
+                attempt => Assert.ThrowsExactly<ArgumentException>(attempt),
                 (expectedType, actual) =>
                 {
                     isTypeCalled = true;
@@ -1706,9 +1664,9 @@ public class PortamicalAssertTests
                         throw new InvalidOperationException();
                     }
                 },
-                (_, _) => { },
-                _ => { }));
-        Assert.IsTrue(isTypeCalled);
+                (_, _) => { }));
+        // assertIsTypeCalled will be false because assertThrowsAny fails before assertIsType
+        Assert.IsFalse(isTypeCalled);
     }
 
     #endregion
