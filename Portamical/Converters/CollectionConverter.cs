@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using System.Runtime.CompilerServices;
 using Portamical.DataProviders;
 
 namespace Portamical.Converters;
@@ -39,6 +40,7 @@ public static class CollectionConverter
     /// // Result: 2 elements (duplicate removed based on TestCaseName)
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TTestData[] ToDistinctArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
@@ -56,6 +58,7 @@ public static class CollectionConverter
     /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null.</param>
     /// <returns>A read-only collection containing unique arrays of arguments produced from the test data. The collection is
     /// empty if the input collection contains no items.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IReadOnlyCollection<object?[]> ToDistinctReadOnly<TTestData>(
     this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
@@ -74,6 +77,7 @@ public static class CollectionConverter
     /// <param name="argsCode">The argument code that determines how arguments are extracted from each test data item.</param>
     /// <returns>A read-only collection containing unique arrays of arguments produced from the test data. The collection is
     /// empty if the input collection contains no items.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IReadOnlyCollection<object?[]> ToDistinctReadOnly<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
@@ -94,6 +98,7 @@ public static class CollectionConverter
     /// <param name="propsCode">The code specifying which properties to extract from each test data item.</param>
     /// <returns>A read-only collection containing unique arrays of arguments and properties extracted from the test data. The
     /// collection is empty if no items are found.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IReadOnlyCollection<object?[]> ToDistinctReadOnly<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
@@ -172,6 +177,67 @@ public static class CollectionConverter
         return dataProvider;
     }
 
+    /// <summary>
+    /// Core deduplication method that converts a collection of test data into a distinct array of rows
+    /// using a custom conversion function.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>Deduplication Strategy:</strong> This method removes duplicates based on 
+    /// <see cref="INamedCase.TestCaseName"/> identity using <see cref="NamedCase.Comparer"/>.
+    /// Test data items with identical <c>TestCaseName</c> values are considered duplicates, and only
+    /// the first occurrence is retained.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/>
+    /// for O(n) deduplication. The <see cref="HashSet{T}.Add"/> method returns false for duplicates,
+    /// which is used as a filter predicate.
+    /// </para>
+    /// <para>
+    /// <strong>Order Preservation:</strong> The order of elements from the original collection is preserved
+    /// in the output array. Duplicates are removed based on first-occurrence semantics.
+    /// </para>
+    /// </remarks>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> 
+    /// (which inherits <see cref="INamedCase"/>) and cannot be null.
+    /// </typeparam>
+    /// <typeparam name="TRow">
+    /// The type of elements in the output array, produced by <paramref name="convertRow"/>.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to process. Cannot be null or empty.
+    /// </param>
+    /// <param name="convertRow">
+    /// A function that transforms each test data item into a row of type <typeparamref name="TRow"/>.
+    /// Cannot be null. Called only for non-duplicate items.
+    /// </param>
+    /// <returns>
+    /// An array containing the converted rows for distinct test data items, preserving the order
+    /// of first occurrence.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null or <paramref name="convertRow"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <example>
+    /// <code>
+    /// // Identity conversion (keeping test data as-is)
+    /// var distinct = testDataCollection.ToDistinctArray(td => td);
+    /// 
+    /// // Convert to argument arrays
+    /// var args = testDataCollection.ToDistinctArray(td => td.ToArgs(ArgsCode.Instance));
+    /// 
+    /// // Custom row conversion
+    /// var rows = testDataCollection.ToDistinctArray(td => new 
+    /// { 
+    ///     Name = td.TestCaseName, 
+    ///     Args = td.ToArgs(ArgsCode.Instance) 
+    /// });
+    /// </code>
+    /// </example>
     private static TRow[] ToDistinctArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)

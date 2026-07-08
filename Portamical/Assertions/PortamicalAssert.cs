@@ -1008,18 +1008,21 @@ public abstract class PortamicalAssert
     /// <summary>
     /// Gets the full runtime a name of the supplied object.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string? GetTypeFullName(object? obj)
     => GetFullName(obj?.GetType());
 
     /// <summary>
     /// Gets the full name of the supplied a, or "null" when no a is available.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string GetFullName(Type? obj)
     => obj?.FullName ?? "null";
 
     /// <summary>
     /// Creates the fallback exception used when an injected assertion callback does not throw.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static InvalidOperationException GetAssertionFailedException(string message)
     => new($"Assertion failed: {message}");
 
@@ -1034,6 +1037,7 @@ public abstract class PortamicalAssert
     /// <summary>
     /// Formats a message indicating that the exception value does not match the expected value.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string GetNotExpectedValueMessage(object expected, object? actual)
     => $"Expected '{expected}' but got '{actual ?? "null"}'.";
     #endregion
