@@ -1,0 +1,148 @@
+<svg version="1.1" baseProfile="full" width="390.0" height="432.0" viewBox="0 0 390 432" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_Core_TestDataLayers_linear</title>
+	<desc >#title: Portamical_Core_TestDataLayers_linear
+	#direction: down
+	
+	#.found: fill=#ffe6e6 title=center,bold,italic body=italic
+	#.core: fill=#ffcccc title=center,bold,italic body=italic 
+	#.marker: fill=#80e5ff title=center,bold,italic body=italic 
+	#.spec: fill=#e6ccff title=center,bold 
+	
+	[&lt;found&gt;1. Identity
+	|
+	 Equality, deduplication, test‑case naming
+	// ||
+	// Types:
+	// - INamedCase (contract)
+	// -- NamedCase (abstract)
+	]
+	
+	[&lt;core&gt;2. Core Abstraction
+	|
+	 Reflection‑based, runtime‑inspected handling
+	// ||
+	// Types:
+	// - ITestData (contract)
+	// -- TestDataBase (abstract)
+	]
+	
+	[&lt;marker&gt;3. Pattern Markers
+	|
+	 Semantic specialization markers
+	// ||
+	// Types (contracts):
+	// - IExpected
+	// -- IExpected&lt;T&gt; (expected‑outcome categories)
+	// - IReturns
+	// -- IReturns&lt;TStruct&gt; (return‑value assertions)
+	// - IThrows
+	// -- IThrows&lt;TException&gt; (exception assertions)
+	]
+	
+	[&lt;spec&gt;4. Specialization
+	|
+	 Immutable, strongly typed DTOs
+	// ||
+	// Types:
+	// - TestData&lt;T1..T9&gt; (general test data)
+	// 
+	// - TestDataExpected&lt;T&gt; (abstract)
+	// -- TestDataReturns&lt;TStruct&gt; (abstract)
+	// --- TestDataReturns&lt;TStruct, T1..T9&gt; (return‑value tests)
+	// 
+	// -- TestDataThrows&lt;TException&gt; (abstract)
+	// --- TestDataThrows&lt;TException, T1..T9&gt; (exception tests)
+	]
+	
+	[1. Identity] -&gt; [2. Core Abstraction] -&gt; [4. Specialization] &lt;-
+	[3. Pattern Markers]</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="normal" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="432.0" width="390.0" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+					<path d="M167.0 64.0 L167.0 84.0 ANaN NaN 0 0 0 167.0 84.0 L167.0 97.3 " fill="none"></path>
+					<path d="M161.7 90.7 L167.0 97.3 L172.3 90.7 L167.0 104.0 Z"></path>
+					<path d="M167.0 168.0 L167.0 188.0 ANaN NaN 0 0 0 167.0 188.0 L167.0 201.3 " fill="none"></path>
+					<path d="M161.7 194.7 L167.0 201.3 L172.3 194.7 L167.0 208.0 Z"></path>
+					<path d="M167.0 278.7 L167.0 292.0 ANaN NaN 0 0 0 167.0 292.0 L167.0 312.0 " fill="none"></path>
+					<path d="M172.3 285.3 L167.0 278.7 L161.7 285.3 L167.0 272.0 Z"></path>
+					<g data-name="1. Identity">
+						<g fill="#ffe6e6" stroke="#33322E" data-name="1. Identity">
+							<rect x="15.5" y="0.0" height="64.0" width="303.0" data-name="1. Identity"></rect>
+							<path d="M15.5 32.0 L318.5 32.0" fill="none" data-name="1. Identity"></path>
+						</g>
+						<g transform="translate(15.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="1. Identity" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="1. Identity" data-compartment="0">
+								<text x="143.5" y="14.1" stroke="none" text-anchor="middle" data-name="1. Identity" data-compartment="0">1. Identity</text>
+								
+							</g>
+						</g>
+						<g transform="translate(15.5, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="italic" data-name="1. Identity" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="1. Identity" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="1. Identity" data-compartment="1">Equality, deduplication, test‑case naming</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="2. Core Abstraction">
+						<g fill="#ffcccc" stroke="#33322E" data-name="2. Core Abstraction">
+							<rect x="0.0" y="104.0" height="64.0" width="334.0" data-name="2. Core Abstraction"></rect>
+							<path d="M0.0 136.0 L334.0 136.0" fill="none" data-name="2. Core Abstraction"></path>
+						</g>
+						<g transform="translate(0, 104)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="2. Core Abstraction" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="2. Core Abstraction" data-compartment="0">
+								<text x="159.0" y="14.1" stroke="none" text-anchor="middle" data-name="2. Core Abstraction" data-compartment="0">2. Core Abstraction</text>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 136)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="italic" data-name="2. Core Abstraction" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="2. Core Abstraction" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="2. Core Abstraction" data-compartment="1">Reflection‑based, runtime‑inspected handling</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="3. Pattern Markers">
+						<g fill="#80e5ff" stroke="#33322E" data-name="3. Pattern Markers">
+							<rect x="45.5" y="312.0" height="64.0" width="243.0" data-name="3. Pattern Markers"></rect>
+							<path d="M45.5 344.0 L288.5 344.0" fill="none" data-name="3. Pattern Markers"></path>
+						</g>
+						<g transform="translate(45.5, 312)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="italic" data-name="3. Pattern Markers" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="3. Pattern Markers" data-compartment="0">
+								<text x="113.5" y="14.1" stroke="none" text-anchor="middle" data-name="3. Pattern Markers" data-compartment="0">3. Pattern Markers</text>
+								
+							</g>
+						</g>
+						<g transform="translate(45.5, 344)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="italic" data-name="3. Pattern Markers" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="3. Pattern Markers" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="3. Pattern Markers" data-compartment="1">Semantic specialization markers</text>
+								
+							</g>
+						</g>
+					</g>
+					<g data-name="4. Specialization">
+						<g fill="#e6ccff" stroke="#33322E" data-name="4. Specialization">
+							<rect x="45.5" y="208.0" height="64.0" width="243.0" data-name="4. Specialization"></rect>
+							<path d="M45.5 240.0 L288.5 240.0" fill="none" data-name="4. Specialization"></path>
+						</g>
+						<g transform="translate(45.5, 208)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="4. Specialization" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="4. Specialization" data-compartment="0">
+								<text x="113.5" y="14.1" stroke="none" text-anchor="middle" data-name="4. Specialization" data-compartment="0">4. Specialization</text>
+								
+							</g>
+						</g>
+						<g transform="translate(45.5, 240)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="4. Specialization" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="4. Specialization" data-compartment="1">
+								<text x="0.0" y="14.1" stroke="none" data-name="4. Specialization" data-compartment="1">Immutable, strongly typed DTOs</text>
+								
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>
