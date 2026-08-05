@@ -15,7 +15,7 @@ namespace Portamical.Core.TestDataTypes.Patterns;
 /// <para>
 /// <strong>Marker Pattern Purpose:</strong>
 /// <list type="bullet">
-///   <item>Enables type discrimination via <c>is</c> operator or <c>OfType&lt;T&gt;()</c></item>
+///   <item>Enables type discrimination via <c>is</c> operator or <c>OfType&lt;TNamedCase&gt;()</c></item>
 ///   <item>Distinguishes exception tests from return value tests (e.g., <c>IReturns</c>)</item>
 ///   <item>Allows test frameworks to filter test data by category</item>
 ///   <item>Provides semantic clarity in type system without runtime overhead</item>

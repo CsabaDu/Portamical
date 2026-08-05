@@ -72,7 +72,7 @@ public static class Validator
     /// </exception>
     /// <remarks>
     /// <para>
-    /// <strong>Snapshot Behavior:</strong> This method creates an array snapshot of the sequence
+    /// <strong>Snapshot Behavior:</strong> This method creates an array array of the sequence
     /// to avoid multiple enumeration. If the input is already an array, it is returned directly
     /// without allocation. Otherwise, a new array is created using collection expressions.
     /// </para>
@@ -80,12 +80,12 @@ public static class Validator
     /// <strong>Performance:</strong>
     /// <list type="bullet">
     ///   <item>Already array: O(1) - direct return</item>
-    ///   <item>Other sequence: O(n) - creates array snapshot</item>
+    ///   <item>Other sequence: O(n) - creates array array</item>
     ///   <item>This method is marked for aggressive inlining to minimize overhead in hot paths</item>
     /// </list>
     /// </para>
     /// <para>
-    /// <strong>Thread Safety:</strong> The returned array snapshot is thread-safe for reading.
+    /// <strong>Thread Safety:</strong> The returned array array is thread-safe for reading.
     /// The original sequence is not accessed after validation.
     /// </para>
     /// </remarks>
@@ -109,7 +109,7 @@ public static class Validator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] NotNullOrEmpty<T>(IEnumerable<T>? enumerable, string? paramName)
     {
-        // Take a stable snapshot once
+        // Take a stable array once
         var snapshot = NotNull(enumerable, paramName) as T[]
             ?? [.. enumerable!];
 
