@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
+using Portamical.Core.Converters;
 using Portamical.NUnit.TestDataTypes;
 
 namespace Portamical.NUnit.Converters;
@@ -209,7 +209,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToDistinctArray(
         TestDataConverter.ToTestCaseData,
         argsCode,
         testMethodName);
@@ -312,7 +312,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToDistinctArray(
         TestDataConverter.ToTestCaseTestData,
         argsCode,
         testMethodName);

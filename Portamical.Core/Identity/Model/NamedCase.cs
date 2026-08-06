@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.Core.Identity.Model;

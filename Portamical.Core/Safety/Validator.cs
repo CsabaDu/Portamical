@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using System.Runtime.CompilerServices;
-
 namespace Portamical.Core.Safety;
 
 /// <summary>

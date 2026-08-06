@@ -236,7 +236,7 @@ public abstract class PortamicalAssert
     public static async ValueTask<TException> ThrowsDetailsAsync<TException>(
         Func<Task> attempt,
         TException expected,
-        Func<Func<Task>, ValueTask<TException>> assertThrowsAnyAsync,
+        Func<Func<Task>, ValueTask<Exception>> assertThrowsAnyAsync,
         Func<Type, object, ValueTask> assertIsTypeAsync,
         Func<string, string?, ValueTask> assertEqualityAsync)
     where TException : notnull, Exception
@@ -259,7 +259,7 @@ public abstract class PortamicalAssert
         await MetadataEqualityAsync(expected, actual, assertEqualityAsync)
             .ConfigureAwait(false);
 
-        return actual;
+        return (TException)actual;
     }
 
     /// <summary>
@@ -484,6 +484,24 @@ public abstract class PortamicalAssert
         #endregion
     }
 
+    public static async ValueTask<Exception> ThrowsAnyAsync(
+        Func<Task> attempt,
+        Func<string, ValueTask> assertFailAsync)
+    {
+        var exception = await CatchExceptionAsync(attempt)
+            .ConfigureAwait(false);
+
+        if (exception is not null)
+        {
+            return exception;
+        }
+
+        await assertFailAsync(ExpectedExceptionMessageStart + NoExceptionThrownMessageEnd)
+            .ConfigureAwait(false);
+
+        throw GetAssertionFailedException(AssertFailDelegateFailedMessage);
+    }
+
     #endregion
 
     #region Convenience Wrappers (Sync delegates to Async)
@@ -532,6 +550,84 @@ public abstract class PortamicalAssert
             assertFail(msg);
             return new ValueTask();
         }));
+    }
+
+    /// <summary>
+    /// Verifies that the specified action throws any exception (sync version).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>This is a CONVENIENCE WRAPPER</strong> that delegates to
+    /// <see cref="ThrowsAnyAsync(Func{Task}, Func{string, ValueTask})"/> via
+    /// <see cref="ThreadSafeSync{T}(ValueTask{T})"/>.
+    /// </para>
+    /// <para>
+    /// Safe for use in test contexts where <see cref="SynchronizationContext"/> is typically
+    /// not present (NUnit, xUnit, MSTest). Uses <c>ConfigureAwait(false)</c> internally to
+    /// prevent potential deadlocks.
+    /// </para>
+    /// <para>
+    /// <strong>Design:</strong> This method captures any non-fatal exception thrown by the action.
+    /// If no exception is thrown, it invokes <paramref name="assertFail"/> to fail the test.
+    /// Fatal exceptions (<see cref="StackOverflowException"/>, <see cref="OutOfMemoryException"/>,
+    /// <see cref="AccessViolationException"/>, <see cref="ThreadAbortException"/>) are not caught
+    /// and will propagate immediately.
+    /// </para>
+    /// </remarks>
+    /// <param name="attempt">
+    /// The action to execute, which is expected to throw an exception. Cannot be null.
+    /// </param>
+    /// <param name="assertFail">
+    /// A callback to invoke with an error message if no exception is thrown. Cannot be null.
+    /// The callback should throw an assertion exception to fail the test.
+    /// </param>
+    /// <returns>
+    /// The non-fatal <see cref="Exception"/> that was thrown by <paramref name="attempt"/>.
+    /// </returns>
+    /// <exception cref="StackOverflowException">Propagated if thrown (fatal).</exception>
+    /// <exception cref="OutOfMemoryException">Propagated if thrown (fatal).</exception>
+    /// <exception cref="AccessViolationException">Propagated if thrown (fatal).</exception>
+    /// <exception cref="ThreadAbortException">Propagated if thrown (fatal).</exception>
+    /// <example>
+    /// <code>
+    /// // NUnit usage:
+    /// var ex = ThrowsAny(
+    ///     () => myService.Process(null),
+    ///     Assert.Fail);
+    /// 
+    /// Assert.IsInstanceOf&lt;ArgumentNullException&gt;(ex);
+    /// 
+    /// // Success path (exception thrown)
+    /// var thrown = ThrowsAny(
+    ///     () => throw new InvalidOperationException("error"),
+    ///     Assert.Fail);
+    /// // ✅ Returns the InvalidOperationException
+    /// 
+    /// // Failure path (no exception)
+    /// ThrowsAny(
+    ///     () => Console.WriteLine("no error"),
+    ///     Assert.Fail);
+    /// // ❌ Calls Assert.Fail with message
+    /// </code>
+    /// </example>
+    public static Exception ThrowsAny(
+        Action attempt,
+        Action<string> assertFail)
+    {
+        _ = NotNull(attempt, nameof(attempt));
+        _ = NotNull(assertFail, nameof(assertFail));
+
+        return ThreadSafeSync(ThrowsAnyAsync(
+            () =>
+            {
+                attempt();
+                return Task.CompletedTask;
+            },
+            msg =>
+            {
+                assertFail(msg);
+                return new ValueTask();
+            }));
     }
 
     /// <summary>
@@ -603,7 +699,7 @@ public abstract class PortamicalAssert
     public static TException ThrowsDetails<TException>(
         Action attempt,
         TException expected,
-        Func<Action, TException> assertThrowsAny,
+        Func<Action, Exception> assertThrowsAny,
         Action<Type, object> assertIsType,
         Action<string, string?> assertEquality/*,
         Action<string?> assertFail*/)
@@ -621,7 +717,7 @@ public abstract class PortamicalAssert
                 return Task.CompletedTask;
             },
             expected: expected,
-            assertThrowsAnyAsync: attemptAsync => new ValueTask<TException>(
+            assertThrowsAnyAsync: attemptAsync => new ValueTask<Exception>(
                 assertThrowsAny(() => ThreadSafeSync(attemptAsync))),
             assertIsTypeAsync: (e, a) =>
             {
@@ -1406,6 +1502,8 @@ public abstract class PortamicalAssert
     => $", but exception of type {GetFullName(actualType)} was thrown.";
 
     private const string ExpectedExceptionMessageStart = "Expected exception";
+    private const string NoExceptionThrownMessageEnd = " to be thrown, but no exception was thrown.";
+    private const string AssertFailDelegateFailedMessage = "The assertFail delegate completed without terminating test execution. The delegate must throw an assertion exception to fail the test.";
 
     #endregion
 
