@@ -65,6 +65,8 @@ public static class Builder
 
     #endregion
 
+    #region Public methods
+
     /// <summary>
     /// Provides a fallback string when the input is null, ensuring non-null output.
     /// </summary>
@@ -385,6 +387,8 @@ public static class Builder
         => JoinWithSeparatorBase(items, separator);
         #endregion
     }
+
+    #endregion
 
     #region Private methods
 
