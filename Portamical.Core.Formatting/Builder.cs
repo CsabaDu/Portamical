@@ -172,12 +172,12 @@ public static class Builder
             (baseString, separator, appendix),
             static (span, state) =>
             {
-                var (bs, sep, app) = state;
+                var (bas, sep, app) = state;
 
                 var i = 0;
-                CopyAsSpan(bs, span, i);
+                CopyAsSpan(bas, span, i);
 
-                i = bs.Length;
+                i = bas.Length;
                 CopyAsSpan(sep, span, i);
 
                 i += sep.Length;
