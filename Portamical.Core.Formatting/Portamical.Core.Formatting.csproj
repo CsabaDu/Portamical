@@ -30,12 +30,29 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v2.2.0 (2026-08-07) 
-      
+      v2.2.0 (2026-08-07) - Safety and Quality Improvements
+
+      Builder Enhancements:
+      • Added truncation safety in CopyAsSpan for insufficient buffer space
+      • Enhanced DEBUG diagnostics with Debug.WriteLine (no production overhead)
+      • Prevents buffer overflow exceptions with automatic span slicing
+
+      Code Quality:
+      • Reorganized DefaultFormatter with #region directives for better navigation
+      • Enhanced exception formatting consistency in Stream error handling
+      • Fixed FileVersion typo in Portamical.NUnit.csproj
+
+      Testing:
+      • Added 5 new CopyAsSpan safety tests for edge cases (358 total tests)
+      • Expanded coverage for truncation and boundary scenarios
+
+      Compatibility:
+      • No breaking changes - drop-in replacement for v2.1.1
+      • Zero-allocation performance characteristics preserved
 
       For details: https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md
     </PackageReleaseNotes>
-
+    
     <!-- Package Generation -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageOutputPath>$(OutputPath)</PackageOutputPath>
