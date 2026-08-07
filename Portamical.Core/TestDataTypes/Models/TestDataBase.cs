@@ -128,10 +128,6 @@ public abstract class TestDataBase(string definition)
         #region Local methods
         string getMessage()
         {
-            const string messageStart =
-                "Invalid 'TestDataBase' implementation produced no arguments. " +
-                "Custom TestData types must override 'ToObjectArray()' to include ";
-
             var containsTestCaseNameOnly =
                 argsCode == ArgsCode.Properties &&
                 propsCode != PropsCode.All &&
@@ -143,7 +139,8 @@ public abstract class TestDataBase(string definition)
                 "or ensure your implementation adds at least one property."
                 : "at least one element.";
 
-            return $"{messageStart}{messageEnd}";
+            return $"Invalid 'TestDataBase' implementation produced no arguments. " +
+                $"Custom TestData types must override 'ToObjectArray()' to include {messageEnd}";
         }
         #endregion
     }

@@ -243,6 +243,111 @@ public class BuilderTests
         Assert.AreEqual('x', buffer[3]);
         Assert.AreEqual('x', buffer[4]);
     }
+
+    [TestMethod]
+    public void CopyAsSpan_withInsufficientSpace_truncatesToFit()
+    {
+        // Arrange
+        var buffer = new char[10];
+        Array.Fill(buffer, '\0');
+        var span = new Span<char>(buffer);
+
+        // Act - Try to copy 10-character string starting at index 5, only 5 chars available
+        // This triggers the truncation branch where insertSpan.Length > availableSpace
+        CopyAsSpan("HelloWorld", span, 5);
+
+        // Assert - Only "Hello" (5 chars) should be copied, "World" truncated
+        Assert.AreEqual('\0', buffer[0]);
+        Assert.AreEqual('\0', buffer[1]);
+        Assert.AreEqual('\0', buffer[2]);
+        Assert.AreEqual('\0', buffer[3]);
+        Assert.AreEqual('\0', buffer[4]);
+        Assert.AreEqual('H', buffer[5]);
+        Assert.AreEqual('e', buffer[6]);
+        Assert.AreEqual('l', buffer[7]);
+        Assert.AreEqual('l', buffer[8]);
+        Assert.AreEqual('o', buffer[9]);
+    }
+
+    [TestMethod]
+    public void CopyAsSpan_withInsufficientSpaceAtEndOfSpan_truncatesCorrectly()
+    {
+        // Arrange
+        var buffer = new char[5];
+        Array.Fill(buffer, '\0');
+        var span = new Span<char>(buffer);
+
+        // Act - Try to copy 10-character string to 5-character buffer
+        // This triggers the truncation branch with availableSpace = 5
+        CopyAsSpan("1234567890", span, 0);
+
+        // Assert - Only first 5 characters should be copied
+        Assert.AreEqual('1', buffer[0]);
+        Assert.AreEqual('2', buffer[1]);
+        Assert.AreEqual('3', buffer[2]);
+        Assert.AreEqual('4', buffer[3]);
+        Assert.AreEqual('5', buffer[4]);
+    }
+
+    [TestMethod]
+    public void CopyAsSpan_withOnlyOneCharAvailableSpace_copiesOnlyOneChar()
+    {
+        // Arrange
+        var buffer = new char[6];
+        Array.Fill(buffer, 'x');
+        var span = new Span<char>(buffer);
+
+        // Act - Try to copy multi-character string with only 1 space left
+        // This triggers the truncation branch with availableSpace = 1
+        CopyAsSpan("abcdef", span, 5);
+
+        // Assert - Only first character should be copied
+        Assert.AreEqual('x', buffer[0]);
+        Assert.AreEqual('x', buffer[1]);
+        Assert.AreEqual('x', buffer[2]);
+        Assert.AreEqual('x', buffer[3]);
+        Assert.AreEqual('x', buffer[4]);
+        Assert.AreEqual('a', buffer[5]);
+    }
+
+    [TestMethod]
+    public void CopyAsSpan_withZeroAvailableSpace_copiesNothing()
+    {
+        // Arrange
+        var buffer = new char[5];
+        Array.Fill(buffer, 'z');
+        var span = new Span<char>(buffer);
+
+        // Act - Try to copy at exact end of span (availableSpace = 0)
+        // This triggers the truncation branch with availableSpace = 0
+        CopyAsSpan("test", span, 5);
+
+        // Assert - Buffer should remain unchanged
+        Assert.AreEqual('z', buffer[0]);
+        Assert.AreEqual('z', buffer[1]);
+        Assert.AreEqual('z', buffer[2]);
+        Assert.AreEqual('z', buffer[3]);
+        Assert.AreEqual('z', buffer[4]);
+    }
+
+    [TestMethod]
+    public void CopyAsSpan_withNegativeIndex_clampsToZeroAndCopies()
+    {
+        // Arrange
+        var buffer = new char[5];
+        Array.Fill(buffer, '\0');
+        var span = new Span<char>(buffer);
+
+        // Act - Negative index should be clamped to 0, copying from the start
+        CopyAsSpan("Hi", span, -3);
+
+        // Assert - String is copied from index 0
+        Assert.AreEqual('H', buffer[0]);
+        Assert.AreEqual('i', buffer[1]);
+        Assert.AreEqual('\0', buffer[2]);
+        Assert.AreEqual('\0', buffer[3]);
+        Assert.AreEqual('\0', buffer[4]);
+    }
     #endregion
 
     #region CreateSeparatedString

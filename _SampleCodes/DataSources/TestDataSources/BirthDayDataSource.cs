@@ -19,13 +19,14 @@ public class BirthDayDataSource()
     // 'TestData<DateOnly>' type usage.
     // Valid 'string name' parameter should be declared and initialized
     // within the test method.
-    public IEnumerable<TestData<DateOnly>> GetBirthDayConstructorValidArgs()
+    public IEnumerable<TestData<string, DateOnly>> GetBirthDayConstructorValidArgs()
     {
-        string result = "creates BirthDay instance";
-        string paramName = "dateOfBirth";
+        const string result = "creates BirthDay instance";
+        const string paramName = "dateOfBirth";
 
         // Valid name and dateOfBirth is equal with the current day => creates BirthDay instance
         string definition = $"Valid name and {paramName} is equal with the current day";
+        string name = "valid name";
         DateOnly dateOfBirth = Today;
         yield return createTestData();
 
@@ -35,10 +36,11 @@ public class BirthDayDataSource()
         yield return createTestData();
 
         #region Local Methods
-        TestData<DateOnly> createTestData()
+        TestData<string, DateOnly> createTestData()
         => CreateTestData(
             definition,
             result,
+            name,
             dateOfBirth);
         #endregion
     }

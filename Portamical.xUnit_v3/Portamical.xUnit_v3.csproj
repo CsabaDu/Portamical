@@ -47,4 +47,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="xunit.runner.json">
+      <Pack>True</Pack>
+      <PackagePath>contentFiles\any\$(TargetFramework)\</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

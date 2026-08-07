@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -34,6 +35,8 @@ namespace Portamical.Core.Formatting;
 /// </remarks>
 public static class Builder
 {
+    #region Constants
+
     /// <summary>
     /// The maximum number of items to include when formatting collections, tuples, and dictionaries.
     /// </summary>
@@ -59,6 +62,8 @@ public static class Builder
     public const string NullString = "null";
 
     private const string Comma_ = ", ";
+
+    #endregion
 
     /// <summary>
     /// Provides a fallback string when the input is null, ensuring non-null output.
@@ -203,12 +208,13 @@ public static class Builder
     /// memory copy instructions (e.g., <c>memcpy</c> intrinsics on modern CPUs).
     /// </para>
     /// <para>
-    /// <strong>Safety:</strong> The caller is responsible for ensuring that:
+    /// <strong>Safety:</strong> This method handles out-of-range and insufficient-capacity inputs gracefully:
     /// <list type="bullet">
-    ///   <item>The destination <paramref name="baseSpan"/> has sufficient capacity starting at <paramref name="index"/>.</item>
-    ///   <item>The range <c>[index, index + insertStr.Length)</c> does not exceed <c>baseSpan.Length</c>.</item>
+    ///   <item>If <paramref name="index"/> is negative, it is clamped to <c>0</c>.</item>
+    ///   <item>If <paramref name="index"/> exceeds <c>baseSpan.Length</c>, it is clamped to <c>baseSpan.Length</c>, resulting in no characters being written.</item>
+    ///   <item>If <c>insertStr</c> is longer than the available space starting at <paramref name="index"/>, the string is truncated to fit within the remaining capacity.</item>
     /// </list>
-    /// Violating these preconditions will throw an exception from <see cref="ReadOnlySpan{T}.CopyTo(Span{T})"/>.
+    /// No exception is thrown for these conditions; instead, truncation or clamping occurs silently (with a <see cref="System.Diagnostics.Debug.WriteLine"/> warning in DEBUG builds).
     /// </para>
     /// <para>
     /// <strong>Used By:</strong> <see cref="CreateSeparatedString(string, string, string)"/>,
@@ -238,12 +244,35 @@ public static class Builder
     public static void CopyAsSpan(string insertStr, Span<char> baseSpan, int index)
     {
         var baseLength = baseSpan.Length;
-        if (index > baseLength)
+        if (index < 0)
         {
+#if DEBUG
+            Debug.WriteLine($"Warning: CopyAsSpan index {index} is negative. Adjusted to 0.");
+#endif
+            index = 0;
+        }
+        else if (index > baseLength)
+        {
+#if DEBUG
+            Debug.WriteLine($"Warning: CopyAsSpan index {index} exceeds baseSpan length {baseLength}. " +
+                $"Adjusted to {baseLength}.");
+#endif
             index = baseLength;
         }
 
         var insertSpan = insertStr.AsSpan();
+        var availableSpace = baseSpan.Length - index;
+
+        if (insertSpan.Length > availableSpace)
+        {
+#if DEBUG
+            Debug.WriteLine($"Warning: CopyAsSpan insufficient space. " +
+                $"String length {insertSpan.Length} exceeds available space {availableSpace} at index {index}. " +
+                $"Truncating to fit.");
+#endif
+            insertSpan = insertSpan[..availableSpace];
+        }
+
         insertSpan.CopyTo(baseSpan[index..]);
     }
 
@@ -396,7 +425,7 @@ public static class Builder
         // Fast path for small lists (up to MaxCount items)
         if (maxCount <= MaxCount || list.Count <= MaxCount)
         {
-            var i = 0;
+            int i = 0;
             var result = getIndexedItem();
 
             if (isCountEqualToIncrementedIndex()) return result;
@@ -471,7 +500,6 @@ public static class Builder
         var sb = capacity > 0 ?
             new StringBuilder(capacity)
             : new StringBuilder();
-
 
         sb.Append(FallbackIfNull(enumerator.Current));
 
