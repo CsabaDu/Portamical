@@ -656,7 +656,7 @@ dotnet add package Portamical.Core.Formatting --version 2.1.0
 
 ---
 
-### **Version 2.2.0 - Current** (2026-08-07)
+#### **Version 2.2.0 - Current** (2026-08-07)
 
 **Safety and Quality Improvements**
 
