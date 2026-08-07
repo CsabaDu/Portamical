@@ -253,7 +253,7 @@ public class BuilderTests
         var span = new Span<char>(buffer);
 
         // Act - Try to copy 10-character string starting at index 5, only 5 chars available
-        // This triggers the branch at lines 258-266 where insertSpan.Length > availableSpace
+        // This triggers the truncation branch where insertSpan.Length > availableSpace
         CopyAsSpan("HelloWorld", span, 5);
 
         // Assert - Only "Hello" (5 chars) should be copied, "World" truncated
