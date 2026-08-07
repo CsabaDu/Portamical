@@ -11,7 +11,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- Package Info -->
-    <Version>2.1.1</Version>
+    <Version>2.2.0</Version>
     <Title>Portamical.Core.Formatting</Title>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
@@ -30,26 +30,8 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v2.1.1 (2026-06-30) - Documentation and Quality Improvements
-
-      Documentation Enhancements:
-      • Completed XML documentation for all private members and methods
-      • Added detailed performance optimization documentation (14 distinct optimizations)
-      • Enhanced inline documentation with usage examples and design rationale
-      • Improved cross-references using proper &lt;see cref/&gt; tags
-
-      String Building Optimizations:
-      • StringBuilder capacity pre-computation for ICollection&lt;T&gt; (no size threshold)
-      • Fast-path iterative joining for small lists (1-3 items) vs StringBuilder for larger collections
-      • Zero-allocation string building using string.Create and span operations
-      • Tuple formatting optimized for up to 8 elements (primary tuple structure)
-      • Local method pattern for reduced allocations in tight loops
-
-      Code Quality:
-      • Enhanced null handling with explicit fallback strategies
-      • Improved error handling in Stream formatting with DEBUG diagnostics
-      • Thread-safe concurrent caching for hot-path operations
-      • Comprehensive XML documentation for all public and private APIs
+      v2.2.0 (2026-08-07) 
+      
 
       For details: https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md
     </PackageReleaseNotes>
