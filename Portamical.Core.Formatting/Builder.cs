@@ -208,12 +208,13 @@ public static class Builder
     /// memory copy instructions (e.g., <c>memcpy</c> intrinsics on modern CPUs).
     /// </para>
     /// <para>
-    /// <strong>Safety:</strong> The caller is responsible for ensuring that:
+    /// <strong>Safety:</strong> This method handles out-of-range and insufficient-capacity inputs gracefully:
     /// <list type="bullet">
-    ///   <item>The destination <paramref name="baseSpan"/> has sufficient capacity starting at <paramref name="index"/>.</item>
-    ///   <item>The range <c>[index, index + insertStr.Length)</c> does not exceed <c>baseSpan.Length</c>.</item>
+    ///   <item>If <paramref name="index"/> is negative, it is clamped to <c>0</c>.</item>
+    ///   <item>If <paramref name="index"/> exceeds <c>baseSpan.Length</c>, it is clamped to <c>baseSpan.Length</c>, resulting in no characters being written.</item>
+    ///   <item>If <c>insertStr</c> is longer than the available space starting at <paramref name="index"/>, the string is truncated to fit within the remaining capacity.</item>
     /// </list>
-    /// Violating these preconditions will throw an exception from <see cref="ReadOnlySpan{T}.CopyTo(Span{T})"/>.
+    /// No exception is thrown for these conditions; instead, truncation or clamping occurs silently (with a <see cref="System.Diagnostics.Debug.WriteLine"/> warning in DEBUG builds).
     /// </para>
     /// <para>
     /// <strong>Used By:</strong> <see cref="CreateSeparatedString(string, string, string)"/>,
