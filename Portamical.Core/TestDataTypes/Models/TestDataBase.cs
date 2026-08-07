@@ -4,7 +4,6 @@
 using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
-using System.Runtime.CompilerServices;
 using static Portamical.Core.Formatting.Builder;
 
 namespace Portamical.Core.TestDataTypes.Models;
@@ -61,6 +60,7 @@ public abstract class TestDataBase(string definition)
     : NamedCase, ITestData
 {
     #region Methods
+
     /// <summary>
     /// Gets the definition string for the current instance.
     /// </summary>
@@ -153,9 +153,11 @@ public abstract class TestDataBase(string definition)
     /// derived class implementation.
     /// </returns>
     public abstract string GetResult();
+
     #endregion
 
     #region Helper methods
+
     /// <summary>
     /// Creates a test case name by combining the definition, a separator, and the result.
     /// </summary>
@@ -263,5 +265,6 @@ public abstract class TestDataBase(string definition)
             baseArgs[1..]
             : baseArgs;
     }
+
     #endregion
 }
