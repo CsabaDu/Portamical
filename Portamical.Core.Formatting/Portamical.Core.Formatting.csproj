@@ -43,7 +43,7 @@
       • Fixed FileVersion typo in Portamical.NUnit.csproj
 
       Testing:
-      • Added 5 new CopyAsSpan safety tests for edge cases (358 total tests)
+      • Added 4 new CopyAsSpan safety tests for edge cases (358 total tests)
       • Expanded coverage for truncation and boundary scenarios
 
       Compatibility:
