@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.Core.Identity.Model;
@@ -115,7 +114,7 @@ public abstract class NamedCase : INamedCase
     /// <example>
     /// <code>
     /// var testCases = new[] { test1, test2, test1 }; // test1 appears twice
-    /// var unique = testCases.Distinct(NamedCase.Comparer); // Returns test1, test2
+    /// var unique = testCases.ToDistinct(NamedCase.Comparer); // Returns test1, test2
     /// </code>
     /// </example>
     public static IEqualityComparer<INamedCase> Comparer { get; } =

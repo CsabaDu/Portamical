@@ -2,3 +2,4 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 global using System.ComponentModel;
+global using System.Runtime.CompilerServices;

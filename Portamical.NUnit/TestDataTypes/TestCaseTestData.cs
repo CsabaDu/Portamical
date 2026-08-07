@@ -404,7 +404,9 @@ public abstract class TestCaseTestData
     /// </example>
     /// <seealso cref="HasFullNameProperty"/>
     /// <seealso cref="ITestData.GetDisplayName(string?)"/>
-    public static TTestCaseData SetHasFullNameProperty<TTestCaseData, TTestData>(
+    [Obsolete("this method does not have any functionality. " +
+        "Set HasFullName property with Property.Set method of TestCaseData.")]
+    internal static TTestCaseData SetHasFullNameProperty<TTestCaseData, TTestData>(
         TTestCaseData testCaseData,
         TTestData testData,
         string? testMethodName,
@@ -1051,24 +1053,34 @@ where TTestData : notnull, ITestData
         string? testMethodName)
     : base(TestCaseDataArgsFrom(testData, argsCode))
     {
+        TypeArgs = GetTypeArgs(testData, argsCode);
+        TestCaseName = testData.TestCaseName;
         Properties.Set(
             PropertyNames.Description,
             testData.GetDefinition());
 
-        SetHasFullNameProperty(
-            this,
-            testData,
-            testMethodName,
-            out string testName);
+        bool hasFullName = !string.IsNullOrEmpty(testMethodName);
+
+        TestName = hasFullName ?
+            testData.GetDisplayName(testMethodName)!
+            : TestCaseName;
+        Properties.Set(
+            HasFullNameProperty,
+            hasFullName);
 
         if (testData is IReturns returns)
         {
             ExpectedResult = returns.GetExpected();
         }
 
-        TestName = testName;
-        TypeArgs = GetTypeArgs(testData, argsCode);
-        TestCaseName = testData.TestCaseName;
+
+        //_ = SetHasFullNameProperty(
+        //    this,
+        //    testData,
+        //    testMethodName,
+        //    out string testName);
+
+        //TestName = testName;
     }
 
     /// <summary>

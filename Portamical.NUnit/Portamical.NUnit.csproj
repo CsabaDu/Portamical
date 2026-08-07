@@ -55,7 +55,10 @@
 
   <ItemGroup>
     <PackageReference Include="NUnitLite" Version="4.5.1" />
-    <PackageReference Include="Portamical" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Portamical\Portamical.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -204,6 +204,8 @@ public sealed class DefaultFormatter : IFormatter
 
     #endregion
 
+    #region Public static formatting method
+
     /// <summary>
     /// Formats an object into a human-readable string representation for test case names.
     /// </summary>
@@ -375,6 +377,8 @@ public sealed class DefaultFormatter : IFormatter
         Stream stream           => Format(stream),
         _                       => obj.ToString() ?? null,
     };
+
+    #endregion
 
     #region Private formatter methods
 

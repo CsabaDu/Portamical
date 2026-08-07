@@ -65,6 +65,8 @@ public static class Builder
 
     #endregion
 
+    #region Public methods
+
     /// <summary>
     /// Provides a fallback string when the input is null, ensuring non-null output.
     /// </summary>
@@ -170,12 +172,12 @@ public static class Builder
             (baseString, separator, appendix),
             static (span, state) =>
             {
-                var (bs, sep, app) = state;
+                var (bas, sep, app) = state;
 
                 var i = 0;
-                CopyAsSpan(bs, span, i);
+                CopyAsSpan(bas, span, i);
 
-                i = bs.Length;
+                i = bas.Length;
                 CopyAsSpan(sep, span, i);
 
                 i += sep.Length;
@@ -393,6 +395,8 @@ public static class Builder
         => JoinWithSeparatorBase(items, separator);
         #endregion
     }
+
+    #endregion
 
     #region Private methods
 
