@@ -252,8 +252,8 @@ public class BuilderTests
         Array.Fill(buffer, '\0');
         var span = new Span<char>(buffer);
 
-        // Act - Try to copy 8-character string starting at index 5, only 5 chars available
-        // This triggers the branch at lines 258-266 where insertSpan.Length > availableSpace
+        // Act - Try to copy 10-character string starting at index 5, only 5 chars available
+        // This triggers the truncation branch where insertSpan.Length > availableSpace
         CopyAsSpan("HelloWorld", span, 5);
 
         // Assert - Only "Hello" (5 chars) should be copied, "World" truncated
@@ -328,6 +328,25 @@ public class BuilderTests
         Assert.AreEqual('z', buffer[2]);
         Assert.AreEqual('z', buffer[3]);
         Assert.AreEqual('z', buffer[4]);
+    }
+
+    [TestMethod]
+    public void CopyAsSpan_withNegativeIndex_clampsToZeroAndCopies()
+    {
+        // Arrange
+        var buffer = new char[5];
+        Array.Fill(buffer, '\0');
+        var span = new Span<char>(buffer);
+
+        // Act - Negative index should be clamped to 0, copying from the start
+        CopyAsSpan("Hi", span, -3);
+
+        // Assert - String is copied from index 0
+        Assert.AreEqual('H', buffer[0]);
+        Assert.AreEqual('i', buffer[1]);
+        Assert.AreEqual('\0', buffer[2]);
+        Assert.AreEqual('\0', buffer[3]);
+        Assert.AreEqual('\0', buffer[4]);
     }
     #endregion
 

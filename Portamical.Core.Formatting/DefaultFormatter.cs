@@ -65,7 +65,7 @@ public sealed class DefaultFormatter : IFormatter
     /// var result = formatter.Format(42);  // Returns: "42"
     /// 
     /// // Or use it via the interface
-    /// ICustomFormatter formatter = DefaultFormatter.Instance;
+    /// IFormatter formatter2 = DefaultFormatter.Instance;
     /// ]]></code>
     /// </example>
     public static readonly IFormatter Instance = new DefaultFormatter();

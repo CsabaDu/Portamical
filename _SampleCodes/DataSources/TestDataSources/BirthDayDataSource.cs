@@ -36,10 +36,11 @@ public class BirthDayDataSource()
         yield return createTestData();
 
         #region Local Methods
-        TestData<DateOnly> createTestData()
+        TestData<string, DateOnly> createTestData()
         => CreateTestData(
             definition,
             result,
+            name,
             dateOfBirth);
         #endregion
     }
