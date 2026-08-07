@@ -1,6 +1,6 @@
 ﻿# Portamical.Core.Formatting
 
-**Extensible, High-Performance Formatting Infrastructure for Portamical Test Data Framework**
+**Extensible, High-Performance Formatting Infrastructure for Portamical Test Data Framework and .NET Applications**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
