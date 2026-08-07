@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-2.1.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-2.2.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 > **Extensible formatters, zero-allocation string building, and thread-safe custom formatter registry for human-readable test case names and diagnostic output.**
@@ -443,6 +443,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 
 ## Changelog
 
+
 ### **Version 2.0.0** (2026-06-27)
 
 **Architecture Simplification & API Refinement**
@@ -507,7 +508,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 
 ---
 
-#### **Version 2.1.0 - Current** (2026-06-29)
+#### **Version 2.1.0** (2026-06-29)
 
 **Performance Optimization and Quality Improvements**
 
@@ -600,7 +601,7 @@ dotnet add package Portamical.Core.Formatting --version 2.1.0
 
 ---
 
-#### **Version 2.1.1 - Current** (2026-06-30)
+#### **Version 2.1.1** (2026-06-30)
 
 **Documentation and Quality Improvements**
 
@@ -652,6 +653,76 @@ dotnet add package Portamical.Core.Formatting --version 2.1.0
 - ✅ Fully backward compatible with v2.1.0
 - ✅ Drop-in replacement: simply update package version
 - ✅ Existing formatters continue to work without modification
+
+---
+
+### **Version 2.2.0 - Current** (2026-08-07)
+
+**Safety and Quality Improvements**
+
+**BUILDER ENHANCEMENTS:**
+- **Added truncation safety in `CopyAsSpan`** for insufficient buffer space
+  - Prevents buffer overflow exceptions with automatic span slicing
+  - Safely handles cases where string length exceeds available space
+  - Truncates to fit when `insertSpan.Length > availableSpace`
+- **Enhanced DEBUG diagnostics** with `Debug.WriteLine` (no production overhead)
+  - Added diagnostic messages for index adjustment and truncation
+  - DEBUG-only logging ensures zero performance impact in RELEASE builds
+  - Improves developer debugging experience without affecting production code
+
+**CODE QUALITY:**
+- **Reorganized `DefaultFormatter`** with `#region` directives for better navigation
+  - Improved maintainability with logical grouping of format methods
+  - Enhanced IDE code folding and navigation experience
+  - Better developer ergonomics for large formatter implementations
+- **Enhanced exception formatting consistency** in Stream error handling
+  - Improved diagnostic output quality for stream formatting failures
+  - Better testability with consistent error handling patterns
+- **Fixed FileVersion typo** in Portamical.NUnit.csproj
+
+**TESTING ENHANCEMENTS:**
+- **Expanded test coverage** from 353 to 358 tests (+5 new tests, **+1.4% coverage**)
+- **Added 4 new `CopyAsSpan` safety tests** for edge cases:
+  - `CopyAsSpan_withInsufficientSpace_truncatesToFit`: Validates partial space truncation
+  - `CopyAsSpan_withInsufficientSpaceAtEndOfSpan_truncatesCorrectly`: Validates full buffer truncation
+  - `CopyAsSpan_withOnlyOneCharAvailableSpace_copiesOnlyOneChar`: Validates single-character edge case
+  - `CopyAsSpan_withZeroAvailableSpace_copiesNothing`: Validates zero-space boundary condition
+- **Comprehensive boundary testing** for truncation scenarios
+- **All 358 tests pass** in both DEBUG and RELEASE configurations
+
+**PERFORMANCE:**
+- ✅ Zero-allocation performance characteristics preserved
+- ✅ `MethodImplOptions.AggressiveInlining` still applied to hot paths
+- ✅ DEBUG diagnostics conditionally compiled away in RELEASE builds
+- ✅ No runtime overhead added to production code
+
+**COMPATIBILITY:**
+- ✅ No breaking changes to public API surface
+- ✅ Fully backward compatible with v2.1.1
+- ✅ Drop-in replacement: simply update package version
+- ✅ Existing formatters continue to work without modification
+- ✅ Behavior unchanged for correctly-sized buffers
+
+**MIGRATION FROM v2.1.1:**
+No migration needed. Update package reference:
+```bash
+dotnet add package Portamical.Core.Formatting --version 2.2.0
+```
+
+**VALIDATION:**
+- ✅ All builds successful (Debug/Release)
+- ✅ Zero XML documentation warnings
+- ✅ All 358 unit tests passing (100% success rate)
+- ✅ Buffer safety validated via edge-case stress tests
+- ✅ DEBUG diagnostics verified in development builds
+- ✅ RELEASE builds confirmed zero diagnostic overhead
+
+**BENEFITS:**
+- ✅ Improved robustness: No buffer overflow exceptions from `CopyAsSpan`
+- ✅ Better debugging: Clear diagnostic messages in DEBUG builds
+- ✅ Enhanced code organization: Improved `DefaultFormatter` navigation
+- ✅ Higher test coverage: More edge cases validated
+- ✅ Production-ready: Zero performance impact in RELEASE builds
 
 ---
 
