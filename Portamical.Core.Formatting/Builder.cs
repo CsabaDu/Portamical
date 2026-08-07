@@ -243,7 +243,14 @@ public static class Builder
     public static void CopyAsSpan(string insertStr, Span<char> baseSpan, int index)
     {
         var baseLength = baseSpan.Length;
-        if (index > baseLength)
+        if (index < 0)
+        {
+#if DEBUG
+            Debug.WriteLine($"Warning: CopyAsSpan index {index} is negative. Adjusted to 0.");
+#endif
+            index = 0;
+        }
+        else if (index > baseLength)
         {
 #if DEBUG
             Debug.WriteLine($"Warning: CopyAsSpan index {index} exceeds baseSpan length {baseLength}. " +
