@@ -19,7 +19,7 @@ public abstract class TestBase : Portamical.TestBases.TestBase
     protected static IAsyncEnumerable<TTestData> ConvertAsync<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToAsyncDistinct();
+    => testDataCollection.ToDistinctAsyncEnumerable();
 
     /// <summary>
     /// Converts a test data collection to a task that yields the distinct test data items as an array.
