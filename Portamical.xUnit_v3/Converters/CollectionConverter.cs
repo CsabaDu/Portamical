@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Converters;
+using Portamical.Core.Converters;
 using Portamical.xUnit_v3.DataProviders.Model;
 using Portamical.xUnit_v3.TestDataTypes;
 
@@ -338,9 +340,10 @@ public static class CollectionConverter
         string? testMethodName = null)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider(
-        initDataProvider: TestDataConverter.ToTheoryTestData,
-        argsCode,
-        testMethodName);
+        initDataProvider: testData => TestDataConverter.ToTheoryTestData(
+            testData,
+            argsCode,
+            testMethodName));
 
     /// <summary>
     /// Converts a collection of Portamical test data to an immutable read-only collection of
@@ -459,7 +462,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToDistinctArray(
         convertRow: TestDataConverter.ToTheoryTestDataRow,
         argsCode,
         testMethodName);
@@ -592,7 +595,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToDistinctArray(
         convertRow: TestDataConverter.ToTheoryDataRow,
         argsCode,
         testMethodName);

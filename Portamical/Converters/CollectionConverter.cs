@@ -115,59 +115,59 @@ public static class CollectionConverter
         return dataProvider;
     }
 
-    /// <summary>
-    /// Converts a collection of test data into a data provider instance, initializing it with the specified
-    /// test method name (convenience wrapper).
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// <strong>This is a CONVENIENCE WRAPPER</strong> that delegates to
-    /// <see cref="ToDataProvider{TDataProvider, TTestData}(IEnumerable{TTestData}, Func{TTestData, TDataProvider})"/>
-    /// by wrapping the initializer function to include the test method name.
-    /// </para>
-    /// <para>
-    /// The first item in the collection is used to initialize the data provider. Additional items
-    /// are added using the data provider's AddRow method after deduplication based on
-    /// <see cref="INamedCase.TestCaseName"/>.
-    /// </para>
-    /// <para>
-    /// <strong>Performance:</strong> This method uses <see cref="MethodImplOptions.AggressiveInlining"/>
-    /// as it is a thin wrapper with no significant logic.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/>.
-    /// </typeparam>
-    /// <typeparam name="TTestData">
-    /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
-    /// </typeparam>
-    /// <param name="testDataCollection">
-    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
-    /// one item.
-    /// </param>
-    /// <param name="initDataProvider">
-    /// A function that initializes a new data provider instance using a test data item and optional
-    /// test method name. Cannot be null.
-    /// </param>
-    /// <param name="testMethodName">
-    /// The name of the test method to associate with the data provider, or null if not applicable.
-    /// </param>
-    /// <returns>A data provider instance containing all distinct test data items from the collection.</returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="initDataProvider"/> is null.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="testDataCollection"/> is empty.
-    /// </exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TDataProvider ToDataProvider<TDataProvider, TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, string?, TDataProvider> initDataProvider,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    where TDataProvider : ITestDataProvider<TTestData>
-    => testDataCollection.ToDataProvider(
-        initDataProvider: testData => initDataProvider(
-            testData,
-            testMethodName));
+    ///// <summary>
+    ///// Converts a collection of test data into a data provider instance, initializing it with the specified
+    ///// test method name (convenience wrapper).
+    ///// </summary>
+    ///// <remarks>
+    ///// <para>
+    ///// <strong>This is a CONVENIENCE WRAPPER</strong> that delegates to
+    ///// <see cref="ToDataProvider{TDataProvider, TTestData}(IEnumerable{TTestData}, Func{TTestData, TDataProvider})"/>
+    ///// by wrapping the initializer function to include the test method name.
+    ///// </para>
+    ///// <para>
+    ///// The first item in the collection is used to initialize the data provider. Additional items
+    ///// are added using the data provider's AddRow method after deduplication based on
+    ///// <see cref="INamedCase.TestCaseName"/>.
+    ///// </para>
+    ///// <para>
+    ///// <strong>Performance:</strong> This method uses <see cref="MethodImplOptions.AggressiveInlining"/>
+    ///// as it is a thin wrapper with no significant logic.
+    ///// </para>
+    ///// </remarks>
+    ///// <typeparam name="TDataProvider">
+    ///// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/>.
+    ///// </typeparam>
+    ///// <typeparam name="TTestData">
+    ///// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
+    ///// </typeparam>
+    ///// <param name="testDataCollection">
+    ///// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
+    ///// one item.
+    ///// </param>
+    ///// <param name="initDataProvider">
+    ///// A function that initializes a new data provider instance using a test data item and optional
+    ///// test method name. Cannot be null.
+    ///// </param>
+    ///// <param name="testMethodName">
+    ///// The name of the test method to associate with the data provider, or null if not applicable.
+    ///// </param>
+    ///// <returns>A data provider instance containing all distinct test data items from the collection.</returns>
+    ///// <exception cref="ArgumentNullException">
+    ///// Thrown when <paramref name="testDataCollection"/> or <paramref name="initDataProvider"/> is null.
+    ///// </exception>
+    ///// <exception cref="ArgumentException">
+    ///// Thrown when <paramref name="testDataCollection"/> is empty.
+    ///// </exception>
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static TDataProvider ToDataProvider<TDataProvider, TTestData>(
+    //    this IEnumerable<TTestData> testDataCollection,
+    //    Func<TTestData, string?, TDataProvider> initDataProvider,
+    //    string? testMethodName)
+    //where TTestData : notnull, ITestData
+    //where TDataProvider : ITestDataProvider<TTestData>
+    //=> testDataCollection.ToDataProvider(
+    //    initDataProvider: testData => initDataProvider(
+    //        testData,
+    //        testMethodName));
 }

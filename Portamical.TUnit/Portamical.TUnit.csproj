@@ -26,9 +26,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical" Version="3.2.0" />
     <PackageReference Include="TUnit.Assertions" Version="1.49.0" />
     <PackageReference Include="TUnit.Core" Version="1.49.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Portamical\Portamical.csproj" />
   </ItemGroup>
 
 </Project>

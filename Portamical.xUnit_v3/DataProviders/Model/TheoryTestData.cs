@@ -629,11 +629,10 @@ where TTestData : notnull, ITestData
     /// <seealso cref="AddRow"/>
     public ITheoryTestDataRow ConvertRow(
         TTestData testData,
-        ArgsCode argsCode,
         string? testMethodName)
     => new TheoryTestDataRow<TTestData>(
         testData,
-        argsCode,
+        ArgsCode,
         testMethodName);
 
     /// <summary>
@@ -690,7 +689,7 @@ where TTestData : notnull, ITestData
     /// <seealso cref="AddRow"/>
     /// <seealso cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Convert(TDataDeclarationPointer)"/>
     protected override ITheoryTestDataRow Convert(TTestData row)
-    => ConvertRow(testData: row, ArgsCode, TestMethodName);
+    => ConvertRow(testData: row, TestMethodName);
 
     /// <summary>
     /// Adds a test data item to the collection using the builder pattern.

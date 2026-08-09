@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.Converters;
 using Portamical.xUnit.DataProviders;
 
 namespace Portamical.xUnit.Converters;
@@ -437,7 +438,5 @@ public static class CollectionConverter
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider(
-        initDataProvider: TestDataConverter.InitTestDataProvider,
-        argsCode: argsCode,
-        testMethodName: null);
+        initDataProvider: testData => TestDataConverter.InitTestDataProvider(testData, argsCode));
 }

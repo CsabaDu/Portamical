@@ -28,10 +28,10 @@ namespace Portamical.Core.Converters;
 /// </remarks>
 public static class CollectionConverter
 {
-    #region TRow[]
+    #region TRow[] base method
 
     /// <summary>
-    /// Core deduplication method that converts a collection of test data into a distinct array of rows
+    /// Core deduplication method that converts a collection of test data into a distinct rows of rows
     /// using a custom conversion function.
     /// </summary>
     /// <remarks>
@@ -48,7 +48,7 @@ public static class CollectionConverter
     /// </para>
     /// <para>
     /// <strong>Order Preservation:</strong> The order of elements from the original collection is preserved
-    /// in the output array. Duplicates are removed based on first-occurrence semantics.
+    /// in the output rows. Duplicates are removed based on first-occurrence semantics.
     /// </para>
     /// </remarks>
     /// <typeparam name="TTestData">
@@ -56,7 +56,7 @@ public static class CollectionConverter
     /// (which inherits <see cref="INamedCase"/>) and cannot be null.
     /// </typeparam>
     /// <typeparam name="TRow">
-    /// The type of elements in the output array, produced by <paramref name="convertRow"/>.
+    /// The type of elements in the output rows, produced by <paramref name="convertRow"/>.
     /// </typeparam>
     /// <param name="testDataCollection">
     /// The collection of test data to process. Cannot be null or empty.
@@ -66,7 +66,7 @@ public static class CollectionConverter
     /// Cannot be null. Called only for non-duplicate items.
     /// </param>
     /// <returns>
-    /// An array containing the converted rows for distinct test data items, preserving the order
+    /// An rows containing the converted rows for distinct test data items, preserving the order
     /// of first occurrence.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -116,11 +116,17 @@ public static class CollectionConverter
         return [.. rows];
     }
 
+    #endregion
+
+    #region Wrapper methods
+
+    #region TRow[]
+
     /// <summary>
-    /// Converts a collection of test data items to a distinct array of rows using the specified
+    /// Converts a collection of test data items to a distinct rows of rows using the specified
     /// conversion function.
     /// </summary>
-    /// <remarks>The resulting array contains only unique rows based on test case name identity
+    /// <remarks>The resulting rows contains only unique rows based on test case name identity
     /// using <see cref="NamedCase.Comparer"/>. The order of elements from the original collection is preserved.</remarks>
     /// <typeparam name="TTestData">The type of the input test data items. Must implement the ITestData interface and cannot be null.</typeparam>
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
@@ -129,7 +135,7 @@ public static class CollectionConverter
     /// a row of type TRow. Cannot be null.</param>
     /// <param name="argsCode">The ArgsCode instance to pass to the conversion function. Cannot be null.</param>
     /// <param name="testMethodName">An optional name of the test method to provide to the conversion function. May be null.</param>
-    /// <returns>An array containing the distinct rows produced by applying the conversion function to each distinct test
+    /// <returns>An rows containing the distinct rows produced by applying the conversion function to each distinct test
     /// data item.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TRow[] ToDistinctArray<TTestData, TRow>(
@@ -145,14 +151,14 @@ public static class CollectionConverter
         testMethodName));
 
     /// <summary>
-    /// Converts a collection of test data to a distinct array of rows using the specified conversion function and test method name.
+    /// Converts a collection of test data to a distinct rows of rows using the specified conversion function and test method name.
     /// </summary>
     /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
     /// <typeparam name="TRow">The type of the resulting row elements.</typeparam>
     /// <param name="testDataCollection">The collection of test data to convert.</param>
     /// <param name="convertRow">The function to convert each test data item and test method name to a row.</param>
     /// <param name="testMethodName">The name of the test method, or <c>null</c>.</param>
-    /// <returns>A distinct array of converted rows.</returns>
+    /// <returns>A distinct rows of converted rows.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TRow[] ToDistinctArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
@@ -169,23 +175,23 @@ public static class CollectionConverter
     #region TTestData[]
 
     /// <summary>
-    /// Creates an array containing distinct elements from the specified test data collection.
+    /// Creates an rows containing distinct elements from the specified test data collection.
     /// </summary>
     /// <typeparam name="TTestData">The type of elements in the test data collection. Must implement ITestData and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The collection of test data elements from which to create a distinct array. Cannot be null.</param>
-    /// <returns>An array containing the distinct elements from the input collection. The order of elements is
+    /// <param name="testDataCollection">The collection of test data elements from which to create a distinct rows. Cannot be null.</param>
+    /// <returns>An rows containing the distinct elements from the input collection. The order of elements is
     /// preserved from the original collection (first occurrence wins).</returns>
     /// <example>
     /// <code>
     /// // Basic deduplication
-    /// var testData = new[]
+    /// var row = new[]
     /// {
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var distinct = testData.ToDistinctArray();
+    /// var distinct = row.ToDistinctArray();
     /// // Result: 2 elements (duplicate removed based on TestCaseName)
     /// </code>
     /// </example>
@@ -201,17 +207,17 @@ public static class CollectionConverter
     #region object?[][]
 
     /// <summary>
-    /// Returns a jagged array of distinct argument arrays generated from the specified test data collection
+    /// Returns a jagged rows of distinct argument arrays generated from the specified test data collection
     /// using the provided argument code.
     /// </summary>
-    /// <remarks>Each element in the returned array corresponds to the arguments produced by calling
+    /// <remarks>Each element in the returned rows corresponds to the arguments produced by calling
     /// ToArgs on each test data item with the specified argument code. Duplicates are removed based on
     /// test case name identity using <see cref="NamedCase.Comparer"/>.</remarks>
     /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
     /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null.</param>
     /// <param name="argsCode">The argument code that determines how arguments are extracted from each test data item.</param>
-    /// <returns>A jagged array containing unique argument arrays produced from distinct test data items. 
-    /// The array is empty if the input collection contains no items.</returns>
+    /// <returns>A jagged rows containing unique argument arrays produced from distinct test data items. 
+    /// The rows is empty if the input collection contains no items.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static object?[][] ToDistinctArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
@@ -221,18 +227,18 @@ public static class CollectionConverter
         convertRow: testData => testData.ToArgs(argsCode));
 
     /// <summary>
-    /// Creates a jagged array of distinct argument arrays from the specified test data collection, using the
+    /// Creates a jagged rows of distinct argument arrays from the specified test data collection, using the
     /// provided argument and property codes to extract values.
     /// </summary>
-    /// <remarks>The returned array contains only distinct argument arrays, where uniqueness is determined by
+    /// <remarks>The returned rows contains only distinct argument arrays, where uniqueness is determined by
     /// test case name identity using <see cref="NamedCase.Comparer"/>. The order of elements from the
     /// original collection is preserved (first occurrence wins).</remarks>
     /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
     /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null.</param>
     /// <param name="argsCode">The code specifying which arguments to extract from each test data item.</param>
     /// <param name="propsCode">The code specifying which properties to extract from each test data item.</param>
-    /// <returns>A jagged array containing unique argument arrays extracted from distinct test data items. 
-    /// The array is empty if no items are found.</returns>
+    /// <returns>A jagged rows containing unique argument arrays extracted from distinct test data items. 
+    /// The rows is empty if no items are found.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static object?[][] ToDistinctArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
@@ -243,4 +249,126 @@ public static class CollectionConverter
         convertRow: testData => testData.ToArgs(argsCode, propsCode));
 
     #endregion
+
+    #region Task<TRow[]>
+
+    /// <summary>
+    /// Asynchronously converts a collection of test data to a distinct array of rows.
+    /// </summary>
+    /// <remarks>
+    /// The deduplication and conversion work is offloaded to the thread pool to avoid blocking
+    /// the calling thread. This is beneficial for large collections or expensive conversion functions.
+    /// </remarks>
+    /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
+    /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
+    /// <param name="testDataCollection">The source collection of test data to convert. Cannot be null or empty.</param>
+    /// <param name="convertRow">A function that transforms each test data item into a row of type <typeparamref name="TRow"/>. Cannot be null.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the distinct array of converted rows.</returns>
+    public static Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, TRow> convertRow)
+    where TTestData : notnull, ITestData
+    => Task.Run(() => testDataCollection.ToDistinctArray(convertRow));
+
+    /// <summary>
+    /// Asynchronously creates an array containing distinct elements from the specified test data collection.
+    /// </summary>
+    /// <remarks>
+    /// This is an identity conversion that returns the test data items themselves after deduplication.
+    /// The deduplication work is offloaded to the thread pool to avoid blocking the calling thread,
+    /// which is beneficial for large collections.
+    /// </remarks>
+    /// <typeparam name="TTestData">The type of elements in the test data collection. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
+    /// <param name="testDataCollection">The source collection of test data elements from which to create a distinct array. Cannot be null or empty.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains an array with distinct elements
+    /// from the input collection, preserving the order of first occurrence.</returns>
+    /// <example>
+    /// <code>
+    /// // Asynchronously deduplicate test data
+    /// var testData = new[]
+    /// {
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate
+    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
+    /// };
+    /// 
+    /// var distinctTask = testData.ToDistinctArrayTask();
+    /// var result = await distinctTask;
+    /// // Result: 2 elements (duplicate removed based on TestCaseName)
+    /// </code>
+    /// </example>
+    public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
+        this IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctArrayTask(convertRow: testData => testData);
+
+    #endregion
+
+    #region IAsyncEnumerable<TRow>
+
+    /// <summary>
+    /// Converts a synchronous test data collection to an asynchronous sequence of distinct rows.
+    /// </summary>
+    /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
+    /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
+    /// <param name="testDataCollection">The source collection of test data to convert. Cannot be null or empty.</param>
+    /// <param name="convertRow">A function that transforms each test data item into a row of type <typeparamref name="TRow"/>. Cannot be null.</param>
+    /// <returns>An asynchronous sequence that yields each distinct converted row once.</returns>
+    public static IAsyncEnumerable<TRow> ToAsyncDistinct<TTestData, TRow>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, TRow> convertRow)
+    where TTestData : notnull, ITestData
+    {
+        return toAsync(testDataCollection.ToDistinctArray(convertRow));
+
+        #region Local function
+
+        static async IAsyncEnumerable<TRow> toAsync(TRow[] rows)
+        {
+            foreach (var row in rows)
+            {
+                yield return row;
+            }
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Converts a synchronous test data collection to an asynchronous sequence of distinct elements.
+    /// </summary>
+    /// <remarks>
+    /// This is an identity conversion that yields the test data items themselves after deduplication.
+    /// The deduplication is performed synchronously using <see cref="ToDistinctArray{TTestData}(IEnumerable{TTestData})"/>,
+    /// but the resulting elements are yielded asynchronously. This method is useful for integrating
+    /// synchronous deduplicated data into asynchronous workflows or streaming scenarios.
+    /// </remarks>
+    /// <typeparam name="TTestData">The type of elements in the test data collection. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
+    /// <param name="testDataCollection">The source collection of test data elements to convert. Cannot be null or empty.</param>
+    /// <returns>An asynchronous sequence that yields each distinct element once, preserving the order of first occurrence.</returns>
+    /// <example>
+    /// <code>
+    /// // Convert to async stream for consumption in async context
+    /// var testData = new[]
+    /// {
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate
+    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
+    /// };
+    /// 
+    /// await foreach (var item in testData.ToAsyncDistinct())
+    /// {
+    ///     Console.WriteLine(item.TestCaseName);
+    /// }
+    /// // Output: "Add(2,3)", "Add(5,7)" (duplicate removed)
+    /// </code>
+    /// </example>
+    public static IAsyncEnumerable<TTestData> ToAsyncDistinct<TTestData>(
+        this IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToAsyncDistinct(convertRow: testData => testData);
+
+    #endregion
+
+    #endregion Wrapper methods
 }

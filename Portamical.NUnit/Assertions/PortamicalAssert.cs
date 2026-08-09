@@ -620,7 +620,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         AssertMultiple(() =>
         {
             actual = ThrowsDetails(attempt, expected,
-                assertThrowsAny: (att) => ThrowsAny(att, Assert.Fail),
+                assertThrowsAny: (att) => Assert.Catch(() => att())!,
                 assertIsType: IsTypeOf,
                 assertEquality: Equality);
         });
