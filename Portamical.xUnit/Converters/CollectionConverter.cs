@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Converters;
+using Portamical.Converters.DataProviders;
 using Portamical.xUnit.DataProviders;
 
 namespace Portamical.xUnit.Converters;
