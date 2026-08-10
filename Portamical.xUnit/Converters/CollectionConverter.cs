@@ -303,7 +303,6 @@ public static class CollectionConverter
         // 
         // If testDataCollection is empty:
         // - ToDistinctArray() returns Array.Empty<TTestData>()
-        // - Collection expression [.. Array.Empty<TTestData>()] returns TheoryData<TTestData> { }
         // - No zero-length array is explicitly allocated
         => [.. testDataCollection.ToDistinctArray()];
 #pragma warning restore CA1825 // Avoid zero-length array allocations
@@ -438,5 +437,7 @@ public static class CollectionConverter
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider(
-        initDataProvider: testData => TestDataConverter.InitTestDataProvider(testData, argsCode));
+        initDataProvider: testData => TestDataConverter.InitTestDataProvider(
+            testData,
+            argsCode));
 }

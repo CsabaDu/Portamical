@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using System.Collections;
+
 namespace Portamical.Converters.DataProviders;
 
 /// <summary>
@@ -43,7 +45,7 @@ namespace Portamical.Converters.DataProviders;
 /// The type of test data row managed by the provider. Must implement <see cref="ITestData"/> and cannot be null.
 /// Due to contravariance, the provider can accept this type or any derived type.
 /// </typeparam>
-public interface ITestDataProvider<in TTestData>
+public interface ITestDataProvider<in TTestData> : IEnumerable
 where TTestData : notnull, ITestData
 {
     /// <summary>
