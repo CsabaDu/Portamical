@@ -279,9 +279,22 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection is ICollection<TTestData> collection && collection.Count < 10 ?
-        Task.FromResult(collection.ToDistinctArray(convertRow))
-        : Task.Run(() => testDataCollection.ToDistinctArray(convertRow));
+    {
+        bool isSmallCollection =
+            testDataCollection is ICollection<TTestData> collection &&
+            collection.Count < 10;
+
+        return isSmallCollection ?
+            Task.FromResult(convertToDistinctRowArray())
+            : Task.Run(() => convertToDistinctRowArray());
+
+        #region Local function
+
+        TRow[] convertToDistinctRowArray()
+        => testDataCollection.ToDistinctArray(convertRow);
+
+        #endregion
+    }
 
     /// <summary>
     /// Asynchronously creates an array containing distinct elements from the specified test data collection.
