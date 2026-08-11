@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-2.2.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-2.2.0-orange.svg)](https://www.nuget.org/packages/Portamical.Core.Formatting)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 > **Extensible formatters, zero-allocation string building, and thread-safe custom formatter registry for human-readable test case names and diagnostic output.**
