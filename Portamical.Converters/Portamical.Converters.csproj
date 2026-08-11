@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Portamical.Core\Portamical.Core.csproj" />
+    <PackageReference Include="Portamical.Core" Version="4.2.0" />
   </ItemGroup>
 
 </Project>
