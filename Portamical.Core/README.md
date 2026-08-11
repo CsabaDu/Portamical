@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-4.1.2-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-4.2.0-orange.svg)](https://www.nuget.org/packages/Portamical.Core)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 **Framework-agnostic foundation of Portamical**: Universal, identity-driven test data modeling for .NET 10.
@@ -686,7 +686,7 @@ This release updates the `Portamical.Core.Formatting` dependency from v2.0.0 to 
 
 ---
 
-#### **Version 4.1.2 - Current** (2026-06-30)
+#### **Version 4.1.2** (2026-06-30)
 
 **Dependency Update: Documentation and String Building Optimization**
 
@@ -739,6 +739,17 @@ This release updates the `Portamical.Core.Formatting` dependency from v2.1.0 to 
 - ✅ No migration required for Portamical.Core consumers
 
 **For Details:** See [Portamical.Core.Formatting v2.1.1 Release Notes](https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md)
+
+---
+
+### **Version 4.2.0 - Current** (2026-08-11)
+
+• This release updates the formatting library dependency to v2.2.0, bringing documentation completeness, string building optimizations, and code quality improvements - all with full backward compatibility.
+• Enhanced global usings for System.Runtime.CompilerServices
+• Documentation improvements (corrected examples and type parameter names)
+• Better code organization with #region directives
+
+✅ Compatibility: Drop-in replacement for v4.1.2. No breaking changes to existing APIs.
 
 ---
 
