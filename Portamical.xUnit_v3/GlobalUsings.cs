@@ -2,6 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 global using Portamical.Converters;
+global using Portamical.Converters.DataProviders;
 global using Portamical.Core.Identity;
 global using Portamical.Core.Identity.Model;
 global using Portamical.Core.Safety;

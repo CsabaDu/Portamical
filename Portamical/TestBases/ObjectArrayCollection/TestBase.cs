@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Converters;
+using Portamical.Converters;
 
 namespace Portamical.TestBases.ObjectArrayCollection;
 

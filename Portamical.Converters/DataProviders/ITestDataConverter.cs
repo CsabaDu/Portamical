@@ -1,11 +1,11 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Converters;
+namespace Portamical.Converters.DataProviders;
 
 /// <summary>
-/// Defines a contract for converting test data into row representations suitable for test frameworks
-/// or data-driven testing scenarios.
+/// Defines a contract for converting test data into row representations suitable for test framework
+/// parameterized tests and data-driven testing scenarios.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -71,45 +71,53 @@ namespace Portamical.Converters;
 /// <strong>Common Use Cases:</strong>
 /// </para>
 /// <list type="bullet">
-///   <item>Converting to <c>object[]</c> for xUnit/NUnit/MSTest parameterized tests</item>
-///   <item>Converting to framework-specific types (e.g., xUnit v3's <c>TheoryDataRow</c>)</item>
-///   <item>Creating custom row types with additional metadata (test names, categories)</item>
-///   <item>Adding validation or transformation during conversion (e.g., argument filtering)</item>
+///   <item>Converting to <c>object[]</c> for xUnit v2, NUnit, and MSTest parameterized tests</item>
+///   <item>Converting to framework-specific row types (e.g., xUnit v3's <c>TheoryDataRow</c>)</item>
+///   <item>Creating custom row types with additional metadata (test names, categories, tags)</item>
+///   <item>Adding validation or transformation logic during conversion (e.g., argument filtering, null handling)</item>
 /// </list>
 /// <para>
 /// <strong>ArgsCode Property Role:</strong>
 /// </para>
 /// <para>
-/// The <see cref="ArgsCode"/> property determines how test data is converted into rows:
+/// The <see cref="ArgsCode"/> property determines the conversion strategy used to transform
+/// test data into row format:
 /// </para>
 /// <list type="bullet">
 ///   <item>
-///     <see cref="ArgsCode.Instance"/> (default): Pass entire test data object as single argument
+///     <see cref="ArgsCode.Instance"/> (default): Pass entire test data object as a single argument.
+///     Results in test methods receiving one parameter of type <typeparamref name="TTestData"/>.
 ///   </item>
 ///   <item>
-///     <see cref="ArgsCode.Properties"/>: Flatten test data properties into individual arguments
+///     <see cref="ArgsCode.Properties"/>: Flatten test data properties into individual arguments.
+///     Results in test methods receiving multiple parameters matching the data structure.
 ///   </item>
 /// </list>
 /// <para>
 /// This property is typically set during construction via the <c>init</c> accessor and remains constant
-/// throughout the provider's lifetime, ensuring consistent conversion behavior.
+/// throughout the provider's lifetime, ensuring consistent conversion behavior across all rows.
 /// </para>
 /// <para>
 /// <strong>Thread Safety:</strong> Implementations are not required to be thread-safe. Converters
-/// are typically constructed and configured during test discovery/initialization, then used read-only
-/// during test execution.
+/// are typically constructed and configured during test discovery or initialization, then used
+/// in a read-only manner during test execution. If concurrent access is needed, external synchronization
+/// should be applied by the caller.
 /// </para>
 /// </remarks>
 /// <typeparam name="TTestData">
 /// The type of test data to convert. Must implement <see cref="ITestData"/> and cannot be null.
-/// Marked as contravariant (<c>in</c>) to enable using converters that accept base types
-/// for variables typed with derived types.
+/// Marked as contravariant (<c>in</c>) to enable assigning converters that accept more general types
+/// (base types) to variables expecting converters for more specific types (derived types).
+/// This allows a converter accepting <c>ITestData</c> to be used where a converter accepting
+/// <c>TestDataReturns&lt;int&gt;</c> is expected.
 /// </typeparam>
 /// <typeparam name="TRow">
 /// The type representing a single row of converted test data. No constraints - can be <c>object[]</c>,
 /// framework-specific types, or custom row types.
-/// Marked as covariant (<c>out</c>) to enable using converters that return derived types
-/// for variables typed with base types.
+/// Marked as covariant (<c>out</c>) to enable assigning converters that return more specific types
+/// (derived types) to variables expecting converters for more general types (base types).
+/// This allows a converter returning <c>object[]</c> to be used where a converter returning
+/// <c>object</c> is expected.
 /// </typeparam>
 /// <example>
 /// <para><strong>Example 1: Combined Implementation for xUnit v2</strong></para>
@@ -185,10 +193,16 @@ where TTestData : notnull, ITestData
     /// Gets the argument code that determines how test data is converted into row format.
     /// </summary>
     /// <value>
-    /// An <see cref="ArgsCode"/> value specifying the conversion strategy. Common values:
+    /// An <see cref="ArgsCode"/> value specifying the conversion strategy:
     /// <list type="bullet">
-    ///   <item><see cref="ArgsCode.Instance"/> - Pass entire test data object (default, object-oriented)</item>
-    ///   <item><see cref="ArgsCode.Properties"/> - Pass flattened properties (functional style)</item>
+    ///   <item>
+    ///     <see cref="ArgsCode.Instance"/> - Pass entire test data object as a single argument
+    ///     (default, object-oriented approach).
+    ///   </item>
+    ///   <item>
+    ///     <see cref="ArgsCode.Properties"/> - Pass flattened property values as individual arguments
+    ///     (functional style, more explicit parameter lists).
+    ///   </item>
     /// </list>
     /// </value>
     /// <remarks>
@@ -241,12 +255,14 @@ where TTestData : notnull, ITestData
     /// Converts a single test data item into a row representation suitable for the target test framework.
     /// </summary>
     /// <param name="testData">
-    /// The test data to convert. The <c>notnull</c> constraint ensures this parameter
-    /// cannot be <see langword="null"/> when nullable reference types are enabled.
+    /// The test data to convert. Cannot be <see langword="null"/> due to the <c>notnull</c>
+    /// constraint on <typeparamref name="TTestData"/>. This is the source data that will be
+    /// transformed into the target row format according to the <see cref="ArgsCode"/> strategy.
     /// </param>
     /// <param name="testMethodName">
     /// The name of the test method for which this row is being generated, or <see langword="null"/>
-    /// if not applicable. Some implementations may use this to customize row metadata or validation.
+    /// if not applicable. This parameter is typically passed from <see cref="ITestDataProvider{TTestData}.TestMethodName"/>
+    /// and can be used for row metadata, logging, or validation purposes.
     /// </param>
     /// <returns>
     /// A row representation of type <typeparamref name="TRow"/>. The specific structure depends on
@@ -310,7 +326,7 @@ where TTestData : notnull, ITestData
     /// // Result: [2, 3, 5]
     /// </code>
     /// </example>
-    TRow ConvertRow(
-        TTestData testData,
-        string? testMethodName);
+    /// <seealso cref="ArgsCode"/>
+    /// <seealso cref="ITestDataProvider{TTestData}"/>
+    TRow ConvertRow(TTestData testData, string? testMethodName);
 }
