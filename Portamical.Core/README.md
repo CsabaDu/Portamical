@@ -641,7 +641,7 @@ This release updates the `Portamical.Core.Formatting` dependency from v1.0.0 to 
 
 ---
 
-#### **Version 4.1.1** (2026-06-29)
+##### **Version 4.1.1** (2026-06-29)
 
 **Dependency Update: Performance Optimization**
 
@@ -686,7 +686,7 @@ This release updates the `Portamical.Core.Formatting` dependency from v2.0.0 to 
 
 ---
 
-#### **Version 4.1.2** (2026-06-30)
+##### **Version 4.1.2** (2026-06-30)
 
 **Dependency Update: Documentation and String Building Optimization**
 
@@ -742,7 +742,7 @@ This release updates the `Portamical.Core.Formatting` dependency from v2.1.0 to 
 
 ---
 
-### **Version 4.2.0 - Current** (2026-08-11)
+#### **Version 4.2.0 - Current** (2026-08-11)
 
 • This release updates the formatting library dependency to v2.2.0, bringing documentation completeness, string building optimizations, and code quality improvements - all with full backward compatibility.
 • Enhanced global usings for System.Runtime.CompilerServices
