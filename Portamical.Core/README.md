@@ -745,9 +745,9 @@ This release updates the `Portamical.Core.Formatting` dependency from v2.1.0 to 
 #### **Version 4.2.0 - Current** (2026-08-11)
 
 • This release updates the formatting library dependency to v2.2.0, bringing documentation completeness, string building optimizations, and code quality improvements - all with full backward compatibility.  
-• Enhanced global usings for System.Runtime.CompilerServices  
+• Enhanced global usings for `System.Runtime.CompilerServices`  
 • Documentation improvements (corrected examples and type parameter names)  
-• Better code organization with #region directives  
+• Better code organization with `#region` directives  
 
 ✅ Compatibility: Drop-in replacement for v4.1.2. No breaking changes to existing APIs.  
 
