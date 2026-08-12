@@ -310,7 +310,7 @@ public static async Task<IEnumerable<object[]>> GetTestDataAsync()
 
 Located in: `Portamical.Converters.AsyncEnumerables`
 
-Streaming variants for memory-efficient async iteration.
+Async-enumerable variants for async iteration (materializes the distinct array before yielding).
 
 ```csharp
 // Stream distinct test data asynchronously
