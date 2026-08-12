@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-5.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-5.0.0-orange.svg)](https://www.nuget.org/packages/Portamical.Converter)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 > **Identity-driven deduplication, async/sync conversion patterns, and framework-agnostic data provider interfaces for test data collections.**
@@ -1011,7 +1011,7 @@ Copyright (c) 2025-2026 Csaba Dudas (CsabaDu)
 
 ## Changelog
 
-### **Version 5.0.0** (2026-08-11)
+### **Version 5.0.0** - Initial Release (2026-08-12)
 
 **Extraction from Portamical (Shared Module) - Major Architectural Refactoring**
 
