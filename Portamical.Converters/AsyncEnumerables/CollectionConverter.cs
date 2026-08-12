@@ -65,11 +65,13 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        return toAsync(testDataCollection.ToDistinctArray(convertRow));
+        var distinctRowArray = testDataCollection.ToDistinctArray(convertRow);
+
+        return toAsyncEnumerable(distinctRowArray);
 
         #region Local function
 
-        static async IAsyncEnumerable<TRow> toAsync(TRow[] rows)
+        static async IAsyncEnumerable<TRow> toAsyncEnumerable(TRow[] rows)
         {
             foreach (var row in rows)
             {
@@ -84,7 +86,7 @@ public static class CollectionConverter
 
     #region Wrapper methods
 
-    #region IAsyncEnumerable<TRow[]>
+    #region IAsyncEnumerable<TTestData>
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of distinct elements.

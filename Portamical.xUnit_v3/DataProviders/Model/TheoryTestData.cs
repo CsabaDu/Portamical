@@ -3,6 +3,7 @@
 
 using Portamical.xUnit_v3.TestDataTypes;
 using Portamical.xUnit_v3.TestDataTypes.Model;
+using static Portamical.Core.Formatting.Formatter;
 using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.xUnit_v3.DataProviders.Model;
@@ -408,8 +409,8 @@ where TTestData : notnull, ITestData
     ///     <see cref="Validator.NotNull{T}(T, string)"/>
     ///   </description></item>
     ///   <item><description>
-    ///     <strong>Type Validation:</strong> Ensures <paramref name="row"/> is a generic type with matching
-    ///     generic parameter <typeparamref name="TTestData"/>. This is necessary because the base class signature
+    ///     <strong>Type Validation:</strong> Ensures <paramref name="row"/> is of type <see cref="TheoryTestDataRow{TTestData}"/>
+    ///     with matching generic parameter <typeparamref name="TTestData"/>. This is necessary because the base class signature
     ///     accepts <see cref="ITheoryTestDataRow"/> (interface), which could be implemented by incompatible generic types.
     ///   </description></item>
     ///   <item><description>
@@ -419,23 +420,18 @@ where TTestData : notnull, ITestData
     /// </list>
     /// </para>
     /// <para>
-    /// <strong>Type Validation Logic:</strong>
+    /// <strong>Type Validation Logic (Pattern Matching):</strong>
     /// </para>
     /// <para>
-    /// The type validation uses reflection to ensure the row is of the correct generic type:
+    /// The type validation uses modern C# pattern matching for optimal performance:
     /// <code>
-    /// // 1. Check if row is a generic type:
-    /// if (!rowType.IsGenericType)
-    /// {
-    ///     throw new ArgumentException(...);
-    /// }
-    /// 
-    /// // 2. Check if generic parameter matches TTestData:
-    /// if (genericArgs.Length != 1 || genericArgs[0] != typeof(TTestData))
+    /// if (NotNull(row, nameof(row)) is not TheoryTestDataRow&lt;TTestData&gt;)
     /// {
     ///     throw new ArgumentException(...);
     /// }
     /// </code>
+    /// This single pattern match validates both null-safety and type compatibility in one efficient operation,
+    /// replacing the previous reflection-based approach for better performance and cleaner code.
     /// </para>
     /// <para>
     /// <strong>Deduplication Logic:</strong>
@@ -469,22 +465,20 @@ where TTestData : notnull, ITestData
     /// <strong>Error Message Format:</strong>
     /// </para>
     /// <para>
-    /// When validation fails, the exception message includes:
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     <strong>Non-Generic Type:</strong> "Expected: TheoryTestDataRow&lt;TTestData&gt;, Actual: [ActualTypeName]"
-    ///   </description></item>
-    ///   <item><description>
-    ///     <strong>Mismatched Generic Parameter:</strong> "Expected: TheoryTestDataRow&lt;TTestData&gt;, Actual: [ActualTypeName]&lt;[GenericArgs]&gt;"
-    ///   </description></item>
-    /// </list>
+    /// When validation fails, the exception message uses <see cref="Formatter.Format{T}(T)"/> to provide
+    /// human-readable type names with full generic parameter information:
     /// </para>
+    /// <code>
+    /// "The provided test data row has an incompatible type. 
+    ///  Expected: TheoryTestDataRow&lt;TTestData&gt;, 
+    ///  Actual: [FormattedActualType]"
+    /// </code>
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="row"/> is <c>null</c>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="row"/> is not a generic type, or has a mismatched generic parameter.
+    /// Thrown when <paramref name="row"/> is not of type <see cref="TheoryTestDataRow{TTestData}"/> or has a mismatched generic parameter.
     /// </exception>
     /// <example>
     /// <para><strong>Normal Usage (via AddRow):</strong></para>
@@ -502,10 +496,10 @@ where TTestData : notnull, ITestData
     /// <code>
     /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(...);
     /// 
-    /// ITheoryTestDataRow wrongRow = new CustomNonGenericRow();  // ← Not generic
+    /// ITheoryTestDataRow wrongRow = new CustomNonGenericRow();  // ← Not TheoryTestDataRow&lt;T&gt;
     /// 
     /// data.Add(wrongRow);  // ← Throws ArgumentException
-    /// // Message: "The provided test data row must be a generic type. 
+    /// // Message: "The provided test data row has an incompatible type. 
     /// //           Expected: TheoryTestDataRow&lt;TestDataReturns&lt;Int32&gt;&gt;, 
     /// //           Actual: CustomNonGenericRow"
     /// </code>
@@ -517,7 +511,7 @@ where TTestData : notnull, ITestData
     /// var wrongRow = new TheoryTestDataRow&lt;TestDataReturns&lt;string&gt;&gt;(...);
     /// 
     /// data.Add(wrongRow);  // ← Throws ArgumentException
-    /// // Message: "The provided test data row has a mismatched generic type parameter. 
+    /// // Message: "The provided test data row has an incompatible type. 
     /// //           Expected: TheoryTestDataRow&lt;TestDataReturns&lt;Int32&gt;&gt;, 
     /// //           Actual: TheoryTestDataRow&lt;TestDataReturns&lt;String&gt;&gt;"
     /// </code>
@@ -526,25 +520,12 @@ where TTestData : notnull, ITestData
     /// <seealso cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Add(TTheoryDataRow)"/>
     public override void Add(ITheoryTestDataRow row)
     {
-        var rowType = NotNull(row, nameof(row)).GetType();
-
-        if (!rowType.IsGenericType)
+        if (NotNull(row, nameof(row)) is not TheoryTestDataRow<TTestData>)
         {
             throw new ArgumentException(
-                $"The provided test data row must be a generic type. " +
-                $"Expected: TheoryTestDataRow<{typeof(TTestData).Name}>, " +
-                $"Actual: {rowType.Name}",
-                nameof(row));
-        }
-
-        var genericArgs = rowType.GetGenericArguments();
-
-        if (genericArgs.Length != 1 || genericArgs[0] != typeof(TTestData))
-        {
-            throw new ArgumentException(
-                $"The provided test data row has a mismatched generic type parameter. " +
-                $"Expected: TheoryTestDataRow<{typeof(TTestData).Name}>, " +
-                $"Actual: {rowType.Name}<{string.Join(", ", genericArgs.Select(t => t.Name))}>",
+                $"The provided test data row has an incompatible type. " +
+                $"Expected: {Format(typeof(TheoryTestDataRow<TTestData>))}, " +
+                $"Actual: {Format(row.GetType())}",
                 nameof(row));
         }
 
