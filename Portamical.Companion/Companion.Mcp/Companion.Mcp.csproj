@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Portamical.Companion.Mcp</RootNamespace>
+    <AssemblyName>Portamical.Companion.Mcp</AssemblyName>
+    <Version>5.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Companion.Core\Companion.Core.csproj" />
+    <ProjectReference Include="..\Companion.Analysis\Companion.Analysis.csproj" />
+    <ProjectReference Include="..\Companion.Execution\Companion.Execution.csproj" />
+    <ProjectReference Include="..\Companion.Emit\Companion.Emit.csproj" />
+  </ItemGroup>
+
+</Project>
