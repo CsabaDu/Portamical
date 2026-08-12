@@ -202,13 +202,12 @@ namespace Portamical.xUnit_v3.DataProviders.Model;
 ///     ArgsCode.Properties,
 ///     null);
 /// 
-/// // Convert with explicit parameters (ignores instance config)
+/// // Convert with explicit testMethodName (overrides instance TestMethodName)
 /// ITheoryTestDataRow row = data.ConvertRow(
 ///     new TestDataReturns&lt;int&gt;("Add(10,20)", [10, 20], 30),
-///     ArgsCode.Instance,      // ← Override instance ArgsCode
 ///     "CustomTestMethod");    // ← Override instance TestMethodName
 /// 
-/// // row uses ArgsCode.Instance (not data.ArgsCode)
+/// // row uses ArgsCode.Properties (from data.ArgsCode)
 /// // row.TestDisplayName = "CustomTestMethod - Add(10,20)"
 /// </code>
 /// </example>
@@ -537,24 +536,14 @@ where TTestData : notnull, ITestData
     }
 
     /// <summary>
-    /// Converts Portamical test data to an xUnit v3 theory test data row with explicit parameters.
+    /// Converts Portamical test data to an xUnit v3 theory test data row using instance <see cref="ArgsCode"/> configuration.
     /// </summary>
     /// <param name="testData">
     /// The Portamical test data to convert.
     /// </param>
-    /// <param name="argsCode">
-    /// Specifies how to convert the test data to test method arguments:
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Instance"/> - Pass entire <see cref="ITestData"/> object as single argument
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
-    ///   </description></item>
-    /// </list>
-    /// </param>
     /// <param name="testMethodName">
     /// Optional test method name to prepend to the test case name in the display name.
+    /// If provided, this parameter overrides the instance's <see cref="TestMethodName"/> property.
     /// </param>
     /// <returns>
     /// An <see cref="ITheoryTestDataRow"/> instance containing the converted test data.
@@ -564,26 +553,27 @@ where TTestData : notnull, ITestData
     /// <strong>Public Conversion API:</strong>
     /// </para>
     /// <para>
-    /// This method provides a public API for converting test data with explicit parameters, allowing callers
-    /// to override the instance configuration (<see cref="ArgsCode"/> and <see cref="TestMethodName"/>).
+    /// This method provides a public API for converting test data with an explicit <paramref name="testMethodName"/> parameter,
+    /// allowing callers to override the instance's <see cref="TestMethodName"/> property. The instance's <see cref="ArgsCode"/>
+    /// property is always used for conversion.
     /// </para>
     /// <para>
     /// <strong>vs. Protected Convert:</strong>
     /// </para>
     /// <para>
-    /// Unlike the protected <see cref="Convert(TTestData)"/> method (which uses instance configuration),
-    /// this method accepts explicit parameters:
+    /// Unlike the protected <see cref="Convert(TTestData)"/> method (which uses instance <see cref="TestMethodName"/>),
+    /// this method accepts an explicit <paramref name="testMethodName"/> parameter:
     /// </para>
     /// <code>
-    /// // Convert (protected) - uses instance config:
+    /// // Convert (protected) - uses instance TestMethodName:
     /// protected override ITheoryTestDataRow Convert(TTestData row)
-    /// =&gt; ConvertRow(row, ArgsCode, TestMethodName);
-    /// //             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode, this.TestMethodName
+    /// =&gt; ConvertRow(row, TestMethodName);
+    /// //             ^^^^^^^^^^^^^^^^^^^ Uses this.TestMethodName
     /// 
-    /// // ConvertRow (public) - explicit parameters:
-    /// public ITheoryTestDataRow ConvertRow(TTestData testData, ArgsCode argsCode, string? testMethodName)
-    /// =&gt; new TheoryTestDataRow&lt;TTestData&gt;(testData, argsCode, testMethodName);
-    /// //                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Explicit parameters
+    /// // ConvertRow (public) - explicit testMethodName parameter:
+    /// public ITheoryTestDataRow ConvertRow(TTestData testData, string? testMethodName)
+    /// =&gt; new TheoryTestDataRow&lt;TTestData&gt;(testData, ArgsCode, testMethodName);
+    /// //                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode, explicit testMethodName
     /// </code>
     /// </remarks>
     /// <example>
@@ -596,13 +586,12 @@ where TTestData : notnull, ITestData
     /// // data.ArgsCode == ArgsCode.Properties
     /// // data.TestMethodName == "TestAdd"
     /// 
-    /// // Convert with explicit parameters (overrides instance config):
+    /// // Convert with explicit testMethodName (overrides instance TestMethodName):
     /// ITheoryTestDataRow row = data.ConvertRow(
     ///     new TestDataReturns&lt;int&gt;("Add(10,20)", [10, 20], 30),
-    ///     ArgsCode.Instance,      // ← Override instance ArgsCode
     ///     "CustomMethod");        // ← Override instance TestMethodName
     /// 
-    /// // row uses ArgsCode.Instance (not data.ArgsCode)
+    /// // row uses ArgsCode.Properties (from data.ArgsCode)
     /// // row.TestDisplayName = "CustomMethod - Add(10,20)" (not "TestAdd - ...")
     /// </code>
     /// </example>
@@ -639,8 +628,8 @@ where TTestData : notnull, ITestData
     /// </para>
     /// <code>
     /// protected override ITheoryTestDataRow Convert(TTestData row)
-    /// =&gt; ConvertRow(testData: row, ArgsCode, TestMethodName);
-    /// //            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode, this.TestMethodName
+    /// =&gt; ConvertRow(testData: row, TestMethodName);
+    /// //            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode (implicitly), this.TestMethodName
     /// </code>
     /// <para>
     /// <strong>Usage:</strong>
@@ -662,8 +651,8 @@ where TTestData : notnull, ITestData
     /// 
     /// // Internally:
     /// // 1. AddRow calls Convert(testData)
-    /// // 2. Convert calls ConvertRow(testData, ArgsCode.Properties, "TestAdd")
-    /// // 3. ConvertRow creates TheoryTestDataRow with those parameters
+    /// // 2. Convert calls ConvertRow(testData, "TestAdd")
+    /// // 3. ConvertRow creates TheoryTestDataRow(testData, ArgsCode.Properties, "TestAdd")
     /// </code>
     /// </example>
     /// <seealso cref="ConvertRow"/>
