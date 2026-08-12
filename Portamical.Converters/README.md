@@ -864,13 +864,6 @@ public class CalculatorTests
         Assert.Equal(expected, result);
     }
 }
-    
-    [Theory, MemberData(nameof(GetAddTestData))]
-    public void TestAdd(int arg1, int arg2, int expected)
-    {
-        Assert.Equal(expected, Calculator.Add(arg1, arg2));
-    }
-}
 
 // xUnit v3 Test Explorer displays:
 // ✓ TestAdd - Add(2,3)   ← Custom test name with method prefix
