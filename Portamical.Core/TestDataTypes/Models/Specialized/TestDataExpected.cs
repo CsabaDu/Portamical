@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.Formatting;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes.Patterns;
-using System.Runtime.CompilerServices;
-using Portamical.Core.Formatting;
 
 namespace Portamical.Core.TestDataTypes.Models.Specialized;
 

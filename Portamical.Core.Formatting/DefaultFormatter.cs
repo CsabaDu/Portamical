@@ -35,7 +35,7 @@ namespace Portamical.Core.Formatting;
 /// Supports custom formatter registration via <see cref="Formatter"/> for specialized types.
 /// </para>
 /// </remarks>
-public sealed class DefaultFormatter : IFormatter
+internal sealed class DefaultFormatter : IFormatter
 {
     #region Static fields
 
