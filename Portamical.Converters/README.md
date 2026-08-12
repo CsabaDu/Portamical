@@ -262,12 +262,12 @@ Task-based async variants with **smart performance optimization**.
 #### Performance Strategy
 
 ```csharp
-// Small collections (< 10 items): Execute synchronously
+// Small collections (< 10 items) when `testDataCollection` is an ICollection<T>: Execute synchronously
 Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(...)
 
 // Performance:
-// - < 10 items: Uses Task.FromResult (avoids Task.Run overhead ~5-20 µs)
-// - ≥ 10 items: Uses Task.Run (offloads to thread pool)
+// - < 10 items (ICollection<T>): Uses Task.FromResult (avoids Task.Run overhead ~5-20 µs)
+// - Otherwise: Uses Task.Run (offloads to thread pool)
 ```
 
 **Benefits**:
