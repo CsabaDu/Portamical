@@ -145,8 +145,8 @@ public class CollectionConverterTests
     {
         ITestData[] collection = [CreateData("u")];
         Func<ITestData, string?, object?[]> nullConverter = null!;
-        Assert.ThrowsExactly<NullReferenceException>(
-            () => collection.ToDistinctArray(nullConverter, null));
+Assert.ThrowsExactly<ArgumentNullException>(
+    () => collection.ToDistinctArray(nullConverter, null));
     }
 
     [TestMethod]
