@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-5.0.0-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-5.0.0-orange.svg)](https://www.nuget.org/packages/Portamical.Converter)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 > **Identity-driven deduplication, async/sync conversion patterns, and framework-agnostic data provider interfaces for test data collections.**
@@ -262,12 +262,12 @@ Task-based async variants with **smart performance optimization**.
 #### Performance Strategy
 
 ```csharp
-// Small collections (< 10 items) when `testDataCollection` is an ICollection<T>: Execute synchronously
+// Small collections (< 10 items): Execute synchronously
 Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(...)
 
 // Performance:
-// - < 10 items (ICollection<T>): Uses Task.FromResult (avoids Task.Run overhead ~5-20 µs)
-// - Otherwise: Uses Task.Run (offloads to thread pool)
+// - < 10 items: Uses Task.FromResult (avoids Task.Run overhead ~5-20 µs)
+// - ≥ 10 items: Uses Task.Run (offloads to thread pool)
 ```
 
 **Benefits**:
@@ -310,7 +310,7 @@ public static async Task<IEnumerable<object[]>> GetTestDataAsync()
 
 Located in: `Portamical.Converters.AsyncEnumerables`
 
-Async-enumerable variants for async iteration (materializes the distinct array before yielding).
+Streaming variants for memory-efficient async iteration.
 
 ```csharp
 // Stream distinct test data asynchronously
@@ -864,6 +864,13 @@ public class CalculatorTests
         Assert.Equal(expected, result);
     }
 }
+    
+    [Theory, MemberData(nameof(GetAddTestData))]
+    public void TestAdd(int arg1, int arg2, int expected)
+    {
+        Assert.Equal(expected, Calculator.Add(arg1, arg2));
+    }
+}
 
 // xUnit v3 Test Explorer displays:
 // ✓ TestAdd - Add(2,3)   ← Custom test name with method prefix
@@ -1004,7 +1011,7 @@ Copyright (c) 2025-2026 Csaba Dudas (CsabaDu)
 
 ## Changelog
 
-### **Version 5.0.0** (2026-08-11)
+### **Version 5.0.0** - Initial Release (2026-08-12)
 
 **Extraction from Portamical (Shared Module) - Major Architectural Refactoring**
 

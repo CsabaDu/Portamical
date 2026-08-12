@@ -3,6 +3,9 @@
 
 namespace Portamical.Converters.DataProviders;
 
+/// <summary>
+/// Provides extension methods for converting test data collections into <see cref="ITestDataProvider{TTestData}"/> instances.
+/// </summary>
 /// <remarks>
 /// <para>
 /// The methods in this class help ensure that test data collections are deduplicated based on test case
@@ -16,6 +19,8 @@ namespace Portamical.Converters.DataProviders;
 /// </remarks>
 public static class CollectionConverter
 {
+    #region ToDataProvider<TDataProvider, TTestData>
+
     /// <summary>
     /// Converts a collection of test data into a data provider instance (primary implementation).
     /// </summary>
@@ -86,13 +91,183 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : ITestDataProvider<TTestData>
     {
-        var snapshot =
-            NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
-        var testData = snapshot[0];
+        var (snapshot, testData, count) =
+            SnapshotWithFirstAndCount(testDataCollection);
         var dataProvider =
             NotNull(initDataProvider, nameof(initDataProvider))(
                 testData);
-        var count = snapshot.Length;
+
+        if (count > 1)
+        {
+            for (int i = 1; i < count; i++)
+            {
+                testData = snapshot[i];
+                dataProvider.AddRow(testData);
+            }
+        }
+
+        return dataProvider;
+    }
+
+    /// <summary>
+    /// Converts a collection of test data into a data provider instance using the default constructor.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>This overload</strong> uses the <c>new()</c> constraint to instantiate the data provider
+    /// directly, without requiring an initializer function. All test data items are added via
+    /// <see cref="ITestDataProvider{TTestData}.AddRow(TTestData)"/>.
+    /// </para>
+    /// <para>
+    /// <strong>Deduplication:</strong> Uses <see cref="NamedCase.Comparer"/> to remove duplicate
+    /// test data based on <see cref="INamedCase.TestCaseName"/>. Only the first occurrence of each
+    /// unique test case name is retained.
+    /// </para>
+    /// <para>
+    /// <strong>Algorithm:</strong>
+    /// </para>
+    /// <list type="number">
+    ///   <item>Converts the collection to an array snapshot and validates it is not empty</item>
+    ///   <item>Creates a new data provider instance using the default constructor</item>
+    ///   <item>Iterates through all items, adding only those with unique <c>TestCaseName</c> values</item>
+    ///   <item>Returns the populated data provider</item>
+    /// </list>
+    /// <para>
+    /// <strong>Performance:</strong> Uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/>
+    /// for O(n) deduplication. Uses <c>foreach</c> instead of LINQ for better performance with HashSet-based
+    /// deduplication (see suppression of S3267).
+    /// </para>
+    /// </remarks>
+    /// <typeparam name="TDataProvider">
+    /// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/>
+    /// and have a parameterless constructor.
+    /// </typeparam>
+    /// <typeparam name="TTestData">
+    /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
+    /// one item.
+    /// </param>
+    /// <returns>
+    /// A data provider instance containing all distinct test data items from the collection, with duplicates
+    /// removed based on <see cref="INamedCase.TestCaseName"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <example>
+    /// <code>
+    /// var testData = new[]
+    /// {
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate - will be filtered
+    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
+    /// };
+    /// 
+    /// var provider = testData.ToDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
+    /// // Result: provider contains 2 items (duplicate removed)
+    /// </code>
+    /// </example>
+    public static TDataProvider ToDataProvider<TDataProvider, TTestData>(
+        this IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    where TDataProvider : ITestDataProvider<TTestData>, new()
+    {
+        var snapshot =
+            NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var dataProvider = new TDataProvider();
+
+        foreach (var testData in snapshot)
+        {
+            dataProvider.AddRow(testData);
+        }
+
+        return dataProvider;
+    }
+
+    #endregion
+
+    #region ToDistinctDataProvider<TDataProvider, TTestData>
+
+    /// <summary>
+    /// Converts a collection of test data into a data provider instance (primary implementation).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>This is the PRIMARY implementation.</strong> The overload with <c>testMethodName</c>
+    /// delegates to this method by wrapping the initializer function.
+    /// </para>
+    /// <para>
+    /// <strong>Deduplication:</strong> Uses <see cref="NamedCase.Comparer"/> to remove duplicate
+    /// test data based on <see cref="INamedCase.TestCaseName"/>. Only the first occurrence of each
+    /// unique test case name is retained.
+    /// </para>
+    /// <para>
+    /// <strong>Algorithm:</strong>
+    /// </para>
+    /// <list type="number">
+    ///   <item>Converts the collection to an array snapshot and validates it is not empty</item>
+    ///   <item>Initializes the data provider with the first test data item</item>
+    ///   <item>For remaining items, adds only those with unique <c>TestCaseName</c> values</item>
+    ///   <item>Returns the populated data provider</item>
+    /// </list>
+    /// <para>
+    /// <strong>Performance:</strong> Uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/>
+    /// for O(n) deduplication. Does not use aggressive inlining due to loop and complex logic.
+    /// </para>
+    /// </remarks>
+    /// <typeparam name="TDataProvider">
+    /// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/>.
+    /// </typeparam>
+    /// <typeparam name="TTestData">
+    /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
+    /// one item.
+    /// </param>
+    /// <param name="initDataProvider">
+    /// A function that initializes a new data provider instance using a test data item. Cannot be null.
+    /// </param>
+    /// <returns>
+    /// A data provider instance containing all distinct test data items from the collection, with duplicates
+    /// removed based on <see cref="INamedCase.TestCaseName"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="initDataProvider"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <example>
+    /// <code>
+    /// var testData = new[]
+    /// {
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate - will be filtered
+    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
+    /// };
+    /// 
+    /// var provider = testData.ToDistinctDataProvider(
+    ///     td => new MyDataProvider(td));
+    /// // Result: provider contains 2 items (duplicate removed)
+    /// </code>
+    /// </example>
+    public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, TDataProvider> initDataProvider)
+    where TTestData : notnull, ITestData
+    where TDataProvider : ITestDataProvider<TTestData>
+    {
+        var (snapshot, testData, count) =
+            SnapshotWithFirstAndCount(testDataCollection);
+        var dataProvider =
+            NotNull(initDataProvider, nameof(initDataProvider))(
+                testData);
 
         if (count > 1)
         {
@@ -173,11 +348,11 @@ public static class CollectionConverter
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = testData.ToDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
+    /// var provider = testData.ToDistinctDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
-    public static TDataProvider ToDataProvider<TDataProvider, TTestData>(
+    public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     where TDataProvider : ITestDataProvider<TTestData>, new()
@@ -200,4 +375,40 @@ public static class CollectionConverter
 
         return dataProvider;
     }
+
+    #endregion
+
+    #region Private helper methods
+
+    /// <summary>
+    /// Creates an array snapshot of the test data collection and extracts the first element and count.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the collection. Must implement <see cref="ITestData"/> and cannot be null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection to snapshot. Cannot be null or empty.
+    /// </param>
+    /// <returns>
+    /// A tuple containing the array snapshot, the first test data element, and the total count.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    private static (TTestData[] Snapshot, TTestData TestData, int Count) SnapshotWithFirstAndCount<TTestData>(
+        IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    {
+        var snapshot =
+            NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var testData = snapshot[0];
+        var count = snapshot.Length;
+
+        return (snapshot, testData, count);
+    }
+
+    #endregion
 }

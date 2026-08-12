@@ -80,18 +80,20 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        bool isSmallCollection =
-            testDataCollection is ICollection<TTestData> collection &&
-            collection.Count < 10;
+        const int smallCollectionCountLimit = 10;
 
-        return isSmallCollection ?
-            Task.FromResult(convertToDistinctRowArray())
-            : Task.Run(() => convertToDistinctRowArray());
+        var snapshot = NotNullOrEmpty(
+            testDataCollection,
+            nameof(testDataCollection));
+
+        return snapshot.Length < smallCollectionCountLimit ?
+            Task.FromResult(result: toDistinctRowArray())
+            : Task.Run(function: toDistinctRowArray);
 
         #region Local function
 
-        TRow[] convertToDistinctRowArray()
-        => testDataCollection.ToDistinctArray(convertRow);
+        TRow[] toDistinctRowArray()
+        => snapshot.ToDistinctArray(convertRow);
 
         #endregion
     }
