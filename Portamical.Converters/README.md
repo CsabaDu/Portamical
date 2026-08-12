@@ -160,15 +160,15 @@ public void AddTest(int arg1, int arg2, int expected)
 
 ```
 Portamical.Converters/
-???? CollectionConverter.cs          # Root namespace - Synchronous conversion
-???? AsyncEnumerables/
-?   ???? CollectionConverter.cs      # IAsyncEnumerable<TRow> streaming variants
-???? Tasks/
-?   ???? CollectionConverter.cs      # Task<TRow[]> async variants with threshold optimization
-???? DataProviders/
-    ???? ITestDataProvider.cs        # Collection management contract
-    ???? ITestDataConverter.cs       # Row conversion contract
-    ???? CollectionConverter.cs      # Provider-based conversion methods
+├─── CollectionConverter.cs          # Root namespace - Synchronous conversion
+├─── AsyncEnumerables/
+│   └─── CollectionConverter.cs      # IAsyncEnumerable<TRow> streaming variants
+├─── Tasks/
+│   └─── CollectionConverter.cs      # Task<TRow[]> async variants with threshold optimization
+└─── DataProviders/
+    ├─── ITestDataProvider.cs        # Collection management contract
+    ├─── ITestDataConverter.cs       # Row conversion contract
+    └─── CollectionConverter.cs      # Provider-based conversion methods
 ```
 
 ---
@@ -266,8 +266,8 @@ Task-based async variants with **smart performance optimization**.
 Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(...)
 
 // Performance:
-// - < 10 items: Uses Task.FromResult (avoids Task.Run overhead ~5-20 �s)
-// - ? 10 items: Uses Task.Run (offloads to thread pool)
+// - < 10 items: Uses Task.FromResult (avoids Task.Run overhead ~5-20 µs)
+// - ≥ 10 items: Uses Task.Run (offloads to thread pool)
 ```
 
 **Benefits**:
@@ -301,8 +301,8 @@ public static async Task<IEnumerable<object[]>> GetTestDataAsync()
 |-----------|----------------|------------------|-------------|
 | Deduplication | O(n) | O(n) | Minimal |
 | Task threshold check | O(1) | O(1) | 0 bytes |
-| Small collection (&lt;10) | ~1-3 �s | O(n) | 0 bytes (Task.FromResult) |
-| Large collection (?10) | ~6-22 �s | O(n) | Task.Run overhead |
+| Small collection (&lt;10) | ~1-3 µs | O(n) | 0 bytes (Task.FromResult) |
+| Large collection (≥10) | ~6-22 µs | O(n) | Task.Run overhead |
 
 ---
 
@@ -467,7 +467,7 @@ where TTestData : notnull, ITestData
 ITestDataProvider<ITestData> baseProvider = new TestDataProvider<ITestData>();
 
 // Can be assigned to variable expecting derived type
-ITestDataProvider<TestDataReturns<int>> derivedProvider = baseProvider; // ?
+ITestDataProvider<TestDataReturns<int>> derivedProvider = baseProvider; // ✅
 
 // This works because TestDataReturns<int> : ITestData
 // The provider can accept any ITestData, including derived types
@@ -523,13 +523,13 @@ where TTestData : notnull, ITestData
 **Variance Example**:
 
 ```csharp
-// Contravariance: Base type converter ? Derived type variable
+// Contravariance: Base type converter → Derived type variable
 ITestDataConverter<ITestData, object[]> generalConverter = new TestDataProvider<ITestData>();
-ITestDataConverter<TestDataReturns<int>, object[]> specificConverter = generalConverter; // ?
+ITestDataConverter<TestDataReturns<int>, object[]> specificConverter = generalConverter; // ✅
 
-// Covariance: Specific return type ? General return type
+// Covariance: Specific return type → General return type
 ITestDataConverter<ITestData, object[]> arrayConverter = specificConverter;
-ITestDataConverter<ITestData, object> objectConverter = arrayConverter; // ?
+ITestDataConverter<ITestData, object> objectConverter = arrayConverter; // ✅
 ```
 
 **Combined Implementation Pattern**:
@@ -734,11 +734,11 @@ using static Portamical.Core.Safety.Validator;
 /// <para><strong>Inheritance Hierarchy:</strong></para>
 /// <code>
 /// xUnit.v3.TheoryDataBase&lt;ITheoryDataRow, TTestData&gt; (xUnit v3 base)
-///   ? inherits
+///   ↓ inherits
 /// TheoryTestData&lt;TTestData&gt; (this class)
-///   ? implements
+///   ↓ implements
 /// ITheoryTestData&lt;TTestData&gt; (Portamical)
-///   ? extends
+///   ↓ extends
 /// ITestDataProvider&lt;TTestData&gt; + ITestDataConverter&lt;TTestData, ITheoryDataRow&gt;
 /// </code>
 /// </remarks>
@@ -789,8 +789,8 @@ where TTestData : notnull, ITestData
     /// if (_namedCases.Add(row))
     /// {
     ///     // _namedCases.Add returns:
-    ///     // - true: row.TestCaseName is unique ? add to collection
-    ///     // - false: row.TestCaseName is duplicate ? skip silently
+    ///     // - true: row.TestCaseName is unique → add to collection
+    ///     // - false: row.TestCaseName is duplicate → skip silently
     ///     base.Add(row);
     /// }
     /// </code>
@@ -873,8 +873,8 @@ public class CalculatorTests
 }
 
 // xUnit v3 Test Explorer displays:
-// ? TestAdd - Add(2,3)   ? Custom test name with method prefix
-// ? TestAdd - Add(5,7)   ? Custom test name with method prefix
+// ✓ TestAdd - Add(2,3)   ← Custom test name with method prefix
+// ✓ TestAdd - Add(5,7)   ← Custom test name with method prefix
 ```
 
 **Key Benefits of This Pattern:**
@@ -899,11 +899,11 @@ Works with all major .NET testing frameworks:
 
 | Framework | Version | Support |
 |-----------|---------|---------|
-| **xUnit** | v2 | ? `IEnumerable<object[]>` |
-| **xUnit** | v3 | ? `TheoryDataRow<T...>` support |
-| **MSTest** | v4 | ? `DynamicData` attribute |
-| **NUnit** | v4 | ? `TestCaseSource` attribute |
-| **TUnit** | Latest | ? Full support |
+| **xUnit** | v2 | ✅ `IEnumerable<object[]>` |
+| **xUnit** | v3 | ✅ `TheoryDataRow<T...>` support |
+| **MSTest** | v4 | ✅ `DynamicData` attribute |
+| **NUnit** | v4 | ✅ `TestCaseSource` attribute |
+| **TUnit** | Latest | ✅ Full support |
 
 ---
 
@@ -930,13 +930,13 @@ public class TestDataProvider<TTestData>
 ### Variance Support
 
 ```csharp
-// Contravariance: Base type provider ? Derived type variable
+// Contravariance: Base type provider → Derived type variable
 ITestDataProvider<ITestData> baseProvider = ...;
-ITestDataProvider<TestDataReturns<int>> derivedProvider = baseProvider; // ?
+ITestDataProvider<TestDataReturns<int>> derivedProvider = baseProvider; // ✅
 
-// Covariance: Specific return type ? General return type
+// Covariance: Specific return type → General return type
 ITestDataConverter<ITestData, object[]> specificConverter = ...;
-ITestDataConverter<ITestData, object> baseConverter = specificConverter; // ?
+ITestDataConverter<ITestData, object> baseConverter = specificConverter; // ✅
 ```
 
 ---
@@ -961,9 +961,9 @@ ITestDataConverter<ITestData, object> baseConverter = specificConverter; // ?
 | Async enumeration | O(n) | O(1) streaming | Per-item |
 
 **Benchmarks** (small collection < 10 items):
-- **Synchronous**: ~1-2 �s
-- **Task-based (sync path)**: ~1-3 �s (Task.FromResult)
-- **Task-based (async path)**: ~6-22 �s (Task.Run overhead)
+- **Synchronous**: ~1-2 µs
+- **Task-based (sync path)**: ~1-3 µs (Task.FromResult)
+- **Task-based (async path)**: ~6-22 µs (Task.Run overhead)
 
 ---
 
@@ -1031,7 +1031,7 @@ This release extracts data provider interfaces and collection converters from th
    - `CollectionConverter` (AsyncEnumerables) - Streaming variants with `IAsyncEnumerable<T>`
      - `ToDistinctAsyncEnumerable<TTestData, TRow>()` - Memory-efficient async iteration
    - `CollectionConverter` (Tasks) - Task-based async variants with smart threshold optimization
-     - `ToDistinctArrayTask<TTestData, TRow>()` - Async with &lt;10 items sync, ?10 items async
+     - `ToDistinctArrayTask<TTestData, TRow>()` - Async with &lt;10 items sync, ≥10 items async
    - `CollectionConverter` (DataProviders) - Provider-based conversion methods
      - `ToDataProvider<TDataProvider, TTestData>()` - Convert collection to data provider instance
 
@@ -1039,7 +1039,7 @@ This release extracts data provider interfaces and collection converters from th
 - **Reusability**: Pure conversion infrastructure, decoupled from assertions and test base classes
 - **Separation of Concerns**: Framework-agnostic foundation for data transformation
 - **Dependency Graph**: Clean layered architecture without circular dependencies
-  - `Portamical.Core` (foundation) ? `Portamical.Converters` (conversion) ? `Portamical` (shared utilities) ? Framework adapters
+  - `Portamical.Core` (foundation) → `Portamical.Converters` (conversion) → `Portamical` (shared utilities) → Framework adapters
 - **Maintenance**: Independent versioning and releases
 
 **Features**:
@@ -1047,16 +1047,16 @@ This release extracts data provider interfaces and collection converters from th
 - **O(n) performance** with `HashSet<INamedCase>` for deduplication
 - **First-occurrence wins** semantics preserving original collection order
 - **Multiple conversion patterns**: synchronous, Task-based, and streaming
-- **Smart threshold optimization** for Task-based conversions (&lt;10 items sync, ?10 items async)
+- **Smart threshold optimization** for Task-based conversions (&lt;10 items sync, ≥10 items async)
 - **Zero-allocation array returns** for test frameworks (direct array construction)
 - **Thread-safe stateless static methods** for concurrent test execution
 - **Variance support** for flexible type assignments (contravariant/covariant interfaces)
 
 **Performance Characteristics**:
 - **Deduplication**: O(n) time, O(n) space, minimal allocations
-- **Synchronous**: ~1-2 �s for small collections (&lt;10 items)
-- **Task-based (sync path)**: ~1-3 �s with `Task.FromResult`
-- **Task-based (async path)**: ~6-22 �s with `Task.Run` overhead
+- **Synchronous**: ~1-2 µs for small collections (&lt;10 items)
+- **Task-based (sync path)**: ~1-3 µs with `Task.FromResult`
+- **Task-based (async path)**: ~6-22 µs with `Task.Run` overhead
 - **Async enumeration**: O(n) time, O(1) space (streaming)
 
 **Breaking Changes from Portamical v4.x**:
