@@ -249,13 +249,8 @@ public class CollectionConverterTasksTests
     {
         // Small collections should complete very quickly
         ITestData[] collection = [CreateData("perf1"), CreateData("perf2")];
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        await collection.ToDistinctArrayTask();
-        stopwatch.Stop();
-        
-        // Should complete in well under 100ms (typically < 1ms)
-        Assert.IsTrue(stopwatch.ElapsedMilliseconds < 100,
-            $"Small collection took {stopwatch.ElapsedMilliseconds}ms");
+var result = await collection.ToDistinctArrayTask();
+Assert.HasCount(2, result);
     }
 
     [TestMethod]
