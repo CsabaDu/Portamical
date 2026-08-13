@@ -16,7 +16,7 @@
 ## Features
 
 ### **Strategy-Based Row Conversion**
-- **Concrete rows** - Direct materialization into strongly-typed arrays (`TTestData[]`) or object?array structures (`object[][]`)
+- **Concrete rows** - Direct materialization into strongly-typed arrays (`TTestData[]`) or object-array structures (`object[][]`)
 - **Abstract rows** - Custom conversion logic via `Func<TTestData, TRow>` delegates
 - **Built-in strategies** - `ArgsCode.Instance` (wrap testData), `ArgsCode.Properties` (flatten properties)
 - **Extensible** - Implement custom conversion strategies for framework-specific requirements
