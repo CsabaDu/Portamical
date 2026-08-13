@@ -15,6 +15,12 @@
 
 ## Features
 
+### **Strategy-Based Row Conversion**
+- **Concrete rows** - Direct conversion to strongly-typed arrays (`object[]`, `ITestData[]`)
+- **Abstract rows** - Custom conversion logic via `Func<TTestData, TRow>` delegates
+- **Built-in strategies** - `ArgsCode.Instance` (wrap testData), `ArgsCode.Properties` (flatten properties)
+- **Extensible** - Implement custom conversion strategies for framework-specific requirements
+
 ### **Identity-Based Deduplication**
 - **Automatic duplicate removal** - Uses `INamedCase.TestCaseName` for semantic equality
 - **O(n) performance** - `HashSet<INamedCase>` with `NamedCase.Comparer`
@@ -160,7 +166,7 @@ public void AddTest(int arg1, int arg2, int expected)
 
 ```
 Portamical.Converters/
-├─── CollectionConverter.cs          # Root namespace - Synchronous conversion
+├─── CollectionConverter.cs          # Root namespace - Synchronous conversion (TRow[])
 ├─── AsyncEnumerables/
 │   └─── CollectionConverter.cs      # IAsyncEnumerable<TRow> streaming variants
 ├─── Tasks/
