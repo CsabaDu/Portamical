@@ -69,6 +69,11 @@ IExpected<TResult>
 where TResult : notnull
 {
     /// <summary>
+    /// The default result prefix used when <see cref="GetResultPrefix()"/> returns null or whitespace.
+    /// </summary>
+    private const string DefaultResultPrefix = "results";
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="TestDataExpected{TResult}"/> class.
     /// </summary>
     /// <param name="definition">
@@ -106,6 +111,8 @@ where TResult : notnull
         TestCaseName = CreateTestCaseName();
     }
 
+    #region Properties
+
     /// <summary>
     /// Gets the expected outcome of the test case.
     /// </summary>
@@ -129,6 +136,8 @@ where TResult : notnull
     /// Gets the unique name of the test case associated with this instance.
     /// </summary>
     public override sealed string TestCaseName { get; init; }
+
+    #endregion
 
     /// <inheritdoc/>
     public abstract string GetResultPrefix();
@@ -209,8 +218,7 @@ where TResult : notnull
     /// </example>
     public override sealed string GetResult()
     {
-        const string defaultResultPrefix = "results";
-        var resultPrefix = defaultResultPrefix.FallbackIfNullOrWhiteSpace(
+        var resultPrefix = DefaultResultPrefix.FallbackIfNullOrWhiteSpace(
             GetResultPrefix(), nameof(GetResultPrefix));
 
         var expectedType = Expected.GetType();
@@ -247,6 +255,8 @@ where TResult : notnull
     => Trim(base.ToArgs, argsCode, propsCode,
         propsCode != PropsCode.All);
 
+    #region Helper methods
+
     /// <summary>
     /// Converts the test data to an argument array by extending the base arguments with the expected value.
     /// </summary>
@@ -265,4 +275,6 @@ where TResult : notnull
     /// </remarks>
     protected override object?[] ToObjectArray(ArgsCode argsCode)
     => Extend(base.ToObjectArray, argsCode, Expected);
+
+    #endregion
 }

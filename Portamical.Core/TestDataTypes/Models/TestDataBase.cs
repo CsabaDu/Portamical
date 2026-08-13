@@ -59,6 +59,25 @@ namespace Portamical.Core.TestDataTypes.Models;
 public abstract class TestDataBase(string definition)
     : NamedCase, ITestData
 {
+    #region Fields
+
+    /// <summary>
+    /// The descriptive definition of the test case scenario (left side of "=>").
+    /// </summary>
+    private readonly string _definition = definition;
+
+    /// <summary>
+    /// The default definition string used when no definition is provided. This serves as a fallback value
+    /// </summary>
+    private const string DefaultDefinition = "definition";
+
+    /// <summary>
+    /// The separator string used between the definition and the result in the test case name.
+    /// </summary>
+    private const string Separator = " => ";
+
+    #endregion
+
     #region Methods
 
     /// <summary>
@@ -68,13 +87,9 @@ public abstract class TestDataBase(string definition)
     /// A string containing the definition. If no definition is set, a fallback value is returned.
     /// </returns>
     public string GetDefinition()
-    {
-        const string defaultDefinition = "definition";
-
-        return defaultDefinition.FallbackIfNullOrWhiteSpace(
-            definition,
-            nameof(GetDefinition));
-    }
+    => DefaultDefinition.FallbackIfNullOrWhiteSpace(
+        _definition,
+        nameof(GetDefinition));
 
     /// <summary>
     /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:
@@ -174,7 +189,7 @@ public abstract class TestDataBase(string definition)
     protected string CreateTestCaseName()
     => CreateSeparatedString(
         baseString: GetDefinition(),
-        separator: " => ",
+        separator: Separator,
         appendix: GetResult());
 
     /// <summary>

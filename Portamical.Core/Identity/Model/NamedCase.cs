@@ -120,6 +120,37 @@ public abstract class NamedCase : INamedCase
     public static IEqualityComparer<INamedCase> Comparer { get; } =
         new NamedCaseEqualityComparer();
 
+    /// <summary>
+    /// Provides equality comparison for <see cref="INamedCase"/> instances based on their test case names.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This comparer implements semantic equality based on <see cref="INamedCase.TestCaseName"/> using
+    /// ordinal (case-sensitive) string comparison. Two test cases are considered equal if and only if
+    /// their <c>TestCaseName</c> properties are identical strings.
+    /// </para>
+    /// <para>
+    /// <strong>Comparison Strategy:</strong>
+    /// <list type="bullet">
+    ///   <item><strong>Reference equality:</strong> Returns true immediately if both references point to the same object</item>
+    ///   <item><strong>Null handling:</strong> Returns false if exactly one reference is null</item>
+    ///   <item><strong>Name comparison:</strong> Uses <see cref="StringComparer.Ordinal"/> for case-sensitive comparison</item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <strong>Hash Code Generation:</strong> Computed from the test case name using ordinal comparison.
+    /// Null test case names are treated as empty strings for hash code purposes.
+    /// </para>
+    /// <para>
+    /// <strong>Thread-Safety:</strong> This comparer is stateless and thread-safe. A single shared instance
+    /// is exposed via <see cref="Comparer"/>.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Ordinal comparison provides optimal performance for test case name
+    /// matching, avoiding culture-aware overhead. Reference equality check provides O(1) fast path for
+    /// identical instances.
+    /// </para>
+    /// </remarks>
     private sealed class NamedCaseEqualityComparer : IEqualityComparer<INamedCase>
     {
         /// <summary>
@@ -162,12 +193,12 @@ public abstract class NamedCase : INamedCase
         /// </exception>
         public int GetHashCode(INamedCase obj)
         {
-            var testCaseName =
-                NotNull(obj, nameof(obj)).TestCaseName
+            var testCaseName = NotNull(obj, nameof(obj))
+                .TestCaseName
                 ?? string.Empty;
 
-            return StringComparer.Ordinal
-                .GetHashCode(testCaseName);
+            return StringComparer.Ordinal.GetHashCode(
+                testCaseName);
         }
     }
 
@@ -286,25 +317,67 @@ public abstract class NamedCase : INamedCase
     /// <summary>
     /// Creates a display name for a test method using the method name and the first argument as test data.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>Argument Processing:</strong> The first element of <paramref name="args"/> is processed as follows:
+    /// <list type="bullet">
+    ///   <item>If it implements <see cref="INamedCase"/>, its <see cref="INamedCase.TestCaseName"/> is extracted</item>
+    ///   <item>The extracted or original value must be a non-null, non-empty string to be used</item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <strong>Return Behavior:</strong> Returns <see langword="null"/> if:
+    /// <list type="bullet">
+    ///   <item><paramref name="testMethodName"/> is null or empty</item>
+    ///   <item><paramref name="args"/> is null or empty</item>
+    ///   <item>The first argument (or its <c>TestCaseName</c>) is not a non-empty string</item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     /// <param name="testMethodName">
-    /// The name of the test method for which to create a display name. Can be null or empty.
+    /// The name of the test method for which to create a display name. Must not be null or empty.
     /// </param>
     /// <param name="args">
     /// An array of arguments passed to the test method. The first element (<c>args[0]</c>) is 
     /// used as the test case identifier. Can be <see langword="null"/> or empty.
     /// </param>
     /// <returns>
-    /// A formatted display name in the form <c>"{testMethodName}(testData: {firstArgument})"</c> if both the method name and the
-    /// first argument are not null or empty; otherwise, null.
+    /// A formatted display name in the form <c>"{testMethodName}(testData: {testCaseName})"</c> if all
+    /// validation passes; otherwise, <see langword="null"/>.
     /// </returns>
+    /// <example>
+    /// <code>
+    /// // Using INamedCase
+    /// var testCase = new TestData { TestCaseName = "Add(2,3) => 5" };
+    /// var displayName = NamedCase.CreateDisplayName("MyTest", testCase);
+    /// // Result: "MyTest(testData: Add(2,3) => 5)"
+    /// 
+    /// // Using string directly
+    /// var displayName2 = NamedCase.CreateDisplayName("MyTest", "scenario1");
+    /// // Result: "MyTest(testData: scenario1)"
+    /// 
+    /// // Invalid cases return null
+    /// NamedCase.CreateDisplayName("", testCase);      // null (empty method name)
+    /// NamedCase.CreateDisplayName("MyTest");          // null (no args)
+    /// NamedCase.CreateDisplayName("MyTest", 123);     // null (not a string)
+    /// </code>
+    /// </example>
     public static string? CreateDisplayName(string? testMethodName, params object?[]? args)
     {
         if (string.IsNullOrEmpty(testMethodName)) return null;
         if (args is not { Length: > 0 }) return null;
 
-        var testCaseName = args[0];
+        var first = args[0];
+        if (first is INamedCase namedCase)
+        {
+            first = namedCase.TestCaseName;
+        }
 
-        if (string.IsNullOrEmpty(testCaseName?.ToString())) return null;
+        if (first is not string testCaseName ||
+            string.IsNullOrEmpty(testCaseName))
+        {
+            return null;
+        }
 
         return $"{testMethodName}(testData: {testCaseName})";
     }
@@ -312,20 +385,24 @@ public abstract class NamedCase : INamedCase
     /// <summary>
     /// Creates a display name for a test method using the specified method information and arguments.
     /// </summary>
+    /// <remarks>
+    /// This is a convenience overload that extracts the method name from <see cref="MemberInfo.Name"/>
+    /// and delegates to <see cref="CreateDisplayName(string, object[])"/>. See that method for detailed
+    /// behavior documentation.
+    /// </remarks>
     /// <param name="testMethod">
-    /// The method information for the test method. Can be null if only the arguments are used to generate the display
-    /// name.
+    /// The method information for the test method. If <see langword="null"/>, the display name cannot be generated.
     /// </param>
     /// <param name="args">
-    /// An array of arguments to include in the display name. Can be null or empty if no arguments are provided.
+    /// An array of arguments to include in the display name. The first element is used as the test case identifier.
     /// </param>
     /// <returns>
-    /// A string representing the display name for the test method, or null if a display name cannot be generated.
+    /// A string representing the display name for the test method, or <see langword="null"/> if a display name cannot be generated.
     /// </returns>
+    /// <seealso cref="CreateDisplayName(string, object[])"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? CreateDisplayName(MethodInfo? testMethod, params object?[]? args)
-    => args is { Length: > 0 } && args[0] is string or INamedCase ?
-        CreateDisplayName(testMethod?.Name, args)
-        : null;
+    => CreateDisplayName(testMethod?.Name, args);
 
     /// <summary>
     /// Determines whether the specified collection contains the given named case using a predefined comparer.

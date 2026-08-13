@@ -397,7 +397,12 @@ public static class Formatter
     /// </example>
     public static IFormatter GetFormatter(Type? type)
     {
-        if (type is not null && _registry.TryGetValue(type, out var formatter))
+        if (type is null)
+        {
+            return DefaultFormatter.Instance;
+        }
+
+        if (_registry.TryGetValue(type, out var formatter))
         {
             return formatter;
         }

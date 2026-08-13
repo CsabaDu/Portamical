@@ -90,6 +90,11 @@ IReturns<TResult>
 where TResult : notnull
 {
     /// <summary>
+    /// The prefix string used in test case names to indicate a return value.
+    /// </summary>
+    private const string ReturnsPrefix = "returns";
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="TestDataReturns{TResult}"/> class.
     /// </summary>
     /// <param name="definition">
@@ -133,7 +138,7 @@ where TResult : notnull
     /// </para>
     /// </remarks>
     public override sealed string GetResultPrefix()
-    => "returns";
+    => ReturnsPrefix;
 
     /// <summary>
     /// Converts the test data to a parameter array with optional trimming of the expected return value.

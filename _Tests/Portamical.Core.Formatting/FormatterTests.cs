@@ -566,8 +566,9 @@ public class FormatterTests
         // Act - Safe fallback to default formatter
         var formatter = Formatter.GetFormatter(null);
 
-        // Assert - Verify a non-null formatter is returned
+        // Assert - Verify it returns DefaultFormatter.Instance
         Assert.IsNotNull(formatter);
+        Assert.AreSame(DefaultFormatter.Instance, formatter);
 
         // Verify it's the default formatter by testing its behavior
         var result = formatter.Format("test");

@@ -1,9 +1,0 @@
-<Solution>
-  <Project Path="Companion.Core/Companion.Core.csproj" />
-  <Project Path="Companion.Analysis/Companion.Analysis.csproj" />
-  <Project Path="Companion.Execution/Companion.Execution.csproj" />
-  <Project Path="Companion.Emit/Companion.Emit.csproj" />
-  <Project Path="Companion.Mcp/Companion.Mcp.csproj" />
-  <Project Path="Companion.Cli/Companion.Cli.csproj" />
-  <Project Path="../_Tests/Portamical.Companion/Tests.Portamical.Companion.csproj" />
-</Solution>
