@@ -353,11 +353,11 @@ internal sealed class DefaultFormatter : IFormatter
     public static string? Format(object? obj)
     => obj switch
     {
-        // - string, ITuple (Tuple/ValueTuple) and KeyValuePair
-        //   must be checked before IEnumerable
-        //   (since these implement or may implement IEnumerable).
-        // - IDictionary is checked separately in Format(IEnumerable)
-        //   to delegate to FormatDictionary(IDictionary, string?).
+        // - 'string', 'ITuple' ('Tuple'/'ValueTuple') and 'KeyValuePair'
+        //   must be checked before 'IEnumerable'
+        //   (since these implement or may implement 'IEnumerable').
+        // - 'IDictionary' is checked separately in 'Format(IEnumerable)'
+        //   to delegate to 'FormatDictionary(IDictionary, string?)'.
         null => null,
         char ch                 => Format(ch),
         string str              => Format(str),
@@ -819,13 +819,13 @@ internal sealed class DefaultFormatter : IFormatter
     /// </example>
     private static string? Format(IEnumerable coll)
     {
-        const int moreThanMaxCount = MaxCount + 1;
-        var materializedObjects = new List<object?>(moreThanMaxCount);
+        var capacity = MaxCount + 1;
+        var materializedObjects = new List<object?>(capacity);
         var enumerator = coll.GetEnumerator();
 
         try
         {
-            for (int i = 0; i < moreThanMaxCount && enumerator.MoveNext(); i++)
+            for (int i = 0; i < capacity && enumerator.MoveNext(); i++)
             {
                 materializedObjects.Add(enumerator.Current);
             }

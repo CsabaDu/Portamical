@@ -61,7 +61,7 @@ public static class Builder
     /// </remarks>
     public const string NullString = "null";
 
-    private const string Comma_ = ", ";
+    private const string DefaultSeparator = ", ";
 
     #endregion
 
@@ -110,7 +110,7 @@ public static class Builder
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string FallbackIfNullSeparator(string? separator)
-    => separator ?? Comma_;
+    => separator ?? DefaultSeparator;
 
     /// <summary>
     /// Creates a zero-allocation string by concatenating three parts: base, separator, and appendix.
@@ -324,7 +324,7 @@ public static class Builder
     /// ]]></code>
     /// </example>
     public static string JoinWithComma(IEnumerable<string?> items, int maxCount = MaxCount)
-    => JoinWithSeparator(items, Comma_, maxCount);
+    => JoinWithSeparator(items, DefaultSeparator, maxCount);
 
     /// <summary>
     /// Joins a collection of pre-formatted string items with a custom separator.

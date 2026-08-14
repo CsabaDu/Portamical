@@ -436,8 +436,8 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDataProvider(
-        initDataProvider: testData => TestDataConverter.InitTestDataProvider(
+    => testDataCollection.ToDistinctDataProvider(
+        initDataProvider: testData => new TestDataProvider<TTestData>(
             testData,
             argsCode));
 }
