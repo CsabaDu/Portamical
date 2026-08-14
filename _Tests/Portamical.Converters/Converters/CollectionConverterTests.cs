@@ -19,15 +19,6 @@ public class CollectionConverterTests
         => TestDataFactory.CreateTestData<int>(def, "result", arg);
 #pragma warning restore CA1859
 
-    //private sealed class TestProvider : ITestDataProvider<ITestData>
-    //{
-    //    //public ArgsCode ArgsCode { get; init; }
-    //    public string? TestMethodName { get; init; }
-    //    public List<ITestData> Rows { get; } = [];
-    //    public void AddRow(ITestData testData) => Rows.Add(testData);
-    //    public IEnumerator GetEnumerator() => Rows.GetEnumerator();
-    //}
-
     private sealed class ObjectArrayConverter : ITestDataConverter<ITestData, object?[]>
     {
         public ArgsCode ArgsCode { get; init; }
@@ -178,7 +169,7 @@ public class CollectionConverterTests
             ArgsCode.Properties,
             "TestMethodName");
 
-        Assert.AreEqual(2, result.Length);
+        Assert.HasCount(2, result);
         Assert.AreEqual(ArgsCode.Properties, capturedArgsCode);
         Assert.AreEqual("TestMethodName", capturedMethodName);
         Assert.AreEqual(2, callCount);
@@ -309,7 +300,7 @@ public class CollectionConverterTests
         var data1 = CreateData("props-test", 5);
         ITestData[] collection = [data1];
         var result = collection.ToDistinctArray(ArgsCode.Properties, PropsCode.All);
-        Assert.AreEqual(1, result.Length);
+        Assert.HasCount(1, result);
         Assert.IsNotNull(result[0]);
     }
 

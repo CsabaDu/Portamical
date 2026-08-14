@@ -35,7 +35,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
         Assert.AreEqual("async1 => result", result[0]);
         Assert.AreEqual("async2 => result", result[1]);
     }
@@ -53,7 +53,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
         Assert.AreSame(first, result[0]);
     }
 
@@ -70,7 +70,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -86,10 +86,16 @@ public class CollectionConverterAsyncEnumerablesTests
             }
             Assert.Fail("Expected ArgumentNullException was not thrown");
         }
+#pragma warning disable MSTEST0058 // Assertions in catch blocks
         catch (ArgumentNullException ex)
         {
             Assert.AreEqual("convertRow", ex.ParamName);
         }
+        catch (Exception ex)
+        {
+            Assert.Fail($"Unexpected exception type: {ex.GetType().Name}");
+        }
+#pragma warning restore MSTEST0058
     }
 
     #endregion
@@ -110,7 +116,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
         Assert.AreSame(data1, result[0]);
         Assert.AreSame(data2, result[1]);
         Assert.AreSame(data3, result[2]);
@@ -129,7 +135,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
         Assert.AreSame(first, result[0]);
     }
 
@@ -230,7 +236,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
         Assert.AreEqual("method-dup => result", result[0]);
     }
 
@@ -279,7 +285,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]
@@ -320,7 +326,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
         Assert.IsNotNull(result[0]);
         Assert.IsNotNull(result[1]);
     }
@@ -338,7 +344,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]
@@ -376,7 +382,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
         Assert.IsNotNull(result[0]);
         Assert.IsNotNull(result[1]);
     }
@@ -394,7 +400,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]
@@ -427,7 +433,7 @@ public class CollectionConverterAsyncEnumerablesTests
             result.Add(item);
         }
 
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
         Assert.IsNotNull(result[0]);
     }
 
@@ -448,10 +454,12 @@ public class CollectionConverterAsyncEnumerablesTests
             }
             Assert.Fail("Expected ArgumentNullException was not thrown");
         }
+#pragma warning disable MSTEST0058 // Assertions in catch blocks
         catch (ArgumentNullException ex)
         {
             Assert.AreEqual("convertRow", ex.ParamName);
         }
+#pragma warning restore MSTEST0058
     }
 
     [TestMethod]
@@ -467,10 +475,12 @@ public class CollectionConverterAsyncEnumerablesTests
             }
             Assert.Fail("Expected ArgumentNullException was not thrown");
         }
+#pragma warning disable MSTEST0058 // Assertions in catch blocks
         catch (ArgumentNullException ex)
         {
             Assert.AreEqual("convertRow", ex.ParamName);
         }
+#pragma warning restore MSTEST0058
     }
 
     #endregion

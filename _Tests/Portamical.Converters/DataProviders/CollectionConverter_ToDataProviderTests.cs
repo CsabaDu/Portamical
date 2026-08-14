@@ -23,16 +23,10 @@ public class CollectionConverter_ToDataProviderTests
 
     private sealed class TestProviderWithDefaultConstructor : ITestDataProvider<ITestData>
     {
-        //public ArgsCode ArgsCode { get; init; }
         public string? TestMethodName { get; init; }
         public List<ITestData> Rows { get; } = [];
         public void AddRow(ITestData testData) => Rows.Add(testData);
         public IEnumerator GetEnumerator() => Rows.GetEnumerator();
-
-        //public TestProviderWithDefaultConstructor()
-        //{
-        //    ArgsCode = ArgsCode.Instance;
-        //}
     }
 
 #pragma warning disable CA1859
