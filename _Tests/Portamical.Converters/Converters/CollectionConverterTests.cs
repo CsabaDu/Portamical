@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using System.ComponentModel;
-using System.Collections;
 using Portamical.Converters;
 using Portamical.Converters.DataProviders;
 using Portamical.Core.Factories;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes;
 using Portamical.Core.TestDataTypes.Models.General;
+using System.ComponentModel;
 
-namespace Tests.Portamical.Converters;
+namespace Tests.Portamical.Converters.Converters;
 
 [TestClass]
 public class CollectionConverterTests
@@ -20,14 +19,14 @@ public class CollectionConverterTests
         => TestDataFactory.CreateTestData<int>(def, "result", arg);
 #pragma warning restore CA1859
 
-    private sealed class TestProvider : ITestDataProvider<ITestData>
-    {
-        public ArgsCode ArgsCode { get; init; }
-        public string? TestMethodName { get; init; }
-        public List<ITestData> Rows { get; } = [];
-        public void AddRow(ITestData testData) => Rows.Add(testData);
-        public IEnumerator GetEnumerator() => Rows.GetEnumerator();
-    }
+    //private sealed class TestProvider : ITestDataProvider<ITestData>
+    //{
+    //    //public ArgsCode ArgsCode { get; init; }
+    //    public string? TestMethodName { get; init; }
+    //    public List<ITestData> Rows { get; } = [];
+    //    public void AddRow(ITestData testData) => Rows.Add(testData);
+    //    public IEnumerator GetEnumerator() => Rows.GetEnumerator();
+    //}
 
     private sealed class ObjectArrayConverter : ITestDataConverter<ITestData, object?[]>
     {
@@ -145,8 +144,44 @@ public class CollectionConverterTests
     {
         ITestData[] collection = [CreateData("u")];
         Func<ITestData, string?, object?[]> nullConverter = null!;
-Assert.ThrowsExactly<ArgumentNullException>(
-    () => collection.ToDistinctArray(nullConverter, null));
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => collection.ToDistinctArray(nullConverter, null));
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_converterWithArgsCode_nullConverter_throwsArgumentNullException()
+    {
+        ITestData[] collection = [CreateData("v")];
+        Func<ITestData, ArgsCode, string?, object?[]> nullConverter = null!;
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => collection.ToDistinctArray(nullConverter, ArgsCode.Instance, null));
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_converterWithArgsCode_passesAllParametersCorrectly()
+    {
+        var data1 = CreateData("args-test", 5);
+        var data2 = CreateData("args-test2", 10);
+        ITestData[] collection = [data1, data2];
+        ArgsCode? capturedArgsCode = null;
+        string? capturedMethodName = null;
+        int callCount = 0;
+
+        var result = collection.ToDistinctArray(
+            (td, argsCode, methodName) =>
+            {
+                capturedArgsCode = argsCode;
+                capturedMethodName = methodName;
+                callCount++;
+                return td.ToArgs(argsCode);
+            },
+            ArgsCode.Properties,
+            "TestMethodName");
+
+        Assert.AreEqual(2, result.Length);
+        Assert.AreEqual(ArgsCode.Properties, capturedArgsCode);
+        Assert.AreEqual("TestMethodName", capturedMethodName);
+        Assert.AreEqual(2, callCount);
     }
 
     [TestMethod]
@@ -166,6 +201,116 @@ Assert.ThrowsExactly<ArgumentNullException>(
             () => Array.Empty<ITestData>().ToDistinctArray(
                 (testData, testMethodName) => testData.ToArgs(ArgsCode.Instance, PropsCode.All),
                 null));
+    }
+
+    #endregion
+
+    #region ToDistinctArray(argsCode)
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCode_returnsArgumentArrays()
+    {
+        var data1 = CreateData("test1", 10);
+        var data2 = CreateData("test2", 20);
+        ITestData[] collection = [data1, data2];
+        var result = collection.ToDistinctArray(ArgsCode.Instance);
+        Assert.HasCount(2, result);
+        Assert.IsNotNull(result[0]);
+        Assert.IsNotNull(result[1]);
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCode_deduplicatesByTestCaseName()
+    {
+        var first = CreateData("args-dup", 10);
+        var duplicate = TestDataFactory.CreateTestData<int>("args-dup", "result", 20);
+        ITestData[] collection = [first, duplicate];
+        var result = collection.ToDistinctArray(ArgsCode.Instance);
+        Assert.HasCount(1, result);
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCode_nullCollection_throwsArgumentNullException()
+    {
+        IEnumerable<ITestData> nullCollection = null!;
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => nullCollection.ToDistinctArray(ArgsCode.Instance));
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCode_emptyCollection_throwsArgumentException()
+    {
+        var empty = Array.Empty<ITestData>();
+        Assert.ThrowsExactly<ArgumentException>(
+            () => empty.ToDistinctArray(ArgsCode.Instance));
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCode_undefinedArgsCode_throwsInvalidEnumArgumentException()
+    {
+        ITestData[] collection = [CreateData("invalid")];
+        Assert.ThrowsExactly<System.ComponentModel.InvalidEnumArgumentException>(
+            () => collection.ToDistinctArray((ArgsCode)999));
+    }
+
+    #endregion
+
+    #region ToDistinctArray(argsCode, propsCode)
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCodeAndPropsCode_returnsArgumentArrays()
+    {
+        var data1 = CreateData("test3", 30);
+        var data2 = CreateData("test4", 40);
+        ITestData[] collection = [data1, data2];
+        var result = collection.ToDistinctArray(ArgsCode.Instance, PropsCode.All);
+        Assert.HasCount(2, result);
+        Assert.IsNotNull(result[0]);
+        Assert.IsNotNull(result[1]);
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCodeAndPropsCode_deduplicatesByTestCaseName()
+    {
+        var first = CreateData("props-dup", 15);
+        var duplicate = TestDataFactory.CreateTestData<int>("props-dup", "result", 25);
+        ITestData[] collection = [first, duplicate];
+        var result = collection.ToDistinctArray(ArgsCode.Properties, PropsCode.All);
+        Assert.HasCount(1, result);
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCodeAndPropsCode_nullCollection_throwsArgumentNullException()
+    {
+        IEnumerable<ITestData> nullCollection = null!;
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => nullCollection.ToDistinctArray(ArgsCode.Instance, PropsCode.All));
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCodeAndPropsCode_emptyCollection_throwsArgumentException()
+    {
+        var empty = Array.Empty<ITestData>();
+        Assert.ThrowsExactly<ArgumentException>(
+            () => empty.ToDistinctArray(ArgsCode.Properties, PropsCode.All));
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCodeAndPropsCode_undefinedArgsCode_throwsInvalidEnumArgumentException()
+    {
+        ITestData[] collection = [CreateData("invalid2")];
+        Assert.ThrowsExactly<System.ComponentModel.InvalidEnumArgumentException>(
+            () => collection.ToDistinctArray((ArgsCode)888, PropsCode.All));
+    }
+
+    [TestMethod]
+    public void ToDistinctArray_withArgsCodeAndPropsCode_usesPropsCode()
+    {
+        var data1 = CreateData("props-test", 5);
+        ITestData[] collection = [data1];
+        var result = collection.ToDistinctArray(ArgsCode.Properties, PropsCode.All);
+        Assert.AreEqual(1, result.Length);
+        Assert.IsNotNull(result[0]);
     }
 
     #endregion

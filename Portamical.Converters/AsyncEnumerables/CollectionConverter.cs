@@ -153,7 +153,7 @@ public static class CollectionConverter
         string? testMethodName)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctAsyncEnumerable(
-        convertRow: testData => convertRow(
+        convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             testMethodName));
 
@@ -187,7 +187,7 @@ public static class CollectionConverter
         string? testMethodName)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctAsyncEnumerable(
-        convertRow: testData => convertRow(
+        convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             argsCode,
             testMethodName));

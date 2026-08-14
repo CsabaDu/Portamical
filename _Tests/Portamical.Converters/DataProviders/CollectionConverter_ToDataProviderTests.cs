@@ -23,16 +23,16 @@ public class CollectionConverter_ToDataProviderTests
 
     private sealed class TestProviderWithDefaultConstructor : ITestDataProvider<ITestData>
     {
-        public ArgsCode ArgsCode { get; init; }
+        //public ArgsCode ArgsCode { get; init; }
         public string? TestMethodName { get; init; }
         public List<ITestData> Rows { get; } = [];
         public void AddRow(ITestData testData) => Rows.Add(testData);
         public IEnumerator GetEnumerator() => Rows.GetEnumerator();
 
-        public TestProviderWithDefaultConstructor()
-        {
-            ArgsCode = ArgsCode.Instance;
-        }
+        //public TestProviderWithDefaultConstructor()
+        //{
+        //    ArgsCode = ArgsCode.Instance;
+        //}
     }
 
 #pragma warning disable CA1859
@@ -79,14 +79,53 @@ public class CollectionConverter_ToDataProviderTests
     }
 
     [TestMethod]
-    public void ToDataProvider_withInitializer_deduplicatesBeforeInitializing()
+    public void ToDistinctDataProvider_withInitializer_deduplicatesBeforeInitializing()
     {
         var duplicate = TestDataFactory.CreateTestData<int>("prov-dup", "result", 77);
         ITestData[] collection = [CreateData("prov-dup"), duplicate];
-        var provider = collection.ToDataProvider<TestProvider, ITestData>(
+        var provider = collection.ToDistinctDataProvider<TestProvider, ITestData>(
             first => new TestProvider().Apply(p => p.Rows.Add(first)));
 
         Assert.HasCount(1, provider.Rows);
+    }
+
+    [TestMethod]
+    public void ToDistinctDataProvider_withInitializer_multipleItemsWithDuplicates_filtersCorrectly()
+    {
+        var item1 = CreateData("unique1", 1);
+        var item2 = CreateData("dup-name", 2);
+        var item3 = CreateData("unique2", 3);
+        var duplicate = TestDataFactory.CreateTestData<int>("dup-name", "result", 99);
+        var item4 = CreateData("unique3", 4);
+        ITestData[] collection = [item1, item2, item3, duplicate, item4];
+
+        var provider = collection.ToDistinctDataProvider<TestProvider, ITestData>(
+            first => new TestProvider().Apply(p => p.Rows.Add(first)));
+
+        Assert.HasCount(4, provider.Rows);
+        Assert.AreSame(item1, provider.Rows[0]);
+        Assert.AreSame(item2, provider.Rows[1]);
+        Assert.AreSame(item3, provider.Rows[2]);
+        Assert.AreSame(item4, provider.Rows[3]);
+    }
+
+    [TestMethod]
+    public void ToDistinctDataProvider_withInitializer_multipleDuplicatesInMiddle_keepsFirstOccurrence()
+    {
+        var item1 = CreateData("keep1", 1);
+        var item2 = CreateData("keep2", 2);
+        var dup1 = TestDataFactory.CreateTestData<int>("keep1", "result", 10);
+        var dup2 = TestDataFactory.CreateTestData<int>("keep2", "result", 20);
+        var item3 = CreateData("keep3", 3);
+        ITestData[] collection = [item1, item2, dup1, dup2, item3];
+
+        var provider = collection.ToDistinctDataProvider<TestProvider, ITestData>(
+            first => new TestProvider().Apply(p => p.Rows.Add(first)));
+
+        Assert.HasCount(3, provider.Rows);
+        Assert.AreSame(item1, provider.Rows[0]);
+        Assert.AreSame(item2, provider.Rows[1]);
+        Assert.AreSame(item3, provider.Rows[2]);
     }
 
     [TestMethod]
@@ -95,7 +134,7 @@ public class CollectionConverter_ToDataProviderTests
         ITestData[] collection = [CreateData("v")];
         Func<ITestData, TestProvider> nullInit = null!;
         Assert.ThrowsExactly<ArgumentNullException>(
-            () => collection.ToDataProvider<TestProvider, ITestData>(nullInit));
+            () => collection.ToDataProvider(nullInit));
     }
 
     [TestMethod]
@@ -103,7 +142,7 @@ public class CollectionConverter_ToDataProviderTests
     {
         IEnumerable<ITestData> nullCollection = null!;
         Assert.ThrowsExactly<ArgumentNullException>(
-            () => nullCollection.ToDataProvider<TestProvider, ITestData>(
+            () => nullCollection.ToDataProvider(
                 first => new TestProvider().Apply(p => p.Rows.Add(first))));
     }
 
@@ -112,7 +151,7 @@ public class CollectionConverter_ToDataProviderTests
     {
         var empty = Array.Empty<ITestData>();
         Assert.ThrowsExactly<ArgumentException>(
-            () => empty.ToDataProvider<TestProvider, ITestData>(
+            () => empty.ToDataProvider(
                 first => new TestProvider().Apply(p => p.Rows.Add(first))));
     }
 
@@ -128,7 +167,7 @@ public class CollectionConverter_ToDataProviderTests
         var provider = collection.ToDataProvider<TestProviderWithDefaultConstructor, ITestData>();
 
         Assert.IsNotNull(provider);
-        Assert.AreEqual(ArgsCode.Instance, provider.ArgsCode); // Set by constructor
+        //Assert.AreEqual(ArgsCode.Instance, provider.ArgsCode); // Set by constructor
         Assert.HasCount(1, provider.Rows);
         Assert.AreSame(item, provider.Rows[0]);
     }
@@ -149,11 +188,11 @@ public class CollectionConverter_ToDataProviderTests
     }
 
     [TestMethod]
-    public void ToDataProvider_withDefaultConstructor_deduplicatesByTestCaseName()
+    public void ToDistinctDataProvider_withDefaultConstructor_deduplicatesByTestCaseName()
     {
-        var duplicate = TestDataFactory.CreateTestData<int>("default-dup", "result", 88);
+        var duplicate = TestDataFactory.CreateTestData("default-dup", "result", 88);
         ITestData[] collection = [CreateData("default-dup"), duplicate];
-        var provider = collection.ToDataProvider<TestProviderWithDefaultConstructor, ITestData>();
+        var provider = collection.ToDistinctDataProvider<TestProviderWithDefaultConstructor, ITestData>();
 
         Assert.HasCount(1, provider.Rows);
     }
@@ -192,7 +231,7 @@ public class CollectionConverter_ToDataProviderTests
         // With default constructor
         var providerWithDefault = collection.ToDataProvider<TestProviderWithDefaultConstructor, ITestData>();
 
-        Assert.AreEqual(providerWithInit.Rows.Count, providerWithDefault.Rows.Count);
+        Assert.HasCount(providerWithDefault.Rows.Count, providerWithInit);
         Assert.AreSame(item1, providerWithInit.Rows[0]);
         Assert.AreSame(item1, providerWithDefault.Rows[0]);
         Assert.AreSame(item2, providerWithInit.Rows[1]);

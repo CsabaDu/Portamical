@@ -171,7 +171,7 @@ public static class CollectionConverter
         string? testMethodName)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctArrayTask(
-        testData => convertRow(
+        testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             testMethodName));
 
@@ -209,7 +209,7 @@ public static class CollectionConverter
         string? testMethodName)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctArrayTask(
-        convertRow: testData => convertRow(
+        convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             argsCode.Defined(nameof(argsCode)),
             testMethodName));

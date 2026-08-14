@@ -119,7 +119,7 @@ public class ITestDataProviderTests
             ArgsCode = ArgsCode.Properties,
             TestMethodName = "Test"
         };
-        ITestDataProvider<TestData<int>> specific = stub;
+        //ITestDataProvider<TestData<int>> specific = stub;
         Assert.AreEqual(ArgsCode.Properties, stub.ArgsCode);
         Assert.AreEqual("Test", stub.TestMethodName);
     }

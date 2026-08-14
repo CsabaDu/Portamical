@@ -240,6 +240,38 @@ public class CollectionConverterTasksTests
         }
     }
 
+    [TestMethod]
+    public async Task ToDistinctArrayTask_nullConverter_withMethodName_throwsArgumentNullException()
+    {
+        ITestData[] collection = [CreateData("test")];
+        Func<ITestData, string?, object?[]> nullConverter = null!;
+        try
+        {
+            await collection.ToDistinctArrayTask(nullConverter, null);
+            Assert.Fail("Expected ArgumentNullException was not thrown");
+        }
+        catch (ArgumentNullException ex)
+        {
+            Assert.AreEqual("convertRow", ex.ParamName);
+        }
+    }
+
+    [TestMethod]
+    public async Task ToDistinctArrayTask_nullConverter_withArgsCode_throwsArgumentNullException()
+    {
+        ITestData[] collection = [CreateData("test")];
+        Func<ITestData, ArgsCode, string?, object?[]> nullConverter = null!;
+        try
+        {
+            await collection.ToDistinctArrayTask(nullConverter, ArgsCode.Instance, null);
+            Assert.Fail("Expected ArgumentNullException was not thrown");
+        }
+        catch (ArgumentNullException ex)
+        {
+            Assert.AreEqual("convertRow", ex.ParamName);
+        }
+    }
+
     #endregion
 
     #region Performance characteristics
@@ -266,7 +298,7 @@ Assert.HasCount(2, result);
 
         Assert.HasCount(100, result);
         // Should complete reasonably quickly even with 100 items
-        Assert.IsTrue(stopwatch.ElapsedMilliseconds < 1000,
+        Assert.IsLessThan(1000, stopwatch.ElapsedMilliseconds,
             $"Large collection took {stopwatch.ElapsedMilliseconds}ms");
     }
 
