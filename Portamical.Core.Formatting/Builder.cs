@@ -216,7 +216,7 @@ public static class Builder
     ///   <item>If <paramref name="index"/> exceeds <c>baseSpan.Length</c>, it is clamped to <c>baseSpan.Length</c>, resulting in no characters being written.</item>
     ///   <item>If <c>insertStr</c> is longer than the available space starting at <paramref name="index"/>, the string is truncated to fit within the remaining capacity.</item>
     /// </list>
-    /// No exception is thrown for these conditions; instead, truncation or clamping occurs silently (with a <see cref="System.Diagnostics.Debug.WriteLine"/> warning in DEBUG builds).
+    /// No exception is thrown for these conditions; instead, truncation or clamping occurs silently (with a <see cref="System.Diagnostics.Debug.WriteLine(string)"/> warning in DEBUG builds).
     /// </para>
     /// <para>
     /// <strong>Used By:</strong> <see cref="CreateSeparatedString(string, string, string)"/>,
