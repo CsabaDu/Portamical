@@ -700,8 +700,7 @@ public abstract class PortamicalAssert
         TException expected,
         Func<Action, Exception> assertThrowsAny,
         Action<Type, object> assertIsType,
-        Action<string, string?> assertEquality/*,
-        Action<string?> assertFail*/)
+        Action<string, string?> assertEquality)
     where TException : notnull, Exception
     {
         _ = NotNull(attempt, nameof(attempt));
@@ -1154,8 +1153,8 @@ public abstract class PortamicalAssert
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool AreApproximatelyEqual(float expected, float actual, double? floatingPointTolerance)
     {
-        const float DefaultEpsilonFloat = 1e-6f;
-        float tolerance = (float)(floatingPointTolerance ?? DefaultEpsilonFloat);
+        const float defaultEpsilon = 1e-6f;
+        float tolerance = (float)(floatingPointTolerance ?? defaultEpsilon);
 
         // Fast path: exact bitwise equality
         if (BitConverter.SingleToInt32Bits(expected) == BitConverter.SingleToInt32Bits(actual))
@@ -1197,8 +1196,8 @@ public abstract class PortamicalAssert
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool AreApproximatelyEqual(double expected, double actual, double? floatingPointTolerance)
     {
-        const double DefaultEpsilon = 1e-10;
-        double tolerance = floatingPointTolerance ?? DefaultEpsilon;
+        const double defaultEpsilon = 1e-10;
+        double tolerance = floatingPointTolerance ?? defaultEpsilon;
 
         // Fast path: exact bitwise equality
         if (BitConverter.DoubleToInt64Bits(expected) == BitConverter.DoubleToInt64Bits(actual))
@@ -1476,7 +1475,8 @@ public abstract class PortamicalAssert
 
             // Collections (recursive comparison)
             (IEnumerable e, IEnumerable a) =>
-                e.Cast<object?>().SequenceEqual(a.Cast<object?>(),
+                e.Cast<object?>().SequenceEqual(
+                    a.Cast<object?>(),
                     EqualityComparer<object?>.Create(
                         (x, y) => AreEqual(x, y, tolerance))),
 
