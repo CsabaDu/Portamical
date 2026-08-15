@@ -958,9 +958,7 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertFail, nameof(assertFail));
 
-        ThreadSafeSync(EqualityAsync(
-            expected,
-            actual,
+        ThreadSafeSync(EqualityAsync(expected, actual,
             equals,
             msg =>
             {
@@ -993,9 +991,7 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertFail, nameof(assertFail));
 
-        ThreadSafeSync(EqualityAsync(
-            expected,
-            actual,
+        ThreadSafeSync(EqualityAsync(expected, actual,
             () =>
             {
                 assertFail();
@@ -1029,9 +1025,7 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertEquality, nameof(assertEquality));
 
-        ThreadSafeSync(IsTypeOfAsync(
-            expected,
-            actual,
+        ThreadSafeSync(IsTypeOfAsync(expected, actual,
             (e, a) =>
             {
                 assertEquality(e, a);
@@ -1101,9 +1095,7 @@ public abstract class PortamicalAssert
     {
         _ = NotNull(assertEquality, nameof(assertEquality));
 
-        ThreadSafeSync(MetadataEqualityAsync(
-            expected,
-            actual,
+        ThreadSafeSync(MetadataEqualityAsync(expected, actual,
             (e, a) =>
             {
                 assertEquality(e, a);
