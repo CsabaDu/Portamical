@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Converters;
+using Portamical.Converters;
 using Portamical.NUnit.TestDataTypes;
 
 namespace Portamical.NUnit.Converters;

@@ -617,17 +617,16 @@ public abstract class PortamicalAssert
         _ = NotNull(attempt, nameof(attempt));
         _ = NotNull(assertFail, nameof(assertFail));
 
-        return ThreadSafeSync(ThrowsAnyAsync(
-            () =>
-            {
-                attempt();
-                return Task.CompletedTask;
-            },
-            msg =>
-            {
-                assertFail(msg);
-                return new ValueTask();
-            }));
+        return ThreadSafeSync(ThrowsAnyAsync(() =>
+        {
+            attempt();
+            return Task.CompletedTask;
+        },
+        msg =>
+        {
+            assertFail(msg);
+            return new ValueTask();
+        }));
     }
 
     /// <summary>
@@ -1345,7 +1344,7 @@ public abstract class PortamicalAssert
     => assertion.ConfigureAwait(false).GetAwaiter().GetResult();
 
     /// <summary>
-    /// Executes a ValueTask&lt;T&gt; synchronously in a thread-safe manner and returns the result.
+    /// Executes a ValueTask&lt;TConverted&gt; synchronously in a thread-safe manner and returns the result.
     /// </summary>
     /// <remarks>
     /// <para>
