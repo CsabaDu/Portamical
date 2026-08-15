@@ -1374,8 +1374,8 @@ public abstract class PortamicalAssert
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool AreApproximatelyEqual(float expected, float actual, double? floatingPointTolerance)
     {
-        const float defaultEpsilon = 1e-6f;
-        float tolerance = (float)(floatingPointTolerance ?? defaultEpsilon);
+        const float defaultEpsilonFloat = 1e-6f;
+        float tolerance = (float)(floatingPointTolerance ?? defaultEpsilonFloat);
 
         // Fast path: exact bitwise equality
         if (BitConverter.SingleToInt32Bits(expected) == BitConverter.SingleToInt32Bits(actual))
