@@ -87,12 +87,12 @@ public static class CollectionConverter
             nameof(testDataCollection));
 
         return snapshot.Length < smallCollectionCountLimit ?
-            Task.FromResult(result: toDistinctRowArray())
-            : Task.Run(function: toDistinctRowArray);
+            Task.FromResult(result: snapshotToDistinctRowArray())
+            : Task.Run(function: snapshotToDistinctRowArray);
 
         #region Local function
 
-        TRow[] toDistinctRowArray()
+        TRow[] snapshotToDistinctRowArray()
         => snapshot.ToDistinctArray(convertRow);
 
         #endregion
@@ -139,7 +139,8 @@ public static class CollectionConverter
     public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayTask(convertRow: testData => testData);
+    => testDataCollection.ToDistinctArrayTask(
+        convertRow: testData => testData);
 
     #endregion
 
@@ -171,7 +172,7 @@ public static class CollectionConverter
         string? testMethodName)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctArrayTask(
-        testData => NotNull(convertRow, nameof(convertRow))(
+        convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             testMethodName));
 

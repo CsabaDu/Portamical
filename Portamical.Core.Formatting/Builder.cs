@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Text;
-
 namespace Portamical.Core.Formatting;
 
 /// <summary>
@@ -272,7 +268,7 @@ public static class Builder
                 $"String length {insertSpan.Length} exceeds available space {availableSpace} at index {index}. " +
                 $"Truncating to fit.");
 #endif
-            insertSpan = insertSpan[..availableSpace];
+            insertSpan = insertSpan[.. availableSpace];
         }
 
         insertSpan.CopyTo(baseSpan[index..]);

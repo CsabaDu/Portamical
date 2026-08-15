@@ -1,6 +1,6 @@
 # Portamical.Converters
 
-**Test Data Collection Conversion & Deduplication Infrastructure for Cross-Framework Testing**
+**Portamical.Core Strongly Typed Test Data Collection Conversion & Deduplication Infrastructure for Cross-Framework Testing**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
@@ -1085,7 +1085,7 @@ using Portamical.Converters.AsyncEnumerables;  // ToDistinctAsyncEnumerable
 ```
 
 **Dependencies**:
-- Portamical.Core >= 4.2.0
+- Portamical.Core >= 4.2.1
 - .NET 10.0
 
 **Compatibility**:

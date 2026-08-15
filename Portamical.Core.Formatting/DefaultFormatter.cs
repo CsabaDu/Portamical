@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using System.Buffers;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using static Portamical.Core.Formatting.Builder;
 
 namespace Portamical.Core.Formatting;
