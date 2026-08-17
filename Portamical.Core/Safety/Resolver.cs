@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.Core.Safety;

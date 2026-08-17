@@ -70,7 +70,7 @@ public static class Validator
     /// </exception>
     /// <remarks>
     /// <para>
-    /// <strong>Snapshot Behavior:</strong> This method creates an array array of the sequence
+    /// <strong>SnapshotOrNull Behavior:</strong> This method creates an array array of the sequence
     /// to avoid multiple enumeration. If the input is already an array, it is returned directly
     /// without allocation. Otherwise, a new array is created using collection expressions.
     /// </para>
@@ -107,9 +107,8 @@ public static class Validator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] NotNullOrEmpty<T>(IEnumerable<T>? enumerable, string? paramName)
     {
-        // Take a stable array once
-        var snapshot = NotNull(enumerable, paramName) as T[]
-            ?? [.. enumerable!];
+        var snapshot = NotNull(
+            SnapshotOrNull(enumerable), paramName);
 
         if (snapshot.Length == 0)
         {
@@ -177,4 +176,42 @@ public static class Validator
     => value is null ?
         throw new ArgumentNullException(paramName)
         : value;
+
+    /// <summary>
+    /// Creates a snapshot array of the specified sequence, or returns <see langword="null"/> if the sequence is null.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the sequence.</typeparam>
+    /// <param name="enumerable">
+    /// The sequence to convert to an array, or <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// An array containing all elements from <paramref name="enumerable"/> if it is not null;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Optimization:</strong> If <paramref name="enumerable"/> is already a <typeparamref name="T"/> array,
+    /// it is returned directly without creating a new allocation. Otherwise, a new array is created
+    /// using collection expressions ([.. enumerable]).
+    /// </para>
+    /// <para>
+    /// <strong>Purpose:</strong> This internal helper prevents multiple enumeration by creating a
+    /// snapshot of the sequence. It is used by validation methods like <see cref="NotNullOrEmpty{T}(IEnumerable{T}, string)"/>
+    /// to safely check properties (like <see cref="Array.Length"/>) without enumerating the source multiple times.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong>
+    /// <list type="bullet">
+    ///   <item>Null input: O(1) - immediate return</item>
+    ///   <item>Already an array: O(1) - cast and return</item>
+    ///   <item>Other sequences: O(n) - enumerates once to create array</item>
+    /// </list>
+    /// </para>
+    /// </remarks>
+    internal static T[]? SnapshotOrNull<T>(IEnumerable<T>? enumerable)
+    {
+        if (enumerable is null) return null;
+
+        return enumerable as T[] ?? [.. enumerable];
+    }
 }

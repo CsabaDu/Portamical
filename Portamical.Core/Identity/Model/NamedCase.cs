@@ -120,6 +120,8 @@ public abstract class NamedCase : INamedCase
     public static IEqualityComparer<INamedCase> Comparer { get; } =
         new NamedCaseEqualityComparer();
 
+    #region Comparer Implementation
+
     /// <summary>
     /// Provides equality comparison for <see cref="INamedCase"/> instances based on their test case names.
     /// </summary>
@@ -193,14 +195,16 @@ public abstract class NamedCase : INamedCase
         /// </exception>
         public int GetHashCode(INamedCase obj)
         {
-            var testCaseName = NotNull(obj, nameof(obj))
-                .TestCaseName
+            var namedCase = NotNull(obj, nameof(obj));
+            var testCaseName = namedCase.TestCaseName
                 ?? string.Empty;
 
             return StringComparer.Ordinal.GetHashCode(
                 testCaseName);
         }
     }
+
+    #endregion
 
     /// <summary>
     /// Determines whether the current instance is contained within the specified collection of named test cases.
@@ -420,10 +424,9 @@ public abstract class NamedCase : INamedCase
         INamedCase namedCase,
         IEnumerable<INamedCase>? namedCases)
     {
-        if (namedCases is null) return false;
+        var snapshot = SnapshotOrNull(namedCases);
 
-        var snapshot = namedCases as INamedCase[]
-            ?? [.. namedCases];
+        if (snapshot is null) return false;
 
         return snapshot.Contains(namedCase, Comparer);
     }

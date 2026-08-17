@@ -361,13 +361,12 @@ internal sealed class DefaultFormatter : IFormatter
         Guid guid               => Format(guid.ToString, context: "D"),
         byte[] bytes            => Format(BitConverter.ToString, context: bytes),
         Exception ex            => Format(ex),
-        _ when IsKeyValuePair(
-            obj,
+        _ when IsKeyValuePair(obj,
             out var key,
             out var value)      => Format(key, value),
         ITuple tuple            => Format(tuple),
         Delegate del            => Format(del),
-        IEnumerable coll        => Format(coll),
+        IEnumerable enumerable  => Format(enumerable),
         Stream stream           => Format(stream),
         _                       => obj.ToString() ?? null,
     };
@@ -776,7 +775,7 @@ internal sealed class DefaultFormatter : IFormatter
     /// <summary>
     /// Formats an <see cref="IEnumerable"/> collection showing the first <see cref="MaxCount"/> items.
     /// </summary>
-    /// <param name="coll">The collection to format.</param>
+    /// <param name="enumerable">The collection to format.</param>
     /// <returns>
     /// A string in the form <c>"[count]: [item1, item2, item3]"</c> or
     /// <c>"[First 3 of 5+]: [item1, item2, item3]"</c> if there are more than <see cref="MaxCount"/> items.
@@ -811,11 +810,11 @@ internal sealed class DefaultFormatter : IFormatter
     /// Format(new List<char> { 'x', 'y' })  // Returns: "[2]: ['x', 'y']"
     /// ]]></code>
     /// </example>
-    private static string? Format(IEnumerable coll)
+    private static string? Format(IEnumerable enumerable)
     {
         var capacity = MaxCount + 1;
         var materializedObjects = new List<object?>(capacity);
-        var enumerator = coll.GetEnumerator();
+        var enumerator = enumerable.GetEnumerator();
 
         try
         {
@@ -836,7 +835,7 @@ internal sealed class DefaultFormatter : IFormatter
             $"First {MaxCount} of {MaxCount}+"
             : $"{count}";
 
-        if (coll is IDictionary dictionary)
+        if (enumerable is IDictionary dictionary)
         {
             return FormatDictionary(dictionary, prefix);
         }
