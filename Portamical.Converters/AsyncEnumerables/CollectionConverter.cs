@@ -50,7 +50,7 @@ namespace Portamical.Converters.AsyncEnumerables;
 /// </example>
 public static class CollectionConverter
 {
-    #region IAsyncEnumerable<TRow[]> ToDistinctAsyncEnumerable base method
+    #region IAsyncEnumerable<TRow> ToDistinctAsyncEnumerable base method
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of distinct rows.
