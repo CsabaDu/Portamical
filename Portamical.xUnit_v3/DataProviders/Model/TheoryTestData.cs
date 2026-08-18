@@ -723,5 +723,6 @@ where TTestData : notnull, ITestData
     /// <seealso cref="ITestDataProvider{TTestData}.AddRow"/>
     public void AddRow(TTestData testData)
     => Add(Convert(testData));
+
     #endregion
 }

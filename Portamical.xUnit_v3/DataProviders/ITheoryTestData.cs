@@ -257,6 +257,5 @@ namespace Portamical.xUnit_v3.DataProviders;
 /// <seealso cref="ITestData"/>
 /// <seealso cref="ArgsCode"/>
 public interface ITheoryTestData<in TTestData>
-: ITestDataProvider<TTestData>,
-ITestDataConverter<TTestData, ITheoryTestDataRow>
+: ITestDataProvider<TTestData, ITheoryTestDataRow>
 where TTestData : notnull, ITestData;

@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Converters;
+namespace Portamical.DataProviders;
 
 /// <summary>
 /// Defines a contract for converting test data into row representations suitable for test framework
