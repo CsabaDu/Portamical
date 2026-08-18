@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using System.Collections.Concurrent;
-
 namespace Portamical.Core.Formatting;
 
 /// <summary>
@@ -357,12 +355,17 @@ public static class Formatter
     /// <summary>
     /// Gets the formatter registered for the specified type, or returns the default formatter if none is registered.
     /// </summary>
-    /// <param name="type">The type to get a formatter for. Cannot be null.</param>
+    /// <param name="type">The type to get a formatter for. May be null.</param>
     /// <returns>
     /// The registered <see cref="IFormatter"/> for the specified type, or <see cref="DefaultFormatter.Instance"/>
-    /// if no custom formatter is registered.
+    /// if no custom formatter is registered or if <paramref name="type"/> is <see langword="null"/>.
     /// </returns>
     /// <remarks>
+    /// <para>
+    /// <strong>Null Handling:</strong> Passing <see langword="null"/> for <paramref name="type"/> intentionally
+    /// returns <see cref="DefaultFormatter.Instance"/> as a safe fallback, avoiding null reference exceptions
+    /// and providing consistent formatting behavior.
+    /// </para>
     /// <para>
     /// <strong>Thread Safety:</strong> This method is thread-safe and can be called concurrently.
     /// Uses <see cref="ConcurrentDictionary{TKey, TValue}.TryGetValue(TKey, out TValue)"/> for lock-free reads.
@@ -373,9 +376,6 @@ public static class Formatter
     /// but can also be used directly when you need explicit formatter lookup.
     /// </para>
     /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="type"/> is <see langword="null"/>.
-    /// </exception>
     /// <example>
     /// <code><![CDATA[
     /// // Get formatter for a type (custom or default)
@@ -388,11 +388,17 @@ public static class Formatter
     /// 
     /// // Example without registered formatter
     /// var defaultFormatter = Formatter.GetFormatter(typeof(int)); // Returns DefaultFormatter.Instance
+    /// 
+    /// // Null type returns default formatter (safe fallback)
+    /// var fallbackFormatter = Formatter.GetFormatter(null); // Returns DefaultFormatter.Instance
     /// ]]></code>
     /// </example>
-    public static IFormatter GetFormatter(Type type)
+    public static IFormatter GetFormatter(Type? type)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        if (type is null)
+        {
+            return DefaultFormatter.Instance;
+        }
 
         if (_registry.TryGetValue(type, out var formatter))
         {

@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
-
 namespace Portamical.TestBases.TestDataCollection;
 
 /// <summary>
@@ -116,7 +114,7 @@ public abstract class TestBase : TestBases.TestBase
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> is <c>null</c>.
     /// </exception>
-    protected static IReadOnlyCollection<TTestData> Convert<TTestData>(
+    protected static TTestData[] Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctArray();

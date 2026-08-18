@@ -3,6 +3,7 @@
 
 using Portamical.xUnit_v3.TestDataTypes;
 using Portamical.xUnit_v3.TestDataTypes.Model;
+using static Portamical.Core.Formatting.Formatter;
 using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.xUnit_v3.DataProviders.Model;
@@ -201,13 +202,12 @@ namespace Portamical.xUnit_v3.DataProviders.Model;
 ///     ArgsCode.Properties,
 ///     null);
 /// 
-/// // Convert with explicit parameters (ignores instance config)
+/// // Convert with explicit testMethodName (overrides instance TestMethodName)
 /// ITheoryTestDataRow row = data.ConvertRow(
 ///     new TestDataReturns&lt;int&gt;("Add(10,20)", [10, 20], 30),
-///     ArgsCode.Instance,      // ← Override instance ArgsCode
 ///     "CustomTestMethod");    // ← Override instance TestMethodName
 /// 
-/// // row uses ArgsCode.Instance (not data.ArgsCode)
+/// // row uses ArgsCode.Properties (from data.ArgsCode)
 /// // row.TestDisplayName = "CustomTestMethod - Add(10,20)"
 /// </code>
 /// </example>
@@ -408,8 +408,8 @@ where TTestData : notnull, ITestData
     ///     <see cref="Validator.NotNull{T}(T, string)"/>
     ///   </description></item>
     ///   <item><description>
-    ///     <strong>Type Validation:</strong> Ensures <paramref name="row"/> is a generic type with matching
-    ///     generic parameter <typeparamref name="TTestData"/>. This is necessary because the base class signature
+    ///     <strong>Type Validation:</strong> Ensures <paramref name="row"/> is of type <see cref="TheoryTestDataRow{TTestData}"/>
+    ///     with matching generic parameter <typeparamref name="TTestData"/>. This is necessary because the base class signature
     ///     accepts <see cref="ITheoryTestDataRow"/> (interface), which could be implemented by incompatible generic types.
     ///   </description></item>
     ///   <item><description>
@@ -419,23 +419,18 @@ where TTestData : notnull, ITestData
     /// </list>
     /// </para>
     /// <para>
-    /// <strong>Type Validation Logic:</strong>
+    /// <strong>Type Validation Logic (Pattern Matching):</strong>
     /// </para>
     /// <para>
-    /// The type validation uses reflection to ensure the row is of the correct generic type:
+    /// The type validation uses modern C# pattern matching for optimal performance:
     /// <code>
-    /// // 1. Check if row is a generic type:
-    /// if (!rowType.IsGenericType)
-    /// {
-    ///     throw new ArgumentException(...);
-    /// }
-    /// 
-    /// // 2. Check if generic parameter matches TTestData:
-    /// if (genericArgs.Length != 1 || genericArgs[0] != typeof(TTestData))
+    /// if (NotNull(row, nameof(row)) is not TheoryTestDataRow&lt;TTestData&gt;)
     /// {
     ///     throw new ArgumentException(...);
     /// }
     /// </code>
+    /// This single pattern match validates both null-safety and type compatibility in one efficient operation,
+    /// replacing the previous reflection-based approach for better performance and cleaner code.
     /// </para>
     /// <para>
     /// <strong>Deduplication Logic:</strong>
@@ -469,22 +464,20 @@ where TTestData : notnull, ITestData
     /// <strong>Error Message Format:</strong>
     /// </para>
     /// <para>
-    /// When validation fails, the exception message includes:
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     <strong>Non-Generic Type:</strong> "Expected: TheoryTestDataRow&lt;TTestData&gt;, Actual: [ActualTypeName]"
-    ///   </description></item>
-    ///   <item><description>
-    ///     <strong>Mismatched Generic Parameter:</strong> "Expected: TheoryTestDataRow&lt;TTestData&gt;, Actual: [ActualTypeName]&lt;[GenericArgs]&gt;"
-    ///   </description></item>
-    /// </list>
+    /// When validation fails, the exception message uses <see cref="Formatter.Format{T}(T)"/> to provide
+    /// human-readable type names with full generic parameter information:
     /// </para>
+    /// <code>
+    /// "The provided test data row has an incompatible type. 
+    ///  Expected: TheoryTestDataRow&lt;TTestData&gt;, 
+    ///  Actual: [FormattedActualType]"
+    /// </code>
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="row"/> is <c>null</c>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="row"/> is not a generic type, or has a mismatched generic parameter.
+    /// Thrown when <paramref name="row"/> is not of type <see cref="TheoryTestDataRow{TTestData}"/> or has a mismatched generic parameter.
     /// </exception>
     /// <example>
     /// <para><strong>Normal Usage (via AddRow):</strong></para>
@@ -502,10 +495,10 @@ where TTestData : notnull, ITestData
     /// <code>
     /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(...);
     /// 
-    /// ITheoryTestDataRow wrongRow = new CustomNonGenericRow();  // ← Not generic
+    /// ITheoryTestDataRow wrongRow = new CustomNonGenericRow();  // ← Not TheoryTestDataRow&lt;T&gt;
     /// 
     /// data.Add(wrongRow);  // ← Throws ArgumentException
-    /// // Message: "The provided test data row must be a generic type. 
+    /// // Message: "The provided test data row has an incompatible type. 
     /// //           Expected: TheoryTestDataRow&lt;TestDataReturns&lt;Int32&gt;&gt;, 
     /// //           Actual: CustomNonGenericRow"
     /// </code>
@@ -517,7 +510,7 @@ where TTestData : notnull, ITestData
     /// var wrongRow = new TheoryTestDataRow&lt;TestDataReturns&lt;string&gt;&gt;(...);
     /// 
     /// data.Add(wrongRow);  // ← Throws ArgumentException
-    /// // Message: "The provided test data row has a mismatched generic type parameter. 
+    /// // Message: "The provided test data row has an incompatible type. 
     /// //           Expected: TheoryTestDataRow&lt;TestDataReturns&lt;Int32&gt;&gt;, 
     /// //           Actual: TheoryTestDataRow&lt;TestDataReturns&lt;String&gt;&gt;"
     /// </code>
@@ -526,25 +519,12 @@ where TTestData : notnull, ITestData
     /// <seealso cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Add(TTheoryDataRow)"/>
     public override void Add(ITheoryTestDataRow row)
     {
-        var rowType = NotNull(row, nameof(row)).GetType();
-
-        if (!rowType.IsGenericType)
+        if (NotNull(row, nameof(row)) is not TheoryTestDataRow<TTestData>)
         {
             throw new ArgumentException(
-                $"The provided test data row must be a generic type. " +
-                $"Expected: TheoryTestDataRow<{typeof(TTestData).Name}>, " +
-                $"Actual: {rowType.Name}",
-                nameof(row));
-        }
-
-        var genericArgs = rowType.GetGenericArguments();
-
-        if (genericArgs.Length != 1 || genericArgs[0] != typeof(TTestData))
-        {
-            throw new ArgumentException(
-                $"The provided test data row has a mismatched generic type parameter. " +
-                $"Expected: TheoryTestDataRow<{typeof(TTestData).Name}>, " +
-                $"Actual: {rowType.Name}<{string.Join(", ", genericArgs.Select(t => t.Name))}>",
+                $"The provided test data row has an incompatible type. " +
+                $"Expected: {Format(typeof(TheoryTestDataRow<TTestData>))}, " +
+                $"Actual: {Format(row.GetType())}",
                 nameof(row));
         }
 
@@ -556,24 +536,14 @@ where TTestData : notnull, ITestData
     }
 
     /// <summary>
-    /// Converts Portamical test data to an xUnit v3 theory test data row with explicit parameters.
+    /// Converts Portamical test data to an xUnit v3 theory test data row using instance <see cref="ArgsCode"/> configuration.
     /// </summary>
     /// <param name="testData">
     /// The Portamical test data to convert.
     /// </param>
-    /// <param name="argsCode">
-    /// Specifies how to convert the test data to test method arguments:
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Instance"/> - Pass entire <see cref="ITestData"/> object as single argument
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
-    ///   </description></item>
-    /// </list>
-    /// </param>
     /// <param name="testMethodName">
     /// Optional test method name to prepend to the test case name in the display name.
+    /// If provided, this parameter overrides the instance's <see cref="TestMethodName"/> property.
     /// </param>
     /// <returns>
     /// An <see cref="ITheoryTestDataRow"/> instance containing the converted test data.
@@ -583,26 +553,27 @@ where TTestData : notnull, ITestData
     /// <strong>Public Conversion API:</strong>
     /// </para>
     /// <para>
-    /// This method provides a public API for converting test data with explicit parameters, allowing callers
-    /// to override the instance configuration (<see cref="ArgsCode"/> and <see cref="TestMethodName"/>).
+    /// This method provides a public API for converting test data with an explicit <paramref name="testMethodName"/> parameter,
+    /// allowing callers to override the instance's <see cref="TestMethodName"/> property. The instance's <see cref="ArgsCode"/>
+    /// property is always used for conversion.
     /// </para>
     /// <para>
     /// <strong>vs. Protected Convert:</strong>
     /// </para>
     /// <para>
-    /// Unlike the protected <see cref="Convert(TTestData)"/> method (which uses instance configuration),
-    /// this method accepts explicit parameters:
+    /// Unlike the protected <see cref="Convert(TTestData)"/> method (which uses instance <see cref="TestMethodName"/>),
+    /// this method accepts an explicit <paramref name="testMethodName"/> parameter:
     /// </para>
     /// <code>
-    /// // Convert (protected) - uses instance config:
+    /// // Convert (protected) - uses instance TestMethodName:
     /// protected override ITheoryTestDataRow Convert(TTestData row)
-    /// =&gt; ConvertRow(row, ArgsCode, TestMethodName);
-    /// //             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode, this.TestMethodName
+    /// =&gt; ConvertRow(row, TestMethodName);
+    /// //             ^^^^^^^^^^^^^^^^^^^ Uses this.TestMethodName
     /// 
-    /// // ConvertRow (public) - explicit parameters:
-    /// public ITheoryTestDataRow ConvertRow(TTestData testData, ArgsCode argsCode, string? testMethodName)
-    /// =&gt; new TheoryTestDataRow&lt;TTestData&gt;(testData, argsCode, testMethodName);
-    /// //                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Explicit parameters
+    /// // ConvertRow (public) - explicit testMethodName parameter:
+    /// public ITheoryTestDataRow ConvertRow(TTestData testData, string? testMethodName)
+    /// =&gt; new TheoryTestDataRow&lt;TTestData&gt;(testData, ArgsCode, testMethodName);
+    /// //                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode, explicit testMethodName
     /// </code>
     /// </remarks>
     /// <example>
@@ -615,13 +586,12 @@ where TTestData : notnull, ITestData
     /// // data.ArgsCode == ArgsCode.Properties
     /// // data.TestMethodName == "TestAdd"
     /// 
-    /// // Convert with explicit parameters (overrides instance config):
+    /// // Convert with explicit testMethodName (overrides instance TestMethodName):
     /// ITheoryTestDataRow row = data.ConvertRow(
     ///     new TestDataReturns&lt;int&gt;("Add(10,20)", [10, 20], 30),
-    ///     ArgsCode.Instance,      // ← Override instance ArgsCode
     ///     "CustomMethod");        // ← Override instance TestMethodName
     /// 
-    /// // row uses ArgsCode.Instance (not data.ArgsCode)
+    /// // row uses ArgsCode.Properties (from data.ArgsCode)
     /// // row.TestDisplayName = "CustomMethod - Add(10,20)" (not "TestAdd - ...")
     /// </code>
     /// </example>
@@ -629,11 +599,10 @@ where TTestData : notnull, ITestData
     /// <seealso cref="AddRow"/>
     public ITheoryTestDataRow ConvertRow(
         TTestData testData,
-        ArgsCode argsCode,
         string? testMethodName)
     => new TheoryTestDataRow<TTestData>(
         testData,
-        argsCode,
+        ArgsCode,
         testMethodName);
 
     /// <summary>
@@ -659,8 +628,8 @@ where TTestData : notnull, ITestData
     /// </para>
     /// <code>
     /// protected override ITheoryTestDataRow Convert(TTestData row)
-    /// =&gt; ConvertRow(testData: row, ArgsCode, TestMethodName);
-    /// //            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode, this.TestMethodName
+    /// =&gt; ConvertRow(testData: row, TestMethodName);
+    /// //            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode (implicitly), this.TestMethodName
     /// </code>
     /// <para>
     /// <strong>Usage:</strong>
@@ -682,15 +651,15 @@ where TTestData : notnull, ITestData
     /// 
     /// // Internally:
     /// // 1. AddRow calls Convert(testData)
-    /// // 2. Convert calls ConvertRow(testData, ArgsCode.Properties, "TestAdd")
-    /// // 3. ConvertRow creates TheoryTestDataRow with those parameters
+    /// // 2. Convert calls ConvertRow(testData, "TestAdd")
+    /// // 3. ConvertRow creates TheoryTestDataRow(testData, ArgsCode.Properties, "TestAdd")
     /// </code>
     /// </example>
     /// <seealso cref="ConvertRow"/>
     /// <seealso cref="AddRow"/>
     /// <seealso cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Convert(TDataDeclarationPointer)"/>
     protected override ITheoryTestDataRow Convert(TTestData row)
-    => ConvertRow(testData: row, ArgsCode, TestMethodName);
+    => ConvertRow(testData: row, TestMethodName);
 
     /// <summary>
     /// Adds a test data item to the collection using the builder pattern.

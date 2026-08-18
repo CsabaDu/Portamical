@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
-
 namespace Portamical.TestBases.ObjectArrayCollection;
 
 /// <summary>
@@ -78,7 +76,7 @@ public abstract class TestBase : TestBases.TestBase
     /// <typeparam name="TTestData">
     /// The type of test data elements. Must be non-nullable and implement <see cref="ITestData"/>.
     /// </typeparam>
-    /// <param name="testDataCollection">
+    /// <param name="distinctArray">
     /// The source collection of test data that may contain duplicates.
     /// </param>
     /// <param name="argsCode">
@@ -131,11 +129,11 @@ public abstract class TestBase : TestBases.TestBase
     /// }
     /// </code>
     /// </example>
-    protected static IReadOnlyCollection<object?[]> Convert<TTestData>(
+    protected static object?[][] Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(argsCode);
+    => testDataCollection.ToDistinctArray(argsCode);
 
     /// <summary>
     /// Converts a collection of test data into distinct object arrays using instance mode (default).
@@ -143,7 +141,7 @@ public abstract class TestBase : TestBases.TestBase
     /// <typeparam name="TTestData">
     /// The type of test data elements. Must be non-nullable and implement <see cref="ITestData"/>.
     /// </typeparam>
-    /// <param name="testDataCollection">
+    /// <param name="distinctArray">
     /// The source collection of test data that may contain duplicates.
     /// </param>
     /// <returns>
@@ -160,7 +158,7 @@ public abstract class TestBase : TestBases.TestBase
     /// object as a parameter, providing type-safe access to all properties.
     /// </para>
     /// <para>
-    /// <strong>Equivalent to:</strong> <c>Convert(testDataCollection, ArgsCode.Instance)</c>
+    /// <strong>Equivalent to:</strong> <c>Convert(distinctArray, ArgsCode.Instance)</c>
     /// </para>
     /// </remarks>
     /// <example>
@@ -177,8 +175,8 @@ public abstract class TestBase : TestBases.TestBase
     /// }
     /// </code>
     /// </example>
-    protected static IReadOnlyCollection<object?[]> Convert<TTestData>(
+    protected static object?[][] Convert<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => ConvertAsInstance(Convert, testDataCollection);
+    => Convert(testDataCollection, AsInstance);
 }

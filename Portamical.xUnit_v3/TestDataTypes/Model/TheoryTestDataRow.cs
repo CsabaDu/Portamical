@@ -239,12 +239,12 @@ ITheoryTestDataRow
     /// Thrown when <paramref name="namedCase"/> is <c>null</c>.
     /// </exception>
     private TheoryTestDataRow(
-        INamedCase? namedCase,
+        INamedCase namedCase,
         string paramName,
         Func<object?[]> getData,
         string? testMethodName)
     {
-        namedCase = NotNull(namedCase, paramName);
+        _ = NotNull(namedCase, paramName);
         TestCaseName = namedCase.TestCaseName;
         TestDisplayName = GetDisplayName(testMethodName);
         _data = getData();

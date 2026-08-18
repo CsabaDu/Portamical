@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Text;
-
 namespace Portamical.Core.Formatting;
 
 /// <summary>
@@ -61,7 +57,11 @@ public static class Builder
     /// </remarks>
     public const string NullString = "null";
 
-    private const string Comma_ = ", ";
+    private const string DefaultSeparator = ", ";
+
+    #endregion
+
+    #region Public methods
 
     #endregion
 
@@ -108,7 +108,7 @@ public static class Builder
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string FallbackIfNullSeparator(string? separator)
-    => separator ?? Comma_;
+    => separator ?? DefaultSeparator;
 
     /// <summary>
     /// Creates a zero-allocation string by concatenating three parts: base, separator, and appendix.
@@ -170,12 +170,12 @@ public static class Builder
             (baseString, separator, appendix),
             static (span, state) =>
             {
-                var (bs, sep, app) = state;
+                var (bas, sep, app) = state;
 
                 var i = 0;
-                CopyAsSpan(bs, span, i);
+                CopyAsSpan(bas, span, i);
 
-                i = bs.Length;
+                i = bas.Length;
                 CopyAsSpan(sep, span, i);
 
                 i += sep.Length;
@@ -214,7 +214,7 @@ public static class Builder
     ///   <item>If <paramref name="index"/> exceeds <c>baseSpan.Length</c>, it is clamped to <c>baseSpan.Length</c>, resulting in no characters being written.</item>
     ///   <item>If <c>insertStr</c> is longer than the available space starting at <paramref name="index"/>, the string is truncated to fit within the remaining capacity.</item>
     /// </list>
-    /// No exception is thrown for these conditions; instead, truncation or clamping occurs silently (with a <see cref="System.Diagnostics.Debug.WriteLine"/> warning in DEBUG builds).
+    /// No exception is thrown for these conditions; instead, truncation or clamping occurs silently (with a <see cref="System.Diagnostics.Debug.WriteLine(string)"/> warning in DEBUG builds).
     /// </para>
     /// <para>
     /// <strong>Used By:</strong> <see cref="CreateSeparatedString(string, string, string)"/>,
@@ -270,7 +270,7 @@ public static class Builder
                 $"String length {insertSpan.Length} exceeds available space {availableSpace} at index {index}. " +
                 $"Truncating to fit.");
 #endif
-            insertSpan = insertSpan[..availableSpace];
+            insertSpan = insertSpan[.. availableSpace];
         }
 
         insertSpan.CopyTo(baseSpan[index..]);
@@ -322,7 +322,7 @@ public static class Builder
     /// ]]></code>
     /// </example>
     public static string JoinWithComma(IEnumerable<string?> items, int maxCount = MaxCount)
-    => JoinWithSeparator(items, Comma_, maxCount);
+    => JoinWithSeparator(items, DefaultSeparator, maxCount);
 
     /// <summary>
     /// Joins a collection of pre-formatted string items with a custom separator.
@@ -393,6 +393,8 @@ public static class Builder
         => JoinWithSeparatorBase(items, separator);
         #endregion
     }
+
+    #endregion
 
     #region Private methods
 

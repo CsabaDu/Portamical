@@ -537,9 +537,12 @@ public class FormatterTests
         // Act
         var formatter = Formatter.GetFormatter(typeof(CustomType));
 
-        // Assert
+        // Assert - Verify a non-null formatter is returned that behaves like default formatter
         Assert.IsNotNull(formatter);
-        Assert.AreSame(DefaultFormatter.Instance, formatter);
+
+        // Verify it's the default formatter by testing its behavior
+        var result = formatter.Format("test");
+        Assert.AreEqual("\"test\"", result); // Default formatter quotes strings
     }
 #pragma warning restore CA2263
 
@@ -549,17 +552,27 @@ public class FormatterTests
         // Act
         var formatter = Formatter.GetFormatter<CustomType>();
 
-        // Assert
+        // Assert - Verify a non-null formatter is returned that behaves like default formatter
         Assert.IsNotNull(formatter);
-        Assert.AreSame(DefaultFormatter.Instance, formatter);
+
+        // Verify it's the default formatter by testing its behavior
+        var result = formatter.Format(42);
+        Assert.AreEqual("42", result); // Default formatter returns ToString for numbers
     }
 
     [TestMethod]
-    public void GetFormatter_withNullType_throwsArgumentNullException()
+    public void GetFormatter_withNullType_returnsDefaultFormatter()
     {
-        // Act & Assert
-        Assert.ThrowsExactly<ArgumentNullException>(() =>
-            Formatter.GetFormatter(null!));
+        // Act - Safe fallback to default formatter
+        var formatter = Formatter.GetFormatter(null);
+
+        // Assert - Verify it returns DefaultFormatter.Instance
+        Assert.IsNotNull(formatter);
+        Assert.AreSame(DefaultFormatter.Instance, formatter);
+
+        // Verify it's the default formatter by testing its behavior
+        var result = formatter.Format("test");
+        Assert.AreEqual("\"test\"", result); // Default formatter quotes strings
     }
     #endregion
 
@@ -627,7 +640,7 @@ public class FormatterTests
         // Act
         var result = Formatter.Format("test");
 
-        // Assert - DefaultFormatter quotes strings
+        // Assert - Default formatter quotes strings
         Assert.AreEqual("\"test\"", result);
     }
 

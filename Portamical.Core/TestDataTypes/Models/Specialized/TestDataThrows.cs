@@ -91,6 +91,11 @@ IThrows<TException>
 where TException : Exception
 {
     /// <summary>
+    /// The prefix string used in test case names to indicate an expected exception.
+    /// </summary>
+    private const string ThrowsPrefix = "throws";
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="TestDataThrows{TException}"/> class.
     /// </summary>
     /// <param name="definition">
@@ -147,7 +152,7 @@ where TException : Exception
     /// </para>
     /// </remarks>
     public override sealed string GetResultPrefix()
-    => "throws";
+    => ThrowsPrefix;
 
     /// <summary>
     /// Converts the test data to a parameter array with optional trimming of the expected exception.

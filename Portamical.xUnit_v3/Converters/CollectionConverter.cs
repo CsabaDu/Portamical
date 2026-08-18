@@ -338,9 +338,10 @@ public static class CollectionConverter
         string? testMethodName = null)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider(
-        initDataProvider: TestDataConverter.ToTheoryTestData,
-        argsCode,
-        testMethodName);
+        initDataProvider: testData => TestDataConverter.ToTheoryTestData(
+            testData,
+            argsCode,
+            testMethodName));
 
     /// <summary>
     /// Converts a collection of Portamical test data to an immutable read-only collection of
@@ -459,7 +460,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToDistinctArray(
         convertRow: TestDataConverter.ToTheoryTestDataRow,
         argsCode,
         testMethodName);
@@ -592,7 +593,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToDistinctArray(
         convertRow: TestDataConverter.ToTheoryDataRow,
         argsCode,
         testMethodName);

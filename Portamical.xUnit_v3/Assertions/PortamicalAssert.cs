@@ -606,8 +606,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     public static TException ThrowsDetails<TException>(Action attempt, TException expected)
     where TException : notnull, Exception
     => ThrowsDetails(attempt, expected,
-        catchException: Record.Exception,
+        assertThrowsAny: Assert.ThrowsAny<Exception>,
         assertIsType: Assert.IsType,
-        assertEquality: Assert.Equal,
-        assertFail: Assert.Fail);
+        assertEquality: Assert.Equal);
 }

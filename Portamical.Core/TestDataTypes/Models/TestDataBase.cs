@@ -4,7 +4,6 @@
 using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
-using System.Runtime.CompilerServices;
 using static Portamical.Core.Formatting.Builder;
 
 namespace Portamical.Core.TestDataTypes.Models;
@@ -60,7 +59,27 @@ namespace Portamical.Core.TestDataTypes.Models;
 public abstract class TestDataBase(string definition)
     : NamedCase, ITestData
 {
+    #region Fields
+
+    /// <summary>
+    /// The descriptive definition of the test case scenario (left side of "=>").
+    /// </summary>
+    private readonly string _definition = definition;
+
+    /// <summary>
+    /// The default definition string used when no definition is provided. This serves as a fallback value
+    /// </summary>
+    private const string DefaultDefinition = "definition";
+
+    /// <summary>
+    /// The separator string used between the definition and the result in the test case name.
+    /// </summary>
+    private const string Separator = " => ";
+
+    #endregion
+
     #region Methods
+
     /// <summary>
     /// Gets the definition string for the current instance.
     /// </summary>
@@ -68,13 +87,9 @@ public abstract class TestDataBase(string definition)
     /// A string containing the definition. If no definition is set, a fallback value is returned.
     /// </returns>
     public string GetDefinition()
-    {
-        const string defaultDefinition = "definition";
-
-        return defaultDefinition.FallbackIfNullOrWhiteSpace(
-            definition,
-            nameof(GetDefinition));
-    }
+    => DefaultDefinition.FallbackIfNullOrWhiteSpace(
+        _definition,
+        nameof(GetDefinition));
 
     /// <summary>
     /// Convenience overload of <see cref="ToArgs(ArgsCode, PropsCode)"/> for the most common use case:
@@ -153,9 +168,11 @@ public abstract class TestDataBase(string definition)
     /// derived class implementation.
     /// </returns>
     public abstract string GetResult();
+
     #endregion
 
     #region Helper methods
+
     /// <summary>
     /// Creates a test case name by combining the definition, a separator, and the result.
     /// </summary>
@@ -172,7 +189,7 @@ public abstract class TestDataBase(string definition)
     protected string CreateTestCaseName()
     => CreateSeparatedString(
         baseString: GetDefinition(),
-        separator: " => ",
+        separator: Separator,
         appendix: GetResult());
 
     /// <summary>
@@ -263,5 +280,6 @@ public abstract class TestDataBase(string definition)
             baseArgs[1..]
             : baseArgs;
     }
+
     #endregion
 }

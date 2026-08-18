@@ -23,11 +23,11 @@ namespace Portamical.TestBases;
 /// public class MSTestTestBase : TestBase
 /// {
 ///     protected static IEnumerable&lt;object?[]&gt; Convert&lt;TTestData&gt;(
-///         IEnumerable&lt;TTestData&gt; testDataCollection)
+///         IEnumerable&lt;TTestData&gt; distinctArray)
 ///     where TTestData : notnull, ITestData
 ///     =&gt; ConvertAsInstance(
 ///         (data, argsCode, _) =&gt; data.ToArgsWithTestCaseName(argsCode, PropsCode.All),
-///         testDataCollection,
+///         distinctArray,
 ///         testMethodName: null);
 /// }
 /// </code>
@@ -92,20 +92,20 @@ public abstract class TestBase
     /// <typeparam name="TTestData">
     /// The type of test data elements. Must be non-null and implement <see cref="ITestData"/>.
     /// </typeparam>
-    /// <typeparam name="T">
-    /// The framework-specific return type (e.g., <c>TestDataProvider&lt;T&gt;</c> for xUnit,
+    /// <typeparam name="TConverted">
+    /// The framework-specific return type (e.g., <c>TestDataProvider&lt;TConverted&gt;</c> for xUnit,
     /// <c>IEnumerable&lt;object?[]&gt;</c> for MSTest).
     /// </typeparam>
     /// <param name="convert">
     /// The conversion function provided by the framework adapter.
     /// This function receives:
     /// <list type="bullet">
-    /// <item><description><paramref name="testDataCollection"/> - The test data to convert</description></item>
+    /// <item><description><paramref name="distinctArray"/> - The test data to convert</description></item>
     /// <item><description><see cref="AsInstance"/> - The default <see cref="ArgsCode"/></description></item>
     /// <item><description><paramref name="testMethodName"/> - Optional test method name</description></item>
     /// </list>
     /// </param>
-    /// <param name="testDataCollection">The collection of test data to convert.</param>
+    /// <param name="distinctArray">The collection of test data to convert.</param>
     /// <param name="testMethodName">
     /// Optional. The test method name for display purposes (used by some frameworks).
     /// </param>
@@ -129,11 +129,11 @@ public abstract class TestBase
     /// public class MSTestTestBase : TestBase
     ///     {
     ///         protected static IEnumerable&lt;object?[]&gt; Convert&lt;TTestData&gt;(
-    ///             IEnumerable&lt;TTestData&gt; testDataCollection)
+    ///             IEnumerable&lt;TTestData&gt; distinctArray)
     ///     where TTestData : notnull, ITestData  // ← Add constraint
     ///     =&gt; ConvertAsInstance(
     ///         (data, argsCode, _) = &gt; data.ToArgsWithTestCaseName(argsCode, PropsCode.All),
-    ///         testDataCollection,
+    ///         distinctArray,
     ///         testMethodName: null);
     /// }
     /// </code>
@@ -142,10 +142,11 @@ public abstract class TestBase
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="convert"/> is <c>null</c>.
     /// </exception>
-    protected static T ConvertAsInstance<TTestData, T>(
-        Func<IEnumerable<TTestData>, ArgsCode, string?, T> convert,
+    protected static TConverted ConvertAsInstance<TTestData, TConverted>(
+        Func<IEnumerable<TTestData>, ArgsCode, string?, TConverted> convert,
         IEnumerable<TTestData> testDataCollection,
         string? testMethodName)
+    where TConverted : notnull, IEnumerable
     where TTestData : notnull, ITestData
     => NotNull(convert, nameof(convert))(
         testDataCollection,
@@ -158,18 +159,18 @@ public abstract class TestBase
     /// <typeparam name="TTestData">
     /// The type of test data elements. Must be non-null and implement <see cref="ITestData"/>.
     /// </typeparam>
-    /// <typeparam name="T">
-    /// The framework-specific return type (e.g., <c>TestDataProvider&lt;T&gt;</c> for xUnit).
+    /// <typeparam name="TConverted">
+    /// The framework-specific return type (e.g., <c>TestDataProvider&lt;TConverted&gt;</c> for xUnit).
     /// </typeparam>
     /// <param name="convert">
     /// The conversion function provided by the framework adapter.
     /// This function receives:
     /// <list type="bullet">
-    /// <item><description><paramref name="testDataCollection"/> - The test data to convert</description></item>
+    /// <item><description><paramref name="distinctArray"/> - The test data to convert</description></item>
     /// <item><description><see cref="AsInstance"/> - The default <see cref="ArgsCode"/></description></item>
     /// </list>
     /// </param>
-    /// <param name="testDataCollection">The collection of test data to convert.</param>
+    /// <param name="distinctArray">The collection of test data to convert.</param>
     /// <returns>
     /// The converted test data in framework-specific format.
     /// </returns>
@@ -185,9 +186,10 @@ public abstract class TestBase
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="convert"/> is <c>null</c>.
     /// </exception>
-    protected static T ConvertAsInstance<TTestData, T>(
-        Func<IEnumerable<TTestData>, ArgsCode, T> convert,
+    protected static TConverted ConvertAsInstance<TTestData, TConverted>(
+        Func<IEnumerable<TTestData>, ArgsCode, TConverted> convert,
         IEnumerable<TTestData> testDataCollection)
+    where TConverted : notnull, IEnumerable
     where TTestData : notnull, ITestData
     => NotNull(convert, nameof(convert))(
         testDataCollection,

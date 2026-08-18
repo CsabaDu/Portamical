@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.DataProviders;
 using Portamical.xUnit_v3.TestDataTypes;
 
 namespace Portamical.xUnit_v3.DataProviders;
@@ -257,7 +256,7 @@ namespace Portamical.xUnit_v3.DataProviders;
 /// <seealso cref="ITheoryTestDataRow"/>
 /// <seealso cref="ITestData"/>
 /// <seealso cref="ArgsCode"/>
-public interface ITheoryTestData<TTestData>
+public interface ITheoryTestData<in TTestData>
 : ITestDataProvider<TTestData>,
 ITestDataConverter<TTestData, ITheoryTestDataRow>
 where TTestData : notnull, ITestData;

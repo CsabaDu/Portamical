@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="Portamical.Companion/Tests.Portamical.Companion.csproj" />
+  <Project Path="../Portamical.Companion/Companion.Core/Companion.Core.csproj" />
+  <Project Path="../Portamical.Companion/Companion.Analysis/Companion.Analysis.csproj" />
+  <Project Path="../Portamical.Companion/Companion.Execution/Companion.Execution.csproj" />
+  <Project Path="../Portamical.Companion/Companion.Emit/Companion.Emit.csproj" />
+  <Project Path="../Portamical.Companion/Companion.Mcp/Companion.Mcp.csproj" />
+  <Project Path="../Portamical.Companion/Companion.Cli/Companion.Cli.csproj" />
+</Solution>
+

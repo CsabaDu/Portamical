@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Converters.DataProviders;
 using Portamical.Core.Factories;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes;
 using Portamical.Core.TestDataTypes.Models.General;
-using Portamical.DataProviders;
+using System.Collections;
 
-namespace Tests.Portamical.DataProviders;
+namespace Tests.Portamical.Converters.DataProviders;
 
 [TestClass]
 public class ITestDataProviderTests
@@ -19,6 +20,7 @@ public class ITestDataProviderTests
         public string? TestMethodName { get; init; }
         public List<TTestData> Rows { get; } = [];
         public void AddRow(TTestData testData) => Rows.Add(testData);
+        public IEnumerator GetEnumerator() => Rows.GetEnumerator();
     }
 
 #pragma warning disable CA1859
@@ -117,9 +119,9 @@ public class ITestDataProviderTests
             ArgsCode = ArgsCode.Properties,
             TestMethodName = "Test"
         };
-        ITestDataProvider<TestData<int>> specific = stub;
-        Assert.AreEqual(ArgsCode.Properties, specific.ArgsCode);
-        Assert.AreEqual("Test", specific.TestMethodName);
+        //ITestDataProvider<TestData<int>> specific = stub;
+        Assert.AreEqual(ArgsCode.Properties, stub.ArgsCode);
+        Assert.AreEqual("Test", stub.TestMethodName);
     }
 
     #endregion

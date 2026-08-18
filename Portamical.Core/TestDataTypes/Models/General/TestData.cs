@@ -152,10 +152,12 @@ public abstract class TestData
     private readonly string _result;
 
     #region Properties
+
     /// <summary>
     /// Gets the unique name of the test case associated with this instance.
     /// </summary>
     public override sealed string TestCaseName { get; init; }
+
     #endregion
 
     /// <summary>

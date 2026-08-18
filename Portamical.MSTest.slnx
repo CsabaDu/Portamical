@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Portamical.MSTest/Portamical.MSTest.csproj" />
+  <Project Path="Portamical/Portamical.csproj" />
 </Solution>

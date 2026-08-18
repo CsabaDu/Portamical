@@ -2,7 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Safety;
-using Portamical.DataProviders;
+using Portamical.Converters.DataProviders;
 using System.Collections;
 
 namespace Portamical.xUnit.DataProviders;
@@ -236,8 +236,7 @@ namespace Portamical.xUnit.DataProviders;
 /// <seealso cref="ITestData"/>
 /// <seealso cref="IEnumerable"/>
 public sealed class TestDataProvider<TTestData>
-: ITestDataProvider<TTestData>,
-IEnumerable
+: ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {
     private readonly List<object?[]> _dataList = [];

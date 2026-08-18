@@ -276,7 +276,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctReadOnly(
+    => testDataCollection.ToDistinctArray(
         argsCode,
         // Prepends all ITestData properties before args
         // Array format: [TestCaseName, arg1, arg2, ...]

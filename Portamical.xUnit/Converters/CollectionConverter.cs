@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Converters.DataProviders;
 using Portamical.xUnit.DataProviders;
 
 namespace Portamical.xUnit.Converters;
@@ -302,7 +303,6 @@ public static class CollectionConverter
         // 
         // If testDataCollection is empty:
         // - ToDistinctArray() returns Array.Empty<TTestData>()
-        // - Collection expression [.. Array.Empty<TTestData>()] returns TheoryData<TTestData> { }
         // - No zero-length array is explicitly allocated
         => [.. testDataCollection.ToDistinctArray()];
 #pragma warning restore CA1825 // Avoid zero-length array allocations
@@ -436,8 +436,8 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDataProvider(
-        initDataProvider: TestDataConverter.InitTestDataProvider,
-        argsCode: argsCode,
-        testMethodName: null);
+    => testDataCollection.ToDistinctDataProvider(
+        initDataProvider: testData => new TestDataProvider<TTestData>(
+            testData,
+            argsCode));
 }

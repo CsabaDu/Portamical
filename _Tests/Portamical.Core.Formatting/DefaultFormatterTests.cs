@@ -7,7 +7,7 @@ using System.Collections;
 namespace Tests.Portamical.Core.Formatting;
 
 /// <summary>
-/// Unit tests for <see cref="DefaultFormatter"/> static formatting methods.
+/// Unit tests for <see cref="Formatter"/> formatting methods with default formatter behavior.
 /// </summary>
 [TestClass]
 [DoNotParallelize] // Registry is a shared static resource; tests must run sequentially
@@ -29,14 +29,14 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withNull_returnsNull()
     {
-        var result = DefaultFormatter.Format(null);
+        var result = Formatter.Format((object?)null);
         Assert.IsNull(result);
     }
 
     [TestMethod]
     public void Format_withNullToString_returnsNull()
     {
-        var result = DefaultFormatter.Format(new NullToStringObject());
+        var result = Formatter.Format(new NullToStringObject());
         Assert.IsNull(result);
     }
 
@@ -44,7 +44,7 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withNotDefinedObject_returnsToString()
     {
-        var result = DefaultFormatter.Format(new object());
+        var result = Formatter.Format(new object());
         Assert.AreEqual("System.Object", result);
     }
 
@@ -58,7 +58,7 @@ public class DefaultFormatterTests
         var obj = new CustomType { Value = 42 };
 
         // Act
-        var result = DefaultFormatter.Format(obj);
+        var result = Formatter.Format(obj);
 
         // Assert: Should use default ToString()
         Assert.AreEqual("CustomType:42", result);
@@ -121,7 +121,7 @@ public class DefaultFormatterTests
         var obj = new CustomType { Value = 99 };
 
         // Act
-        var result = DefaultFormatter.Format(obj);
+        var result = Formatter.Format(obj);
 
         // Assert: Should use default ToString() without registry lookup
         Assert.AreEqual("CustomType:99", result);
@@ -140,7 +140,7 @@ public class DefaultFormatterTests
             var obj = new AnotherCustomType { Name = "Test" };
 
             // Act
-            var result = DefaultFormatter.Format(obj);
+            var result = Formatter.Format(obj);
 
             // Assert: Should fall back to default ToString()
             Assert.AreEqual("Another:Test", result);
@@ -261,21 +261,21 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withInt_returnsToString()
     {
-        var result = DefaultFormatter.Format(42);
+        var result = Formatter.Format(42);
         Assert.AreEqual("42", result);
     }
 
     [TestMethod]
     public void Format_withBool_returnsToString()
     {
-        var result = DefaultFormatter.Format(true);
+        var result = Formatter.Format(true);
         Assert.AreEqual("True", result);
     }
 
     [TestMethod]
     public void Format_withDouble_returnsToString()
     {
-        var result = DefaultFormatter.Format(3.14);
+        var result = Formatter.Format(3.14);
         Assert.IsNotNull(result);
         Assert.Contains("3", result);
         Assert.Contains("14", result);
@@ -286,21 +286,21 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withChar_returnsSingleQuoted()
     {
-        var result = DefaultFormatter.Format('A');
+        var result = Formatter.Format('A');
         Assert.AreEqual("'A'", result);
     }
 
     [TestMethod]
     public void Format_withCharEscapeSequence_returnsSingleQuotedEscape()
     {
-        var result = DefaultFormatter.Format('\n');
+        var result = Formatter.Format('\n');
         Assert.AreEqual("'\n'", result);
     }
 
     [TestMethod]
     public void Format_withCharUnicode_returnsSingleQuoted()
     {
-        var result = DefaultFormatter.Format('\u0041');
+        var result = Formatter.Format('\u0041');
         Assert.AreEqual("'A'", result);
     }
 
@@ -308,7 +308,7 @@ public class DefaultFormatterTests
     public void Format_withCharSpace_returnsSingleQuoted()
     {
         // Boundary: First cached char (ASCII 32 - ' ')
-        var result = DefaultFormatter.Format(' ');
+        var result = Formatter.Format(' ');
         Assert.AreEqual("' '", result);
     }
 
@@ -316,7 +316,7 @@ public class DefaultFormatterTests
     public void Format_withCharTilde_returnsSingleQuoted()
     {
         // Boundary: Last cached char (ASCII 126 - '~')
-        var result = DefaultFormatter.Format('~');
+        var result = Formatter.Format('~');
         Assert.AreEqual("'~'", result);
     }
 
@@ -324,7 +324,7 @@ public class DefaultFormatterTests
     public void Format_withCharNull_returnsSingleQuoted()
     {
         // Non-printable: Below cached range (ASCII 0)
-        var result = DefaultFormatter.Format('\0');
+        var result = Formatter.Format('\0');
         Assert.AreEqual("'\0'", result);
     }
 
@@ -332,7 +332,7 @@ public class DefaultFormatterTests
     public void Format_withCharTab_returnsSingleQuoted()
     {
         // Non-printable control character (ASCII 9)
-        var result = DefaultFormatter.Format('\t');
+        var result = Formatter.Format('\t');
         Assert.AreEqual("'\t'", result);
     }
 
@@ -340,7 +340,7 @@ public class DefaultFormatterTests
     public void Format_withCharCarriageReturn_returnsSingleQuoted()
     {
         // Non-printable control character (ASCII 13)
-        var result = DefaultFormatter.Format('\r');
+        var result = Formatter.Format('\r');
         Assert.AreEqual("'\r'", result);
     }
 
@@ -348,7 +348,7 @@ public class DefaultFormatterTests
     public void Format_withCharDEL_returnsSingleQuoted()
     {
         // Edge: ASCII 127 (first char after cached range)
-        var result = DefaultFormatter.Format((char)127);
+        var result = Formatter.Format((char)127);
         Assert.AreEqual($"'{(char)127}'", result);
     }
 
@@ -357,7 +357,7 @@ public class DefaultFormatterTests
     {
         // Extended ASCII beyond cached range (ASCII 200)
         var ch = (char)200;
-        var result = DefaultFormatter.Format(ch);
+        var result = Formatter.Format(ch);
         Assert.AreEqual($"'{ch}'", result);
     }
 
@@ -365,8 +365,8 @@ public class DefaultFormatterTests
     public void Format_withCharUnicodeBeyondAscii_returnsSingleQuoted()
     {
         // Unicode character far beyond ASCII range
-        var ch = '';
-        var result = DefaultFormatter.Format(ch);
+        var ch = '\u3042';
+        var result = Formatter.Format(ch);
         Assert.AreEqual($"'{ch}'", result);
     }
 
@@ -375,7 +375,7 @@ public class DefaultFormatterTests
     {
         // Test with Chinese character
         var ch = '\u4E2D';
-        var result = DefaultFormatter.Format(ch);
+        var result = Formatter.Format(ch);
         Assert.AreEqual($"'{ch}'", result);
     }
 
@@ -384,7 +384,7 @@ public class DefaultFormatterTests
     {
         // Test with character in higher Unicode range (U+2665 - heart suit)
         var ch = '\u2665';
-        var result = DefaultFormatter.Format(ch);
+        var result = Formatter.Format(ch);
         Assert.AreEqual($"'{ch}'", result);
     }
 
@@ -392,7 +392,7 @@ public class DefaultFormatterTests
     public void Format_withCharOneBelowSpace_returnsSingleQuoted()
     {
         // Boundary: One below first cached char (ASCII 31)
-        var result = DefaultFormatter.Format((char)31);
+        var result = Formatter.Format((char)31);
         Assert.AreEqual($"'{(char)31}'", result);
     }
     #endregion
@@ -401,28 +401,28 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withString_returnsDoubleQuoted()
     {
-        var result = DefaultFormatter.Format("hello");
+        var result = Formatter.Format("hello");
         Assert.AreEqual("\"hello\"", result);
     }
 
     [TestMethod]
     public void Format_withEmptyString_returnsDoubleQuotedEmpty()
     {
-        var result = DefaultFormatter.Format("");
+        var result = Formatter.Format("");
         Assert.AreEqual("\"\"", result);
     }
 
     [TestMethod]
     public void Format_withStringNull_returnsUnquotedNull()
     {
-        var result = DefaultFormatter.Format("null");
+        var result = Formatter.Format("null");
         Assert.AreEqual("null", result);
     }
 
     [TestMethod]
     public void Format_withStringWithSpaces_returnsDoubleQuoted()
     {
-        var result = DefaultFormatter.Format("hello world");
+        var result = Formatter.Format("hello world");
         Assert.AreEqual("\"hello world\"", result);
     }
 
@@ -430,7 +430,7 @@ public class DefaultFormatterTests
     public void Format_withStringNullUpperCase_returnsQuoted()
     {
         // String "NULL" (uppercase) should be quoted, not treated as null
-        var result = DefaultFormatter.Format("NULL");
+        var result = Formatter.Format("NULL");
         Assert.AreEqual("\"NULL\"", result);
     }
 
@@ -438,7 +438,7 @@ public class DefaultFormatterTests
     public void Format_withStringNullMixedCase_returnsQuoted()
     {
         // String "Null" (mixed case) should be quoted, not treated as null
-        var result = DefaultFormatter.Format("Null");
+        var result = Formatter.Format("Null");
         Assert.AreEqual("\"Null\"", result);
     }
 
@@ -446,7 +446,7 @@ public class DefaultFormatterTests
     public void Format_withStringNullWithWhitespace_returnsQuoted()
     {
         // String " null " with whitespace should be quoted
-        var result = DefaultFormatter.Format(" null ");
+        var result = Formatter.Format(" null ");
         Assert.AreEqual("\" null \"", result);
     }
 
@@ -455,7 +455,7 @@ public class DefaultFormatterTests
     {
         // Stress test with 10,000 character string
         var longString = new string('x', 10000);
-        var result = DefaultFormatter.Format(longString);
+        var result = Formatter.Format(longString);
         Assert.StartsWith("\"", result);
         Assert.EndsWith("\"", result);
         Assert.AreEqual(10002, result!.Length); // 10000 chars + 2 quotes
@@ -465,7 +465,7 @@ public class DefaultFormatterTests
     public void Format_withStringContainingQuotes_returnsQuoted()
     {
         // String containing double quotes should still be wrapped in quotes
-        var result = DefaultFormatter.Format("say \"hello\"");
+        var result = Formatter.Format("say \"hello\"");
         Assert.AreEqual("\"say \"hello\"\"", result);
     }
 
@@ -473,7 +473,7 @@ public class DefaultFormatterTests
     public void Format_withStringContainingNewlines_returnsQuoted()
     {
         // String with newlines should be quoted
-        var result = DefaultFormatter.Format("line1\nline2");
+        var result = Formatter.Format("line1\nline2");
         Assert.AreEqual("\"line1\nline2\"", result);
     }
 
@@ -481,7 +481,7 @@ public class DefaultFormatterTests
     public void Format_withStringEmoji_returnsQuoted()
     {
         // String with emoji should be quoted
-        var result = DefaultFormatter.Format("Hello \U0001F600");
+        var result = Formatter.Format("Hello \U0001F600");
         Assert.AreEqual("\"Hello \U0001F600\"", result);
     }
     #endregion
@@ -491,7 +491,7 @@ public class DefaultFormatterTests
     public void Format_withDateTimeUtc_returnsIso8601()
     {
         var dt = new DateTime(2026, 1, 15, 10, 30, 45, DateTimeKind.Utc);
-        var result = DefaultFormatter.Format(dt);
+        var result = Formatter.Format(dt);
         Assert.AreEqual("2026-01-15T10:30:45.0000000Z", result);
     }
 
@@ -499,7 +499,7 @@ public class DefaultFormatterTests
     public void Format_withDateTimeLocal_returnsIso8601WithLocalOffset()
     {
         var dt = new DateTime(2026, 1, 15, 10, 30, 45, DateTimeKind.Local);
-        var result = DefaultFormatter.Format(dt);
+        var result = Formatter.Format(dt);
         Assert.IsNotNull(result);
         Assert.StartsWith("2026-01-15T10:30:45", result);
     }
@@ -508,7 +508,7 @@ public class DefaultFormatterTests
     public void Format_withDateTimeUnspecified_returnsIso8601()
     {
         var dt = new DateTime(2026, 1, 15, 10, 30, 45, DateTimeKind.Unspecified);
-        var result = DefaultFormatter.Format(dt);
+        var result = Formatter.Format(dt);
         Assert.AreEqual("2026-01-15T10:30:45.0000000", result);
     }
     #endregion
@@ -518,7 +518,7 @@ public class DefaultFormatterTests
     public void Format_withDateTimeOffset_returnsIso8601WithOffset()
     {
         var dto = new DateTimeOffset(2026, 1, 15, 10, 30, 45, TimeSpan.FromHours(5));
-        var result = DefaultFormatter.Format(dto);
+        var result = Formatter.Format(dto);
         Assert.AreEqual("2026-01-15T10:30:45.0000000+05:00", result);
     }
 
@@ -526,7 +526,7 @@ public class DefaultFormatterTests
     public void Format_withDateTimeOffsetNegativeOffset_returnsIso8601WithOffset()
     {
         var dto = new DateTimeOffset(2026, 1, 15, 10, 30, 45, TimeSpan.FromHours(-5));
-        var result = DefaultFormatter.Format(dto);
+        var result = Formatter.Format(dto);
         Assert.AreEqual("2026-01-15T10:30:45.0000000-05:00", result);
     }
 
@@ -534,7 +534,7 @@ public class DefaultFormatterTests
     public void Format_withDateTimeOffsetZeroOffset_returnsIso8601WithZ()
     {
         var dto = new DateTimeOffset(2026, 1, 15, 10, 30, 45, TimeSpan.Zero);
-        var result = DefaultFormatter.Format(dto);
+        var result = Formatter.Format(dto);
         Assert.AreEqual("2026-01-15T10:30:45.0000000+00:00", result);
     }
     #endregion
@@ -544,7 +544,7 @@ public class DefaultFormatterTests
     public void Format_withGuid_returnsHyphenatedFormat()
     {
         var guid = new Guid("12345678-1234-1234-1234-123456789012");
-        var result = DefaultFormatter.Format(guid);
+        var result = Formatter.Format(guid);
         Assert.AreEqual("12345678-1234-1234-1234-123456789012", result);
     }
 
@@ -552,7 +552,7 @@ public class DefaultFormatterTests
     public void Format_withGuidEmpty_returnsZeroGuid()
     {
         var guid = Guid.Empty;
-        var result = DefaultFormatter.Format(guid);
+        var result = Formatter.Format(guid);
         Assert.AreEqual("00000000-0000-0000-0000-000000000000", result);
     }
     #endregion
@@ -562,7 +562,7 @@ public class DefaultFormatterTests
     public void Format_withByteArray_returnsHexString()
     {
         var bytes = new byte[] { 0x01, 0x02, 0x03, 0xFF };
-        var result = DefaultFormatter.Format(bytes);
+        var result = Formatter.Format(bytes);
         Assert.AreEqual("01-02-03-FF", result);
     }
 
@@ -570,7 +570,7 @@ public class DefaultFormatterTests
     public void Format_withEmptyByteArray_returnsEmptyString()
     {
         var bytes = Array.Empty<byte>();
-        var result = DefaultFormatter.Format(bytes);
+        var result = Formatter.Format(bytes);
         Assert.AreEqual("", result);
     }
 
@@ -578,7 +578,7 @@ public class DefaultFormatterTests
     public void Format_withSingleByte_returnsHexString()
     {
         var bytes = new byte[] { 0xAB };
-        var result = DefaultFormatter.Format(bytes);
+        var result = Formatter.Format(bytes);
         Assert.AreEqual("AB", result);
     }
     #endregion
@@ -588,7 +588,7 @@ public class DefaultFormatterTests
     public void Format_withExceptionMessage_returnsTypeAndMessage()
     {
         var ex = new InvalidOperationException("Operation failed");
-        var result = DefaultFormatter.Format(ex);
+        var result = Formatter.Format(ex);
         Assert.AreEqual("InvalidOperationException: Operation failed", result);
     }
 
@@ -596,7 +596,7 @@ public class DefaultFormatterTests
     public void Format_withExceptionEmptyMessage_returnsTypeAndEmptyMessage()
     {
         var ex = new InvalidOperationException("");
-        var result = DefaultFormatter.Format(ex);
+        var result = Formatter.Format(ex);
         Assert.AreEqual("InvalidOperationException: ", result);
     }
 
@@ -605,7 +605,7 @@ public class DefaultFormatterTests
     {
         var paramName = "paramName";
         var ex = new ArgumentException("Value cannot be null", paramName);
-        var result = DefaultFormatter.Format(ex);
+        var result = Formatter.Format(ex);
         Assert.StartsWith("ArgumentException:", result);
         Assert.Contains("Value cannot be null", result);
     }
@@ -616,7 +616,7 @@ public class DefaultFormatterTests
     public void Format_withAnonymousLambda_returnsTypeAndAnonymous()
     {
         Func<int, string> func = x => x.ToString();
-        var result = DefaultFormatter.Format(func);
+        var result = Formatter.Format(func);
         Assert.Contains("Func<int, string>", result!);
         Assert.Contains("anonymous", result!);
     }
@@ -625,7 +625,7 @@ public class DefaultFormatterTests
     public void Format_withNamedMethodReference_returnsTypeAndMethodName()
     {
         Action<string> action = Console.WriteLine;
-        var result = DefaultFormatter.Format(action);
+        var result = Formatter.Format(action);
         Assert.Contains("Action<string>", result!);
         Assert.Contains("WriteLine", result!);
         Assert.DoesNotContain("anonymous", result!);
@@ -635,7 +635,7 @@ public class DefaultFormatterTests
     public void Format_withSimpleActionLambda_returnsTypeAndAnonymous()
     {
         Action simple = () => Console.WriteLine("test");
-        var result = DefaultFormatter.Format(simple);
+        var result = Formatter.Format(simple);
         Assert.Contains("Action", result!);
         Assert.Contains("anonymous", result!);
     }
@@ -644,7 +644,7 @@ public class DefaultFormatterTests
     public void Format_withFuncNamedMethod_returnsTypeAndMethodName()
     {
         Func<int, string> func = ConvertIntToString;
-        var result = DefaultFormatter.Format(func);
+        var result = Formatter.Format(func);
         Assert.Contains("Func<int, string>", result!);
         Assert.Contains("ConvertIntToString", result!);
         Assert.DoesNotContain("anonymous", result!);
@@ -654,7 +654,7 @@ public class DefaultFormatterTests
     public void Format_withPredicateLambda_returnsTypeAndAnonymous()
     {
         Predicate<int> pred = x => x > 0;
-        var result = DefaultFormatter.Format(pred);
+        var result = Formatter.Format(pred);
         Assert.Contains("Predicate<int>", result!);
         Assert.Contains("anonymous", result!);
     }
@@ -663,7 +663,7 @@ public class DefaultFormatterTests
     public void Format_withPredicateNamedMethod_returnsTypeAndMethodName()
     {
         Predicate<int> pred = IsPositive;
-        var result = DefaultFormatter.Format(pred);
+        var result = Formatter.Format(pred);
         Assert.Contains("Predicate<int>", result!);
         Assert.Contains("IsPositive", result!);
         Assert.DoesNotContain("anonymous", result!);
@@ -673,7 +673,7 @@ public class DefaultFormatterTests
     public void Format_withMulticastDelegate_returnsTypeAndMethodName()
     {
         Action action = TestMethod;
-        var result = DefaultFormatter.Format(action);
+        var result = Formatter.Format(action);
         Assert.Contains("Action", result!);
         Assert.Contains("TestMethod", result!);
     }
@@ -682,7 +682,7 @@ public class DefaultFormatterTests
     public void Format_withActionOfTwoParams_returnsTypeAndAnonymous()
     {
         Action<int, string> action = (x, s) => Console.WriteLine($"{x}: {s}");
-        var result = DefaultFormatter.Format(action);
+        var result = Formatter.Format(action);
         Assert.Contains("Action<int, string>", result!);
         Assert.Contains("anonymous", result!);
     }
@@ -691,7 +691,7 @@ public class DefaultFormatterTests
     public void Format_withFuncOfThreeParams_returnsTypeAndAnonymous()
     {
         Func<int, string, bool, string> func = (x, s, b) => $"{x}-{s}-{b}";
-        var result = DefaultFormatter.Format(func);
+        var result = Formatter.Format(func);
         Assert.Contains("Func<int, string, bool, string>", result!);
         Assert.Contains("anonymous", result!);
     }
@@ -700,7 +700,7 @@ public class DefaultFormatterTests
     public void Format_withCustomDelegate_returnsTypeAndMethodName()
     {
         Comparison<int> comparison = CompareInts;
-        var result = DefaultFormatter.Format(comparison);
+        var result = Formatter.Format(comparison);
         Assert.Contains("Comparison<int>", result!);
         Assert.Contains("CompareInts", result!);
     }
@@ -709,7 +709,7 @@ public class DefaultFormatterTests
     public void Format_withEventHandler_returnsTypeAndAnonymous()
     {
         EventHandler handler = (sender, e) => Console.WriteLine("Event fired");
-        var result = DefaultFormatter.Format(handler);
+        var result = Formatter.Format(handler);
         Assert.Contains("EventHandler", result!);
         Assert.Contains("anonymous", result!);
     }
@@ -719,7 +719,7 @@ public class DefaultFormatterTests
     {
         static string LocalFunc(int x) => x.ToString();
         Func<int, string> func = LocalFunc;
-        var result = DefaultFormatter.Format(func);
+        var result = Formatter.Format(func);
         Assert.Contains("Func<int, string>", result!);
         // Local functions are compiler-generated and appear as anonymous
         Assert.Contains("anonymous", result!);
@@ -731,7 +731,7 @@ public class DefaultFormatterTests
         // Compiler-generated methods have angle brackets in their names
         // This test verifies the IsAnonymousDelegate logic detects '<' and '>'
         Func<int, int> lambda = x => x * 2;
-        var result = DefaultFormatter.Format(lambda);
+        var result = Formatter.Format(lambda);
         Assert.Contains("Func<int, int>", result!);
         Assert.Contains("anonymous", result!);
     }
@@ -743,7 +743,7 @@ public class DefaultFormatterTests
         // This verifies that detection works via the lambda_ prefix path
         // Note: Hard to create directly, but the code path exists for it
         Action action = () => { };
-        var result = DefaultFormatter.Format(action);
+        var result = Formatter.Format(action);
         Assert.Contains("Action", result!);
         Assert.Contains("anonymous", result!);
     }
@@ -764,7 +764,7 @@ public class DefaultFormatterTests
     public void Format_withKeyValuePairStringInt_returnsFormattedPair()
     {
         var kvp = new KeyValuePair<string, int>("key1", 42);
-        var result = DefaultFormatter.Format(kvp);
+        var result = Formatter.Format(kvp);
         Assert.AreEqual("{\"key1\": 42}", result);
     }
 
@@ -772,7 +772,7 @@ public class DefaultFormatterTests
     public void Format_withKeyValuePairIntString_returnsFormattedPair()
     {
         var kvp = new KeyValuePair<int, string>(1, "first");
-        var result = DefaultFormatter.Format(kvp);
+        var result = Formatter.Format(kvp);
         Assert.AreEqual("{1: \"first\"}", result);
     }
 
@@ -780,7 +780,7 @@ public class DefaultFormatterTests
     public void Format_withKeyValuePairNullValue_returnsFormattedPairWithNull()
     {
         var kvp = new KeyValuePair<string, string?>("key", null);
-        var result = DefaultFormatter.Format(kvp);
+        var result = Formatter.Format(kvp);
         Assert.AreEqual("{\"key\": null}", result);
     }
 
@@ -791,7 +791,7 @@ public class DefaultFormatterTests
         var kvp = new KeyValuePair<string?, string?>(null, null);
 
         // Act
-        var result = DefaultFormatter.Format(kvp);
+        var result = Formatter.Format(kvp);
 
         // Assert: Should format both as null
         Assert.AreEqual("{null: null}", result);
@@ -828,7 +828,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleTwoItems_returnsParenthesizedItems()
     {
         var tuple = (1, 2);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(1, 2)", result);
     }
 
@@ -836,7 +836,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleThreeItems_returnsParenthesizedItems()
     {
         var tuple = (1, 2, 3);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(1, 2, 3)", result);
     }
 
@@ -844,7 +844,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleMixedTypes_returnsParenthesizedFormatted()
     {
         var tuple = ("name", 42, true);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(\"name\", 42, True)", result);
     }
 
@@ -852,7 +852,7 @@ public class DefaultFormatterTests
     public void Format_withTuple_returnsParenthesizedItems()
     {
         var tuple = Tuple.Create(1, "test");
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(1, \"test\")", result);
     }
 
@@ -860,7 +860,7 @@ public class DefaultFormatterTests
     public void Format_withTupleChar_returnsParenthesizedFormatted()
     {
         var tuple = Tuple.Create('a', "test");
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("('a', \"test\")", result);
     }
 
@@ -868,7 +868,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleSingleItem_returnsParenthesizedItem()
     {
         var tuple = ValueTuple.Create(42);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(42)", result);
     }
 
@@ -876,7 +876,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleFourItems_returnsParenthesizedItems()
     {
         var tuple = (1, 2, 3, 4);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(1, 2, 3, 4)", result);
     }
 
@@ -884,7 +884,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleFiveItems_returnsParenthesizedItems()
     {
         var tuple = (1, 2, 3, 4, 5);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(1, 2, 3, 4, 5)", result);
     }
 
@@ -892,7 +892,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleSixItems_returnsParenthesizedItems()
     {
         var tuple = (1, 2, 3, 4, 5, 6);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(1, 2, 3, 4, 5, 6)", result);
     }
 
@@ -900,7 +900,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleSevenItems_returnsParenthesizedItems()
     {
         var tuple = (1, 2, 3, 4, 5, 6, 7);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(1, 2, 3, 4, 5, 6, 7)", result);
     }
 
@@ -908,7 +908,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleEightItems_returnsAllItems()
     {
         var tuple = (1, 2, 3, 4, 5, 6, 7, 8);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(1, 2, 3, 4, 5, 6, 7, 8)", result);
     }
 
@@ -916,7 +916,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleEightMixedTypes_formatsAllCorrectly()
     {
         var tuple = ("a", 1, 'b', true, 42, (string?)null, "test", 99);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(\"a\", 1, 'b', True, 42, null, \"test\", 99)", result);
     }
 
@@ -924,7 +924,7 @@ public class DefaultFormatterTests
     public void Format_withTupleEightItems_returnsAllItems()
     {
         var tuple = Tuple.Create(1, 2, 3, 4, 5, 6, 7, 8);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(1, 2, 3, 4, 5, 6, 7, 8)", result);
     }
 
@@ -932,7 +932,7 @@ public class DefaultFormatterTests
     public void Format_withValueTupleContainingNulls_formatsNullsCorrectly()
     {
         var tuple = ("first", (string?)null, "third", (string?)null, "fifth");
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(\"first\", null, \"third\", null, \"fifth\")", result);
     }
     #endregion
@@ -942,7 +942,7 @@ public class DefaultFormatterTests
     public void Format_withEmptyCollection_returnsZeroCount()
     {
         var list = new List<int>();
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[0]: []", result);
     }
 
@@ -950,7 +950,7 @@ public class DefaultFormatterTests
     public void Format_withEmptyArray_returnsZeroCount()
     {
         var array = Array.Empty<int>();
-        var result = DefaultFormatter.Format(array);
+        var result = Formatter.Format(array);
         Assert.AreEqual("[0]: []", result);
     }
 
@@ -958,7 +958,7 @@ public class DefaultFormatterTests
     public void Format_withSingleItemCollection_returnsCountAndItem()
     {
         var list = new List<int> { 42 };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[1]: [42]", result);
     }
 
@@ -966,7 +966,7 @@ public class DefaultFormatterTests
     public void Format_withSingleNullItemCollection_returnsCountAndNull()
     {
         var list = new List<string?> { null };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[1]: [null]", result);
     }
 
@@ -974,7 +974,7 @@ public class DefaultFormatterTests
     public void Format_withTwoItemCollection_returnsCountAndBothItems()
     {
         var list = new List<int> { 1, 2 };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[2]: [1, 2]", result);
     }
 
@@ -982,7 +982,7 @@ public class DefaultFormatterTests
     public void Format_withThreeItemCollection_returnsAllItems()
     {
         var list = new List<int> { 1, 2, 3 };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[3]: [1, 2, 3]", result);
     }
 
@@ -990,7 +990,7 @@ public class DefaultFormatterTests
     public void Format_withFourItemCollection_returnsFirstThree()
     {
         var list = new List<int> { 1, 2, 3, 4 };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[First 3 of 3+]: [1, 2, 3]", result);
     }
 
@@ -998,7 +998,7 @@ public class DefaultFormatterTests
     public void Format_withManyItemCollection_returnsFirstThree()
     {
         var list = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[First 3 of 3+]: [1, 2, 3]", result);
     }
 
@@ -1006,7 +1006,7 @@ public class DefaultFormatterTests
     public void Format_withStringCollection_returnsQuotedItems()
     {
         var list = new List<string> { "a", "b", "c" };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[3]: [\"a\", \"b\", \"c\"]", result);
     }
 
@@ -1014,7 +1014,7 @@ public class DefaultFormatterTests
     public void Format_withCharCollection_returnsSingleQuotedItems()
     {
         var list = new List<char> { 'x', 'y', 'z' };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[3]: ['x', 'y', 'z']", result);
     }
 
@@ -1022,7 +1022,7 @@ public class DefaultFormatterTests
     public void Format_withCollectionContainingNull_replacesWithNull()
     {
         var list = new List<string?> { "a", null, "c" };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[3]: [\"a\", null, \"c\"]", result);
     }
 
@@ -1030,7 +1030,7 @@ public class DefaultFormatterTests
     public void Format_withCollectionOfTwoNulls_formatsBothAsNull()
     {
         var list = new List<string?> { null, null };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[2]: [null, null]", result);
     }
 
@@ -1038,7 +1038,7 @@ public class DefaultFormatterTests
     public void Format_withCollectionOfThreeNulls_formatsAllAsNull()
     {
         var list = new List<string?> { null, null, null };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[3]: [null, null, null]", result);
     }
 
@@ -1047,7 +1047,7 @@ public class DefaultFormatterTests
     {
         // Test collection with enumerator that doesn't implement IDisposable
         var collection = new NonDisposableCollection();
-        var result = DefaultFormatter.Format(collection);
+        var result = Formatter.Format(collection);
         Assert.AreEqual("[3]: [1, 2, 3]", result);
     }
 
@@ -1062,7 +1062,7 @@ public class DefaultFormatterTests
         bool exceptionThrown = false;
         try
         {
-            _ = DefaultFormatter.Format(collection);
+            _ = Formatter.Format(collection);
         }
         catch (InvalidOperationException ex)
         {
@@ -1083,7 +1083,7 @@ public class DefaultFormatterTests
     {
         // Test with interface types to ensure no issues with type checks
         IEnumerable<IComparable> list = [1, "test", 'a'];
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[3]: [1, \"test\", 'a']", result);
     }
     #endregion
@@ -1095,8 +1095,8 @@ public class DefaultFormatterTests
         var emptyList = new List<string?>();
         var singleNullList = new List<string?> { null };
 
-        var emptyResult = DefaultFormatter.Format(emptyList);
-        var nullResult = DefaultFormatter.Format(singleNullList);
+        var emptyResult = Formatter.Format(emptyList);
+        var nullResult = Formatter.Format(singleNullList);
 
         // Empty collection returns empty brackets
         Assert.AreEqual("[0]: []", emptyResult);
@@ -1112,7 +1112,7 @@ public class DefaultFormatterTests
     public void Format_emptyTuple_returnsEmptyParens()
     {
         var tuple = ValueTuple.Create();
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("()", result);
     }
 
@@ -1120,7 +1120,7 @@ public class DefaultFormatterTests
     public void Format_tupleWithSingleNull_returnsNullInParens()
     {
         var tuple = ValueTuple.Create<string?>(null);
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(null)", result);
     }
 
@@ -1128,7 +1128,7 @@ public class DefaultFormatterTests
     public void Format_tupleWithTwoNulls_returnsNullsInParens()
     {
         var tuple = (default(string), default(string));
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(null, null)", result);
     }
 
@@ -1136,7 +1136,7 @@ public class DefaultFormatterTests
     public void Format_tupleWithThreeNulls_returnsNullsInParens()
     {
         var tuple = (default(string), default(string), default(string));
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(null, null, null)", result);
     }
     #endregion
@@ -1146,7 +1146,7 @@ public class DefaultFormatterTests
     public void Format_withEmptyDictionary_returnsZeroCount()
     {
         var dict = new Dictionary<string, int>();
-        var result = DefaultFormatter.Format(dict);
+        var result = Formatter.Format(dict);
         Assert.AreEqual("[0]: {}", result);
     }
 
@@ -1154,7 +1154,7 @@ public class DefaultFormatterTests
     public void Format_withSingleItemDictionary_returnsKeyValuePair()
     {
         var dict = new Dictionary<string, int> { ["key1"] = 42 };
-        var result = DefaultFormatter.Format(dict);
+        var result = Formatter.Format(dict);
         Assert.AreEqual("[1]: {{\"key1\": 42}}", result);
     }
 
@@ -1162,7 +1162,7 @@ public class DefaultFormatterTests
     public void Format_withTwoItemDictionary_returnsAllPairs()
     {
         var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 };
-        var result = DefaultFormatter.Format(dict);
+        var result = Formatter.Format(dict);
         Assert.AreEqual("[2]: {{\"a\": 1}, {\"b\": 2}}", result);
     }
 
@@ -1170,7 +1170,7 @@ public class DefaultFormatterTests
     public void Format_withThreeItemDictionary_returnsAllPairs()
     {
         var dict = new Dictionary<string, int> { ["x"] = 10, ["y"] = 20, ["z"] = 30 };
-        var result = DefaultFormatter.Format(dict);
+        var result = Formatter.Format(dict);
         Assert.AreEqual("[3]: {{\"x\": 10}, {\"y\": 20}, {\"z\": 30}}", result);
     }
 
@@ -1178,7 +1178,7 @@ public class DefaultFormatterTests
     public void Format_withFourItemDictionary_returnsFirstThreePairs()
     {
         var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4 };
-        var result = DefaultFormatter.Format(dict);
+        var result = Formatter.Format(dict);
         Assert.AreEqual("[First 3 of 3+]: {{\"a\": 1}, {\"b\": 2}, {\"c\": 3}}", result);
     }
 
@@ -1186,7 +1186,7 @@ public class DefaultFormatterTests
     public void Format_withDictionaryStringValues_formatsValuesWithQuotes()
     {
         var dict = new Dictionary<int, string> { [1] = "hello", [2] = "world" };
-        var result = DefaultFormatter.Format(dict);
+        var result = Formatter.Format(dict);
         Assert.AreEqual("[2]: {{1: \"hello\"}, {2: \"world\"}}", result);
     }
 
@@ -1194,7 +1194,7 @@ public class DefaultFormatterTests
     public void Format_withDictionaryMixedStringValues_formatsCorrectly()
     {
         var dict = new Dictionary<int, string> { [1] = "value", [2] = "", [3] = "null" };
-        var result = DefaultFormatter.Format(dict);
+        var result = Formatter.Format(dict);
         Assert.AreEqual("[3]: {{1: \"value\"}, {2: \"\"}, {3: null}}", result);
     }
     #endregion
@@ -1204,7 +1204,7 @@ public class DefaultFormatterTests
     public void Format_withHashtable_formatsWithKeyValuePairs()
     {
         var hashtable = new Hashtable { ["key1"] = 100, ["key2"] = 200 };
-        var result = DefaultFormatter.Format(hashtable);
+        var result = Formatter.Format(hashtable);
         Assert.IsNotNull(result);
         var expected1 = "[2]: {{\"key1\": 100}, {\"key2\": 200}}";
         var expected2 = "[2]: {{\"key2\": 200}, {\"key1\": 100}}";
@@ -1216,7 +1216,7 @@ public class DefaultFormatterTests
     public void Format_withHashtableManyItems_formatsWithFirstThree()
     {
         var hashtable = new Hashtable { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4, ["e"] = 5 };
-        var result = DefaultFormatter.Format(hashtable);
+        var result = Formatter.Format(hashtable);
         Assert.IsNotNull(result);
         Assert.StartsWith("[First 3 of 3+]:", result);
     }
@@ -1225,7 +1225,7 @@ public class DefaultFormatterTests
     public void Format_withHashtableNullValue_formatsWithNull()
     {
         var hashtable = new Hashtable { ["key1"] = null, ["key2"] = 42 };
-        var result = DefaultFormatter.Format(hashtable);
+        var result = Formatter.Format(hashtable);
         Assert.IsNotNull(result);
         Assert.Contains("null", result);
         Assert.Contains("42", result);
@@ -1237,7 +1237,7 @@ public class DefaultFormatterTests
     public void Format_withMemoryStream_formatsWithLengthAndPosition()
     {
         var stream = new MemoryStream([1, 2, 3, 4, 5]);
-        var result = DefaultFormatter.Format(stream);
+        var result = Formatter.Format(stream);
         Assert.AreEqual("MemoryStream (Length: 5, Position: 0)", result);
     }
 
@@ -1245,7 +1245,7 @@ public class DefaultFormatterTests
     public void Format_withMemoryStreamAtPosition_formatsWithLengthAndPosition()
     {
         var stream = new MemoryStream([1, 2, 3, 4, 5]) { Position = 3 };
-        var result = DefaultFormatter.Format(stream);
+        var result = Formatter.Format(stream);
         Assert.AreEqual("MemoryStream (Length: 5, Position: 3)", result);
     }
 
@@ -1253,7 +1253,7 @@ public class DefaultFormatterTests
     public void Format_withEmptyMemoryStream_formatsWithZeroLength()
     {
         var stream = new MemoryStream();
-        var result = DefaultFormatter.Format(stream);
+        var result = Formatter.Format(stream);
         Assert.AreEqual("MemoryStream (Length: 0, Position: 0)", result);
     }
 
@@ -1262,7 +1262,7 @@ public class DefaultFormatterTests
     {
         var stream = new MemoryStream();
         stream.Dispose();
-        var result = DefaultFormatter.Format(stream);
+        var result = Formatter.Format(stream);
         Assert.IsNull(result);
     }
     #endregion
@@ -1271,77 +1271,77 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withIntType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(int));
+        var result = Formatter.Format(typeof(int));
         Assert.AreEqual("int", result);
     }
 
     [TestMethod]
     public void Format_withStringType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(string));
+        var result = Formatter.Format(typeof(string));
         Assert.AreEqual("string", result);
     }
 
     [TestMethod]
     public void Format_withBoolType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(bool));
+        var result = Formatter.Format(typeof(bool));
         Assert.AreEqual("bool", result);
     }
 
     [TestMethod]
     public void Format_withGenericList_returnsGenericNotation()
     {
-        var result = DefaultFormatter.Format(typeof(List<string>));
+        var result = Formatter.Format(typeof(List<string>));
         Assert.AreEqual("List<string>", result);
     }
 
     [TestMethod]
     public void Format_withGenericDictionary_returnsGenericNotation()
     {
-        var result = DefaultFormatter.Format(typeof(Dictionary<string, int>));
+        var result = Formatter.Format(typeof(Dictionary<string, int>));
         Assert.AreEqual("Dictionary<string, int>", result);
     }
 
     [TestMethod]
     public void Format_withNestedGeneric_returnsNestedNotation()
     {
-        var result = DefaultFormatter.Format(typeof(Dictionary<string, List<int>>));
+        var result = Formatter.Format(typeof(Dictionary<string, List<int>>));
         Assert.AreEqual("Dictionary<string, List<int>>", result);
     }
 
     [TestMethod]
     public void Format_withNullableInt_returnsNullableSyntax()
     {
-        var result = DefaultFormatter.Format(typeof(int?));
+        var result = Formatter.Format(typeof(int?));
         Assert.AreEqual("int?", result);
     }
 
     [TestMethod]
     public void Format_withIntArray_returnsArrayNotation()
     {
-        var result = DefaultFormatter.Format(typeof(int[]));
+        var result = Formatter.Format(typeof(int[]));
         Assert.AreEqual("int[]", result);
     }
 
     [TestMethod]
     public void Format_withMultiDimensionalArray_returnsArrayNotation()
     {
-        var result = DefaultFormatter.Format(typeof(int[,]));
+        var result = Formatter.Format(typeof(int[,]));
         Assert.AreEqual("int[,]", result);
     }
 
     [TestMethod]
     public void Format_withThreeDimensionalArray_returnsArrayNotation()
     {
-        var result = DefaultFormatter.Format(typeof(int[,,]));
+        var result = Formatter.Format(typeof(int[,,]));
         Assert.AreEqual("int[,,]", result);
     }
 
     [TestMethod]
     public void Format_withGenericNullable_returnsNullableSyntax()
     {
-        var result = DefaultFormatter.Format(typeof(List<int?>));
+        var result = Formatter.Format(typeof(List<int?>));
         Assert.AreEqual("List<int?>", result);
     }
     #endregion
@@ -1351,7 +1351,7 @@ public class DefaultFormatterTests
     public void Format_withNestedCollections_formatsRecursively()
     {
         var list = new List<List<int>> { new() { 1, 2 }, new() { 3, 4 } };
-        var result = DefaultFormatter.Format(list);
+        var result = Formatter.Format(list);
         Assert.AreEqual("[2]: [[2]: [1, 2], [2]: [3, 4]]", result);
     }
 
@@ -1363,7 +1363,7 @@ public class DefaultFormatterTests
             ["a"] = [1, 2],
             ["b"] = [3, 4]
         };
-        var result = DefaultFormatter.Format(dict);
+        var result = Formatter.Format(dict);
         Assert.AreEqual("[2]: {{\"a\": [2]: [1, 2]}, {\"b\": [2]: [3, 4]}}", result);
     }
 
@@ -1371,7 +1371,7 @@ public class DefaultFormatterTests
     public void Format_withTupleContainingCollection_formatsRecursively()
     {
         var tuple = ("list", new List<int> { 1, 2, 3 });
-        var result = DefaultFormatter.Format(tuple);
+        var result = Formatter.Format(tuple);
         Assert.AreEqual("(\"list\", [3]: [1, 2, 3])", result);
     }
     #endregion
@@ -1380,98 +1380,98 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withDecimalType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(decimal));
+        var result = Formatter.Format(typeof(decimal));
         Assert.AreEqual("decimal", result);
     }
 
     [TestMethod]
     public void Format_withFloatType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(float));
+        var result = Formatter.Format(typeof(float));
         Assert.AreEqual("float", result);
     }
 
     [TestMethod]
     public void Format_withLongType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(long));
+        var result = Formatter.Format(typeof(long));
         Assert.AreEqual("long", result);
     }
 
     [TestMethod]
     public void Format_withByteType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(byte));
+        var result = Formatter.Format(typeof(byte));
         Assert.AreEqual("byte", result);
     }
 
     [TestMethod]
     public void Format_withSbyteType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(sbyte));
+        var result = Formatter.Format(typeof(sbyte));
         Assert.AreEqual("sbyte", result);
     }
 
     [TestMethod]
     public void Format_withUintType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(uint));
+        var result = Formatter.Format(typeof(uint));
         Assert.AreEqual("uint", result);
     }
 
     [TestMethod]
     public void Format_withUlongType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(ulong));
+        var result = Formatter.Format(typeof(ulong));
         Assert.AreEqual("ulong", result);
     }
 
     [TestMethod]
     public void Format_withUshortType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(ushort));
+        var result = Formatter.Format(typeof(ushort));
         Assert.AreEqual("ushort", result);
     }
 
     [TestMethod]
     public void Format_withShortType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(short));
+        var result = Formatter.Format(typeof(short));
         Assert.AreEqual("short", result);
     }
 
     [TestMethod]
     public void Format_withObjectType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(object));
+        var result = Formatter.Format(typeof(object));
         Assert.AreEqual("object", result);
     }
 
     [TestMethod]
     public void Format_withVoidType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(void));
+        var result = Formatter.Format(typeof(void));
         Assert.AreEqual("void", result);
     }
 
     [TestMethod]
     public void Format_withCharType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(char));
+        var result = Formatter.Format(typeof(char));
         Assert.AreEqual("char", result);
     }
 
     [TestMethod]
     public void Format_withDoubleType_returnsAlias()
     {
-        var result = DefaultFormatter.Format(typeof(double));
+        var result = Formatter.Format(typeof(double));
         Assert.AreEqual("double", result);
     }
 
     [TestMethod]
     public void Format_withCustomType_returnsTypeName()
     {
-        var result = DefaultFormatter.Format(typeof(DefaultFormatterTests));
+        var result = Formatter.Format(typeof(DefaultFormatterTests));
         Assert.AreEqual("DefaultFormatterTests", result);
     }
     #endregion
@@ -1485,7 +1485,7 @@ public class DefaultFormatterTests
         stream.Position = 0;
 
         // Act
-        var result = DefaultFormatter.Format(stream);
+        var result = Formatter.Format(stream);
 
         // Assert: Should include type name, length, and position
         Assert.AreEqual("MemoryStream (Length: 1024, Position: 0)", result);
@@ -1499,7 +1499,7 @@ public class DefaultFormatterTests
         stream.Position = 512;
 
         // Act
-        var result = DefaultFormatter.Format(stream);
+        var result = Formatter.Format(stream);
 
         // Assert: Should include type name, length, and current position
         Assert.AreEqual("MemoryStream (Length: 2048, Position: 512)", result);
@@ -1512,7 +1512,7 @@ public class DefaultFormatterTests
         using var nonSeekableStream = new NonSeekableStream();
 
         // Act
-        var result = DefaultFormatter.Format(nonSeekableStream);
+        var result = Formatter.Format(nonSeekableStream);
 
         // Assert: Should include only type name and position (no length)
         Assert.AreEqual("NonSeekableStream (Position: 0)", result);
@@ -1524,7 +1524,7 @@ public class DefaultFormatterTests
     public void Format_withVeryLongString_returnsQuoted()
     {
         var longString = new string('a', 1000);
-        var result = DefaultFormatter.Format(longString);
+        var result = Formatter.Format(longString);
         Assert.StartsWith("\"", result);
         Assert.EndsWith("\"", result);
         Assert.AreEqual(1002, result!.Length); // 1000 chars + 2 quotes
@@ -1534,14 +1534,14 @@ public class DefaultFormatterTests
     public void Format_withObjectWithCustomToString_returnsToStringResult()
     {
         var obj = new CustomObject();
-        var result = DefaultFormatter.Format(obj);
+        var result = Formatter.Format(obj);
         Assert.AreEqual("CustomObject", result);
     }
 
     [TestMethod]
     public void Format_withEnumValue_returnsEnumName()
     {
-        var result = DefaultFormatter.Format(DayOfWeek.Monday);
+        var result = Formatter.Format(DayOfWeek.Monday);
         Assert.AreEqual("Monday", result);
     }
 
@@ -1549,7 +1549,7 @@ public class DefaultFormatterTests
     public void Format_withNullableHasValue_returnsValue()
     {
         int? nullable = 42;
-        var result = DefaultFormatter.Format(nullable);
+        var result = Formatter.Format(nullable);
         Assert.AreEqual("42", result);
     }
 
@@ -1557,7 +1557,7 @@ public class DefaultFormatterTests
     public void Format_withNullableNoValue_returnsNull()
     {
         int? nullable = null;
-        var result = DefaultFormatter.Format(nullable);
+        var result = Formatter.Format(nullable);
         Assert.IsNull(result);
     }
 
@@ -1565,7 +1565,7 @@ public class DefaultFormatterTests
     public void Format_withNullableDoubleNoValue_returnsNull()
     {
         double? nullable = null;
-        var result = DefaultFormatter.Format(nullable);
+        var result = Formatter.Format(nullable);
         Assert.IsNull(result);
     }
 
@@ -1573,7 +1573,7 @@ public class DefaultFormatterTests
     public void Format_withNullableDecimalNoValue_returnsNull()
     {
         decimal? nullable = null;
-        var result = DefaultFormatter.Format(nullable);
+        var result = Formatter.Format(nullable);
         Assert.IsNull(result);
     }
 
@@ -1581,7 +1581,7 @@ public class DefaultFormatterTests
     public void Format_withNullableBoolNoValue_returnsNull()
     {
         bool? nullable = null;
-        var result = DefaultFormatter.Format(nullable);
+        var result = Formatter.Format(nullable);
         Assert.IsNull(result);
     }
 
@@ -1589,7 +1589,7 @@ public class DefaultFormatterTests
     public void Format_withNullableDateTimeNoValue_returnsNull()
     {
         DateTime? nullable = null;
-        var result = DefaultFormatter.Format(nullable);
+        var result = Formatter.Format(nullable);
         Assert.IsNull(result);
     }
 
@@ -1597,7 +1597,7 @@ public class DefaultFormatterTests
     public void Format_withNullableGuidNoValue_returnsNull()
     {
         Guid? nullable = null;
-        var result = DefaultFormatter.Format(nullable);
+        var result = Formatter.Format(nullable);
         Assert.IsNull(result);
     }
 
@@ -1605,7 +1605,7 @@ public class DefaultFormatterTests
     public void Format_withNullableEnumNoValue_returnsNull()
     {
         DayOfWeek? nullable = null;
-        var result = DefaultFormatter.Format(nullable);
+        var result = Formatter.Format(nullable);
         Assert.IsNull(result);
     }
 
@@ -1614,7 +1614,7 @@ public class DefaultFormatterTests
     {
         int? nullable = null;
         object? boxed = nullable; // Boxing null Nullable<int>
-        var result = DefaultFormatter.Format(boxed);
+        var result = Formatter.Format(boxed);
         Assert.IsNull(result);
     }
 
@@ -1623,7 +1623,7 @@ public class DefaultFormatterTests
     {
         int? nullable = 42;
         object boxed = nullable; // Boxing Nullable<int> with value boxes the int value
-        var result = DefaultFormatter.Format(boxed);
+        var result = Formatter.Format(boxed);
         Assert.AreEqual("42", result);
     }
 
@@ -1632,28 +1632,28 @@ public class DefaultFormatterTests
     {
         // Test with custom struct
         TestStruct? nullable = null;
-        var result = DefaultFormatter.Format(nullable);
+        var result = Formatter.Format(nullable);
         Assert.IsNull(result);
     }
 
     [TestMethod]
     public void Format_withJaggedArray_returnsArrayNotation()
     {
-        var result = DefaultFormatter.Format(typeof(int[][]));
+        var result = Formatter.Format(typeof(int[][]));
         Assert.AreEqual("int[][]", result);
     }
 
     [TestMethod]
     public void Format_withComplexGenericType_returnsNestedGenerics()
     {
-        var result = DefaultFormatter.Format(typeof(Dictionary<string, List<Dictionary<int, string>>>));
+        var result = Formatter.Format(typeof(Dictionary<string, List<Dictionary<int, string>>>));
         Assert.AreEqual("Dictionary<string, List<Dictionary<int, string>>>", result);
     }
 
     [TestMethod]
     public void Format_withArrayOfNullable_returnsArrayNotation()
     {
-        var result = DefaultFormatter.Format(typeof(int?[]));
+        var result = Formatter.Format(typeof(int?[]));
         Assert.AreEqual("int?[]", result);
     }
 
@@ -1661,7 +1661,7 @@ public class DefaultFormatterTests
     public void Format_withFourDimensionalArray_returnsArrayNotation()
     {
         // Multi-dimensional array with rank > 3
-        var result = DefaultFormatter.Format(typeof(int[,,,]));
+        var result = Formatter.Format(typeof(int[,,,]));
         Assert.AreEqual("int[,,,]", result);
     }
 
@@ -1669,7 +1669,7 @@ public class DefaultFormatterTests
     public void Format_withFiveDimensionalArray_returnsArrayNotation()
     {
         // Test rank 5 array
-        var result = DefaultFormatter.Format(typeof(string[,,,,]));
+        var result = Formatter.Format(typeof(string[,,,,]));
         Assert.AreEqual("string[,,,,]", result);
     }
 
@@ -1677,7 +1677,7 @@ public class DefaultFormatterTests
     public void Format_withGenericTypeThreeParameters_returnsGenericNotation()
     {
         // Generic with 3 type parameters
-        var result = DefaultFormatter.Format(typeof(Tuple<int, string, bool>));
+        var result = Formatter.Format(typeof(Tuple<int, string, bool>));
         Assert.AreEqual("Tuple<int, string, bool>", result);
     }
 
@@ -1685,28 +1685,28 @@ public class DefaultFormatterTests
     public void Format_withGenericTypeFourParameters_returnsGenericNotation()
     {
         // Generic with 4 type parameters
-        var result = DefaultFormatter.Format(typeof(Tuple<int, string, bool, double>));
+        var result = Formatter.Format(typeof(Tuple<int, string, bool, double>));
         Assert.AreEqual("Tuple<int, string, bool, double>", result);
     }
 
     [TestMethod]
     public void Format_withNullableDateTime_returnsNullableSyntax()
     {
-        var result = DefaultFormatter.Format(typeof(DateTime?));
+        var result = Formatter.Format(typeof(DateTime?));
         Assert.AreEqual("DateTime?", result);
     }
 
     [TestMethod]
     public void Format_withNullableBool_returnsNullableSyntax()
     {
-        var result = DefaultFormatter.Format(typeof(bool?));
+        var result = Formatter.Format(typeof(bool?));
         Assert.AreEqual("bool?", result);
     }
 
     [TestMethod]
     public void Format_withNullableGuid_returnsNullableSyntax()
     {
-        var result = DefaultFormatter.Format(typeof(Guid?));
+        var result = Formatter.Format(typeof(Guid?));
         Assert.AreEqual("Guid?", result);
     }
 
@@ -1714,7 +1714,7 @@ public class DefaultFormatterTests
     public void Format_withJaggedMultiDimensionalArray_returnsArrayNotation()
     {
         // Jagged array of 2D arrays
-        var result = DefaultFormatter.Format(typeof(int[][,]));
+        var result = Formatter.Format(typeof(int[][,]));
         Assert.AreEqual("int[,][]", result);
     }
 
@@ -1722,7 +1722,7 @@ public class DefaultFormatterTests
     public void Format_withArrayOfGenericType_returnsCorrectNotation()
     {
         // Array of generic type
-        var result = DefaultFormatter.Format(typeof(List<int>[]));
+        var result = Formatter.Format(typeof(List<int>[]));
         Assert.AreEqual("List<int>[]", result);
     }
 
@@ -1730,7 +1730,7 @@ public class DefaultFormatterTests
     public void Format_withGenericOfArray_returnsCorrectNotation()
     {
         // Generic containing array type
-        var result = DefaultFormatter.Format(typeof(List<int[]>));
+        var result = Formatter.Format(typeof(List<int[]>));
         Assert.AreEqual("List<int[]>", result);
     }
 
@@ -1738,7 +1738,7 @@ public class DefaultFormatterTests
     public void Format_withNestedGenericOfNullable_returnsCorrectNotation()
     {
         // Nested generic with nullable
-        var result = DefaultFormatter.Format(typeof(Dictionary<string, int?>));
+        var result = Formatter.Format(typeof(Dictionary<string, int?>));
         Assert.AreEqual("Dictionary<string, int?>", result);
     }
 
@@ -1843,3 +1843,5 @@ public class DefaultFormatterTests
     }
     #endregion
 }
+
+

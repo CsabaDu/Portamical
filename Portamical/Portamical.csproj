@@ -63,7 +63,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portamical.Core" Version="4.1.2" />
+    <ProjectReference Include="..\Portamical.Converters\Portamical.Converters.csproj" />
   </ItemGroup>
 
   <ItemGroup>

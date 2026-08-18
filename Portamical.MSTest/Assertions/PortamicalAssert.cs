@@ -199,7 +199,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// </para>
     /// </remarks>
     /// <param name="assertions">
-    /// An action containing multiple assertion statements. Execution stops at the first failure.
+    /// An attempt containing multiple assertion statements. Execution stops at the first failure.
     /// </param>
     /// <example>
     /// <code>
@@ -285,7 +285,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     => (e, a) => Assert.AreEqual(e, a);
 
     /// <summary>
-    /// Executes the specified synchronous action and verifies that it throws an exception of the expected type
+    /// Executes the specified synchronous attempt and verifies that it throws an exception of the expected type
     /// with matching details (async version for MSTest).
     /// </summary>
     /// <remarks>
@@ -302,7 +302,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// The type of exception expected to be thrown. Must be a non-null reference type derived from <see cref="Exception"/>.
     /// </typeparam>
     /// <param name="attempt">
-    /// The synchronous action to execute, which is expected to throw an exception. Cannot be null.
+    /// The synchronous attempt to execute, which is expected to throw an exception. Cannot be null.
     /// </param>
     /// <param name="expected">
     /// The expected exception instance, used as a reference for type and detail comparisons. Cannot be null.
@@ -330,10 +330,8 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         TException expected)
     where TException : notnull, Exception
     {
-        return await ThrowsDetailsAsync(
-            attempt,
-            expected,
-            CatchExceptionAsync,
+        return await ThrowsDetailsAsync(attempt, expected,
+            assertThrowsAnyAsync: ThrowsAnyAsync,
             assertIsTypeAsync: (expectedType, actual) =>
             {
                 Assert.IsNotNull(actual);
@@ -344,7 +342,42 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
             {
                 Assert.AreEqual(e?.ToString(), a?.ToString());
                 return new ValueTask();
-            },
+            });
+    }
+
+    /// <summary>
+    /// Executes an async action and returns any exception thrown (MSTest version).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This method executes the specified async action and:
+    /// </para>
+    /// <list type="bullet">
+    ///   <item>Returns the exception if one was thrown</item>
+    ///   <item>Fails the test with <see cref="Assert.Fail"/> if no exception occurred</item>
+    /// </list>
+    /// <para>
+    /// Delegates to <see cref="Portamical.Assertions.PortamicalAssert.ThrowsAnyAsync(Func{Task}, Func{string, ValueTask})"/>
+    /// with MSTest-specific assertion failure handling.
+    /// </para>
+    /// </remarks>
+    /// <param name="attempt">The async action expected to throw an exception.</param>
+    /// <returns>The exception that was thrown.</returns>
+    /// <exception cref="AssertFailedException">Thrown if no exception occurs during execution.</exception>
+    /// <example>
+    /// <code>
+    /// [TestMethod]
+    /// public async Task SomeMethod_InvalidInput_ThrowsAnyException()
+    /// {
+    ///     var ex = await ThrowsAnyAsync(async () => await service.ProcessAsync(null));
+    ///     Assert.IsInstanceOfType(ex, typeof(ArgumentException));
+    /// }
+    /// </code>
+    /// </example>
+    public static async ValueTask<Exception> ThrowsAnyAsync(Func<Task> attempt)
+    {
+        return await ThrowsAnyAsync(
+            attempt,
             assertFailAsync: msg =>
             {
                 Assert.Fail(msg);
@@ -355,7 +388,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     #region DoesNotThrow
 
     /// <summary>
-    /// Verifies that an action does not throw any exception.
+    /// Verifies that an attempt does not throw any exception.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -363,7 +396,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// Automatically uses <see cref="Assert.Fail"/> for assertion failures.
     /// </para>
     /// </remarks>
-    /// <param name="attempt">The action to execute and verify for absence of exceptions.</param>
+    /// <param name="attempt">The attempt to execute and verify for absence of exceptions.</param>
     /// <exception cref="AssertFailedException">
     /// Thrown via <see cref="Assert.Fail"/> if <paramref name="attempt"/> throws any exception.
     /// </exception>
@@ -384,7 +417,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
             assertFail: Assert.Fail);
 
     /// <summary>
-    /// Asynchronously verifies that an action does not throw any exception.
+    /// Asynchronously verifies that an attempt does not throw any exception.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -397,7 +430,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// is wrapped in a completed <see cref="ValueTask"/> for async compatibility.
     /// </para>
     /// </remarks>
-    /// <param name="attempt">The async action to execute and verify for absence of exceptions.</param>
+    /// <param name="attempt">The async attempt to execute and verify for absence of exceptions.</param>
     /// <returns>A task representing the async assertion operation.</returns>
     /// <exception cref="AssertFailedException">
     /// Thrown via <see cref="Assert.Fail"/> if <paramref name="attempt"/> throws any exception.
@@ -455,7 +488,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
         assertEquality: AssertEquality<object>());
 
     /// <summary>
-    /// Verifies that an action throws an exception matching the expected exception's type and metadata.
+    /// Verifies that an attempt throws an exception matching the expected exception's type and metadata.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -476,7 +509,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     /// <typeparam name="TException">
     /// The type of exception expected. Must be a non-null reference type inheriting from <see cref="Exception"/>.
     /// </typeparam>
-    /// <param name="attempt">The action expected to throw an exception.</param>
+    /// <param name="attempt">The attempt expected to throw an exception.</param>
     /// <param name="expected">
     /// The expected exception instance with message and (if applicable) parameter name to match against.
     /// </param>
@@ -513,8 +546,7 @@ public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
     public static TException ThrowsDetails<TException>(Action attempt, TException expected)
     where TException : notnull, Exception
     => ThrowsDetails(attempt, expected,
-        catchException: CatchException,
+        assertThrowsAny: (att) => Assert.Throws<Exception>(att),
         assertIsType: IsTypeOf,
-        assertEquality: AssertEquality<string>(),
-        assertFail: Assert.Fail!);
+        assertEquality: AssertEquality<string>());
 }
