@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Converters.DataProviders;
+namespace Portamical.DataProviders;
 
 /// <summary>
 /// Defines a contract for providing and managing collections of test data rows with associated test method metadata.

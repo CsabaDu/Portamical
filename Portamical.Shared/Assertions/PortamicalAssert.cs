@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Assertions;
+namespace Portamical.Shared.Assertions;
 
 /// <summary>
 /// Provides framework-agnostic assertion helper methods for unit testing with async-first architecture.

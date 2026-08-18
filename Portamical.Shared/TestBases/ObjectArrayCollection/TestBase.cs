@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.TestBases.ObjectArrayCollection;
+namespace Portamical.Shared.TestBases.ObjectArrayCollection;
 
 /// <summary>
 /// Provides an abstract base class for converting test data collections into object array format

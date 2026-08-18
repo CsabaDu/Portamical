@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.TestBases;
+namespace Portamical.Shared.TestBases;
 
 /// <summary>
 /// Provides a base class for test implementations with framework-agnostic conversion utilities.

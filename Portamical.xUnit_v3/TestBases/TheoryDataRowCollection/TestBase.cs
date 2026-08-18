@@ -208,7 +208,7 @@ namespace Portamical.xUnit_v3.TestBases.TheoryDataRowCollection;
 /// <seealso cref="CollectionConverter"/>
 /// <seealso cref="ITheoryDataRow"/>
 /// <seealso cref="ArgsCode"/>
-public abstract class TestBase : Portamical.TestBases.TestDataCollection.TestBase
+public abstract class TestBase : Shared.TestBases.TestDataCollection.TestBase
 {
     /// <summary>
     /// Converts a collection of Portamical test data to an immutable <see cref="IReadOnlyCollection{T}"/>

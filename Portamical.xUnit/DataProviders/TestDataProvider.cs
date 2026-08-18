@@ -2,7 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Safety;
-using Portamical.Converters.DataProviders;
+using Portamical.DataProviders;
 using System.Collections;
 
 namespace Portamical.xUnit.DataProviders;

@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="Portamical.Converters/Portamical.Converters.csproj" />
+  <Project Path="Portamical.Core/Portamical.Core.csproj" />
   <Project Path="Portamical/Portamical.csproj" />
 </Solution>

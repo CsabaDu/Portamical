@@ -159,7 +159,7 @@ namespace Portamical.NUnit.Assertions;
 /// </example>
 /// <seealso cref="Portamical.Assertions.PortamicalAssert"/>
 /// <seealso cref="NUnit.Framework.Assert"/>
-public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
+public abstract class PortamicalAssert : Shared.Assertions.PortamicalAssert
 {
     /// <summary>
     /// Executes multiple assertions and collects all failures instead of stopping at the first failure.

@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.TestBases.TestDataCollection;
+namespace Portamical.Shared.TestBases.TestDataCollection;
 
 /// <summary>
 /// Provides an abstract base class for test implementations that require standardized handling of test data

@@ -8,6 +8,7 @@ global using Portamical.Core.Identity.Model;
 global using Portamical.Core.Safety;
 global using Portamical.Core.Strategy;
 global using Portamical.Core.TestDataTypes;
+global using Portamical.DataProviders;
 global using System.Reflection;
 global using Xunit;
 global using Xunit.Internal;

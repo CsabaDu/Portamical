@@ -91,7 +91,7 @@ namespace Portamical.MSTest.TestBases;
 /// <seealso cref="Convert{TTestData}(IEnumerable{TTestData}, ArgsCode)"/>
 /// <seealso cref="Convert{TTestData}(IEnumerable{TTestData})"/>
 /// <seealso cref="CollectionConverter.ToArgsWithTestCaseName{TTestData}(IEnumerable{TTestData}, ArgsCode)"/>
-public abstract class TestBase : Portamical.TestBases.TestBase
+public abstract class TestBase : Shared.TestBases.TestBase
 {
     /// <summary>
     /// Converts a collection of test data into MSTest-compatible parameter arrays with explicit argument selection.

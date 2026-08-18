@@ -122,7 +122,7 @@ namespace Portamical.TUnit.Assertions;
 /// <seealso cref="Equality{T}(T, T, Func{T, T, bool}, string)"/>
 /// <seealso cref="Equality(object, object, double?)"/>
 /// <seealso cref="IsTypeOf(Type, object)"/>
-public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
+public abstract class PortamicalAssert : Shared.Assertions.PortamicalAssert
 {
     #region Assert Methods
 

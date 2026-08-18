@@ -1,14 +1,15 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Converters;
+using Portamical.Converters.AsyncEnumerables;
+using Portamical.Converters.Tasks;
 
 namespace Portamical.TUnit.TestBases;
 
 /// <summary>
 /// Provides TUnit-specific helpers for converting Portamical test data into synchronous or asynchronous sources.
 /// </summary>
-public abstract class TestBase : Portamical.TestBases.TestBase
+public abstract class TestBase : Shared.TestBases.TestBase
 {
     /// <summary>
     /// Converts a test data collection to an asynchronous sequence of distinct test data items.

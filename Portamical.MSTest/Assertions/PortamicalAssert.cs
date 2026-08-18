@@ -158,7 +158,7 @@ namespace Portamical.MSTest.Assertions;
 /// </example>
 /// <seealso cref="Portamical.Assertions.PortamicalAssert"/>
 /// <seealso cref="Microsoft.VisualStudio.TestTools.UnitTesting.Assert"/>
-public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
+public abstract class PortamicalAssert : Shared.Assertions.PortamicalAssert
 {
     #region AssertMultiple
     /// <summary>

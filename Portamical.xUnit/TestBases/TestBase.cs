@@ -180,7 +180,7 @@ namespace Portamical.xUnit.TestBases;
 /// <seealso cref="CollectionConverter"/>
 /// <seealso cref="TestDataProvider{TTestData}"/>
 /// <seealso cref="ArgsCode"/>
-public abstract class TestBase : Portamical.TestBases.TestBase
+public abstract class TestBase : Shared.TestBases.TestBase
 {
     /// <summary>
     /// Converts a collection of Portamical test data to xUnit v2's <see cref="TestDataProvider{TTestData}"/>.

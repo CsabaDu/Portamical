@@ -1,21 +1,63 @@
-﻿# Portamical
+# Portamical.Converters
 
-**Shared utilities and base classes for cross-framework test data solutions in .NET.**
+**Portamical.Core Strongly Typed Test Data Collection Conversion & Deduplication Infrastructure for Cross-Framework Testing**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-4.1.2-orange.svg)](https://github.com/CsabaDu/Portamical/releases)
+[![Version](https://img.shields.io/badge/version-5.0.0-orange.svg)](https://www.nuget.org/packages/Portamical.Converter)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
-Portamical provides framework-agnostic converters, assertions, and test base classes that bridge between Portamical.Core and framework-specific adapters.
+> **Identity-driven deduplication, async/sync conversion patterns, and framework-agnostic data provider interfaces for test data collections.**
+
+`Portamical.Converters` provides the conversion layer between [Portamical.Core](https://github.com/CsabaDu/Portamical/tree/master/Portamical.Core) test data types and framework-specific test adapters, with automatic deduplication based on test case identity.
+
+---
+
+## Features
+
+### **Strategy-Based Row Conversion**
+- **Concrete rows** - Direct materialization into strongly-typed arrays (`TTestData[]`) or object-array structures (`object[][]`)
+- **Abstract rows** - Custom conversion logic via `Func<TTestData, TRow>` delegates
+- **Built-in strategies** - `ArgsCode.Instance` (wrap testData), `ArgsCode.Properties` (flatten properties)
+- **Extensible** - Implement custom conversion strategies for framework-specific requirements
+
+### **Identity-Based Deduplication**
+- **Automatic duplicate removal** - Uses `INamedCase.TestCaseName` for semantic equality
+- **O(n) performance** - `HashSet<INamedCase>` with `NamedCase.Comparer`
+- **First-occurrence wins** - Preserves original collection order
+- **Thread-safe** - Stateless static methods
+
+### **Multiple Conversion Patterns**
+- **Synchronous**: Arrays for immediate use (`TRow[]`)
+- **Task-based**: `Task<TRow[]>` for async workflows with smart threshold optimization
+- **Streaming**: `IAsyncEnumerable<TRow>` for memory-efficient async iteration
+
+### **Performance Optimizations**
+- **Zero-allocation array returns** - Direct array construction for test frameworks
+- **Smart threshold strategy** - Sync for small collections (&lt;10 items), async for larger
+- **Aggressive inlining** - Hot-path methods marked with `[MethodImpl(AggressiveInlining)]`
+
+### **Framework-Agnostic Interfaces**
+- **`ITestDataProvider<in TTestData>`** - Builder pattern for test data collection management
+- **`ITestDataConverter<in TTestData, out TRow>`** - Conversion contract with variance support
+- **Contravariant/covariant** - Flexible type assignments for base/derived type scenarios
 
 ---
 
 ## Install
 
 ```bash
-dotnet add package Portamical
+dotnet add package Portamical.Converters
 ```
+
+Or via NuGet Package Manager:
+```powershell
+Install-Package Portamical.Converters
+```
+
+**Dependencies:**
+- `Portamical.Core` >= 4.2.0
+- `.NET 10.0`
 
 > **Note:** Most users should install a framework adapter instead:
 > - `Portamical.xUnit` for xUnit v2
@@ -23,455 +65,940 @@ dotnet add package Portamical
 > - `Portamical.MSTest` for MSTest 4
 > - `Portamical.NUnit` for NUnit 4
 > - `Portamical.TUnit` (***Preview***) for TUnit
+>
+> Framework adapters include `Portamical.Converters` automatically.
 
 ---
 
-## What's New
+## Quick Start
 
-### **Version 4.0.0 (2026-06-26)**
-
-***Quality and Coverage Release***
-
-**Updated**
-- **Portamical.Core dependency updated to v4.0.0**
-  - Maintains compatibility with latest Portamical.Core features and improvements
-  - No breaking changes or API modifications in this release
-
-**Improved**
-- **Complete test coverage for assertion infrastructure** (189 tests, all passing)
-  - **Fatal exception filtering**: 8 comprehensive tests for `IsNotFatal` branches
-    - Tests for `OutOfMemoryException`, `AccessViolationException`, `StackOverflowException` propagation
-    - Tests for non-fatal exception catching (`InvalidOperationException`)
-    - Both synchronous and asynchronous code paths fully covered
-  - **Equality assertions**: Tests for previously uncovered `AreEqual` branches
-    - `BigInteger` equality comparison
-    - Custom type fallback using `object.Equals`
-    - Non-interned string equality for pattern matching branch coverage
-  - **NaN special value handling**: Complete branch coverage for `AreApproximatelyEqual`
-    - Added test: `doubleRegularAndNaN_notEqual` (regular value vs NaN)
-    - Complements existing NaN tests for full asymmetry coverage
-- **Enhanced documentation**
-  - Comprehensive XML documentation for `ThreadSafeSync(Func<Task>)` overload (60+ lines)
-  - Detailed usage examples, performance notes, thread safety guidance
-  - Documents internal usage pattern for bridging async implementations with sync wrappers
-
-**Fixed**
-- **`ThrowsDetails` sync wrapper implementation**
-  - **Issue**: The `catchExceptionAsync` lambda was ignoring its `attemptAsync` parameter and calling the original `attempt` action directly
-  - **Impact**: Lambda wrapping sync action into `Func<Task>` was dead code, never executed
-  - **Solution**: Changed to properly invoke the wrapped lambda through `ThreadSafeSync`
-  - **Result**: Lambda now properly executes, achieving intended async-to-sync bridging behavior
-  - **Test updated**: `ThrowsDetails_catchExceptionInvoked_receivesWrappedAttempt` verifies wrapped execution
-
-**Test Coverage Details**
-- **189 total tests** (increased from 183)
-- **+6 tests**: Fatal exception filtering (sync + async for 3 fatal types, plus non-fatal cases)
-- **+5 tests**: Equality edge cases (BigInteger equal/unequal, custom type equal/unequal, non-interned strings)
-- **+1 test**: NaN handling (`doubleRegularAndNaN_notEqual`)
-- Helper class added: `CustomEquatableType` for fallback equality testing
-- Fatal exception tests use constructible exception types suitable for .NET 10
-
----
-
-### **Version 3.1.0 (2026-05-27)**
-
-***Exception Metadata Assertion API***
-
-**Added**
-- **`MetadataEquality<TException>(TException, TException, Action<string, string?>)`** - New public synchronous method for exception metadata assertions
-  - Framework-agnostic verification of exception messages and parameter names
-  - Thread-safe synchronous wrapper delegating to `MetadataEqualityAsync`
-  - Supports `ArgumentException`, `ArgumentOutOfRangeException`, `ObjectDisposedException` with intelligent message filtering
-
-**Changed**
-- **`MetadataEqualityAsync<TException>(TException, TException, Func<string, string?, ValueTask>)`** - Made public (was private)
-  - Primary async implementation for exception metadata verification
-  - Intelligently handles framework-generated messages that vary across runtime versions and locales
-  - Skips assertion for:
-    - `ArgumentException` guard clauses: `"The value cannot be an empty string"`, `"'paramName' ('value'...)"`
-    - `ObjectDisposedException` runtime patterns: `"Cannot access a disposed object.\nObject name: 'objectName'"`
-
-**Improved**
-- Enhanced XML documentation for both `MetadataEqualityAsync` and `MetadataEquality`
-  - Detailed remarks explaining selective assertion logic for framework exceptions
-  - Usage examples for TUnit (async) and NUnit (sync) scenarios
-  - Performance notes and thread safety guidance
-
-**Example Usage**
-
-Async (TUnit, MSTest):
-```csharp
-var expected = new ArgumentException("Invalid value", "paramName");
-var actual = new ArgumentException("Invalid value", "paramName");
-
-await PortamicalAssert.MetadataEqualityAsync(
-    expected,
-    actual,
-    async (exp, act) => await Assert.Equal(exp, act));
-```
-
-Sync (NUnit, xUnit):
-```csharp
-var expected = new ArgumentOutOfRangeException("count", "Count must be positive");
-var actual = new ArgumentOutOfRangeException("count", "Count must be positive");
-
-PortamicalAssert.MetadataEquality(
-    expected,
-    actual,
-    (exp, act) => Assert.AreEqual(exp, act));
-```
-
----
-
-### **Version 3.0.0 (2026-04-27)**
-
-***API Cleanup***
-
-**Breaking Changes**
-- **Removed `ThrowsDetailsAsync(Action, Func<Func<Task>, ValueTask<Exception?>>, ...)` overload**
-  - Async method accepting sync action with async exception catcher
-  - Rationale: Unnecessary wrapper encouraging anti-pattern (async test for sync code)
-  - Migration: Use sync `ThrowsDetails(Action, Func<Action, Exception?>, ...)` for testing synchronous code
-
-**Migration Guide**
-
-Before (v2.3.0):
-```csharp
-await ThrowsDetailsAsync(
-    () => mySyncMethod(),
-    expected,
-    CatchExceptionAsync,  // Async catcher with sync action
-    // ...
-);
-```
-
-After (v3.0.0):
-```csharp
-// Recommended: sync test for sync code
-ThrowsDetails(
-    () => mySyncMethod(),
-    expected,
-    CatchException,  // Sync catcher
-    assertIsType,
-    assertEquality,
-    assertFail);
-```
-
----
-
-### **Version 2.3.0 (2026-04-25)**
-
-***Async-First Architecture Completed***
-
-**Added**
-- `CatchExceptionAsync(Func<Task>)` - Async exception catcher with fatal exception filtering
-- `DoesNotThrowAsync(Func<Task>, Func<string, ValueTask>)` - Async action overload for assertion scenarios
-
-**Changed**
-- `CatchException(Action)` - Refactored as sync wrapper delegating to `CatchExceptionAsync` (backward compatible)
-- `DoesNotThrow(Action, Action<string>)` - Refactored as sync wrapper, eliminated `#pragma warning disable CA2012`
-- Async assertion methods visibility changed from `protected` to `public`
-  - Affected: `DoesNotThrowAsync`, `ThrowsDetailsAsync`, `EqualityAsync`, `IsTypeOfAsync`
-  - Enables direct usage in async frameworks (TUnit, MSTest 4)
-
-**Improved**
-- Comprehensive XML documentation for `IsNotFatal` and all new/changed methods
-- Fatal exception filtering consistent across all sync/async paths
-- Zero-allocation success paths preserved in all refactorings
-
-**Breaking Changes:** None - fully backward compatible with 2.2.x
-
----
-
-### **Version 2.2.0 (2026-04-22)**
-
-**Added**
-- Async-first assertion architecture using `ValueTask` for zero-allocation performance
-- `DoesNotThrowAsync(Action, Func<string, ValueTask>)` - Async version of `DoesNotThrow`
-- `ThrowsDetailsAsync<TException>(...)` - Async exception validation with metadata
-- `EqualityAsync<T>(...)` - Async generic equality with custom comparison delegate
-- `EqualityAsync(object, object?, ...)` - Async built-in type equality with floating-point tolerance
-- `IsTypeOfAsync(Type, object?, ...)` - Async runtime type verification
-
-**Changed**
-- Internal refactoring: sync assertion methods now delegate to async base implementations (no API changes)
-- Performance optimizations with zero-allocation success paths using `default(ValueTask)`
-- Enhanced XML documentation with async-first architecture guide
-
-**Performance**
-- Zero heap allocations on success paths for async assertions
-- Optimized hot paths with `MethodImpl(AggressiveInlining)`
-- Sync wrappers have ~5ns overhead (negligible)
-
-**Migration**
-- Fully backward compatible with 2.1.x - no code changes required
-- Existing sync methods work unchanged (delegate internally to async base)
-- Optional: upgrade to async methods in async-first frameworks (TUnit, MSTest v2+)
-
----
-
-### **Version 2.1.0 (2026-04-20)**
-
-**Added**
-- `Equality<T>(T?, T?, Func<T?, T?, bool>, Action<string?>, string?)` - Generic equality with custom comparison
-- `Equality(object, object?, Action, double?)` - Optimized equality for 22+ built-in types with floating-point tolerance
-- Collection equality support using `SequenceEqual` with recursive comparison
-- Floating-point tolerance: configurable epsilon for `float` (1e-6f) and `double` (1e-10)
-- Special value handling: NaN, +∞, -∞ with bitwise comparison
-- `BigInteger` equality support
-- `ToDistinctReadOnly<TTestData>(IEnumerable<TTestData>)` - Parameterless converter using default `ArgsCode.Instance`
-
-**Changed**
-- `IsTypeOf(Type, object?, Action<Type, Type?>)` - Now accepts nullable `actual` parameter
-- Refactored floating-point comparison with hybrid absolute/relative tolerance
-- Improved null handling in generic equality methods
-
-**Fixed**
-- Floating-point precision issues (0.1 + 0.2 == 0.3 now works correctly)
-- Collection comparison now respects element equality rules
-
----
-
-## What's Included
-
-### Converters
-Transform test data collections into framework-consumable formats:
+### Basic Deduplication
 
 ```csharp
 using Portamical.Converters;
 
-// Convert to object arrays with automatic deduplication
-var args = testDataCollection.ToDistinctReadOnly(ArgsCode.Instance);
-var argsFlattened = testDataCollection.ToDistinctReadOnly(ArgsCode.Properties);
-
-// Parameterless overload (new in 2.1.0)
-var args = testDataCollection.ToDistinctReadOnly();  // Uses ArgsCode.Instance
-```
-
-### Assertions
-Framework-agnostic assertion helpers with delegate injection:
-
-```csharp
-using static Portamical.Assertions.PortamicalAssert;
-
-// Value equality with floating-point tolerance
-Equality(
-    expected: 0.3,
-    actual: 0.1 + 0.2,  // Handles precision correctly
-    assertFail: () => Assert.Fail(),
-    floatingPointTolerance: 1e-10);
-
-// Collection equality
-Equality(
-    expected: new[] { 1, 2, 3 },
-    actual: service.GetNumbers(),
-    assertFail: () => Assert.Fail());
-
-// Exception validation
-ThrowsDetails(
-    attempt: () => MethodUnderTest(),
-    expected: new ArgumentNullException("paramName"),
-    catchException: CatchException,
-    assertIsType: Assert.IsType,
-    assertEquality: Assert.Equal,
-    assertFail: Assert.Fail);
-
-// Async exception catching (new in 2.3.0)
-var exception = await CatchExceptionAsync(async () => 
-    await myService.ProcessAsync());
-
-// Async assertion (new in 2.3.0)
-await DoesNotThrowAsync(
-    attempt: async () => await service.ProcessAsync(),
-    assertFailAsync: msg => throw new AssertionException(msg));
-```
-
-### Test Bases
-
-Three specialized base classes for different conversion strategies:
-
-#### Strategy 1: TestData Collection (Type-Safe)
-
-```csharp
-using Portamical.TestBases.TestDataCollection;
-
-public class MyTests : TestBase
+var testData = new[]
 {
-    protected static IReadOnlyCollection<TestData<DateOnly>> Args
-        => Convert(dataSource.GetArgs());
+    CreateTestDataReturns("Add(2,3)", expected: 5, arg1: 2, arg2: 3),
+    CreateTestDataReturns("Add(2,3)", expected: 5, arg1: 2, arg2: 3),  // Duplicate
+    CreateTestDataReturns("Add(5,7)", expected: 12, arg1: 5, arg2: 7)
+};
+
+// Simple deduplication (identity conversion)
+var distinct = testData.ToDistinctArray();
+// Result: 2 elements (duplicate removed based on TestCaseName)
+```
+
+### Convert to Argument Arrays
+
+```csharp
+using Portamical.Converters;
+
+// Convert to object[][] for test frameworks
+var args = testData.ToDistinctArray(ArgsCode.Instance);
+// Result: [[testData1], [testData2]]
+
+// Or flatten properties
+var flatArgs = testData.ToDistinctArray(ArgsCode.Properties);
+// Result: [[2, 3, 5], [5, 7, 12]]
+```
+
+### Data Provider Pattern
+
+```csharp
+using Portamical.Converters.DataProviders;
+
+// Combined provider + converter implementation
+public class TestDataProvider<TTestData> 
+    : ITestDataProvider<TTestData>,
+      ITestDataConverter<TTestData, object[]>,
+      IEnumerable<object[]>
+where TTestData : notnull, ITestData
+{
+    private readonly List<TTestData> _rows = [];
+    
+    public string? TestMethodName { get; init; }
+    public ArgsCode ArgsCode { get; init; } = ArgsCode.Instance;
+    
+    public void AddRow(TTestData testData) => _rows.Add(testData);
+    
+    public object[] ConvertRow(TTestData testData, string? testMethodName)
+    {
+        return testData.ToArgs(ArgsCode);
+    }
+    
+    public IEnumerator<object[]> GetEnumerator()
+    {
+        foreach (var row in _rows)
+        {
+            yield return ConvertRow(row, TestMethodName);
+        }
+    }
+    
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+// Usage in tests
+public static TestDataProvider<TestDataReturns<int>> TestCases { get; } = new()
+{
+    TestMethodName = "AddTest",
+    ArgsCode = ArgsCode.Properties
+};
+
+static MyTests()
+{
+    TestCases.AddRow(CreateTestDataReturns("Add(2,3)", 5, 2, 3));
+    TestCases.AddRow(CreateTestDataReturns("Add(5,7)", 12, 5, 7));
+}
+
+[Theory, MemberData(nameof(TestCases))]
+public void AddTest(int arg1, int arg2, int expected)
+{
+    Assert.Equal(expected, Calculator.Add(arg1, arg2));
 }
 ```
 
-Returns: `IReadOnlyCollection<TestData<T>>` with automatic deduplication.
+---
 
-#### Strategy 2: Instance Array (Object Wrapper)
+## Core Components
+
+### Namespace Organization
+
+```
+Portamical.Converters/
+├─── CollectionConverter.cs          # Root namespace - Synchronous conversion (TRow[])
+├─── AsyncEnumerables/
+│   └─── CollectionConverter.cs      # IAsyncEnumerable<TRow> streaming variants
+├─── Tasks/
+│   └─── CollectionConverter.cs      # Task<TRow[]> async variants with threshold optimization
+└─── DataProviders/
+    ├─── ITestDataProvider.cs        # Collection management contract
+    ├─── ITestDataConverter.cs       # Row conversion contract
+    └─── CollectionConverter.cs      # Provider-based conversion methods
+```
+
+---
+
+### 1. **CollectionConverter** (Synchronous)
+
+Located in the root namespace: `Portamical.Converters`
+
+#### Primary Deduplication Method
 
 ```csharp
-using Portamical.TestBases.ObjectArrayCollection;
+public static TRow[] ToDistinctArray<TTestData, TRow>(
+    this IEnumerable<TTestData> testDataCollection,
+    Func<TTestData, TRow> convertRow)
+where TTestData : notnull, ITestData
+```
 
-public class MyTests : TestBase
+**Purpose**: Core deduplication that converts a collection of test data into a distinct array using a custom conversion function.
+
+**Algorithm**:
+1. Converts collection to array snapshot and validates non-empty
+2. Uses `HashSet<INamedCase>` with `NamedCase.Comparer` for O(n) deduplication
+3. Only items with unique `TestCaseName` values are retained (first occurrence wins)
+4. Order of elements is preserved from original collection
+
+**Deduplication Strategy**:
+- **Comparer**: `NamedCase.Comparer` compares `INamedCase.TestCaseName`
+- **Semantics**: First occurrence wins
+- **Performance**: O(n) using `HashSet<INamedCase>`
+- **Order**: Original collection order preserved
+
+**Example**:
+
+```csharp
+var testData = new[]
 {
-    private static IReadOnlyCollection<object?[]> Args
-        => Convert(dataSource.GetArgs());  // ArgsCode.Instance default
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),  // Duplicate - removed
+    CreateTestDataReturns("Add(5,7)", 12, 5, 7)
+};
 
-    [TestMethod, DynamicData(nameof(Args))]
-    public void Test(TestData<DateOnly> testData) { ... }
+// Identity conversion
+var distinct = testData.ToDistinctArray(td => td);
+// Result: 2 elements
+
+// Convert to argument arrays
+var args = testData.ToDistinctArray(td => td.ToArgs(ArgsCode.Instance));
+// Result: [[testData1], [testData2]]
+
+// Custom row conversion
+var rows = testData.ToDistinctArray(td => new 
+{ 
+    Name = td.TestCaseName, 
+    Args = td.ToArgs(ArgsCode.Instance) 
+});
+```
+
+#### Wrapper Methods
+
+```csharp
+// Simple deduplication (identity conversion)
+TTestData[] ToDistinctArray<TTestData>(
+    this IEnumerable<TTestData> testDataCollection)
+
+// Convert to argument arrays
+object?[][] ToDistinctArray<TTestData>(
+    this IEnumerable<TTestData> testDataCollection,
+    ArgsCode argsCode)
+
+// Convert with args and props codes
+object?[][] ToDistinctArray<TTestData>(
+    this IEnumerable<TTestData> testDataCollection,
+    ArgsCode argsCode,
+    PropsCode propsCode)
+
+// Convert with ArgsCode, test method name
+TRow[] ToDistinctArray<TTestData, TRow>(
+    this IEnumerable<TTestData> testDataCollection,
+    Func<TTestData, string?, TRow> convertRow,
+    string? testMethodName)
+```
+
+---
+
+### 2. **CollectionConverter (Tasks)** 
+
+Located in: `Portamical.Converters.Tasks`
+
+Task-based async variants with **smart performance optimization**.
+
+#### Performance Strategy
+
+```csharp
+// Small collections (< 10 items): Execute synchronously
+Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(...)
+
+// Performance:
+// - < 10 items: Uses Task.FromResult (avoids Task.Run overhead ~5-20 µs)
+// - ≥ 10 items: Uses Task.Run (offloads to thread pool)
+```
+
+**Benefits**:
+- **5-20x better performance** for small collections (common in unit tests)
+- **Non-blocking** for larger collections
+- **Compatible** with async test frameworks
+
+**Example**:
+
+```csharp
+using Portamical.Converters.Tasks;
+
+// Task-based approach for async test frameworks
+public static async Task<IEnumerable<object[]>> GetTestDataAsync()
+{
+    var testData = new[]
+    {
+        CreateTestDataReturns("Add(2,3)", 5, 2, 3),
+        CreateTestDataReturns("Add(5,7)", 12, 5, 7)
+    };
+    
+    // Smart threshold: sync for small, async for large
+    var distinctArray = await testData.ToDistinctArrayTask();
+    return distinctArray;
 }
 ```
 
-Returns: `IReadOnlyCollection<object?[]>` where each array contains `[testData]`.
+**Performance Characteristics**:
 
-#### Strategy 3: Flattened Properties Array
+| Operation | Time Complexity | Space Complexity | Allocations |
+|-----------|----------------|------------------|-------------|
+| Deduplication | O(n) | O(n) | Minimal |
+| Task threshold check | O(1) | O(1) | 0 bytes |
+| Small collection (&lt;10) | ~1-3 µs | O(n) | 0 bytes (Task.FromResult) |
+| Large collection (≥10) | ~6-22 µs | O(n) | Task.Run overhead |
+
+---
+
+### 3. **CollectionConverter (AsyncEnumerables)**
+
+Located in: `Portamical.Converters.AsyncEnumerables`
+
+Streaming variants for memory-efficient async iteration.
 
 ```csharp
-using Portamical.TestBases.ObjectArrayCollection;
+// Stream distinct test data asynchronously
+IAsyncEnumerable<TRow> ToDistinctAsyncEnumerable<TTestData, TRow>(
+    this IEnumerable<TTestData> testDataCollection,
+    Func<TTestData, TRow> convertRow)
+```
 
-public class MyTests : TestBase
+**Use Case**: Streaming scenarios where test data is consumed incrementally.
+
+**Example**:
+
+```csharp
+using Portamical.Converters.AsyncEnumerables;
+
+var testData = GetLargeTestDataCollection();
+
+await foreach (var testCase in testData.ToDistinctAsyncEnumerable())
 {
-    public static IReadOnlyCollection<object?[]> Args
-        => Convert(dataSource.GetArgs(), AsProperties);
-
-    [Theory, MemberData(nameof(Args))]
-    public void Test(DateOnly arg1, BirthDay arg2) { ... }
+    await ProcessTestCaseAsync(testCase);
 }
 ```
 
-Returns: `IReadOnlyCollection<object?[]>` where each array contains `[arg1, arg2, ...]`.
+**Note**: Deduplication is performed synchronously using the underlying synchronous converter, but results are yielded asynchronously.
+
+---
+
+### 4. **CollectionConverter.DataProviders** (DataProviders Namespace)
+
+Located in: `Portamical.Converters.DataProviders`
+
+Data provider creation with automatic deduplication based on test case identity.
+
+#### Primary Method - With Initializer Function
+
+```csharp
+public static TDataProvider ToDataProvider<TDataProvider, TTestData>(
+    this IEnumerable<TTestData> testDataCollection,
+    Func<TTestData, TDataProvider> initDataProvider)
+where TTestData : notnull, ITestData
+where TDataProvider : ITestDataProvider<TTestData>
+```
+
+**Purpose**: Convert a collection of test data into a populated data provider instance using a custom initializer function.
+
+**Algorithm**:
+1. Converts collection to array snapshot and validates non-empty
+2. Initializes data provider with first test data item via `initDataProvider` function
+3. For remaining items, adds only those with unique `TestCaseName` values via `AddRow()`
+4. Returns the populated data provider
+
+**Key Features**:
+- **First-item initialization**: Uses the first test data item for provider initialization
+- **Custom configuration**: Initializer function can pass parameters to provider constructor
+- **Automatic deduplication**: `HashSet<INamedCase>` with `NamedCase.Comparer` (O(n) performance)
+- **First-occurrence wins**: Duplicates (same `TestCaseName`) are silently skipped
+
+**Example**:
+
+```csharp
+using Portamical.Converters.DataProviders;
+
+var testData = new[]
+{
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),  // Duplicate - will be filtered
+    CreateTestDataReturns("Add(5,7)", 12, 5, 7)
+};
+
+// Initialize provider with custom configuration
+var provider = testData.ToDataProvider(
+    firstItem => new MyDataProvider(firstItem, ArgsCode.Properties, "TestAdd"));
+
+// Result: provider.Count == 2 (duplicate removed, first item used for initialization)
+```
+
+#### Overload - With Default Constructor
+
+```csharp
+public static TDataProvider ToDataProvider<TDataProvider, TTestData>(
+    this IEnumerable<TTestData> testDataCollection)
+where TTestData : notnull, ITestData
+where TDataProvider : ITestDataProvider<TTestData>, new()
+```
+
+**Purpose**: Convert a collection using the provider's default (parameterless) constructor.
+
+**Algorithm**:
+1. Converts collection to array snapshot and validates non-empty
+2. Creates data provider instance using `new()` constraint
+3. Iterates through all items, adding only those with unique `TestCaseName` values
+4. Returns the populated data provider
+
+**Key Features**:
+- **Default construction**: Uses parameterless constructor (`new()` constraint)
+- **All items via AddRow**: No special first-item initialization
+- **Automatic deduplication**: Same `HashSet<INamedCase>` strategy as primary method
+- **Performance**: Uses `foreach` instead of LINQ for better HashSet-based deduplication
+
+**Example**:
+
+```csharp
+using Portamical.Converters.DataProviders;
+
+var testData = new[]
+{
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),  // Duplicate
+    CreateTestDataReturns("Add(5,7)", 12, 5, 7)
+};
+
+// Use default constructor (provider must have parameterless ctor)
+var provider = testData.ToDataProvider<MyDataProvider, TestDataReturns<int>>();
+
+// Result: provider.Count == 2 (duplicate removed)
+```
+
+**Comparison**:
+
+| Aspect | Initializer Function | Default Constructor |
+|--------|---------------------|-------------------|
+| **Signature** | `ToDataProvider(Func<TTestData, TDataProvider>)` | `ToDataProvider<TDataProvider, TTestData>()` |
+| **Constraint** | None | Requires `new()` constraint |
+| **First Item** | Used for initialization via function | Added via `AddRow()` like others |
+| **Configuration** | Can pass parameters to constructor | Must use parameterless constructor |
+| **Use Case** | When provider needs initial configuration | When provider has sensible defaults |
+
+---
+
+### 5. **ITestDataProvider&lt;TTestData&gt;**
+
+Located in: `Portamical.Converters.DataProviders`
+
+Defines a contract for managing collections of test data rows with test method metadata.
+
+```csharp
+public interface ITestDataProvider<in TTestData> : IEnumerable
+where TTestData : notnull, ITestData
+{
+    string? TestMethodName { get; init; }
+    void AddRow(TTestData testData);
+}
+```
+
+**Features**:
+- **Contravariant** (`in TTestData`) - Provider accepting base types can be assigned to variables expecting derived types
+- **Builder Pattern** - Add rows incrementally via `AddRow()`
+- **Framework Integration** - Implements `IEnumerable` for test framework discovery
+
+**Contravariance Example**:
+
+```csharp
+// Provider accepts base type ITestData
+ITestDataProvider<ITestData> baseProvider = new TestDataProvider<ITestData>();
+
+// Can be assigned to variable expecting derived type
+ITestDataProvider<TestDataReturns<int>> derivedProvider = baseProvider; // ✅
+
+// This works because TestDataReturns<int> : ITestData
+// The provider can accept any ITestData, including derived types
+```
+
+**Usage**:
+
+```csharp
+var provider = new TestDataProvider<TestDataReturns<int>>
+{
+    TestMethodName = "AddTest"
+};
+
+provider.AddRow(CreateTestDataReturns("Add(2,3)", 5, 2, 3));
+provider.AddRow(CreateTestDataReturns("Add(5,7)", 12, 5, 7));
+
+// Use with xUnit, NUnit, MSTest attributes
+[Theory, MemberData(nameof(TestCases))]
+public void AddTest(int arg1, int arg2, int expected)
+{
+    Assert.Equal(expected, Calculator.Add(arg1, arg2));
+}
+```
+
+---
+
+### 6. **ITestDataConverter&lt;TTestData, TRow&gt;**
+
+Located in: `Portamical.Converters.DataProviders`
+
+Defines conversion logic for transforming test data into framework-specific row formats.
+
+```csharp
+public interface ITestDataConverter<in TTestData, out TRow>
+where TTestData : notnull, ITestData
+{
+    ArgsCode ArgsCode { get; init; }
+    TRow ConvertRow(TTestData testData, string? testMethodName);
+}
+```
+
+**Variance**:
+- **Contravariant** `in TTestData` - Converter accepting base types works with derived types
+- **Covariant** `out TRow` - Converter returning specific types works where general types expected
+
+**Conversion Strategies**:
+
+| ArgsCode | Conversion | Test Signature |
+|----------|------------|----------------|
+| `ArgsCode.Instance` | `[testDataObject]` | `void Test(TTestData testData)` |
+| `ArgsCode.Properties` | `[arg1, arg2, expected]` | `void Test(int arg1, int arg2, int expected)` |
+
+**Variance Example**:
+
+```csharp
+// Contravariance: Base type converter → Derived type variable
+ITestDataConverter<ITestData, object[]> generalConverter = new TestDataProvider<ITestData>();
+ITestDataConverter<TestDataReturns<int>, object[]> specificConverter = generalConverter; // ✅
+
+// Covariance: Specific return type → General return type
+ITestDataConverter<ITestData, object[]> arrayConverter = specificConverter;
+ITestDataConverter<ITestData, object> objectConverter = arrayConverter; // ✅
+```
+
+**Combined Implementation Pattern**:
+
+The recommended pattern combines both interfaces for complete test data management:
+
+```csharp
+public class TestDataProvider<TTestData> 
+    : ITestDataProvider<TTestData>,               // Manages collection
+      ITestDataConverter<TTestData, object[]>,    // Transforms rows
+      IEnumerable<object[]>
+where TTestData : notnull, ITestData
+{
+    private readonly List<TTestData> _rows = [];
+    private readonly HashSet<INamedCase> _namedCases = new(NamedCase.Comparer);
+    
+    public string? TestMethodName { get; init; }
+    public ArgsCode ArgsCode { get; init; } = ArgsCode.Instance;
+    
+    public void AddRow(TTestData testData)
+    {
+        // Deduplicate: only add if TestCaseName is unique
+        if (_namedCases.Add(testData))
+        {
+            _rows.Add(testData);
+        }
+    }
+    
+    public object[] ConvertRow(TTestData testData, string? testMethodName)
+        => testData.ToArgs(ArgsCode);
+    
+    public IEnumerator<object[]> GetEnumerator()
+    {
+        foreach (var row in _rows)
+        {
+            yield return ConvertRow(row, TestMethodName);
+        }
+    }
+    
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+```
+
+**Benefits of Combined Implementation**:
+
+- **Unified Configuration**: `ArgsCode` and `TestMethodName` set once during construction
+- **Framework Integration**: Implements `IEnumerable` for iteration with internal `ConvertRow` usage
+- **Stateful Conversion**: Provider maintains state while converter provides transformation logic
+- **Separation of Concerns**: `ITestDataProvider` manages collection, `ITestDataConverter` handles conversion
+
+---
+
+## Usage Examples
+
+### Example 1: Simple Deduplication
+
+```csharp
+using Portamical.Converters;
+
+var testData = new[]
+{
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),  // Duplicate
+    CreateTestDataReturns("Add(5,7)", 12, 5, 7)
+};
+
+// Get distinct array
+var distinct = testData.ToDistinctArray();
+// Result: 2 elements (duplicate removed based on TestCaseName)
+```
+
+### Example 2: Convert to Argument Arrays
+
+```csharp
+using Portamical.Converters;
+
+// Convert to object[][] for test frameworks
+var args = testData.ToDistinctArray(ArgsCode.Instance);
+// Result: [[testData1], [testData2]]
+
+// Or flatten properties
+var flatArgs = testData.ToDistinctArray(ArgsCode.Properties);
+// Result: [[2, 3, 5], [5, 7, 12]]
+```
+
+### Example 3: Task-Based Async
+
+```csharp
+using Portamical.Converters.Tasks;
+
+public static async Task<IEnumerable<object[]>> GetTestDataAsync()
+{
+    var testData = GetTestDataCollection();
+    
+    // Smart threshold optimization
+    var distinct = await testData.ToDistinctArrayTask(ArgsCode.Instance);
+    return distinct;
+}
+```
+
+### Example 4: Streaming with AsyncEnumerable
+
+```csharp
+using Portamical.Converters.AsyncEnumerables;
+
+var testData = GetLargeTestDataCollection();
+
+await foreach (var testCase in testData.ToDistinctAsyncEnumerable())
+{
+    await ProcessTestCaseAsync(testCase);
+}
+```
+
+### Example 5: Create Data Provider from Collection
+
+**Two Overloads for Data Provider Creation:**
+
+```csharp
+using Portamical.Converters.DataProviders;
+
+// Approach 1: Using custom initializer function
+var testDataCollection = new[]
+{
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),
+    CreateTestDataReturns("Add(2,3)", 5, 2, 3),  // Duplicate
+    CreateTestDataReturns("Add(5,7)", 12, 5, 7)
+};
+
+// Initialize provider with first item via custom function
+var provider1 = testDataCollection.ToDataProvider(
+    firstItem => new MyDataProvider(firstItem, ArgsCode.Properties, "TestAdd"));
+
+// Result: provider1.Count == 2 (duplicate removed, first item used for initialization)
+
+// Approach 2: Using default constructor (new() constraint)
+var provider2 = testDataCollection.ToDataProvider<MyDataProvider, TestDataReturns<int>>();
+
+// Result: provider2.Count == 2 (duplicate removed, parameterless constructor used)
+
+// Custom provider class example:
+public class MyDataProvider : ITestDataProvider<TestDataReturns<int>>
+{
+    private readonly List<TestDataReturns<int>> _rows = [];
+    
+    // Constructor for Approach 1
+    public MyDataProvider(TestDataReturns<int> firstItem, ArgsCode argsCode, string? testMethodName)
+    {
+        ArgsCode = argsCode;
+        TestMethodName = testMethodName;
+        AddRow(firstItem);
+    }
+    
+    // Parameterless constructor for Approach 2
+    public MyDataProvider()
+    {
+        ArgsCode = ArgsCode.Instance;
+        TestMethodName = null;
+    }
+    
+    public ArgsCode ArgsCode { get; init; }
+    public string? TestMethodName { get; init; }
+    
+    public void AddRow(TestDataReturns<int> testData) => _rows.Add(testData);
+}
+```
+
+**Key Differences:**
+
+| Aspect | Initializer Function | Default Constructor |
+|--------|---------------------|-------------------|
+| **Signature** | `ToDataProvider(Func<TTestData, TDataProvider>)` | `ToDataProvider<TDataProvider, TTestData>()` |
+| **Constraint** | None | Requires `new()` constraint |
+| **First Item** | Used for initialization via function | Added via `AddRow()` |
+| **Configuration** | Can pass parameters to constructor | Must use parameterless constructor |
+| **Use Case** | When provider needs initial configuration | When provider has sensible defaults |
+
+### Example 6: Framework-Specific Provider (xUnit v3 Pattern)
+
+**Recommended Pattern:** For production use, implement framework-specific providers that extend both the conversion infrastructure and the framework's base classes. See `Portamical.xUnit_v3.DataProviders.Model.TheoryTestData<TTestData>` for the complete implementation.
+
+```csharp
+using Portamical.Converters.DataProviders;
+using Portamical.xUnit_v3.TestDataTypes;
+using Portamical.xUnit_v3.TestDataTypes.Model;
+using Xunit.v3;  // xUnit v3
+using static Portamical.Core.Formatting.Formatter;
+using static Portamical.Core.Safety.Validator;
+
+/// <summary>
+/// xUnit v3 theory test data provider that combines Portamical's ITestDataProvider/ITestDataConverter
+/// with xUnit v3's TheoryDataBase for seamless integration.
+/// </summary>
+/// <typeparam name="TTestData">The type of test data implementing ITestData.</typeparam>
+/// <remarks>
+/// <para><strong>Design Patterns:</strong></para>
+/// <list type="bullet">
+///   <item><strong>Builder Pattern:</strong> Incremental construction via AddRow</item>
+///   <item><strong>Template Method:</strong> Abstract Convert() uses instance config (ArgsCode, TestMethodName)</item>
+///   <item><strong>Automatic Deduplication:</strong> HashSet with NamedCase.Comparer (O(1) checks)</item>
+///   <item><strong>Pattern Matching Type Safety:</strong> Efficient runtime type validation</item>
+/// </list>
+/// <para><strong>Inheritance Hierarchy:</strong></para>
+/// <code>
+/// xUnit.v3.TheoryDataBase&lt;ITheoryDataRow, TTestData&gt; (xUnit v3 base)
+///   ↓ inherits
+/// TheoryTestData&lt;TTestData&gt; (this class)
+///   ↓ implements
+/// ITheoryTestData&lt;TTestData&gt; (Portamical)
+///   ↓ extends
+/// ITestDataProvider&lt;TTestData&gt; + ITestDataConverter&lt;TTestData, ITheoryDataRow&gt;
+/// </code>
+/// </remarks>
+public sealed class TheoryTestData<TTestData>
+    : TheoryDataBase<ITheoryDataRow, TTestData>,        // xUnit v3 base
+      ITheoryTestData<TTestData>                        // Portamical (includes provider + converter)
+where TTestData : notnull, ITestData
+{
+    private readonly HashSet<INamedCase> _namedCases = new(NamedCase.Comparer);
+    
+    public string? TestMethodName { get; init; }
+    public ArgsCode ArgsCode { get; init; }
+    
+    /// <summary>
+    /// Constructor (internal): Encourages use of static factory methods.
+    /// </summary>
+    internal TheoryTestData(TTestData testData, ArgsCode argsCode, string? testMethodName)
+    {
+        ArgsCode = argsCode.Defined(nameof(argsCode));  // Validates enum value
+        TestMethodName = testMethodName;
+        AddRow(testData);  // Add first item immediately (ensures non-empty collection)
+    }
+    
+    /// <summary>
+    /// Template Method: Uses instance configuration (ArgsCode, TestMethodName) for conversion.
+    /// Called internally by xUnit v3's TheoryDataBase when iterating rows.
+    /// </summary>
+    protected override ITheoryTestDataRow Convert(TTestData row)
+        => ConvertRow(testData: row, TestMethodName);
+    
+    /// <summary>
+    /// Override xUnit v3's Add: Adds pattern-based type validation and automatic deduplication.
+    /// </summary>
+    /// <remarks>
+    /// <para><strong>Type Validation (Pattern Matching):</strong></para>
+    /// Uses C# pattern matching for efficient type checking:
+    /// <code>
+    /// if (NotNull(row, nameof(row)) is not TheoryTestDataRow&lt;TTestData&gt;)
+    /// {
+    ///     throw new ArgumentException(...);
+    /// }
+    /// </code>
+    /// This single pattern match validates both null-safety and type compatibility
+    /// in one efficient operation.
+    /// 
+    /// <para><strong>Deduplication Logic:</strong></para>
+    /// <code>
+    /// if (_namedCases.Add(row))
+    /// {
+    ///     // _namedCases.Add returns:
+    ///     // - true: row.TestCaseName is unique → add to collection
+    ///     // - false: row.TestCaseName is duplicate → skip silently
+    ///     base.Add(row);
+    /// }
+    /// </code>
+    /// </remarks>
+    public override void Add(ITheoryTestDataRow row)
+    {
+        // Pattern matching: validates type in one efficient operation
+        if (NotNull(row, nameof(row)) is not TheoryTestDataRow<TTestData>)
+        {
+            throw new ArgumentException(
+                $"The provided test data row has an incompatible type. " +
+                $"Expected: {Format(typeof(TheoryTestDataRow<TTestData>))}, " +
+                $"Actual: {Format(row.GetType())}",
+                nameof(row));
+        }
+        
+        // Deduplication: only add if TestCaseName is unique
+        if (_namedCases.Add(row))
+        {
+            base.Add(row);
+        }
+    }
+    
+    /// <summary>
+    /// Builder Pattern: Add test data with automatic deduplication.
+    /// </summary>
+    public void AddRow(TTestData testData)
+        => Add(Convert(testData));
+    
+    /// <summary>
+    /// Converter: Transform test data to xUnit v3 row format.
+    /// </summary>
+    /// <remarks>
+    /// <para><strong>Simplified Signature (v5.0.0):</strong></para>
+    /// <list type="bullet">
+    ///   <item><strong>Parameters:</strong> Only testData and testMethodName</item>
+    ///   <item><strong>ArgsCode:</strong> Uses instance property (this.ArgsCode), not a parameter</item>
+    ///   <item><strong>Benefits:</strong> Single configuration point reduces parameter passing</item>
+    /// </list>
+    /// </remarks>
+    public ITheoryTestDataRow ConvertRow(TTestData testData, string? testMethodName)
+        => new TheoryTestDataRow<TTestData>(testData, ArgsCode, testMethodName);
+}
+
+// Usage in test class:
+public class CalculatorTests
+{
+    public static IEnumerable<ITheoryDataRow> GetAddTestData()
+    {
+        // Create with first test data
+        // Note: Constructor is internal - typically used via static factory methods
+        var data = new TheoryTestData<TestDataReturns<int>>(
+            testData: CreateTestDataReturns("Add(2,3)", 5, 2, 3),
+            argsCode: ArgsCode.Properties,
+            testMethodName: "TestAdd");
+        
+        // Builder pattern - incremental construction with automatic deduplication
+        data.AddRow(CreateTestDataReturns("Add(2,3)", 5, 2, 3));  // Duplicate - silently ignored
+        data.AddRow(CreateTestDataReturns("Add(5,7)", 12, 5, 7));
+        data.AddRow(CreateTestDataReturns("Add(-1,1)", 0, -1, 1));
+        
+        return data;  // xUnit v3 consumes IEnumerable<ITheoryDataRow>
+        // Result: 3 rows (duplicate "Add(2,3)" not added due to same TestCaseName)
+    }
+    
+    [Theory]
+    [MemberData(nameof(GetAddTestData))]
+    public void TestAdd(int x, int y, int expected)
+    {
+        int result = Calculator.Add(x, y);
+        Assert.Equal(expected, result);
+    }
+}
+    
+    [Theory, MemberData(nameof(GetAddTestData))]
+    public void TestAdd(int arg1, int arg2, int expected)
+    {
+        Assert.Equal(expected, Calculator.Add(arg1, arg2));
+    }
+}
+
+// xUnit v3 Test Explorer displays:
+// ✓ TestAdd - Add(2,3)   ← Custom test name with method prefix
+// ✓ TestAdd - Add(5,7)   ← Custom test name with method prefix
+```
+
+**Key Benefits of This Pattern:**
+
+1. **Pattern Matching Type Safety** - C# pattern matching (`is not TheoryTestDataRow<TTestData>`) validates type in one efficient operation
+2. **Human-Readable Error Messages** - Uses `Formatter.Format()` for clear type names with full generic parameter information (e.g., `TheoryTestDataRow<TestDataReturns<Int32>>`)
+3. **Automatic Deduplication** - `HashSet<INamedCase>` with `NamedCase.Comparer` for O(1) duplicate detection
+4. **Template Method** - `Convert()` uses instance `ArgsCode` and `TestMethodName` automatically
+5. **Builder Pattern** - `AddRow()` for incremental test data construction
+6. **xUnit v3 Integration** - Extends `TheoryDataBase<ITheoryDataRow, TTestData>` for native framework support
+7. **Custom Display Names** - xUnit v3's `TestDisplayName` generated via `TheoryTestDataRow<TTestData>` constructor
+8. **Single Configuration Point** - `ArgsCode` and `TestMethodName` set once (init-only properties)
+9. **Internal Constructor** - Encourages use of static factory methods for cleaner API
+
+> **Note:** For complete implementation including factory methods and additional overloads, see `Portamical.xUnit_v3.DataProviders.Model.TheoryTestData<TTestData>` in the xUnit v3 adapter package.
+
+---
+
+## Framework Support
+
+Works with all major .NET testing frameworks:
+
+| Framework | Version | Support |
+|-----------|---------|---------|
+| **xUnit** | v2 | ✅ `IEnumerable<object[]>` |
+| **xUnit** | v3 | ✅ `TheoryDataRow<T...>` support |
+| **MSTest** | v4 | ✅ `DynamicData` attribute |
+| **NUnit** | v4 | ✅ `TestCaseSource` attribute |
+| **TUnit** | Latest | ✅ Full support |
+
+---
+
+## Design Patterns
+
+### Builder Pattern (ITestDataProvider)
+
+```csharp
+var provider = new TestDataProvider<TestDataReturns<int>>();
+provider.AddRow(testData1);
+provider.AddRow(testData2);
+```
+
+### Provider + Converter Pattern
+
+Combine both interfaces for complete test data management:
+
+```csharp
+public class TestDataProvider<TTestData> 
+    : ITestDataProvider<TTestData>,      // Manages collection
+      ITestDataConverter<TTestData, object[]>  // Transforms rows
+```
+
+### Variance Support
+
+```csharp
+// Contravariance: Base type provider → Derived type variable
+ITestDataProvider<ITestData> baseProvider = ...;
+ITestDataProvider<TestDataReturns<int>> derivedProvider = baseProvider; // ✅
+
+// Covariance: Specific return type → General return type
+ITestDataConverter<ITestData, object[]> specificConverter = ...;
+ITestDataConverter<ITestData, object> baseConverter = specificConverter; // ✅
+```
+
+---
+
+## Thread Safety
+
+- **All static methods**: Thread-safe (stateless)
+- **Instance methods**: Not thread-safe by design
+  - Providers built during test discovery (single-threaded)
+  - Used read-only during test execution (safe)
+- **External synchronization**: Required if providers are modified concurrently
+
+---
+
+## Performance Characteristics
+
+| Operation | Time Complexity | Space Complexity | Allocations |
+|-----------|----------------|------------------|-------------|
+| Deduplication | O(n) | O(n) | Minimal |
+| Array conversion | O(n) | O(n) | Array only |
+| Task threshold check | O(1) | O(1) | 0 bytes |
+| Async enumeration | O(n) | O(1) streaming | Per-item |
+
+**Benchmarks** (small collection < 10 items):
+- **Synchronous**: ~1-2 µs
+- **Task-based (sync path)**: ~1-3 µs (Task.FromResult)
+- **Task-based (async path)**: ~6-22 µs (Task.Run overhead)
 
 ---
 
 ## ArgsCode Strategy Pattern
 
-| Strategy | Produces | Test Method Signature | Base Class |
-|----------|----------|----------------------|------------|
-| No ArgsCode | `IReadOnlyCollection<TTestData>` | `void Test(TestData<T> data)` | `TestDataCollection.TestBase` |
-| `AsInstance` (default) | `IReadOnlyCollection<object?[]>` with `[testData]` | `void Test(TestData<T> data)` | `ObjectArrayCollection.TestBase` |
-| `AsProperties` | `IReadOnlyCollection<object?[]>` with `[arg1, arg2, ...]` | `void Test(T arg1, T arg2, ...)` | `ObjectArrayCollection.TestBase` |
+Control how test data is serialized to test method parameters:
 
----
+| Strategy | Produces | Test Method Signature | Use Case |
+|----------|----------|----------------------|----------|
+| `ArgsCode.Instance` | `[testDataObject]` | `void Test(TTestData data)` | Object-oriented, full test data access |
+| `ArgsCode.Properties` | `[arg1, arg2, ...]` | `void Test(T arg1, T arg2, ...)` | Functional style, explicit parameters |
 
-## Equality Method Features
-
-### Supported Types (Pattern Matching)
-
-**Integer Types (10):** `byte`, `sbyte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `nint`, `nuint`
-
-**Floating-Point (2):** `float`, `double` (with tolerance)
-
-**Other Primitives (4):** `bool`, `char`, `string`, `decimal`
-
-**Framework Types (6):** `Guid`, `DateTime`, `DateOnly`, `TimeOnly`, `TimeSpan`, `DateTimeOffset`
-
-**Numerics (1):** `BigInteger`
-
-**Collections:** Any `IEnumerable` (recursive comparison)
-
-### Floating-Point Handling
-
-```csharp
-// Default tolerance
-Equality(0.3, 0.1 + 0.2, Assert.Fail);  // Passes
-
-// Custom tolerance
-Equality(3.14159, Math.PI, Assert.Fail, floatingPointTolerance: 0.001);
-
-// Special values
-Equality(float.NaN, float.NaN, Assert.Fail);  // Passes
-Equality(double.PositiveInfinity, double.PositiveInfinity, Assert.Fail);  // Passes
-```
-
-**Special Value Behavior:**
-- **NaN:** All NaN representations are equal (bitwise-independent)
-- **Infinity:** Must match exactly (+∞ == +∞, -∞ == -∞)
-- **Zero:** +0.0 and -0.0 are equal (mathematical equality)
-
-### Collection Equality
-
-```csharp
-// Arrays
-Equality(
-    expected: new[] { 1, 2, 3 },
-    actual: new[] { 1, 2, 3 },
-    assertFail: Assert.Fail);  // Passes
-
-// Nested collections
-Equality(
-    expected: new[] { new[] { 1, 2 }, new[] { 3, 4 } },
-    actual: service.GetMatrix(),
-    assertFail: Assert.Fail);  // Recursive comparison
-
-// Mixed types
-Equality(
-    expected: new object[] { 1, "hello", 3.14, true },
-    actual: parser.GetValues(),
-    assertFail: Assert.Fail);
-```
-
----
-
-## Async-First Architecture (v2.2.0+)
-
-### Design Principle
-
-Core assertion logic is implemented in async methods using `ValueTask`. Sync methods are thin wrappers that delegate to async implementations:
-
-```csharp
-// Primary implementation (async)
-public static async ValueTask DoesNotThrowAsync(
-    Func<Task> attempt,
-    Func<string, ValueTask> assertFailAsync);
-
-// Sync wrapper (delegates to async)
-public static void DoesNotThrow(Action attempt, Action<string> assertFail)
-{
-    ThreadSafeSyncAssertion(DoesNotThrowAsync(() =>
-    {
-        attempt();
-        return Task.CompletedTask;
-    },
-    msg =>
-    {
-        assertFail(msg);
-        return new ValueTask();
-    }));
-}
-```
-
-### Exception Handling Architecture (v2.3.0)
-
-**Sync/Async Parity:**
-
-| Operation | Sync Method | Async Method | Implementation |
-|-----------|-------------|--------------|----------------|
-| **Catch Exception** | `CatchException(Action)` | `CatchExceptionAsync(Func<Task>)` | Async primary, sync wrapper |
-| **Assert No Throw** | `DoesNotThrow(Action, ...)` | `DoesNotThrowAsync(Func<Task>, ...)` | Async primary, sync wrapper |
-| **Fatal Exception Filtering** | `IsNotFatal(Exception)` | Same (shared) | Used in both sync/async paths |
-
-**Fatal Exception Safety:**
-All exception catching methods filter fatal exceptions using `IsNotFatal`:
-- `OutOfMemoryException`
-- `AccessViolationException`
-- `StackOverflowException`
-- `ThreadAbortException`
-
-These exceptions always propagate immediately to terminate the process safely.
-
-### Performance Characteristics
-
-| Operation | Allocations | Overhead |
-|-----------|-------------|----------|
-| Async assertions (success) | 0 bytes | ~0 ns |
-| Sync wrappers | 0 bytes | ~5 ns |
-
-**Zero allocation** on success paths enables high-performance async assertions without garbage collection pressure.
+**Combined with PropsCode**:
+- `PropsCode.All` - Include all properties
+- `PropsCode.TrimTestCaseName` - Exclude `TestCaseName` (default)
+- `PropsCode.TrimReturnsExpected` - Also exclude `Expected` (for `IReturns`)
+- `PropsCode.TrimThrowsExpected` - Also exclude `Expected` (for `IThrows`)
 
 ---
 
 ## Links
 
-- GitHub: https://github.com/CsabaDu/Portamical
-- Documentation: https://github.com/CsabaDu/Portamical/blob/master/README.md
-- Issues: https://github.com/CsabaDu/Portamical/issues
+- **GitHub**: https://github.com/CsabaDu/Portamical
+- **Documentation**: https://github.com/CsabaDu/Portamical/blob/master/README.md
+- **Issues**: https://github.com/CsabaDu/Portamical/issues
+- **Related Packages**:
+  - [Portamical.Core](https://github.com/CsabaDu/Portamical/tree/master/Portamical.Core) - Core test data types
+  - [Portamical.Core.Formatting](https://github.com/CsabaDu/Portamical/tree/master/Portamical.Core.Formatting) - Formatting infrastructure
+  - [Portamical](https://github.com/CsabaDu/Portamical/tree/master/Portamical) - Shared utilities and assertions
 
 ---
 
@@ -479,467 +1006,92 @@ These exceptions always propagate immediately to terminate the process safely.
 
 This project is licensed under the [MIT License](https://github.com/CsabaDu/Portamical/blob/master/LICENSE.txt).
 
+```
+SPDX-License-Identifier: MIT
+Copyright (c) 2025-2026 Csaba Dudas (CsabaDu)
+```
+
 `Portamical` is the continuation and successor of `CsabaDu.DynamicTestData.Light` and `CsabaDu.DynamicTestData` (also MIT-licensed).
 
 ---
 
 ## Changelog
 
-### **Version 4.0.0** (2026-06-26)
+### **Version 5.0.0** - Initial Release (2026-08-12)
 
-**Updated**
-- **Portamical.Core dependency updated to v4.0.0**
-  - Maintains compatibility with latest Portamical.Core features and improvements
-  - No breaking changes or API modifications in this release
+**Extraction from Portamical (Shared Module) - Major Architectural Refactoring**
 
-**Improved**
-- **Complete test coverage for assertion infrastructure**
-  - **Fatal exception filtering (`IsNotFatal`)**: Added 8 comprehensive tests covering all branches through `CatchException` and `CatchExceptionAsync`
-    - Tests for `OutOfMemoryException`, `AccessViolationException`, `StackOverflowException` propagation
-    - Tests for non-fatal exception catching (`InvalidOperationException`)
-    - Both synchronous and asynchronous code paths fully covered
-  - **Equality assertions**: Added tests for previously uncovered branches in `AreEqual` method
-    - `BigInteger` equality comparison (line 1262)
-    - Custom type fallback using `object.Equals` (line 1271)
-    - Non-interned string equality to ensure pattern matching branch coverage (line 1248)
-  - **NaN special value handling**: Complete branch coverage for `AreApproximatelyEqual` (lines 1062-1067)
-    - Added test: `Equality_object_doubleRegularAndNaN_notEqual` (regular value vs NaN)
-    - Complements existing: `doubleNaN_treatsAllNaNAsEqual` (both NaN) and `doubleNaNAndRegular_notEqual` (NaN vs regular)
-- **Enhanced documentation**
-  - Added comprehensive XML documentation for `ThreadSafeSync(Func<Task>)` overload (60+ lines)
-  - Includes detailed usage examples, performance notes, thread safety guidance, and exception handling behavior
-  - Documents internal usage pattern for bridging async implementations with sync wrappers
+This release extracts data provider interfaces and collection converters from the `Portamical` (shared) module into a dedicated package. Part of the Portamical v5.0.0 ecosystem-wide release that restructures the framework for better modularity.
 
-**Fixed**
-- **`ThrowsDetails` sync wrapper implementation** (lines 610-617 in `PortamicalAssert.cs`)
-  - **Issue**: The `catchExceptionAsync` lambda was ignoring its `attemptAsync` parameter and calling the original `attempt` action directly
-  - **Impact**: Lines 610-614 (lambda wrapping sync action into `Func<Task>`) were dead code, never executed
-  - **Solution**: Changed `catchExceptionAsync: _ => new ValueTask<Exception?>(catchException(attempt))` to properly invoke the wrapped lambda: `catchExceptionAsync: attemptAsync => new ValueTask<Exception?>(catchException(() => ThreadSafeSync(attemptAsync)))`
-  - **Result**: Lambda now properly executes, achieving intended async-to-sync bridging behavior
-  - **Test updated**: `ThrowsDetails_catchExceptionInvoked_receivesWrappedAttempt` now verifies wrapped execution
+**Migrated Components**:
 
-**Test Coverage**
-- **189 total tests** (increased from 183 at session start)
-- **+6 tests**: Fatal exception filtering (sync + async for OOM, AccessViolation, StackOverflow, plus non-fatal cases)
-- **+5 tests**: Equality edge cases (BigInteger equal/unequal, custom type equal/unequal, non-interned strings)
-- **+1 test**: NaN handling (`doubleRegularAndNaN_notEqual`)
-- **-1 test**: Removed unneeded `ThreadAbortException` tests (not constructible on .NET 10)
-- **Net change**: +11 tests in working set, -5 obsolete tests = +6 final
-- **All tests passing** with zero regressions across 189 test methods
+1. **Data Provider Interfaces**
+   - `ITestDataProvider<in TTestData>` - Manages test data collections with test method metadata
+   - `ITestDataConverter<in TTestData, out TRow>` - Converts test data to framework-specific row formats
+   - Contravariant/covariant support for flexible type assignments
 
-**Technical Details**
-- Helper class added: `CustomEquatableType` for fallback equality testing
-- Ensures non-interned string instances for accurate pattern matching branch coverage
-- Fatal exception tests use constructible exception types suitable for .NET 10
+2. **Collection Converters**
+   - `CollectionConverter` (root namespace) - Synchronous deduplication and array conversion
+     - `ToDistinctArray<TTestData, TRow>()` - Core deduplication with custom conversion
+     - Wrapper methods for common scenarios (identity, ArgsCode, PropsCode)
+   - `CollectionConverter` (AsyncEnumerables) - Streaming variants with `IAsyncEnumerable<T>`
+     - `ToDistinctAsyncEnumerable<TTestData, TRow>()` - Memory-efficient async iteration
+   - `CollectionConverter` (Tasks) - Task-based async variants with smart threshold optimization
+     - `ToDistinctArrayTask<TTestData, TRow>()` - Async with &lt;10 items sync, ≥10 items async
+   - `CollectionConverter` (DataProviders) - Provider-based conversion methods
+     - `ToDataProvider<TDataProvider, TTestData>()` - Convert collection to data provider instance
 
----
+**Architecture Benefits**:
+- **Reusability**: Pure conversion infrastructure, decoupled from assertions and test base classes
+- **Separation of Concerns**: Framework-agnostic foundation for data transformation
+- **Dependency Graph**: Clean layered architecture without circular dependencies
+  - `Portamical.Core` (foundation) → `Portamical.Converters` (conversion) → `Portamical` (shared utilities) → Framework adapters
+- **Maintenance**: Independent versioning and releases
 
-#### **Version 4.1.0** (2026-06-27)
+**Features**:
+- **Identity-based deduplication** using `INamedCase.TestCaseName` with `NamedCase.Comparer`
+- **O(n) performance** with `HashSet<INamedCase>` for deduplication
+- **First-occurrence wins** semantics preserving original collection order
+- **Multiple conversion patterns**: synchronous, Task-based, and streaming
+- **Smart threshold optimization** for Task-based conversions (&lt;10 items sync, ≥10 items async)
+- **Zero-allocation array returns** for test frameworks (direct array construction)
+- **Thread-safe stateless static methods** for concurrent test execution
+- **Variance support** for flexible type assignments (contravariant/covariant interfaces)
 
-**Updated**
-- **Portamical.Core dependency updated to v4.1.0**
-  - Simplified formatter API: removed `IFormatter<T>` interface, use `Formatter<T>` base class directly
-  - Added configurable `maxCount` parameter for optimized string joining operations
-  - Enhanced tuple formatting capabilities with comprehensive test coverage
-  - No breaking changes for Portamical consumers
+**Performance Characteristics**:
+- **Deduplication**: O(n) time, O(n) space, minimal allocations
+- **Synchronous**: ~1-2 µs for small collections (&lt;10 items)
+- **Task-based (sync path)**: ~1-3 µs with `Task.FromResult`
+- **Task-based (async path)**: ~6-22 µs with `Task.Run` overhead
+- **Async enumeration**: O(n) time, O(1) space (streaming)
 
-**Improved**
-- **Enhanced formatter integration**
-  - Improved Builder and formatter test coverage with new tuple and join method tests
-  - Updated documentation to reflect Portamical.Core v4.1.0 formatter API simplifications
-  - Seamless integration with new `maxCount` optimization for string joining
+**Breaking Changes from Portamical v4.x**:
+- Data provider interfaces moved from `Portamical.DataProviders` to `Portamical.Converters.DataProviders`
+- Collection converters moved from `Portamical.Converters` to `Portamical.Converters` (namespace unchanged, but now in separate package)
+- Migration: Update package references from `Portamical` to `Portamical.Converters` for data provider usage
 
-**Benefits**
-- **Simpler API surface**: Direct use of `Formatter<T>` base class eliminates interface abstraction layer
-- **Better performance**: Configurable `maxCount` reduces allocations in large collection formatting
-- **Enhanced capabilities**: Improved tuple formatting support for complex test data scenarios
+**Migration Guide**:
 
----
-
-##### **Version 4.1.1** (2026-06-29)
-
-**Updated**
-- **Portamical.Core dependency updated to v4.1.1**
-  - Portamical.Core.Formatting v2.0.0 → v2.1.0 (transitive dependency)
-  - Fully backward compatible with no API changes
-
-**Performance Improvements** (via Portamical.Core.Formatting v2.1.0)
-- **5-15% faster collection formatting** - Pre-computed StringBuilder capacity eliminates reallocations for 4-32 item collections
-- **2-5x faster ASCII character formatting** - Single unsigned bounds check with cached ASCII characters
-- **10-100x faster KeyValuePair access** - Compiled delegate accessors replace reflection (on 2nd+ access)
-- **2-3x faster type alias lookups** - Cached Type-to-C# alias mappings with reference equality
-- **2-5x faster delegate formatting** - SearchValues optimization with SIMD support for method name detection
-- **Reduced allocations** - Manual enumeration eliminates LINQ wrapper allocations
-
-**Quality Improvements**
-- Fixed XML documentation warnings (CS1570) with proper generic type encoding
-- Enhanced stream formatting diagnostics using `Debug.WriteLine`
-- Improved testability: DEBUG builds no longer throw assertions during exception handling
-- Enhanced test coverage: 319 → 353 tests (+10.7%)
-
----
-
-##### **Version 4.1.2 - Current** (2026-06-30)
-
-**Updated**
-- **Portamical.Core dependency updated to v4.1.2**
-  - Portamical.Core.Formatting v2.1.0 → v2.1.1 (transitive dependency)
-  - Fully backward compatible with no API changes
-
-**Documentation Enhancements** (via Portamical.Core.Formatting v2.1.1)
-- **Complete XML Coverage**: All private members, methods, constants, and fields now fully documented
-- **Enhanced Inline Documentation**: Detailed usage examples and design rationale
-- **Improved Cross-References**: Proper `<see cref/>` tags for better IDE navigation
-- **Comprehensive Remarks**: Optimization strategies and performance characteristics explained
-
-**String Building Optimizations** (via Portamical.Core.Formatting v2.1.1)
-- **Universal Capacity Pre-computation**: Removed arbitrary 32-item limit - ALL collections with known sizes benefit
-  - Uses 16-character average estimate per item plus separator length
-  - Eliminates StringBuilder reallocations during string assembly
-- **Fast-Path for Small Lists**: Optimized iterative joining for 1-3 items using `CreateSeparatedString`
-  - Common case: tuples and small collections
-  - Falls back to StringBuilder for 4+ items (more efficient)
-- **Tuple Formatting**: Uses `maxCount: 8` for complete formatting of all tuple elements before nesting
-- **Local Method Pattern**: Reduces closure allocations in tight loops
-  - `getIndexedItem()` eliminates repeated FallbackIfNull lambda allocations
-  - `isCountEqualToIncrementedIndex()` eliminates closure allocation for count checking
-
-**Code Quality Improvements**
-- Enhanced null handling with consistent `FallbackIfNull` and `FallbackIfNullSeparator` usage
-- Improved error handling in Stream formatting (uses `Debug.WriteLine` for diagnostics)
-- Better testability: DEBUG builds don't throw assertions during normal exception handling
-- Thread-safe concurrent caching for hot-path operations (KeyValuePair accessors, type checking, type aliases)
-
----
-
-### **Version 3.0.0** (2026-04-25)
-
-***API Cleanup***
-
-**Breaking Changes**
-- **Removed `ThrowsDetailsAsync(Action, Func<Func<Task>, ValueTask<Exception?>>, ...)` overload**
-  - Async method with sync action and async exception catcher parameter
-  - Rationale: Unnecessary wrapper that encouraged anti-pattern (async test for sync code)
-  - Migration: Use sync `ThrowsDetails(Action, Func<Action, Exception?>, ...)` for testing synchronous code
-  - Impact: Users calling this specific overload signature will need to update to sync wrapper
-
-**Retained**
-- `ThrowsDetailsAsync(Action, Func<Action, Exception?>, ...)` - Async version with sync exception catcher
-  - Primary async implementation for exception detail testing
-  - Accepts sync action and sync exception catcher
-  - Used internally by sync `ThrowsDetails` wrapper
-
-**Technical Details**
-- Simplified API surface by removing redundant async/sync hybrid overload
-- No impact on common usage patterns (framework adapters unaffected)
-- Version bump to 3.0.0 due to public API removal
-
-**Migration Guide**
-
-Before (v2.3.0):
 ```csharp
-// Anti-pattern: async catcher with sync action
-await ThrowsDetailsAsync(
-    () => mySyncMethod(),
-    expected,
-    CatchExceptionAsync,  // Async catcher (mismatch!)
-    // ...
-);
+// Before (Portamical v4.x):
+using Portamical.DataProviders;
+using Portamical.Converters;
+
+// After (Portamical.Converters v5.0.0):
+using Portamical.Converters.DataProviders;  // ITestDataProvider, ITestDataConverter
+using Portamical.Converters;                // CollectionConverter extensions
+using Portamical.Converters.Tasks;          // ToDistinctArrayTask
+using Portamical.Converters.AsyncEnumerables;  // ToDistinctAsyncEnumerable
 ```
 
-After (v3.0.0):
-```csharp
-// Recommended: sync test for sync code
-ThrowsDetails(
-    () => mySyncMethod(),
-    expected,
-    CatchException,  // Sync catcher (matches!)
-    assertIsType,
-    assertEquality,
-    assertFail);
-
-// Or: async test with sync catcher
-await ThrowsDetailsAsync(
-    () => mySyncMethod(),
-    expected,
-    CatchException,
-    assertIsTypeAsync,
-    assertEqualityAsync,
-    assertFailAsync);
-```
-
-**Dependencies**
-- Portamical.Core: 2.2.0 (unchanged)
-
----
-
-##### **Version 3.0.1** (2026-05-01)
-
-**Added**
-- Null parameter validation to async assertion methods (`DoesNotThrowAsync(Func<Task>`, `Func<string, ValueTask>)`, `ThrowsDetailsAsync<TException>(Func<Task>`, `TException, Func<Func<Task>, ValueTask<Exception?>>`, `Func<Type, object, ValueTask>`, `Func<string, string?, ValueTask>`, `Func<string, ValueTask>), CatchExceptionAsync(Func<Task>)`)
-- 6 unit tests for `CatchExceptionAsync(Func<Task>)` method coverage
-- 5 unit tests for exception metadata edge cases (`ArgumentOutOfRangeException`, `ObjectDisposedException`)
-- 5 unit tests for collection equality edge cases (empty collections, different lengths)
-
-**Fixed**
-- `DoesNotThrowAsync(Func<Task>, Func<string, ValueTask>)`: Null check now occurs before `CatchExceptionAsync(Func<Task>)` call
-- `ThrowsDetailsAsync<TException>(Func<Task>, TException, Func<Func<Task>, ValueTask<Exception?>>, Func<Type, object, ValueTask>, Func<string, string?, ValueTask>, Func<string, ValueTask>)`: Added validation for all 5 delegate parameters
-- `CatchExceptionAsync(Func<Task>)`: Added missing attempt parameter validation
-
-**Changed**
-- Test count increased from 119 to 135 (all passing)
-- Async methods now throw `ArgumentNullException` instead of `NullReferenceException` for null parameters
-
----
-
-#### **Version 3.1.0** (2026-05-27)
-
-**Added**
-- **`MetadataEquality<TException>(TException, TException, Action<string, string?>)`** - New public synchronous wrapper for exception metadata assertions
-  - Framework-agnostic verification of exception messages and parameter names
-  - Thread-safe synchronous wrapper delegating to `MetadataEqualityAsync` via `ThreadSafeSync`
-  - Supports `ArgumentException`, `ArgumentOutOfRangeException`, `ObjectDisposedException` with intelligent message filtering
-- Comprehensive XML documentation for both `MetadataEqualityAsync` and `MetadataEquality` methods
-  - Detailed remarks explaining selective assertion logic for framework exceptions
-  - Usage examples for TUnit (async) and NUnit (sync) scenarios
-  - Performance notes and thread safety guidance
-
-**Changed**
-- **`MetadataEqualityAsync<TException>(TException, TException, Func<string, string?, ValueTask>)`** - Visibility changed from `private` to `public`
-  - Now accessible for direct use in async test frameworks (TUnit, MSTest 4)
-  - Primary async implementation for exception metadata verification
-  - Intelligently handles framework-generated messages that vary across runtime versions and locales
-  - Skips assertion for:
-    - `ArgumentException` guard clauses: `"The value cannot be an empty string"`, `"'paramName' ('value'...)"`
-    - `ObjectDisposedException` runtime patterns: `"Cannot access a disposed object.\nObject name: 'objectName'"`
-
-**Example Usage**
-
-Async (TUnit, MSTest):
-```csharp
-var expected = new ArgumentException("Invalid value", "paramName");
-var actual = new ArgumentException("Invalid value", "paramName");
-
-await PortamicalAssert.MetadataEqualityAsync(
-    expected,
-    actual,
-    async (exp, act) => await Assert.Equal(exp, act));
-```
-
-Sync (NUnit, xUnit):
-```csharp
-var expected = new ArgumentOutOfRangeException("count", "Count must be positive");
-var actual = new ArgumentOutOfRangeException("count", "Count must be positive");
-
-PortamicalAssert.MetadataEquality(
-    expected,
-    actual,
-    (exp, act) => Assert.AreEqual(exp, act));
-```
-
-**Dependencies**
-- Portamical.Core: 2.2.0 (unchanged)
-
----
-
-#### **Version 3.2.0** (2025-06-05)
-
-**Updated**
-- Portamical.Core dependency to v3.2.0
-  - Maintains compatibility with latest Portamical.Core features and improvements
-  - No breaking changes or API modifications in this release
-
----
-
-##### **Version 3.2.1** (2026-06-06)
-
-**Updated**
-- Portamical.Core dependency updated to v3.2.1
-  - Maintains compatibility with latest Portamical.Core features and improvements
-  - No breaking changes or API modifications in this release
-
----
-
-##### **Version 3.2.2** (2026-06-08)
-
-**Updated**
-- Portamical.Core dependency updated to v3.2.2
-  - Maintains compatibility with latest Portamical.Core features and improvements
-  - No breaking changes or API modifications in this release
-
----
-
-##### **Version 3.3.0** (2026-06-12)
-
-**Updated**
-- Portamical.Core dependency updated to v3.3.0
-  - Maintains compatibility with latest Portamical.Core features and improvements
-  - No breaking changes or API modifications in this release
-
----
-
-### **Version 2.0.0** (2026-03-16)
-
-**Breaking**
-- Removed `TestBase.ResetLogCounter()` → use `Resolver.ResetLogCounter()`
-- Removed `IDisposable` from `TestBase` (now stateless)
-- Removed mutable `ArgsCode` property
-- Made `ITestDataProvider<TTestData>` contravariant (`<in TTestData>`)
-- Made `ITestDataConverter<TTestData, TRow>` variant (`<in TTestData, out TRow>`)
-
-**Added**
-- `ConvertAsInstance<TTestData, T>()` delegation helpers (2 overloads)
-- 3,000+ lines XML documentation
-- Read-only properties: `AsInstance`, `AsProperties`, `WithTestCaseName`
-- Variance support for flexible type assignments
-
-**Changed**
-- `TestBase`: 38 → 195 lines (stateful → stateless)
-- All properties now expression-bodied read-only
-
----
-
-##### **Version 2.0.1** (2026-03-20)
-
-**Documentation Update**
-- Breaking changes description corrected
-
----
-
-##### **Version 2.0.2** (2026-04-02)
-
-**Changed**
-- Updated Portamical.Core dependency: 2.0.0 → 2.0.1
-
----
-
-#### **Version 2.1.0** (2026-04-20)
-
-**Added**
-- Generic `Equality<T>()` method with custom comparison delegate
-- Built-in `Equality()` method supporting 22+ types with pattern matching
-- Floating-point tolerance support (configurable epsilon)
-- Collection equality with recursive element comparison
-- Special value handling for NaN, infinities, and signed zeros
-- `BigInteger` equality support
-- `ToDistinctReadOnly()` parameterless overload
-
-**Changed**
-- `IsTypeOf()` now accepts nullable `actual` parameter (breaking change)
-- Improved floating-point comparison with bitwise equality checks
-- Enhanced null handling in generic methods
-
-**Fixed**
-- Floating-point precision issues (0.1 + 0.2 now equals 0.3)
-- Collection comparison with nested structures
-
----
-
-##### **Version 2.1.1** (2026-04-21)
-
-**Added**
-- `GetNotExpectedValueMessage()` protected helper method
-
----
-
-#### **Version 2.2.0** (2026-04-22)
-
-**Added**
-- Async-first assertion architecture using `ValueTask`
-- `DoesNotThrowAsync`, `ThrowsDetailsAsync`, `EqualityAsync`, `IsTypeOfAsync`
-- Zero-allocation async methods for optimal performance
-- Comprehensive XML documentation for async patterns
-
-**Changed**
-- Internal refactoring: sync methods delegate to async base (no API changes)
-- Performance optimizations with `ConfigureAwait(false)` and `MethodImpl(AggressiveInlining)`
-
-**Migration**
-- Fully backward compatible with 2.1.x
-- No code changes required for existing tests
-
----
-
-##### **Version 2.2.1** (2026-04-23)
-
-**Changed**
-- Portamical.Core dependency 2.0.1 → 2.2.0
-
----
-
-#### **Version 2.3.0** (2026-04-25)
-
-***Async-First Architecture Completed***
-
-**Added**
-- `CatchExceptionAsync(Func<Task>)` - Async exception catcher with fatal exception filtering
-  - Zero-allocation success path using `ValueTask<Exception?>`
-  - Uses `ConfigureAwait(false)` for thread safety
-  - Comprehensive XML documentation with fatal exception handling examples
-- `DoesNotThrowAsync(Func<Task>, Func<string, ValueTask>)` - Async action overload
-  - Supports async operations in assertion scenarios
-  - Delegates to `CatchExceptionAsync` for exception handling
-  - Completes synchronously with zero allocation when no exception occurs
-
-**Changed**
-- `CatchException(Action)` - Refactored as sync wrapper delegating to `CatchExceptionAsync`
-  - Backward compatible - identical signature and behavior
-  - Consistent architecture - follows async-first pattern
-  - DRY principle - exception catching logic centralized
-- `DoesNotThrow(Action, Action<string>)` - Refactored as sync wrapper
-  - Backward compatible - identical signature and behavior
-  - Eliminated `#pragma warning disable CA2012`
-  - Uses `ThreadSafeSyncAssertion` pattern consistently
-- Async assertion methods visibility - Changed from `protected` to `public`
-  - Affected: `DoesNotThrowAsync`, `ThrowsDetailsAsync`, `EqualityAsync`, `IsTypeOfAsync`
-  - Non-breaking change (widening access)
-  - Enables direct usage in async frameworks (TUnit, MSTest 4)
-  - Framework adapters can still provide simplified convenience APIs
-
-**Improved**
-- Documentation - Comprehensive XML docs added for:
-  - `IsNotFatal` - 98 lines explaining fatal exception classification, usage patterns, and examples
-  - `CatchExceptionAsync` - Complete async exception handling documentation
-  - `DoesNotThrowAsync` - Async testing patterns with examples
-  - All new and refactored methods include detailed remarks and examples
-- Architecture - Completed async-first refactoring pattern across all assertion methods
-- Thread Safety - All sync wrappers use `ConfigureAwait(false)` via `ThreadSafeSyncAssertion`
-- Fatal Exception Filtering - Consistent application of `IsNotFatal` across sync and async paths
-  - Fatal exceptions (`OutOfMemoryException`, `AccessViolationException`, `StackOverflowException`, `ThreadAbortException`) propagate immediately
-
-**Technical Details**
-- Zero-allocation success paths preserved in all refactored methods
-- Performance characteristics unchanged (aggressive inlining maintained)
-- Sync/async parity achieved for exception handling operations
-
-**Dependencies**
-- Portamical.Core: 2.2.0 (unchanged)
-
-**Breaking Changes**
-- None - fully backward compatible with 2.2.x
-
----
-
-### **Version 1.0.0** (2026-03-06)
-
-- Initial release
-- Framework-agnostic converters
-- `PortamicalAssert` with delegate injection
-- Abstract `TestBase` classes
-- Strategy Pattern support with `ArgsCode` enum
-
----
-
-##### **Version 1.0.1** (2026-03-07)
-
-- Moved xunit.runner.json from Portamical to xUnit adapter packages
-- Improved GlobalUsings.cs organization
-
----
-
-##### **Version 1.0.2** (2026-03-08)
-
-- Implemented standard `IDisposable` pattern in `Portamical.TestBases.TestBase`
+**Dependencies**:
+- Portamical.Core >= 4.2.1
+- .NET 10.0
+
+**Compatibility**:
+- Framework adapters (xUnit, MSTest, NUnit, TUnit) updated to v5.0.0 for compatibility
+- API surface remains identical except for namespace changes
+- No functional changes to deduplication or conversion logic
 
 ---
 

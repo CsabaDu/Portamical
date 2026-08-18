@@ -1,54 +1,78 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Build Settings -->
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-    <Deterministic>true</Deterministic>
-    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-
-    <!-- Package Info -->
-    <Version>4.1.2</Version>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Portamical</Title>
+    <Version>5.0.0</Version>
     <Authors>CsabaDu</Authors>
     <Company>CsabaDu</Company>
-    <Description>Shared utilities and base classes for cross‑framework test data solutions in .NET, built on the Portamical.Core data model.</Description>
+    <Description>Portamical.Core Strongly Typed Test Data Collection Conversion &amp; Deduplication Infrastructure for Cross-Framework Testing</Description>
     <Copyright>(c) 2026. Csaba Dudas (CsabaDu)</Copyright>
-
-    <!-- Package Assets -->
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical</RepositoryUrl>
+    <PackageTags>test; unittest; testdata; frameworkagnostic; portable; strongtyped; dynamicdata; datadriven; mstest; nunit; xunit; xunitv3; tunit; collectionconverter;</PackageTags>
+    <PackageReleaseNotes>Portamical v5.0.0 - Architectural Extraction &amp; Modularization
+
+Portamical.Converters is now a standalone package, extracted from the shared Portamical module as part of the ecosystem‑wide v5.0.0 refactoring. This release isolates all data‑provider interfaces and collection‑conversion infrastructure into a dedicated, framework‑agnostic component.
+
+Key Changes
+
+Extracted Components
+• Data Provider Interfaces
+  - ITestDataProvider&lt;TTestData&gt; — manages test‑data collections with method metadata
+  - ITestDataConverter&lt;TTestData, TRow&gt; — converts test data into framework‑specific row formats
+  - Full variance support (in/out)
+• Collection Converters
+  - Synchronous: ToDistinctArray&lt;TTestData, TRow&gt;() with identity/ArgsCode/PropsCode wrappers
+  - Async Enumerables: ToDistinctAsyncEnumerable&lt;TTestData, TRow&gt;() for streaming conversion
+  - Task‑based: ToDistinctArrayTask&lt;TTestData, TRow&gt;() with smart sync/async threshold
+  - Data Provider Conversions: ToDataProvider&lt;TProvider, TTestData&gt;()
+
+Architecture Improvements
+• Clear separation of concerns:
+  - Portamical.Core → Portamical.Converters → Portamical → Framework adapters
+• Reusable, pure conversion infrastructure
+• No circular dependencies
+• Independent versioning and release cadence
+
+Performance Characteristics
+• Deduplication: O(n) time, O(n) space
+• Sync conversions: ~1–2 µs for small collections
+• Task‑based:
+• Sync path (&lt;10 items): ~1–3 µs
+• Async path (≥10 items): ~6–22 µs
+• Async enumeration: O(n) time, O(1) space
+
+Breaking Changes
+• Data provider interfaces moved to Portamical.Converters.DataProviders
+• Collection converters moved into the new Portamical.Converters package
+• Update references from Portamical → Portamical.Converters
+
+Migration
+•  Before (Portamica.Converters module
+    using Portamical.DataProviders;
+    using Portamical.Converters;
+• After (v5.0.0)
+    using Portamical.Converters.DataProviders;
+    using Portamical.Converters;
+    using Portamical.Converters.Tasks;
+    using Portamical.Converters.AsyncEnumerables;
+
+Compatibility
+• Requires Portamical.Core ≥ 4.2.1
+• Targets .NET 10.0
+• All framework adapters (xUnit, MSTest, NUnit, TUnit) updated to v5.0.0
+• No functional changes to deduplication or conversion logic
+</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-
-    <!-- Repository -->
-    <RepositoryUrl>https://github.com/CsabaDu/Portamical/tree/master/Portamical</RepositoryUrl>
-    <PackageTags>test; unittest; testdata; frameworkagnostic; portable; dynamicdata; datadriven; async; mstest; nunit; xunit; xunitv3; tunit;</PackageTags>
-
-    <!-- Release Notes -->
-    <PackageReleaseNotes>
-      v4.1.2 (2026-06-30) - Dependency Update: Documentation and String Building Optimization
-
-      Updated Portamical.Core v4.1.1 → v4.1.2 (Portamical.Core.Formatting v2.1.0 → v2.1.1)
-      - Complete XML documentation for all private members and methods
-      - StringBuilder capacity pre-computation for ALL collection sizes (removed 32-item limit)
-      - Fast-path iterative joining for small lists (1-3 items) using CreateSeparatedString
-      - Local method pattern reduces closure allocations in tight loops
-      - Tuple formatting optimized for up to 8 elements (maxCount: 8)
-      - Enhanced null handling with explicit fallback strategies
-      - Thread-safe concurrent caching for hot-path operations
-      - Fully backward compatible, no API changes
-    </PackageReleaseNotes>
-    
-    <!-- Package Generation -->
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageOutputPath>$(OutputPath)</PackageOutputPath>
-
-    <!-- Symbols -->
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -63,7 +87,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Portamical.Converters\Portamical.Converters.csproj" />
+    <ProjectReference Include="..\Portamical.Core\Portamical.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

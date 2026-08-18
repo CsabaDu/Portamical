@@ -206,7 +206,7 @@ namespace Portamical.xUnit_v3.Assertions;
 /// <seealso cref="Portamical.Assertions.PortamicalAssert"/>
 /// <seealso cref="Xunit.Assert"/>
 /// <seealso cref="Xunit.Record"/>
-public abstract class PortamicalAssert : Portamical.Assertions.PortamicalAssert
+public abstract class PortamicalAssert : Shared.Assertions.PortamicalAssert
 {
     /// <summary>
     /// Executes multiple assertions. ⚠️ <strong>xUnit v3 Limitation:</strong> Stops at first failure (no-op wrapper).

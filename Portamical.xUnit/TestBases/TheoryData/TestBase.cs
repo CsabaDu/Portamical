@@ -188,7 +188,7 @@ namespace Portamical.xUnit.TestBases.TheoryData;
 /// <seealso cref="CollectionConverter"/>
 /// <seealso cref="TheoryData{T}"/>
 /// <seealso cref="ArgsCode"/>
-public abstract class TestBase : Portamical.TestBases.TestBase
+public abstract class TestBase : Shared.TestBases.TestBase
 {
     /// <summary>
     /// Converts a collection of Portamical test data to xUnit v2's type-safe <see cref="TheoryData{T}"/> collection.

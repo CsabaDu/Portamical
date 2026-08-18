@@ -158,7 +158,7 @@ namespace Portamical.NUnit.TestBases;
 /// <seealso cref="TestCaseTestData"/>
 /// <seealso cref="TestCaseTestData{TTestData}"/>
 /// <seealso cref="ArgsCode"/>
-public abstract class TestBase : Portamical.TestBases.TestBase
+public abstract class TestBase : Portamical.Shared.TestBases.TestBase
 {
     /// <summary>
     /// Converts a collection of Portamical test data to a read-only collection of
