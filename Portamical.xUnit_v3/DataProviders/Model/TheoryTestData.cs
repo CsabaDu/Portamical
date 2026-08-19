@@ -598,12 +598,11 @@ where TTestData : notnull, ITestData
     /// <seealso cref="Convert(TTestData)"/>
     /// <seealso cref="AddRow"/>
     public ITheoryTestDataRow ConvertRow(
-        TTestData testData,
-        string? testMethodName)
+        TTestData testData)
     => new TheoryTestDataRow<TTestData>(
         testData,
         ArgsCode,
-        testMethodName);
+        TestMethodName);
 
     /// <summary>
     /// Converts Portamical test data to an xUnit v3 theory test data row using instance configuration.
@@ -659,7 +658,7 @@ where TTestData : notnull, ITestData
     /// <seealso cref="AddRow"/>
     /// <seealso cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Convert(TDataDeclarationPointer)"/>
     protected override ITheoryTestDataRow Convert(TTestData row)
-    => ConvertRow(testData: row, TestMethodName);
+    => ConvertRow(testData: row);
 
     /// <summary>
     /// Adds a test data item to the collection using the builder pattern.
@@ -722,7 +721,7 @@ where TTestData : notnull, ITestData
     /// <seealso cref="Convert(TTestData)"/>
     /// <seealso cref="ITestDataProvider{TTestData}.AddRow"/>
     public void AddRow(TTestData testData)
-    => Add(Convert(testData));
+    => Add(ConvertRow(testData));
 
     #endregion
 }

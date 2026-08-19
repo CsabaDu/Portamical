@@ -328,5 +328,5 @@ where TTestData : notnull, ITestData
     /// </example>
     /// <seealso cref="ArgsCode"/>
     /// <seealso cref="ITestDataProvider{TTestData}"/>
-    TRow ConvertRow(TTestData testData, string? testMethodName);
+    TRow ConvertRow(TTestData testData);
 }

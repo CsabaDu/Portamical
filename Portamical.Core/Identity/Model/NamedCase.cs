@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.Safety;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using static Portamical.Core.Safety.Validator;
@@ -372,6 +373,7 @@ public abstract class NamedCase : INamedCase
         if (args is not { Length: > 0 }) return null;
 
         var first = args[0];
+
         if (first is INamedCase namedCase)
         {
             first = namedCase.TestCaseName;
@@ -424,7 +426,7 @@ public abstract class NamedCase : INamedCase
         INamedCase namedCase,
         IEnumerable<INamedCase>? namedCases)
     {
-        var snapshot = SnapshotOrNull(namedCases);
+        var snapshot = Resolver.SnapshotOrNull(namedCases);
 
         if (snapshot is null) return false;
 

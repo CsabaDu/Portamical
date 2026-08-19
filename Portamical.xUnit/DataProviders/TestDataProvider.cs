@@ -298,11 +298,13 @@ where TTestData : notnull, ITestData
     /// var provider = new TestDataProvider&lt;TestDataReturns&lt;int&gt;&gt;(testData, ArgsCode.Properties);
     /// </code>
     /// </example>
-    internal TestDataProvider(TTestData testData, ArgsCode argsCode) : base(testData, argsCode, testMethodName: null)
+    internal TestDataProvider(TTestData testData, ArgsCode argsCode)
+    : base(testData, argsCode, testMethodName: null)
     {
     }
 
-    internal TestDataProvider(IEnumerable<TTestData> testDataCollection, ArgsCode argsCode) : base(testDataCollection, argsCode, testMethodName: null)
+    internal TestDataProvider(IEnumerable<TTestData> testDataCollection, ArgsCode argsCode)
+    : base(testDataCollection, argsCode, testMethodName: null)
     {
     }
 
@@ -404,7 +406,7 @@ where TTestData : notnull, ITestData
     //    _dataList.Add(testData.ToArgs(ArgsCode));
     //}
 
-    public override object?[] ConvertRow(TTestData testData, string? testMethodName)
+    public override object?[] ConvertRow(TTestData testData)
     => testData.ToArgs(ArgsCode);
 
     ///// <summary>

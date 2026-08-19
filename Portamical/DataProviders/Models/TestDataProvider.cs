@@ -8,15 +8,15 @@ public abstract class TestDataProvider
     private readonly HashSet<INamedCase> _namedCases = new(NamedCase.Comparer);
 
     protected void AddRow<TTestData, TRow>(
-        List<TRow> rows,
         TTestData testData,
+        Action<TRow> add,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
         if (_namedCases.Add(testData))
         {
             var row = convertRow(testData);
-            rows.Add(row);
+            add(row);
         }
     }
 
@@ -57,7 +57,8 @@ where TTestData : notnull, ITestData
     }
 
     public void AddRow(TTestData testData)
-    => AddRow(_rows, testData,
+    => AddRow(testData,
+        add: _rows.Add,
         convertRow: td => td);
 
     public void AddRange(IEnumerable<TTestData> testDataCollection)
@@ -70,18 +71,12 @@ where TTestData : notnull, ITestData
     => GetEnumerator();
 }
 
-public abstract class TestDataProvider<TTestData, TRow>
+public abstract class TestDataProvider<TTestData, TRow>(ArgsCode argsCode, string? testMethodName)
 : TestDataProvider,
 ITestDataProvider<TTestData, TRow>
 where TTestData : notnull, ITestData
 {
     private readonly List<TRow> _rows = [];
-
-    protected TestDataProvider(ArgsCode argsCode, string? testMethodName)
-    {
-        ArgsCode = argsCode.Defined(nameof(argsCode));
-        TestMethodName = testMethodName;
-    }
 
     protected TestDataProvider(TTestData testData, ArgsCode argsCode, string? testMethodName)
     : this(argsCode, testMethodName)
@@ -95,12 +90,13 @@ where TTestData : notnull, ITestData
         AddRange(testDataCollection);
     }
 
-    public ArgsCode ArgsCode { get; init; }
-    public string? TestMethodName { get; init; } = null;
+    public ArgsCode ArgsCode { get; init; } = argsCode.Defined(nameof(argsCode));
+    public string? TestMethodName { get; init; } = testMethodName;
 
     public void AddRow(TTestData testData)
-    => AddRow(_rows, testData,
-        convertRow: (td) => ConvertRow(td, TestMethodName));
+    => AddRow(testData,
+        add:_rows.Add,
+        convertRow: ConvertRow);
 
     public void AddRange(IEnumerable<TTestData> testDataCollection)
     => AddRange(testDataCollection, AddRow);
@@ -111,5 +107,5 @@ where TTestData : notnull, ITestData
     IEnumerator IEnumerable.GetEnumerator()
     => GetEnumerator();
 
-    public abstract TRow ConvertRow(TTestData testData, string? testMethodName);
+    public abstract TRow ConvertRow(TTestData testData);
 }
