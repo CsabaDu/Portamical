@@ -21,6 +21,8 @@ namespace Portamical.Converters.DataProviders;
 /// </remarks>
 public static class CollectionConverter
 {
+    #region ToDataProvider
+
     #region ToDataProvider<TDataProvider, TTestData>
 
     /// <summary>
@@ -192,6 +194,40 @@ public static class CollectionConverter
     }
 
     #endregion
+
+    #region ToDataProvider<TDataProvider, TTestData, TRow>
+
+    public static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    where TDataProvider : ITestDataProvider<TTestData, TRow>
+    {
+        var (snapshot, testData, count) =
+            SnapshotWithFirstAndCount(testDataCollection);
+        var dataProvider =
+            NotNull(initDataProvider, nameof(initDataProvider))(
+                testData, argsCode, testMethodName);
+
+        if (count > 1)
+        {
+            for (int i = 1; i < count; i++)
+            {
+                testData = snapshot[i];
+                dataProvider.AddRow(testData);
+            }
+        }
+
+        return dataProvider;
+    }
+
+    #endregion
+
+    #endregion ToDataProvider
+
+    #region ToDistinctDataProvider
 
     #region ToDistinctDataProvider<TDataProvider, TTestData>
 
@@ -379,6 +415,46 @@ public static class CollectionConverter
     }
 
     #endregion
+
+    #region ToDistinctDataProvider<TDataProvider, TTestData, TRow>
+
+    public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    where TDataProvider : ITestDataProvider<TTestData, TRow>
+    {
+        var (snapshot, testData, count) =
+            SnapshotWithFirstAndCount(testDataCollection);
+        var dataProvider =
+            NotNull(initDataProvider, nameof(initDataProvider))(
+                testData, argsCode, testMethodName);
+
+        if (count > 1)
+        {
+            var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
+            _ = namedCases.Add(testData);
+
+            for (int i = 1; i < count; i++)
+            {
+                testData = snapshot[i];
+
+                // Deduplicate based on 'NamedCase' identity/equality semantics
+                if (namedCases.Add(testData))
+                {
+                    dataProvider.AddRow(testData);
+                }
+            }
+        }
+
+        return dataProvider;
+    }
+
+    #endregion
+
+    #endregion ToDistinctDataProvider
 
     #region Private helper methods
 
