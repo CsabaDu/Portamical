@@ -64,4 +64,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Converters\DataProviders\Model\" />
+  </ItemGroup>
+
 </Project>

@@ -207,6 +207,14 @@ public abstract class NamedCase : INamedCase
 
     #endregion
 
+    public void AddToDistinct(HashSet<INamedCase> namedCases, Action add)
+    {
+        if (namedCases?.Add(this) != false)
+        {
+            add();
+        }
+    }
+
     /// <summary>
     /// Determines whether the current instance is contained within the specified collection of named test cases.
     /// </summary>

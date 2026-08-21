@@ -2,13 +2,14 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 global using Portamical.Converters;
-global using Portamical.Converters.DataProviders;
+global using Portamical.Converters.DataProviders.Converted;
 global using Portamical.Core.Identity;
 global using Portamical.Core.Identity.Model;
 global using Portamical.Core.Safety;
 global using Portamical.Core.Strategy;
 global using Portamical.Core.TestDataTypes;
 global using Portamical.DataProviders;
+global using Portamical.DataProviders.Converted;
 global using System.Reflection;
 global using Xunit;
 global using Xunit.Internal;

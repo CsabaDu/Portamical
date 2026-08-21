@@ -3,6 +3,7 @@
 
 using Portamical.xUnit_v3.DataProviders.Model;
 using Portamical.xUnit_v3.TestDataTypes;
+using static Portamical.Converters.DataProviders.Converted.CollectionConverter;
 
 namespace Portamical.xUnit_v3.Converters;
 
@@ -337,11 +338,10 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDataProvider(
-        initDataProvider: testData => TestDataConverter.ToTheoryTestData(
-            testData,
-            argsCode,
-            testMethodName));
+    => testDataCollection.ToDataProvider<TheoryTestData<TTestData>, TTestData, ITheoryTestDataRow>(
+        initDataProvider: TestDataConverter.ToTheoryTestData,
+        argsCode,
+        testMethodName);
 
     /// <summary>
     /// Converts a collection of Portamical test data to an immutable read-only collection of

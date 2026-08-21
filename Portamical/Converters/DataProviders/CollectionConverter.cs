@@ -2,11 +2,12 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.DataProviders;
+using Portamical.DataProviders.Model;
 
 namespace Portamical.Converters.DataProviders;
 
 /// <summary>
-/// Provides extension methods for converting test data collections into <see cref="ITestDataProvider{TTestData}"/> instances.
+/// Provides extension methods for converting test data collections into <see cref="ITestDataRegistry{TTestData}"/> instances.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -21,8 +22,6 @@ namespace Portamical.Converters.DataProviders;
 /// </remarks>
 public static class CollectionConverter
 {
-    #region ToDataProvider
-
     #region ToDataProvider<TDataProvider, TTestData>
 
     /// <summary>
@@ -53,7 +52,7 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/>.
+    /// The type of the data provider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>.
     /// </typeparam>
     /// <typeparam name="TTestData">
     /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
@@ -85,7 +84,7 @@ public static class CollectionConverter
     /// };
     /// 
     /// var provider = testData.ToDataProvider(
-    ///     td => new MyDataProvider(td));
+    ///     testData => new MyDataProvider(testData));
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
@@ -95,11 +94,10 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : ITestDataProvider<TTestData>
     {
-        var (snapshot, testData, count) =
-            SnapshotWithFirstAndCount(testDataCollection);
-        var dataProvider =
-            NotNull(initDataProvider, nameof(initDataProvider))(
-                testData);
+        var (snapshot, testData, count) = SnapshotWithFirstAndCount(
+            testDataCollection,
+            initDataProvider,
+            out var dataProvider);
 
         if (count > 1)
         {
@@ -120,7 +118,7 @@ public static class CollectionConverter
     /// <para>
     /// <strong>This overload</strong> uses the <c>new()</c> constraint to instantiate the data provider
     /// directly, without requiring an initializer function. All test data items are added via
-    /// <see cref="ITestDataProvider{TTestData}.AddRow(TTestData)"/>.
+    /// <see cref="ITestDataRegistry{TTestData}.AddRow(TTestData)"/>.
     /// </para>
     /// <para>
     /// <strong>Deduplication:</strong> Uses <see cref="NamedCase.Comparer"/> to remove duplicate
@@ -143,7 +141,7 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/>
+    /// The type of the data provider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>
     /// and have a parameterless constructor.
     /// </typeparam>
     /// <typeparam name="TTestData">
@@ -195,40 +193,6 @@ public static class CollectionConverter
 
     #endregion
 
-    #region ToDataProvider<TDataProvider, TTestData, TRow>
-
-    public static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
-        ArgsCode argsCode,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    where TDataProvider : ITestDataProvider<TTestData, TRow>
-    {
-        var (snapshot, testData, count) =
-            SnapshotWithFirstAndCount(testDataCollection);
-        var dataProvider =
-            NotNull(initDataProvider, nameof(initDataProvider))(
-                testData, argsCode, testMethodName);
-
-        if (count > 1)
-        {
-            for (int i = 1; i < count; i++)
-            {
-                testData = snapshot[i];
-                dataProvider.AddRow(testData);
-            }
-        }
-
-        return dataProvider;
-    }
-
-    #endregion
-
-    #endregion ToDataProvider
-
-    #region ToDistinctDataProvider
-
     #region ToDistinctDataProvider<TDataProvider, TTestData>
 
     /// <summary>
@@ -259,7 +223,7 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/>.
+    /// The type of the data provider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>.
     /// </typeparam>
     /// <typeparam name="TTestData">
     /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
@@ -291,7 +255,7 @@ public static class CollectionConverter
     /// };
     /// 
     /// var provider = testData.ToDistinctDataProvider(
-    ///     td => new MyDataProvider(td));
+    ///     testData => new MyDataProvider(testData));
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
@@ -301,11 +265,10 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : ITestDataProvider<TTestData>
     {
-        var (snapshot, testData, count) =
-            SnapshotWithFirstAndCount(testDataCollection);
-        var dataProvider =
-            NotNull(initDataProvider, nameof(initDataProvider))(
-                testData);
+        var (snapshot, testData, count) = SnapshotWithFirstAndCount(
+            testDataCollection,
+            initDataProvider,
+            out var dataProvider);
 
         if (count > 1)
         {
@@ -316,11 +279,9 @@ public static class CollectionConverter
             {
                 testData = snapshot[i];
 
-                // Deduplicate based on 'NamedCase' identity/equality semantics
-                if (namedCases.Add(testData))
-                {
-                    dataProvider.AddRow(testData);
-                }
+                testData.AddToDistinct(
+                    namedCases: namedCases,
+                    add: () => dataProvider.AddRow(testData));
             }
         }
 
@@ -334,7 +295,7 @@ public static class CollectionConverter
     /// <para>
     /// <strong>This overload</strong> uses the <c>new()</c> constraint to instantiate the data provider
     /// directly, without requiring an initializer function. All test data items are added via
-    /// <see cref="ITestDataProvider{TTestData}.AddRow(TTestData)"/>.
+    /// <see cref="ITestDataRegistry{TTestData}.AddRow(TTestData)"/>.
     /// </para>
     /// <para>
     /// <strong>Deduplication:</strong> Uses <see cref="NamedCase.Comparer"/> to remove duplicate
@@ -357,7 +318,7 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/>
+    /// The type of the data provider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>
     /// and have a parameterless constructor.
     /// </typeparam>
     /// <typeparam name="TTestData">
@@ -400,53 +361,11 @@ public static class CollectionConverter
         var dataProvider = new TDataProvider();
         var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
 
-#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions - foreach is more performant for HashSet-based deduplication
         foreach (var testData in snapshot)
         {
-            // Deduplicate based on 'NamedCase' identity/equality semantics
-            if (namedCases.Add(testData))
-            {
-                dataProvider.AddRow(testData);
-            }
-        }
-#pragma warning restore S3267
-
-        return dataProvider;
-    }
-
-    #endregion
-
-    #region ToDistinctDataProvider<TDataProvider, TTestData, TRow>
-
-    public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
-        ArgsCode argsCode,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    where TDataProvider : ITestDataProvider<TTestData, TRow>
-    {
-        var (snapshot, testData, count) =
-            SnapshotWithFirstAndCount(testDataCollection);
-        var dataProvider =
-            NotNull(initDataProvider, nameof(initDataProvider))(
-                testData, argsCode, testMethodName);
-
-        if (count > 1)
-        {
-            var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-            _ = namedCases.Add(testData);
-
-            for (int i = 1; i < count; i++)
-            {
-                testData = snapshot[i];
-
-                // Deduplicate based on 'NamedCase' identity/equality semantics
-                if (namedCases.Add(testData))
-                {
-                    dataProvider.AddRow(testData);
-                }
-            }
+            testData.AddToDistinct(
+                namedCases: namedCases,
+                add: () => dataProvider.AddRow(testData));
         }
 
         return dataProvider;
@@ -454,29 +373,9 @@ public static class CollectionConverter
 
     #endregion
 
-    #endregion ToDistinctDataProvider
+    #region Helper methods
 
-    #region Private helper methods
-
-    /// <summary>
-    /// Creates an array snapshot of the test data collection and extracts the first element and count.
-    /// </summary>
-    /// <typeparam name="TTestData">
-    /// The type of test data in the collection. Must implement <see cref="ITestData"/> and cannot be null.
-    /// </typeparam>
-    /// <param name="testDataCollection">
-    /// The collection to snapshot. Cannot be null or empty.
-    /// </param>
-    /// <returns>
-    /// A tuple containing the array snapshot, the first test data element, and the total count.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="testDataCollection"/> is null.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="testDataCollection"/> is empty.
-    /// </exception>
-    private static (TTestData[] Snapshot, TTestData TestData, int Count) SnapshotWithFirstAndCount<TTestData>(
+    public static (TTestData[] Snapshot, TTestData TestData, int Count) SnapshotWithFirstAndCount<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     {
@@ -486,6 +385,21 @@ public static class CollectionConverter
         var count = snapshot.Length;
 
         return (snapshot, testData, count);
+    }
+
+    private static (TTestData[] Snapshot, TTestData TestData, int Count) SnapshotWithFirstAndCount<TTestData, TDataProvider>(
+        IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, TDataProvider> initDataProvider,
+        out TDataProvider dataProvider)
+    where TTestData : notnull, ITestData
+    where TDataProvider : ITestDataRegistry<TTestData>, IDataProvider<TTestData>
+    {
+        var snapshotWithFirstAndCount = SnapshotWithFirstAndCount(
+            testDataCollection);
+        dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
+            snapshotWithFirstAndCount.TestData);
+
+        return snapshotWithFirstAndCount;
     }
 
     #endregion

@@ -723,5 +723,8 @@ where TTestData : notnull, ITestData
     public void AddRow(TTestData testData)
     => Add(ConvertRow(testData));
 
+    public ITheoryTestDataRow[] GetRows()
+    => [.. this];
+
     #endregion
 }

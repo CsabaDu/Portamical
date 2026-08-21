@@ -54,10 +54,25 @@ namespace Portamical.Converters.Tasks;
 /// </example>
 public static class CollectionConverter
 {
-    #region Task<TRow[]> ToDistinctArrayTask base method
+    #region ToArrayTask
+
+    public static Task<TRow[]> ToArrayTask<TTestData, TRow>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, TRow> convertRow)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToArray(convertRow).ToTask();
+
+    public static Task<TTestData[]> ToArrayTask<TTestData>(
+        this IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToArray().ToTask();
+
+    #endregion
+
+    #region ToDistinctArrayTask
 
     /// <summary>
-    /// Asynchronously converts a collection of test data to a distinct array of rows.
+    /// Asynchronously converts a collection of test data to a distinct converted of rows.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -72,40 +87,17 @@ public static class CollectionConverter
     /// </remarks>
     /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
-    /// <param name="testDataCollection">The source collection of test data to convert. Cannot be null or empty.</param>
+    /// <param name="testDataCollection">The source collection of test data to convertArray. Cannot be null or empty.</param>
     /// <param name="convertRow">A function that transforms each test data item into a row of type <typeparamref name="TRow"/>. Cannot be null.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the distinct array of converted rows.</returns>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the distinct converted of converted rows.</returns>
     public static Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    {
-        const int smallCollectionCountLimit = 10;
-
-        var snapshot = NotNullOrEmpty(
-            testDataCollection,
-            nameof(testDataCollection));
-
-        return snapshot.Length < smallCollectionCountLimit ?
-            Task.FromResult(result: snapshotToDistinctRowArray())
-            : Task.Run(function: snapshotToDistinctRowArray);
-
-        #region Local function
-
-        TRow[] snapshotToDistinctRowArray()
-        => snapshot.ToDistinctArray(convertRow);
-
-        #endregion
-    }
-
-    #endregion
-
-    #region Wrapper methods
-
-    #region Task<TTestData[]>
+    => testDataCollection.ToDistinctArray(convertRow).ToTask();
 
     /// <summary>
-    /// Asynchronously creates an array containing distinct elements from the specified test data collection.
+    /// Asynchronously creates an converted containing distinct elements from the specified test data collection.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -118,8 +110,8 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     /// <typeparam name="TTestData">The type of elements in the test data collection. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The source collection of test data elements from which to create a distinct array. Cannot be null or empty.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains an array with distinct elements
+    /// <param name="testDataCollection">The source collection of test data elements from which to create a distinct converted. Cannot be null or empty.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains an converted with distinct elements
     /// from the input collection, preserving the order of first occurrence.</returns>
     /// <example>
     /// <code>
@@ -139,147 +131,20 @@ public static class CollectionConverter
     public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayTask(
-        convertRow: testData => testData);
+    => testDataCollection.ToDistinctArray().ToTask();
 
     #endregion
 
-    #region Task<TRow[]>
+    #region Helper method
 
-    /// <summary>
-    /// Asynchronously converts a collection of test data to a distinct array of rows using the specified conversion function and test method name.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This overload allows passing a test method name to the conversion function, which can be useful for
-    /// generating context-aware row data or including method information in test case output.
-    /// </para>
-    /// <para>
-    /// <strong>Performance Optimization:</strong> For small collections (&lt; 10 items), the deduplication
-    /// is performed synchronously to avoid Task.Run overhead. For larger collections, the work is offloaded
-    /// to the thread pool.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
-    /// <typeparam name="TRow">The type of the resulting row elements.</typeparam>
-    /// <param name="testDataCollection">The collection of test data to convert. Cannot be null or empty.</param>
-    /// <param name="convertRow">The function to convert each test data item and test method name to a row. Cannot be null.</param>
-    /// <param name="testMethodName">The name of the test method, or <c>null</c>.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a distinct array of converted rows.</returns>
-    public static Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, string?, TRow> convertRow,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayTask(
-        convertRow: testData => NotNull(convertRow, nameof(convertRow))(
-            testData,
-            testMethodName));
+    private static Task<TRow[]> ToTask<TRow>(this TRow[] converted)
+    {
+        const int smallCollectionCountLimit = 10;
 
-    /// <summary>
-    /// Asynchronously converts a collection of test data items to a distinct array of rows using the specified
-    /// conversion function with argument code and test method name.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This overload provides the most flexibility by passing both an <see cref="ArgsCode"/> and a test method name
-    /// to the conversion function, enabling rich context-aware row generation.
-    /// </para>
-    /// <para>
-    /// The <paramref name="argsCode"/> parameter is validated (cannot be undefined) before being passed to the
-    /// conversion function.
-    /// </para>
-    /// <para>
-    /// <strong>Performance Optimization:</strong> For small collections (&lt; 10 items), the deduplication
-    /// is performed synchronously to avoid Task.Run overhead. For larger collections, the work is offloaded
-    /// to the thread pool.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TTestData">The type of the input test data items. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
-    /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
-    /// <param name="testDataCollection">The collection of test data items to convert. Cannot be null or empty.</param>
-    /// <param name="convertRow">A function that converts each test data item, along with the provided <see cref="ArgsCode"/> and optional test method name, to
-    /// a row of type <typeparamref name="TRow"/>. Cannot be null.</param>
-    /// <param name="argsCode">The <see cref="ArgsCode"/> instance to pass to the conversion function. Cannot be null or undefined.</param>
-    /// <param name="testMethodName">An optional name of the test method to provide to the conversion function. May be null.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the distinct array of rows produced by applying the conversion function to each distinct test data item.</returns>
-    public static Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TRow> convertRow,
-        ArgsCode argsCode,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayTask(
-        convertRow: testData => NotNull(convertRow, nameof(convertRow))(
-            testData,
-            argsCode.Defined(nameof(argsCode)),
-            testMethodName));
-
-    #endregion
-
-    #region Task<object?[][]>
-
-    /// <summary>
-    /// Asynchronously returns a jagged array of distinct argument arrays generated from the specified test data collection
-    /// using the provided argument code.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Each element in the returned array corresponds to the arguments produced by calling
-    /// <see cref="ITestData.ToArgs(ArgsCode)"/> on each test data item with the specified argument code.
-    /// Duplicates are removed based on test case name identity using <see cref="NamedCase.Comparer"/>.
-    /// </para>
-    /// <para>
-    /// <strong>Performance Optimization:</strong> For small collections (&lt; 10 items), the deduplication
-    /// is performed synchronously to avoid Task.Run overhead. For larger collections, the work is offloaded
-    /// to the thread pool.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TTestData">The type of the test data elements. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null or empty.</param>
-    /// <param name="argsCode">The argument code that determines how arguments are extracted from each test data item. Cannot be null.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a jagged array of unique argument arrays produced from distinct test data items.</returns>
-    public static Task<object?[][]> ToDistinctArrayTask<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayTask(
-        convertRow: testData =>  testData.ToArgs(argsCode));
-
-    /// <summary>
-    /// Asynchronously creates a jagged array of distinct argument arrays from the specified test data collection, using the
-    /// provided argument and property codes to extract values.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The returned array contains only distinct argument arrays, where uniqueness is determined by
-    /// test case name identity using <see cref="NamedCase.Comparer"/>. The order of elements from the
-    /// original collection is preserved (first occurrence wins).
-    /// </para>
-    /// <para>
-    /// Each element is produced by calling <see cref="ITestData.ToArgs(ArgsCode, PropsCode)"/> on each
-    /// test data item with the specified codes.
-    /// </para>
-    /// <para>
-    /// <strong>Performance Optimization:</strong> For small collections (&lt; 10 items), the deduplication
-    /// is performed synchronously to avoid Task.Run overhead. For larger collections, the work is offloaded
-    /// to the thread pool.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TTestData">The type of the test data elements. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null or empty.</param>
-    /// <param name="argsCode">The code specifying which arguments to extract from each test data item. Cannot be null.</param>
-    /// <param name="propsCode">The code specifying which properties to extract from each test data item. Cannot be null.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a jagged array of unique argument arrays extracted from distinct test data items.</returns>
-    public static Task<object?[][]> ToDistinctArrayTask<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode,
-        PropsCode propsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayTask(
-        convertRow: testData => testData.ToArgs(argsCode, propsCode));
-
-    #endregion
+        return converted.Length < smallCollectionCountLimit ?
+            Task.FromResult(result: converted)
+            : Task.Run(function: () => converted);
+    }
 
     #endregion
 }

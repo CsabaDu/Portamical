@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Portamical.Shared/Portamical.Shared.csproj" />
   <Project Path="Portamical.xUnit_v3/Portamical.xUnit_v3.csproj" />
+  <Project Path="Portamical/Portamical.csproj" />
 </Solution>

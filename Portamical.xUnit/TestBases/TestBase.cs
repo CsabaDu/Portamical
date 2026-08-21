@@ -2,7 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.xUnit.Converters;
-using Portamical.xUnit.DataProviders;
+using Portamical.DataProviders.Models.Converted;
 
 namespace Portamical.xUnit.TestBases;
 

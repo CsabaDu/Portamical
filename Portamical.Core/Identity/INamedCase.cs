@@ -125,4 +125,6 @@ public interface INamedCase : IEquatable<INamedCase>
     /// </code>
     /// </example>
     string TestCaseName { get; init; }
+
+    void AddToDistinct(HashSet<INamedCase> namedCases, Action add);
 }
