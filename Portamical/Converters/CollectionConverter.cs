@@ -57,6 +57,27 @@ public static class CollectionConverter
 
     #endregion
 
+    #region object?[][]
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static object?[][] ToArray<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToArray(
+        convertRow: testData => testData.ToArgs(argsCode));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static object?[][] ToArray<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        PropsCode propsCode)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToArray(
+        convertRow: testData => testData.ToArgs(argsCode, propsCode));
+
+    #endregion
+
     #region TRow[]
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,27 +103,6 @@ public static class CollectionConverter
         convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             testMethodName));
-
-    #endregion
-
-    #region object?[][]
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static object?[][] ToArray<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToArray(
-        convertRow: testData => testData.ToArgs(argsCode));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static object?[][] ToArray<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode,
-        PropsCode propsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToArray(
-        convertRow: testData => testData.ToArgs(argsCode, propsCode));
 
     #endregion
 
@@ -231,6 +231,52 @@ public static class CollectionConverter
 
     #endregion
 
+    #region object?[][]
+
+    /// <summary>
+    /// Returns a jagged array of distinct argument arrays generated from the specified test data testDataCollection
+    /// using the provided argument code.
+    /// </summary>
+    /// <remarks>Each element in the returned array corresponds to the arguments produced by calling
+    /// ToArgs on each test data item with the specified argument code. Duplicates are removed based on
+    /// test case name identity using <see cref="NamedCase.Comparer"/>.</remarks>
+    /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
+    /// <param name="testDataCollection">The testDataCollection of test data items from which to generate argument arrays. Cannot be null.</param>
+    /// <param name="argsCode">The argument code that determines how arguments are extracted from each test data item.</param>
+    /// <returns>A jagged array containing unique argument arrays produced from distinct test data items. 
+    /// The array is empty if the input testDataCollection contains no items.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static object?[][] ToDistinctArray<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctArray(
+        convertRow: testData => testData.ToArgs(argsCode));
+
+    /// <summary>
+    /// Creates a jagged array of distinct argument arrays from the specified test data testDataCollection, using the
+    /// provided argument and property codes to extract values.
+    /// </summary>
+    /// <remarks>The returned array contains only distinct argument arrays, where uniqueness is determined by
+    /// test case name identity using <see cref="NamedCase.Comparer"/>. The order of elements from the
+    /// original testDataCollection is preserved (first occurrence wins).</remarks>
+    /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
+    /// <param name="testDataCollection">The testDataCollection of test data items from which to generate argument arrays. Cannot be null.</param>
+    /// <param name="argsCode">The code specifying which arguments to extract from each test data item.</param>
+    /// <param name="propsCode">The code specifying which properties to extract from each test data item.</param>
+    /// <returns>A jagged array containing unique argument arrays extracted from distinct test data items. 
+    /// The array is empty if no items are found.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static object?[][] ToDistinctArray<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        PropsCode propsCode)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctArray(
+        convertRow: testData => testData.ToArgs(argsCode, propsCode));
+
+    #endregion
+
     #region TRow[]
 
     /// <summary>
@@ -280,52 +326,6 @@ public static class CollectionConverter
         convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             testMethodName));
-
-    #endregion
-
-    #region object?[][]
-
-    /// <summary>
-    /// Returns a jagged array of distinct argument arrays generated from the specified test data testDataCollection
-    /// using the provided argument code.
-    /// </summary>
-    /// <remarks>Each element in the returned array corresponds to the arguments produced by calling
-    /// ToArgs on each test data item with the specified argument code. Duplicates are removed based on
-    /// test case name identity using <see cref="NamedCase.Comparer"/>.</remarks>
-    /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The testDataCollection of test data items from which to generate argument arrays. Cannot be null.</param>
-    /// <param name="argsCode">The argument code that determines how arguments are extracted from each test data item.</param>
-    /// <returns>A jagged array containing unique argument arrays produced from distinct test data items. 
-    /// The array is empty if the input testDataCollection contains no items.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static object?[][] ToDistinctArray<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray(
-        convertRow: testData => testData.ToArgs(argsCode));
-
-    /// <summary>
-    /// Creates a jagged array of distinct argument arrays from the specified test data testDataCollection, using the
-    /// provided argument and property codes to extract values.
-    /// </summary>
-    /// <remarks>The returned array contains only distinct argument arrays, where uniqueness is determined by
-    /// test case name identity using <see cref="NamedCase.Comparer"/>. The order of elements from the
-    /// original testDataCollection is preserved (first occurrence wins).</remarks>
-    /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The testDataCollection of test data items from which to generate argument arrays. Cannot be null.</param>
-    /// <param name="argsCode">The code specifying which arguments to extract from each test data item.</param>
-    /// <param name="propsCode">The code specifying which properties to extract from each test data item.</param>
-    /// <returns>A jagged array containing unique argument arrays extracted from distinct test data items. 
-    /// The array is empty if no items are found.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static object?[][] ToDistinctArray<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode,
-        PropsCode propsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray(
-        convertRow: testData => testData.ToArgs(argsCode, propsCode));
 
     #endregion
 
