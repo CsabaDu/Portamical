@@ -1,13 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.DataProviders;
-
-namespace Portamical.Shared.DataProviders;
+namespace Portamical.DataProviders.TypedRow;
 
 public interface ITestDataProvider<in TTestData, TRow>
-: ITestDataRegistry<TTestData>,
-IDataProvider<TRow>
+: ITestDataRegistry<TTestData>, IDataProvider<TRow>
 where TTestData : notnull, ITestData
 {
     /// <summary>
@@ -54,7 +51,7 @@ where TTestData : notnull, ITestData
     /// <example>
     /// <code>
     /// // Instance mode: Pass entire test data object
-    /// var instanceProvider = new TestDataProvider&lt;TestDataReturns&lt;int&gt;&gt;
+    /// var instanceProvider = new TestDataProviderBase&lt;TestDataReturns&lt;int&gt;&gt;
     /// {
     ///     ArgsCode = ArgsCode.Instance
     /// };
@@ -62,7 +59,7 @@ where TTestData : notnull, ITestData
     /// // Test signature: void Test(TestDataReturns&lt;int&gt; testData)
     /// 
     /// // Properties mode: Pass flattened arguments
-    /// var propsProvider = new TestDataProvider&lt;TestDataReturns&lt;int&gt;&gt;
+    /// var propsProvider = new TestDataProviderBase&lt;TestDataReturns&lt;int&gt;&gt;
     /// {
     ///     ArgsCode = ArgsCode.Properties
     /// };
@@ -132,7 +129,7 @@ where TTestData : notnull, ITestData
     /// <code>
     /// public IEnumerator&lt;TRow&gt; GetEnumerator()
     /// {
-    ///     foreach (var testData in _rows)
+    ///     foreach (var testData in rows)
     ///     {
     ///         yield return ConvertRow(testData, TestMethodName);
     ///     }

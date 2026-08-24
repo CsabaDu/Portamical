@@ -1,9 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters.DataProviders;
-using Portamical.DataProviders;
-
 namespace Portamical.Shared.TestBases.DataProviders;
 
 /// <summary>
@@ -73,20 +70,20 @@ namespace Portamical.Shared.TestBases.DataProviders;
 /// </example>
 public abstract class TestBase : TestBases.TestBase
 {
-    protected static TDataProvider Convert<TDataProvider, TTestData>(
-        IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode,
-        string? testMethodName)
-    where TDataProvider: ITestDataProvider<TTestData>, new()
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData>(
-        initDataProvider: () => new TDataProvider(),
-        argsCode,
-        testMethodName);
+    //protected static TDataProvider Convert<TDataProvider, TTestData>(
+    //    IEnumerable<TTestData> testDataCollection,
+    //    ArgsCode argsCode,
+    //    string? testMethodName)
+    //where TDataProvider: Portamical.DataProviders.Models.TestDataProviderBase<TTestData>
+    //where TTestData : notnull, ITestData
+    //=> testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData>(
+    //    initDataProvider: (testData) => new TDataProvider(testData),
+    //    argsCode,
+    //    testMethodName);
 
-    protected static TDataProvider Convert<TDataProvider, TTestData>(
-        IEnumerable<TTestData> testDataCollection)
-    where TDataProvider : ITestDataProvider<TTestData>, new()
-    where TTestData : notnull, ITestData
-    => Convert<TDataProvider, TTestData>(testDataCollection, AsInstance);
+    //protected static TDataProvider Convert<TDataProvider, TTestData>(
+    //    IEnumerable<TTestData> testDataCollection)
+    //where TDataProvider : ITestDataProvider<TTestData>, new()
+    //where TTestData : notnull, ITestData
+    //=> Convert<TDataProvider, TTestData>(testDataCollection, AsInstance);
 }

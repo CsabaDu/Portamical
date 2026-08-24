@@ -1,13 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Identity;
-using Portamical.Core.Identity.Model;
-using Portamical.DataProviders;
-using Portamical.Shared.DataProviders;
-using Portamical.Shared.DataProviders.Model;
+using Portamical.DataProviders.TypedRow;
 
-namespace Portamical.Shared.Converters;
+namespace Portamical.Converters.DataProviders.TypedRow;
 
 /// <summary>
 /// Provides extension methods for converting test data collections into <see cref="ITestDataAdder{TTestData}"/> instances.
@@ -33,14 +29,13 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    where TDataProvider : ITestDataProvider<TTestData, TRow>
+    where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
     {
-        var (snapshot, testData, count) = SnapshotWithFirstAndCount(
+        var (snapshot, testData, count, dataProvider) = InitializeDataProviderWithSnapshot<TDataProvider, TTestData, TRow>(
             testDataCollection,
             initDataProvider,
             argsCode,
-            testMethodName,
-            out var dataProvider);
+            testMethodName);
 
         if (count > 1)
         {
@@ -54,15 +49,6 @@ public static class CollectionConverter
         return dataProvider;
     }
 
-    public static TestDataProvider<TTestData> ToDataProvider<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDataProvider<TestDataProvider<TTestData>, TTestData, object?[]>(
-        initDataProvider: (testData, argsCode, _) => new DataProviders.Model.TestDataProvider<TTestData>(testData, argsCode),
-        argsCode: argsCode,
-        testMethodName: null);
-
     #endregion
 
     #region ToDistinctDataProvider
@@ -73,62 +59,49 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    where TDataProvider : ITestDataProvider<TTestData, TRow>
+    where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
     {
-        var (snapshot, testData, count) = SnapshotWithFirstAndCount(
+        var (snapshot, testData, count, dataProvider) = InitializeDataProviderWithSnapshot<TDataProvider, TTestData, TRow>(
             testDataCollection,
             initDataProvider,
             argsCode,
-            testMethodName,
-            out var dataProvider);
+            testMethodName);
+        var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
+        _ = namedCases.Add(testData);
 
         if (count > 1)
         {
-            var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-            _ = namedCases.Add(testData);
-
             for (int i = 1; i < count; i++)
             {
                 testData = snapshot[i];
-
-                if (namedCases.Add(testData))
-                {
-                    dataProvider.AddRow(testData);
-                }
+                testData.ExecuteIfDistinct(namedCases,
+                    action: () => dataProvider.AddRow(testData));
             }
         }
 
         return dataProvider;
     }
 
-    public static TestDataProvider<TTestData> ToDistinctDataProvider<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctDataProvider<TestDataProvider<TTestData>, TTestData, object?[]>(
-        initDataProvider: (testData, argsCode, _) => new TestDataProvider<TTestData>(testData, argsCode),
-        argsCode: argsCode,
-        testMethodName: null);
-
     #endregion
 
     #region Helper methods
 
-    private static (TTestData[] Snapshot, TTestData TestData, int Count) SnapshotWithFirstAndCount<TTestData, TDataProvider>(
+    private static (TTestData[] Snapshot, TTestData TestData, int Count, TDataProvider DataProvider) InitializeDataProviderWithSnapshot<TDataProvider, TTestData, TRow>(
         IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
         ArgsCode argsCode,
-        string? testMethodName,
-        out TDataProvider dataProvider)
+        string? testMethodName)
     where TTestData : notnull, ITestData
-    where TDataProvider : ITestDataRegistry<TTestData>
+    where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
     {
-        var snapshotWithFirstAndCount = Portamical.Converters.DataProviders.CollectionConverter.SnapshotWithFirstAndCount(
-            testDataCollection);
-        dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
-            snapshotWithFirstAndCount.TestData, argsCode, testMethodName);
+        var snapshot =
+            NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var testData = snapshot[0];
+        var count = snapshot.Length;
+        var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
+            testData, argsCode, testMethodName);
 
-        return snapshotWithFirstAndCount;
+        return (snapshot, testData, count, dataProvider);
     }
 
     #endregion

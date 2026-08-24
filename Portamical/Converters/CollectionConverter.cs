@@ -31,9 +31,10 @@ public static class CollectionConverter
     {
         var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
         _ = NotNull(convertRow, nameof(convertRow));
-        var converted = new TRow[snapshot.Length];
+        var count = snapshot.Length;
+        var converted = new TRow[count];
 
-        for (var i = 0; i < snapshot.Length; i++)
+        for (var i = 0; i < count; i++)
         {
             var testData = snapshot[i];
             converted[i] = convertRow(testData);
@@ -186,9 +187,9 @@ public static class CollectionConverter
 
         foreach (var testData in snapshot)
         {
-            testData.AddToDistinct(
+            testData.ExecuteIfDistinct(
                 namedCases: namedCases,
-                add: () => rows.Add(convertRow(testData)));
+                action: () => rows.Add(convertRow(testData)));
         }
 
         return [.. rows];

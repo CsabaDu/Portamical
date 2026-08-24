@@ -93,7 +93,7 @@ public abstract class TestBase
     /// The type of test data elements. Must be non-null and implement <see cref="ITestData"/>.
     /// </typeparam>
     /// <typeparam name="TConverted">
-    /// The framework-specific return type (e.g., <c>TestDataProvider&lt;TConverted&gt;</c> for xUnit,
+    /// The framework-specific return type (e.g., <c>TestDataProviderBase&lt;TConverted&gt;</c> for xUnit,
     /// <c>IEnumerable&lt;object?[]&gt;</c> for MSTest).
     /// </typeparam>
     /// <param name="convert">
@@ -160,7 +160,7 @@ public abstract class TestBase
     /// The type of test data elements. Must be non-null and implement <see cref="ITestData"/>.
     /// </typeparam>
     /// <typeparam name="TConverted">
-    /// The framework-specific return type (e.g., <c>TestDataProvider&lt;TConverted&gt;</c> for xUnit).
+    /// The framework-specific return type (e.g., <c>TestDataProviderBase&lt;TConverted&gt;</c> for xUnit).
     /// </typeparam>
     /// <param name="convert">
     /// The conversion function provided by the framework adapter.

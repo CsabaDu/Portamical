@@ -207,11 +207,12 @@ public abstract class NamedCase : INamedCase
 
     #endregion
 
-    public void AddToDistinct(HashSet<INamedCase> namedCases, Action add)
+    /// <inheritdoc/>
+    public void ExecuteIfDistinct(HashSet<INamedCase> namedCases, Action action)
     {
         if (namedCases?.Add(this) != false)
         {
-            add();
+            action();
         }
     }
 
