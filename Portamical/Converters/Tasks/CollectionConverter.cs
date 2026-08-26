@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using static Portamical.Converters.CollectionConverter;
+
 namespace Portamical.Converters.Tasks;
 
 /// <summary>
@@ -192,9 +194,9 @@ public static class CollectionConverter
     {
         const int smallCollectionCountLimit = 100;
 
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var (snapshot, count) = SnapshotWithCount(testDataCollection);
 
-        return snapshot.Length < smallCollectionCountLimit ?
+        return count < smallCollectionCountLimit ?
             Task.FromResult(result: convert(snapshot))
             : Task.Run(function: () => convert(snapshot));
     }

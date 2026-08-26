@@ -331,4 +331,14 @@ public static class CollectionConverter
     #endregion
 
     #endregion ToDistinctArray
+
+    internal static (TTestData[] snapshot, int count) SnapshotWithCount<TTestData>(
+        IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    {
+        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var count = snapshot.Length;
+
+        return (snapshot, count);
+    }
 }

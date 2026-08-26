@@ -2,6 +2,7 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.DataProviders;
+using static Portamical.Converters.CollectionConverter;
 
 namespace Portamical.Converters.DataProviders;
 
@@ -93,8 +94,7 @@ public static class CollectionConverter
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
     {
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
-        var count = snapshot.Length;
+        var (snapshot, count) = SnapshotWithCount(testDataCollection);
         var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
                 snapshot[0]);
 
@@ -262,8 +262,7 @@ public static class CollectionConverter
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
     {
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
-        var count = snapshot.Length;
+        var (snapshot, count) = SnapshotWithCount(testDataCollection);
         var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
                 snapshot[0]);
 
