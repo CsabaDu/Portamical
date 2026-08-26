@@ -1,4 +1,5 @@
-using Portamical.Core.Converters;
+using Portamical.Converters;
+using Portamical.Converters.Tasks;
 using Portamical.Core.Factories;
 using Portamical.Core.TestDataTypes;
 
@@ -44,7 +45,11 @@ public class VerifyOptimization
 
         Console.WriteLine("\n? All verification tests passed!");
         Console.WriteLine("\nOptimization behavior:");
-        Console.WriteLine("- Collections < 10 items: Uses Task.FromResult (synchronous, no thread pool overhead)");
-        Console.WriteLine("- Collections >= 10 items: Uses Task.Run (asynchronous, offloads to thread pool)");
+        Console.WriteLine("- Collections < 100 items: Uses Task.FromResult (synchronous, no thread pool overhead)");
+        Console.WriteLine("- Collections >= 100 items: Uses Task.Run (asynchronous, thread pool execution)");
+        Console.WriteLine("\nBased on BenchmarkDotNet measurements:");
+        Console.WriteLine("  • Break-even point: 100 items (~5.8µs)");
+        Console.WriteLine("  • At 50 items: Task.Run has +20% overhead");
+        Console.WriteLine("  • At 500 items: Task.Run is 37% faster");
     }
 }

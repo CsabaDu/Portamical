@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
-using Portamical.Core.Converters;
-using Portamical.Core.Factories;
-using Portamical.Core.TestDataTypes;
-
 namespace Portamical.Benchmarks;
 
 [MemoryDiagnoser]

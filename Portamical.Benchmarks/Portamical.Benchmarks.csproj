@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Portamical.Core\Portamical.Core.csproj" />
+    <ProjectReference Include="..\Portamical\Portamical.csproj" />
   </ItemGroup>
 
 </Project>
