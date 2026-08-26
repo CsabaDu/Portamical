@@ -76,15 +76,15 @@ public static class CollectionConverter
     /// </exception>
     /// <example>
     /// <code>
-    /// var testData = new[]
+    /// var td = new[]
     /// {
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate - will be filtered
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = testData.ToDataProvider(
-    ///     testData => new MyDataProvider(testData));
+    /// var provider = td.ToDataProvider(
+    ///     td => new MyDataProvider(td));
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
@@ -93,24 +93,9 @@ public static class CollectionConverter
         Func<TTestData, TDataProvider> initDataProvider)
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
-    {
-        var (snapshot, count) = SnapshotWithCount(testDataCollection);
-        var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
-                snapshot[0]);
-
-        if (count == 1)
-        {
-            return dataProvider;
-        }
-
-        for (int i = 1; i < count; i++)
-        {
-            var testData = snapshot[i];
-            dataProvider.AddRow(testData);
-        }
-
-        return dataProvider;
-    }
+    => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
+        initDataProvider,
+        isDistinct: false);
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance using the default constructor.
@@ -164,14 +149,14 @@ public static class CollectionConverter
     /// </exception>
     /// <example>
     /// <code>
-    /// var testData = new[]
+    /// var td = new[]
     /// {
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate - will be filtered
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = testData.ToDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
+    /// var provider = td.ToDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
@@ -244,15 +229,15 @@ public static class CollectionConverter
     /// </exception>
     /// <example>
     /// <code>
-    /// var testData = new[]
+    /// var td = new[]
     /// {
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate - will be filtered
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = testData.ToDistinctDataProvider(
-    ///     testData => new MyDataProvider(testData));
+    /// var provider = td.ToDistinctDataProvider(
+    ///     td => new MyDataProvider(td));
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
@@ -261,29 +246,9 @@ public static class CollectionConverter
         Func<TTestData, TDataProvider> initDataProvider)
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
-    {
-        var (snapshot, count) = SnapshotWithCount(testDataCollection);
-        var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
-                snapshot[0]);
-
-        if (count == 1)
-        {
-            return dataProvider;
-        }
-
-        var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-        var testData = snapshot[0];
-        _ = namedCases.Add(testData);
-
-        for (int i = 1; i < count; i++)
-        {
-            testData = snapshot[i];
-            testData.ExecuteIfDistinct(namedCases,
-                action: () => dataProvider.AddRow(testData));
-        }
-
-        return dataProvider;
-    }
+    => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
+        initDataProvider,
+        isDistinct: true);
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance using the default constructor.
@@ -337,14 +302,14 @@ public static class CollectionConverter
     /// </exception>
     /// <example>
     /// <code>
-    /// var testData = new[]
+    /// var td = new[]
     /// {
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate - will be filtered
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = testData.ToDistinctDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
+    /// var provider = td.ToDistinctDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
@@ -367,4 +332,50 @@ public static class CollectionConverter
     }
 
     #endregion
+
+    private static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, TDataProvider> initDataProvider,
+        bool isDistinct)
+    where TDataProvider : notnull, IDataProvider<TTestData, TRow>
+    where TTestData : notnull, ITestData
+    {
+        var (snapshot, count) = SnapshotWithCount(testDataCollection);
+        var testData = snapshot[0];
+        var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
+            testData);
+
+        if (count == 1)
+        {
+            return dataProvider;
+        }
+
+        if (isDistinct)
+        {
+            var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
+            _ = namedCases.Add(testData);
+
+            addRows(td => td.ExecuteIfDistinct(namedCases,
+                action: () => dataProvider.AddRow(td)));
+        }
+        else
+        {
+            addRows(dataProvider.AddRow);
+        }
+
+        return dataProvider;
+
+        #region Local methods
+
+        void addRows(Action<TTestData> addRow)
+        {
+            for (int i = 1; i < count; i++)
+            {
+                testData = snapshot[i];
+                addRow(testData);
+            }
+        }
+
+        #endregion
+    }
 }
