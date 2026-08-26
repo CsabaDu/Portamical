@@ -7,12 +7,18 @@ using static Portamical.Core.Safety.EnumValidator;
 namespace Portamical.DataProviders.Models.TypedRow;
 
 public abstract class TestDataProvider<TTestData, TRow>
-: TestDataProviderBase<TTestData, TRow>,
-DataProviders.TypedRow.ITestDataProvider<TTestData, TRow>
+: DistinctDataProvider<TTestData, TRow>,
+ITestDataProvider<TTestData, TRow> 
 where TTestData : notnull, ITestData
 {
-    protected TestDataProvider(TTestData testData, Func<TTestData, TRow> convertRow, ArgsCode argsCode, string? testMethodName)
-    : base(testData, convertRow: convertRow)
+    protected TestDataProvider(ArgsCode argsCode, string? testMethodName)
+    {
+        ArgsCode = argsCode.Defined(nameof(argsCode));
+        TestMethodName = testMethodName;
+    }
+
+    protected TestDataProvider(TTestData testData, ArgsCode argsCode, string? testMethodName)
+    : base(testData)
     {
         ArgsCode = argsCode.Defined(nameof(argsCode));
         TestMethodName = testMethodName;
@@ -28,10 +34,4 @@ where TTestData : notnull, ITestData
     public ArgsCode ArgsCode { get; init; }
 
     public string? TestMethodName { get; init; }
-
-    public override void AddRow(TTestData testData)
-    => AddRow(testData,
-        convertRow: ConvertRow);
-
-    public abstract TRow ConvertRow(TTestData testData);
 }

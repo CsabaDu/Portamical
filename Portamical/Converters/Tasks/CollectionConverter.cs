@@ -72,7 +72,7 @@ public static class CollectionConverter
     #region ToDistinctArrayTask
 
     /// <summary>
-    /// Asynchronously converts a collection of test data to a distinct converted of rows.
+    /// Asynchronously converts a collection of test data to a distinct converted of _rows.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -89,7 +89,7 @@ public static class CollectionConverter
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
     /// <param name="testDataCollection">The source collection of test data to convertArray. Cannot be null or empty.</param>
     /// <param name="convertRow">A function that transforms each test data item into a row of type <typeparamref name="TRow"/>. Cannot be null.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the distinct converted of converted rows.</returns>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the distinct converted of converted _rows.</returns>
     public static Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)

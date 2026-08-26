@@ -97,8 +97,4 @@ Compatibility
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Converters\DataProviders\ObjectArray\Model\" />
-  </ItemGroup>
-
 </Project>

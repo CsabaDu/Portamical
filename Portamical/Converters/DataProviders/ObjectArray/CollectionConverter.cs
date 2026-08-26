@@ -1,9 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.DataProviders.ObjectArray;
 using Portamical.DataProviders.TypedRow;
 
-namespace Portamical.Converters.DataProviders.TypedRow;
+namespace Portamical.Converters.DataProviders.ObjectArray;
 
 /// <summary>
 /// Provides extension methods for converting test data collections into <see cref="ITestDataAdder{TTestData}"/> instances.
@@ -23,54 +24,54 @@ public static class CollectionConverter
 {
     #region ToDataProvider
 
-    public static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
+    public static TDataProvider ToDataProvider<TDataProvider, TTestData>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
+        Func<TTestData, ArgsCode, PropsCode, TDataProvider> initDataProvider,
         ArgsCode argsCode,
-        string? testMethodName)
+        PropsCode propsCode)
     where TTestData : notnull, ITestData
-    where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
-    => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
-        td => initDataProvider(td, argsCode, testMethodName),
-        (tdc, idp) => tdc.DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>(
-            (td, argsCode, testMethodName) => idp(td),
+    where TDataProvider : notnull, ITestDataProvider<TTestData>
+    => testDataCollection.ToDataProvider<TDataProvider, TTestData, object?[]>(
+        td => initDataProvider(td, argsCode, propsCode),
+        (tdc, idp) => tdc.DataProviderWithSnapshotAndCount(
+            (td, argsCode, propsCode) => idp(td),
             argsCode,
-            testMethodName));
+            propsCode));
 
     #endregion
 
     #region ToDistinctDataProvider
 
-    public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
+    public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
+        Func<TTestData, ArgsCode, PropsCode, TDataProvider> initDataProvider,
         ArgsCode argsCode,
-        string? testMethodName)
+        PropsCode propsCode)
     where TTestData : notnull, ITestData
-    where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
-    => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
-        td => initDataProvider(td, argsCode, testMethodName),
-        (tdc, idp) => tdc.DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>(
-            (td, argsCode, testMethodName) => idp(td),
+    where TDataProvider : notnull, ITestDataProvider<TTestData>
+    => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, object?[]>(
+        td => initDataProvider(td, argsCode, propsCode),
+        (tdc, idp) => tdc.DataProviderWithSnapshotAndCount(
+            (td, argsCode, propsCode) => idp(td),
             argsCode,
-            testMethodName));
+            propsCode));
 
     #endregion
 
     #region Helper methods
 
-    private static (TDataProvider DataProvider, TTestData[] Snapshot, int Count) DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>(
+    private static (TDataProvider DataProvider, TTestData[] Snapshot, int Count) DataProviderWithSnapshotAndCount<TDataProvider, TTestData>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
+        Func<TTestData, ArgsCode, PropsCode, TDataProvider> initDataProvider,
         ArgsCode argsCode,
-        string? testMethodName)
+        PropsCode propsCode)
     where TTestData : notnull, ITestData
-    where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
+    where TDataProvider : notnull, ITestDataProvider<TTestData>
     {
         var (snapshot, count) = testDataCollection.SnapshotAndCount();
         var dataProvider =
             NotNull(initDataProvider, nameof(initDataProvider))(
-                snapshot[0], argsCode, testMethodName);
+                snapshot[0], argsCode, propsCode);
 
         return (dataProvider, snapshot, count);
     }

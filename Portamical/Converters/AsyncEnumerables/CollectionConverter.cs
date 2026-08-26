@@ -53,7 +53,7 @@ public static class CollectionConverter
     #region ToDAsyncEnumerable
 
     /// <summary>
-    /// Converts a synchronous test data collection to an asynchronous sequence of distinct rows.
+    /// Converts a synchronous test data collection to an asynchronous sequence of distinct _rows.
     /// </summary>
     /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
@@ -105,7 +105,7 @@ public static class CollectionConverter
     #region ToDistinctAsyncEnumerable
 
     /// <summary>
-    /// Converts a synchronous test data collection to an asynchronous sequence of distinct rows.
+    /// Converts a synchronous test data collection to an asynchronous sequence of distinct _rows.
     /// </summary>
     /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>

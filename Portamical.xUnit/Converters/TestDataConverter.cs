@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.DataProviders.Models.Converted;
+using Portamical.DataProviders.Models.ObjectArray;
 
 namespace Portamical.xUnit.Converters;
 
@@ -232,5 +232,5 @@ public static class TestDataConverter
         string? testMethodName = null)
 #pragma warning restore IDE0060 // Remove unused parameter
     where TTestData : notnull, ITestData
-    => new(testData, argsCode);
+    => new(testData, argsCode, PropsCode.TrimTestCaseName);
 }

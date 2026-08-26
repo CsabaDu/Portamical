@@ -4,5 +4,5 @@
 namespace Portamical.DataProviders.TestData;
 
 public interface ITestDataProvider<TTestData>
-: ITestDataRegistry<TTestData>, IDataProvider<TTestData>
+: IDataProvider<TTestData, TTestData>
 where TTestData : notnull, ITestData;

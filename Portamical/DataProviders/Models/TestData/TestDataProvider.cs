@@ -6,12 +6,16 @@ using Portamical.DataProviders.TestData;
 namespace Portamical.DataProviders.Models.TestData;
 
 public sealed class TestDataProvider<TTestData>
-: TestDataProviderBase<TTestData, TTestData>,
+: DistinctDataProvider<TTestData, TTestData>,
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {
+    public TestDataProvider()
+    {
+    }
+        
     public TestDataProvider(TTestData testData)
-    : base(testData, convertRow: td => td)
+    : base(testData)
     {
     }
 
@@ -20,7 +24,6 @@ where TTestData : notnull, ITestData
     {
     }
 
-    public override void AddRow(TTestData testData)
-    => AddRow(testData,
-        convertRow: td => td);
+    public override TTestData ConvertRow(TTestData testData)
+    => testData;
 }

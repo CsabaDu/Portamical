@@ -1,8 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.DataProviders.Models.ObjectArray;
 using Portamical.xUnit.Converters;
-using Portamical.DataProviders.Models.Converted;
 
 namespace Portamical.xUnit.TestBases;
 

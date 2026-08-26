@@ -34,12 +34,12 @@ public static class CollectionConverter
         var count = snapshot.Length;
         var converted = new TRow[count];
 
-        for (var i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
             var testData = snapshot[i];
             converted[i] = convertRow(testData);
         }
-
+        
         return converted;
     }
 
@@ -115,7 +115,7 @@ public static class CollectionConverter
     #region TRow[] ToDistinctArray base method
 
     /// <summary>
-    /// Core deduplication method that converts a testDataCollection of test data into a distinct array of rows
+    /// Core deduplication method that converts a testDataCollection of test data into a distinct array of _rows
     /// using a custom conversion function.
     /// </summary>
     /// <remarks>
@@ -150,7 +150,7 @@ public static class CollectionConverter
     /// Cannot be null. Called only for non-duplicate items.
     /// </param>
     /// <returns>
-    /// An array containing the converted rows for distinct test data items, preserving the order
+    /// An array containing the converted _rows for distinct test data items, preserving the order
     /// of first occurrence.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -168,7 +168,7 @@ public static class CollectionConverter
     /// var args = testDataCollection.ToDistinctArray(td => td.ToArgs(ArgsCode.Instance));
     /// 
     /// // Custom row conversion
-    /// var rows = testDataCollection.ToDistinctArray(td => new 
+    /// var _rows = testDataCollection.ToDistinctArray(td => new 
     /// { 
     ///     Name = td.TestCaseName, 
     ///     Args = td.ToArgs(ArgsCode.Instance) 
@@ -187,8 +187,7 @@ public static class CollectionConverter
 
         foreach (var testData in snapshot)
         {
-            testData.ExecuteIfDistinct(
-                namedCases: namedCases,
+            testData.ExecuteIfDistinct(namedCases,
                 action: () => rows.Add(convertRow(testData)));
         }
 
@@ -280,10 +279,10 @@ public static class CollectionConverter
     #region TRow[]
 
     /// <summary>
-    /// Converts a testDataCollection of test data items to a distinct array of rows using the specified
+    /// Converts a testDataCollection of test data items to a distinct array of _rows using the specified
     /// conversion function.
     /// </summary>
-    /// <remarks>The resulting array contains only unique rows based on test case name identity
+    /// <remarks>The resulting array contains only unique _rows based on test case name identity
     /// using <see cref="NamedCase.Comparer"/>. The order of elements from the original testDataCollection is preserved.</remarks>
     /// <typeparam name="TTestData">The type of the input test data items. Must implement the ITestData interface and cannot be null.</typeparam>
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
@@ -292,7 +291,7 @@ public static class CollectionConverter
     /// a row of type TRow. Cannot be null.</param>
     /// <param name="argsCode">The ArgsCode instance to pass to the conversion function. Cannot be null.</param>
     /// <param name="testMethodName">An optional name of the test method to provide to the conversion function. May be null.</param>
-    /// <returns>An array containing the distinct rows produced by applying the conversion function to each distinct test
+    /// <returns>An array containing the distinct _rows produced by applying the conversion function to each distinct test
     /// data item.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TRow[] ToDistinctArray<TTestData, TRow>(
@@ -308,14 +307,14 @@ public static class CollectionConverter
             testMethodName));
 
     /// <summary>
-    /// Converts a testDataCollection of test data to a distinct array of rows using the specified conversion function and test method name.
+    /// Converts a testDataCollection of test data to a distinct array of _rows using the specified conversion function and test method name.
     /// </summary>
     /// <typeparam name="TTestData">The type of test data in the testDataCollection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
     /// <typeparam name="TRow">The type of the resulting row elements.</typeparam>
     /// <param name="testDataCollection">The testDataCollection of test data to convert.</param>
     /// <param name="convertRow">The function to convert each test data item and test method name to a row.</param>
     /// <param name="testMethodName">The name of the test method, or <c>null</c>.</param>
-    /// <returns>A distinct array of converted rows.</returns>
+    /// <returns>A distinct array of converted _rows.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TRow[] ToDistinctArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,

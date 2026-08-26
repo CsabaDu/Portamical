@@ -4,7 +4,7 @@
 namespace Portamical.DataProviders.ObjectArray;
 
 public interface ITestDataProvider<TTestData>
-: ITestDataRegistry<TTestData>, IDataProvider<object?[]>
+: IDataProvider<TTestData, object?[]>
 where TTestData : notnull, ITestData
 {
     ArgsCode ArgsCode { get; init; }

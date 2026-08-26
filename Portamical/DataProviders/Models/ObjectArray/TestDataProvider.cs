@@ -6,12 +6,18 @@ using Portamical.DataProviders.ObjectArray;
 namespace Portamical.DataProviders.Models.ObjectArray;
 
 public class TestDataProvider<TTestData>
-: TestDataProviderBase<TTestData, object?[]>,
+: DistinctDataProvider<TTestData, object?[]>,
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {
+    public TestDataProvider(ArgsCode argsCode, PropsCode propsCode) : base()
+    {
+        ArgsCode = argsCode.Defined(nameof(argsCode));
+        PropsCode = propsCode.Defined(nameof(propsCode));
+    }
+
     public TestDataProvider(TTestData testData, ArgsCode argsCode, PropsCode propsCode)
-    : base(testData, convertRow: td => td.ToArgs(argsCode, propsCode))
+    : base(testData)
     {
         ArgsCode = argsCode.Defined(nameof(argsCode));
         PropsCode = propsCode.Defined(nameof(propsCode));
@@ -27,7 +33,6 @@ where TTestData : notnull, ITestData
     public ArgsCode ArgsCode { get; init; }
     public PropsCode PropsCode { get; init; }
 
-    public override void AddRow(TTestData testData)
-    => AddRow(testData,
-        convertRow: td => td.ToArgs(ArgsCode, PropsCode));
+    public override object?[] ConvertRow(TTestData testData)
+    => testData.ToArgs(ArgsCode, PropsCode);
 }
