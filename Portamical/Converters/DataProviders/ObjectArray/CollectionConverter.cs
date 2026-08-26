@@ -31,11 +31,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, ITestDataProvider<TTestData>
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, object?[]>(
-        td => initDataProvider(td, argsCode, propsCode),
-        (tdc, idp) => tdc.DataProviderWithSnapshotAndCount(
-            (td, argsCode, propsCode) => idp(td),
-            argsCode,
-            propsCode));
+        td => initDataProvider(td, argsCode, propsCode));
 
     #endregion
 
@@ -49,31 +45,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, ITestDataProvider<TTestData>
     => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, object?[]>(
-        td => initDataProvider(td, argsCode, propsCode),
-        (tdc, idp) => tdc.DataProviderWithSnapshotAndCount(
-            (td, argsCode, propsCode) => idp(td),
-            argsCode,
-            propsCode));
-
-    #endregion
-
-    #region Helper methods
-
-    private static (TDataProvider DataProvider, TTestData[] Snapshot, int Count) DataProviderWithSnapshotAndCount<TDataProvider, TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, PropsCode, TDataProvider> initDataProvider,
-        ArgsCode argsCode,
-        PropsCode propsCode)
-    where TTestData : notnull, ITestData
-    where TDataProvider : notnull, ITestDataProvider<TTestData>
-    {
-        var (snapshot, count) = testDataCollection.SnapshotAndCount();
-        var dataProvider =
-            NotNull(initDataProvider, nameof(initDataProvider))(
-                snapshot[0], argsCode, propsCode);
-
-        return (dataProvider, snapshot, count);
-    }
+        td => initDataProvider(td, argsCode, propsCode));
 
     #endregion
 }

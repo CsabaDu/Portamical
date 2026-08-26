@@ -2,7 +2,6 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.DataProviders.TestData;
-using static Portamical.Converters.DataProviders.CollectionConverter;
 
 namespace Portamical.Converters.DataProviders.TestData;
 
@@ -16,8 +15,7 @@ public static class CollectionConverter
     where TDataProvider : notnull, ITestDataProvider<TTestData>
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TTestData>(
-        initDataProvider,
-        DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TTestData>);
+        initDataProvider);
 
     #endregion
 
@@ -29,8 +27,7 @@ public static class CollectionConverter
     where TDataProvider : notnull, ITestDataProvider<TTestData>
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TTestData>(
-        initDataProvider,
-        DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TTestData>);
+        initDataProvider);
 
     #endregion
 }

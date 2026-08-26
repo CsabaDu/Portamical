@@ -31,11 +31,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
-        td => initDataProvider(td, argsCode, testMethodName),
-        (tdc, idp) => tdc.DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>(
-            (td, argsCode, testMethodName) => idp(td),
-            argsCode,
-            testMethodName));
+        td => initDataProvider(td, argsCode, testMethodName));
 
     #endregion
 
@@ -49,31 +45,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
     => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
-        td => initDataProvider(td, argsCode, testMethodName),
-        (tdc, idp) => tdc.DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>(
-            (td, argsCode, testMethodName) => idp(td),
-            argsCode,
-            testMethodName));
-
-    #endregion
-
-    #region Helper methods
-
-    private static (TDataProvider DataProvider, TTestData[] Snapshot, int Count) DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
-        ArgsCode argsCode,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
-    {
-        var (snapshot, count) = testDataCollection.SnapshotAndCount();
-        var dataProvider =
-            NotNull(initDataProvider, nameof(initDataProvider))(
-                snapshot[0], argsCode, testMethodName);
-
-        return (dataProvider, snapshot, count);
-    }
+        td => initDataProvider(td, argsCode, testMethodName));
 
     #endregion
 }

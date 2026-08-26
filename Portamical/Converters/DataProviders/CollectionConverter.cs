@@ -92,9 +92,25 @@ public static class CollectionConverter
         Func<TTestData, TDataProvider> initDataProvider)
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
-        initDataProvider,
-        DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>);
+    {
+        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var count = snapshot.Length;
+        var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
+                snapshot[0]);
+
+        if (count == 1)
+        {
+            return dataProvider;
+        }
+
+        for (int i = 1; i < count; i++)
+        {
+            var testData = snapshot[i];
+            dataProvider.AddRow(testData);
+        }
+
+        return dataProvider;
+    }
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance using the default constructor.
@@ -164,14 +180,10 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>, new()
     {
-        var snapshot =
-            NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
         var dataProvider = new TDataProvider();
 
-        foreach (var testData in snapshot)
-        {
-            dataProvider.AddRow(testData);
-        }
+        dataProvider.AddRange(snapshot);
 
         return dataProvider;
     }
@@ -249,9 +261,30 @@ public static class CollectionConverter
         Func<TTestData, TDataProvider> initDataProvider)
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
-        initDataProvider,
-        DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>);
+    {
+        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var count = snapshot.Length;
+        var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
+                snapshot[0]);
+
+        if (count == 1)
+        {
+            return dataProvider;
+        }
+
+        var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
+        var testData = snapshot[0];
+        _ = namedCases.Add(testData);
+
+        for (int i = 1; i < count; i++)
+        {
+            testData = snapshot[i];
+            testData.ExecuteIfDistinct(namedCases,
+                action: () => dataProvider.AddRow(testData));
+        }
+
+        return dataProvider;
+    }
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance using the default constructor.
@@ -321,8 +354,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>, new()
     {
-        var snapshot =
-            NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
         var dataProvider = new TDataProvider();
         var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
 
@@ -330,92 +362,6 @@ public static class CollectionConverter
         {
             testData.ExecuteIfDistinct(namedCases,
                 action: () => dataProvider.AddRow(testData));
-        }
-
-        return dataProvider;
-    }
-
-    #endregion
-
-    #region Helper methods
-
-    internal static (TDataProvider DataProvider, TTestData[] Snapshot, int Count) DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>(
-        IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, TDataProvider> initDataProvider)
-    where TDataProvider : notnull, IDataProvider<TTestData, TRow>
-    where TTestData : notnull, ITestData
-    {
-        var (snapshot, count) = testDataCollection.SnapshotAndCount();
-        var dataProvider =
-            NotNull(initDataProvider, nameof(initDataProvider))(
-                snapshot[0]);
-
-        return (dataProvider, snapshot, count);
-    }
-
-    internal static (TTestData[] Snapshot, int Count) SnapshotAndCount<TTestData>(
-        this IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
-    {
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
-        var count = snapshot.Length;
-
-        return (snapshot, count);
-    }
-
-    internal static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, TDataProvider> initDataProvider,
-        Func<IEnumerable<TTestData>, Func<TTestData, TDataProvider>, (TDataProvider, TTestData[], int)> dataProviderWithSnapshotAndCount)
-    where TDataProvider : notnull, IDataProvider<TTestData, TRow>
-    where TTestData : notnull, ITestData
-    {
-        var (dataProvider, snapshot, count) = dataProviderWithSnapshotAndCount(
-            testDataCollection,
-            initDataProvider);
-
-        if (count == 1)
-        {
-            return dataProvider;
-        }
-
-        for (int i = 1; i < count; i++)
-        {
-            var testData = snapshot[i];
-            dataProvider.AddRow(testData);
-        }
-
-        return dataProvider;
-    }
-
-    internal static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, TDataProvider> initDataProvider,
-        Func<IEnumerable<TTestData>, Func<TTestData, TDataProvider>, (TDataProvider, TTestData[], int)> dataProviderWithSnapshotAndCount)
-    where TDataProvider : notnull, IDataProvider<TTestData, TRow>
-    where TTestData : notnull, ITestData
-    {
-        var (dataProvider, snapshot, count) = dataProviderWithSnapshotAndCount(
-            testDataCollection,
-            initDataProvider);
-
-        if (count == 1)
-        {
-            return dataProvider;
-        }
-
-        var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-        var testData = snapshot[0];
-        _ = namedCases.Add(testData);
-
-        for (int i = 1; i < count; i++)
-        {
-            testData = snapshot[i];
-
-            if (namedCases.Add(testData))
-            {
-                dataProvider.AddRow(testData);
-            }
         }
 
         return dataProvider;
