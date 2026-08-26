@@ -2,7 +2,6 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.DataProviders.TypedRow;
-using static Portamical.Core.Safety.EnumValidator;
 
 namespace Portamical.DataProviders.Models.TypedRow;
 

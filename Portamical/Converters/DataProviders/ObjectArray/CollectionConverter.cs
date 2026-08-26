@@ -2,7 +2,6 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.DataProviders.ObjectArray;
-using Portamical.DataProviders.TypedRow;
 
 namespace Portamical.Converters.DataProviders.ObjectArray;
 

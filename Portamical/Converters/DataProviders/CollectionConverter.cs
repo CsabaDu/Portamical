@@ -328,8 +328,7 @@ public static class CollectionConverter
 
         foreach (var testData in snapshot)
         {
-            testData.ExecuteIfDistinct(
-                namedCases: namedCases,
+            testData.ExecuteIfDistinct(namedCases,
                 action: () => dataProvider.AddRow(testData));
         }
 
@@ -340,7 +339,7 @@ public static class CollectionConverter
 
     #region Helper methods
 
-    private static (TDataProvider DataProvider, TTestData[] Snapshot, int Count) DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>(
+    internal static (TDataProvider DataProvider, TTestData[] Snapshot, int Count) DataProviderWithSnapshotAndCount<TDataProvider, TTestData, TRow>(
         IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TDataProvider> initDataProvider)
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
@@ -353,8 +352,6 @@ public static class CollectionConverter
 
         return (dataProvider, snapshot, count);
     }
-
-    #region Internal helper methods
 
     internal static (TTestData[] Snapshot, int Count) SnapshotAndCount<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
@@ -423,8 +420,6 @@ public static class CollectionConverter
 
         return dataProvider;
     }
-
-    #endregion Internal helper methods
 
     #endregion
 }
