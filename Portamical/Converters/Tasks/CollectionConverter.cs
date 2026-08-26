@@ -63,12 +63,12 @@ public static class CollectionConverter
     //    this IEnumerable<TTestData> testDataCollection,
     //    Func<TTestData, TRow> convertRow)
     //where TTestData : notnull, ITestData
-    //=> testDataCollection.ToArray(convertRow).ToTask();
+    //=> testDataCollection.ToArray(convertRow).ToConvertedTask();
 
     //public static Task<TTestData[]> ToArrayTask<TTestData>(
     //    this IEnumerable<TTestData> testDataCollection)
     //where TTestData : notnull, ITestData
-    //=> testDataCollection.ToArray().ToTask();
+    //=> testDataCollection.ToArray().ToConvertedTask();
 
     //#endregion
 
@@ -97,7 +97,7 @@ public static class CollectionConverter
     //    this IEnumerable<TTestData> testDataCollection,
     //    Func<TTestData, TRow> convertRow)
     //where TTestData : notnull, ITestData
-    //=> testDataCollection.ToDistinctArray(convertRow).ToTask();
+    //=> testDataCollection.ToDistinctArray(convertRow).ToConvertedTask();
 
     ///// <summary>
     ///// Asynchronously creates an converted containing distinct elements from the specified test data testDataCollection.
@@ -134,13 +134,13 @@ public static class CollectionConverter
     //public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
     //    this IEnumerable<TTestData> testDataCollection)
     //where TTestData : notnull, ITestData
-    //=> testDataCollection.ToDistinctArray().ToTask();
+    //=> testDataCollection.ToDistinctArray().ToConvertedTask();
 
     //#endregion
 
     //#region Helper method
 
-    //private static Task<TRow[]> ToTask<TRow>(this TRow[] converted)
+    //private static Task<TRow[]> ToConvertedTask<TRow>(this TRow[] converted)
     //{
     //    const int smallCollectionCountLimit = 10;
 
@@ -157,13 +157,13 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToTask(
+    => testDataCollection.ToConvertedTask(
         tdc => tdc.ToArray(convertRow));
 
     public static Task<TTestData[]> ToArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToTask(
+    => testDataCollection.ToConvertedTask(
         tdc => tdc.ToArray());
 
     #endregion
@@ -174,20 +174,20 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToTask(
+    => testDataCollection.ToConvertedTask(
         tdc => tdc.ToDistinctArray(convertRow));
 
     public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToTask(
+    => testDataCollection.ToConvertedTask(
         tdc => tdc.ToDistinctArray());
 
     #endregion
 
     #region ToTask
 
-    public static Task<TResult> ToTask<TTestData, TResult>(
+    public static Task<TResult> ToConvertedTask<TTestData, TResult>(
         this IEnumerable<TTestData> testDataCollection,
         Func<IEnumerable<TTestData>, TResult> convert)
     where TTestData : notnull, ITestData
