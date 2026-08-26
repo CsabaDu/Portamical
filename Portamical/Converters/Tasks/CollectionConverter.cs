@@ -186,16 +186,16 @@ public static class CollectionConverter
 
     private static Task<TResult> ToTask<TTestData, TResult>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<IEnumerable<TTestData>, TResult> convertToArray)
+        Func<IEnumerable<TTestData>, TResult> convert)
     where TTestData : notnull, ITestData
     {
         const int smallCollectionCountLimit = 10;
 
-        var snapshot = Resolver.SnapshotOrNull(testDataCollection)!;
+        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
 
         return snapshot.Length < smallCollectionCountLimit ?
-            Task.FromResult(convertToArray(snapshot))
-            : Task.Run(() => convertToArray(snapshot));
+            Task.FromResult(convert(snapshot))
+            : Task.Run(() => convert(snapshot));
     }
 
     #endregion
