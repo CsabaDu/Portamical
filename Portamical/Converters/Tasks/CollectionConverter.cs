@@ -10,7 +10,7 @@ namespace Portamical.Converters.Tasks;
 /// <para>
 /// This class offers Task-based async variants of the synchronous <see cref="Converters.CollectionConverter"/> methods,
 /// enabling integration with asynchronous workflows and providing performance optimizations for
-/// different collection sizes.
+/// different testDataCollection sizes.
 /// </para>
 /// <para>
 /// <strong>Deduplication Strategy:</strong> Uses <see cref="NamedCase.Comparer"/> for semantic equality
@@ -54,96 +54,148 @@ namespace Portamical.Converters.Tasks;
 /// </example>
 public static class CollectionConverter
 {
+    //#region ToArrayTask
+
+    //public static Task<TRow[]> ToArrayTask<TTestData, TRow>(
+    //    this IEnumerable<TTestData> testDataCollection,
+    //    Func<TTestData, TRow> convertRow)
+    //where TTestData : notnull, ITestData
+    //=> testDataCollection.ToArray(convertRow).ToTask();
+
+    //public static Task<TTestData[]> ToArrayTask<TTestData>(
+    //    this IEnumerable<TTestData> testDataCollection)
+    //where TTestData : notnull, ITestData
+    //=> testDataCollection.ToArray().ToTask();
+
+    //#endregion
+
+    //#region ToDistinctArrayTask
+
+    ///// <summary>
+    ///// Asynchronously converts a testDataCollection of test data to a distinct converted of _rows.
+    ///// </summary>
+    ///// <remarks>
+    ///// <para>
+    ///// <strong>Performance Optimization:</strong> For small collections (&lt; 10 items), the deduplication
+    ///// is performed synchronously to avoid Task.Run overhead (~5-20 µs). For larger collections,
+    ///// the work is offloaded to the thread pool to avoid blocking the calling thread.
+    ///// </para>
+    ///// <para>
+    ///// This optimization provides 5-20x better performance for very small test data collections,
+    ///// which are common in unit test scenarios.
+    ///// </para>
+    ///// </remarks>
+    ///// <typeparam name="TTestData">The type of test data in the testDataCollection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
+    ///// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
+    ///// <param name="testDataCollection">The source testDataCollection of test data to convertArray. Cannot be null or empty.</param>
+    ///// <param name="convertRow">A function that transforms each test data item into a row of type <typeparamref name="TRow"/>. Cannot be null.</param>
+    ///// <returns>A task that represents the asynchronous operation. The task result contains the distinct converted of converted _rows.</returns>
+    //public static Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(
+    //    this IEnumerable<TTestData> testDataCollection,
+    //    Func<TTestData, TRow> convertRow)
+    //where TTestData : notnull, ITestData
+    //=> testDataCollection.ToDistinctArray(convertRow).ToTask();
+
+    ///// <summary>
+    ///// Asynchronously creates an converted containing distinct elements from the specified test data testDataCollection.
+    ///// </summary>
+    ///// <remarks>
+    ///// <para>
+    ///// This is an identity conversion that returns the test data items themselves after deduplication.
+    ///// </para>
+    ///// <para>
+    ///// <strong>Performance Optimization:</strong> For small collections (&lt; 10 items), the deduplication
+    ///// is performed synchronously to avoid Task.Run overhead (~5-20 µs). For larger collections,
+    ///// the work is offloaded to the thread pool to avoid blocking the calling thread.
+    ///// </para>
+    ///// </remarks>
+    ///// <typeparam name="TTestData">The type of elements in the test data testDataCollection. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
+    ///// <param name="testDataCollection">The source testDataCollection of test data elements from which to create a distinct converted. Cannot be null or empty.</param>
+    ///// <returns>A task that represents the asynchronous operation. The task result contains an converted with distinct elements
+    ///// from the input testDataCollection, preserving the order of first occurrence.</returns>
+    ///// <example>
+    ///// <code>
+    ///// // Asynchronously deduplicate test data
+    ///// var testData = new[]
+    ///// {
+    /////     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
+    /////     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate
+    /////     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
+    ///// };
+    ///// 
+    ///// var distinctTask = testData.ToDistinctArrayTask();
+    ///// var result = await distinctTask;
+    ///// // Result: 2 elements (duplicate removed based on TestCaseName)
+    ///// </code>
+    ///// </example>
+    //public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
+    //    this IEnumerable<TTestData> testDataCollection)
+    //where TTestData : notnull, ITestData
+    //=> testDataCollection.ToDistinctArray().ToTask();
+
+    //#endregion
+
+    //#region Helper method
+
+    //private static Task<TRow[]> ToTask<TRow>(this TRow[] converted)
+    //{
+    //    const int smallCollectionCountLimit = 10;
+
+    //    return converted.Length < smallCollectionCountLimit ?
+    //        Task.FromResult(result: converted)
+    //        : Task.Run(function: () => converted);
+    //}
+
+    //#endregion
+
     #region ToArrayTask
 
     public static Task<TRow[]> ToArrayTask<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToArray(convertRow).ToTask();
+    => testDataCollection.ToTask(
+        tdc => tdc.ToArray(convertRow));
 
     public static Task<TTestData[]> ToArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToArray().ToTask();
+    => testDataCollection.ToTask(
+        tdc => tdc.ToArray());
 
     #endregion
 
     #region ToDistinctArrayTask
 
-    /// <summary>
-    /// Asynchronously converts a collection of test data to a distinct converted of _rows.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// <strong>Performance Optimization:</strong> For small collections (&lt; 10 items), the deduplication
-    /// is performed synchronously to avoid Task.Run overhead (~5-20 µs). For larger collections,
-    /// the work is offloaded to the thread pool to avoid blocking the calling thread.
-    /// </para>
-    /// <para>
-    /// This optimization provides 5-20x better performance for very small test data collections,
-    /// which are common in unit test scenarios.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
-    /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
-    /// <param name="testDataCollection">The source collection of test data to convertArray. Cannot be null or empty.</param>
-    /// <param name="convertRow">A function that transforms each test data item into a row of type <typeparamref name="TRow"/>. Cannot be null.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the distinct converted of converted _rows.</returns>
     public static Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray(convertRow).ToTask();
+    => testDataCollection.ToTask(
+        tdc => tdc.ToDistinctArray(convertRow));
 
-    /// <summary>
-    /// Asynchronously creates an converted containing distinct elements from the specified test data collection.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This is an identity conversion that returns the test data items themselves after deduplication.
-    /// </para>
-    /// <para>
-    /// <strong>Performance Optimization:</strong> For small collections (&lt; 10 items), the deduplication
-    /// is performed synchronously to avoid Task.Run overhead (~5-20 µs). For larger collections,
-    /// the work is offloaded to the thread pool to avoid blocking the calling thread.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TTestData">The type of elements in the test data collection. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The source collection of test data elements from which to create a distinct converted. Cannot be null or empty.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains an converted with distinct elements
-    /// from the input collection, preserving the order of first occurrence.</returns>
-    /// <example>
-    /// <code>
-    /// // Asynchronously deduplicate test data
-    /// var testData = new[]
-    /// {
-    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
-    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate
-    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
-    /// };
-    /// 
-    /// var distinctTask = testData.ToDistinctArrayTask();
-    /// var result = await distinctTask;
-    /// // Result: 2 elements (duplicate removed based on TestCaseName)
-    /// </code>
-    /// </example>
     public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray().ToTask();
+    => testDataCollection.ToTask(
+        tdc => tdc.ToDistinctArray());
 
     #endregion
 
     #region Helper method
 
-    private static Task<TRow[]> ToTask<TRow>(this TRow[] converted)
+    private static Task<TResult> ToTask<TTestData, TResult>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<IEnumerable<TTestData>, TResult> convertToArray)
+    where TTestData : notnull, ITestData
     {
         const int smallCollectionCountLimit = 10;
 
-        return converted.Length < smallCollectionCountLimit ?
-            Task.FromResult(result: converted)
-            : Task.Run(function: () => converted);
+        var snapshot = Resolver.SnapshotOrNull(testDataCollection)!;
+
+        return snapshot.Length < smallCollectionCountLimit ?
+            Task.FromResult(convertToArray(snapshot))
+            : Task.Run(() => convertToArray(snapshot));
     }
 
     #endregion
