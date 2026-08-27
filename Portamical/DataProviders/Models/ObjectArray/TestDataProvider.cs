@@ -10,7 +10,11 @@ public class TestDataProvider<TTestData>
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {
-    public TestDataProvider(ArgsCode argsCode, PropsCode propsCode) : base()
+    private TestDataProvider()
+    {
+    }
+        
+    public TestDataProvider(ArgsCode argsCode, PropsCode propsCode)
     {
         ArgsCode = argsCode.Defined(nameof(argsCode));
         PropsCode = propsCode.Defined(nameof(propsCode));

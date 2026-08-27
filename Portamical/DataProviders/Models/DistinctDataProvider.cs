@@ -9,22 +9,24 @@ where TTestData : notnull, ITestData
 {
     private readonly Dictionary<string, TRow> _distinctRows = new(StringComparer.Ordinal);
 
-    protected DistinctDataProvider()
+    private protected DistinctDataProvider()
     {
     }
         
-    protected DistinctDataProvider(TTestData testData)
+    private protected DistinctDataProvider(TTestData testData)
     {
         AddRow(testData);
     }
 
-    protected DistinctDataProvider(IEnumerable<TTestData> testDataCollection)
+    private protected DistinctDataProvider(IEnumerable<TTestData> testDataCollection)
     {
         AddRange(testDataCollection);
     }
 
     public void AddRow(TTestData testData)
-    => _distinctRows.Add(testData.TestCaseName, ConvertRow(testData));
+    => _distinctRows.Add(
+        key: testData.TestCaseName,
+        value: ConvertRow(testData));
 
     public void AddRange(IEnumerable<TTestData> testDataCollection)
     {

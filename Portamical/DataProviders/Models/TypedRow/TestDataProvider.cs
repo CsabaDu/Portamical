@@ -10,6 +10,10 @@ public abstract class TestDataProvider<TTestData, TRow>
 ITestDataProvider<TTestData, TRow> 
 where TTestData : notnull, ITestData
 {
+    private TestDataProvider()
+    {
+    }
+
     protected TestDataProvider(ArgsCode argsCode, string? testMethodName)
     {
         ArgsCode = argsCode.Defined(nameof(argsCode));
