@@ -3,6 +3,10 @@
 
 namespace Portamical.Converters;
 
+/// <summary>
+/// Provides extension methods for converting and deduplicating test data collections into arrays,
+/// optimized for test framework integration.
+/// </summary>
 /// <remarks>
 /// <para>
 /// The methods in this class help ensure that test data collections are deduplicated based on test case
@@ -24,6 +28,40 @@ public static class CollectionConverter
     #region ToArray
 
     #region TRow[] ToArray base method
+    /// <summary>
+    /// Converts a collection of test data into an array of rows using a custom conversion function.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TRow">
+    /// The type of elements in the output array, produced by <paramref name="convertRow"/>.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to process. Cannot be null or empty.
+    /// </param>
+    /// <param name="convertRow">
+    /// A function that transforms each test data item into a row of type <typeparamref name="TRow"/>.
+    /// Cannot be null. Called once for each item in the collection.
+    /// </param>
+    /// <returns>
+    /// An array containing the converted rows, preserving the order from the input collection.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// This is the core conversion method. Other <c>ToArray</c> overloads typically delegate to this method.
+    /// The collection is validated and snapshotted before conversion to ensure stability.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Pre-allocates the result array based on input count for O(n) performance.
+    /// </para>
+    /// </remarks>
     public static TRow[] ToArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
@@ -49,6 +87,28 @@ public static class CollectionConverter
 
     #region TTestData[]
 
+    /// <summary>
+    /// Converts a collection of test data into an array, preserving all elements in their original order.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to convert to an array. Cannot be null or empty.
+    /// </param>
+    /// <returns>
+    /// An array containing all elements from the input collection, in their original order.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// This method provides a simple identity conversion to array format. Use <see cref="ToDistinctArray{TTestData}(IEnumerable{TTestData})"/>
+    /// if deduplication is needed.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TTestData[] ToArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
@@ -59,6 +119,31 @@ public static class CollectionConverter
 
     #region object?[][]
 
+    /// <summary>
+    /// Converts a collection of test data into a jagged array of argument arrays using the specified argument code.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to convert. Cannot be null or empty.
+    /// </param>
+    /// <param name="argsCode">
+    /// The argument code determining how arguments are extracted from each test data item.
+    /// </param>
+    /// <returns>
+    /// A jagged array where each element is an <c>object?[]</c> containing arguments for one test data item.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// This overload uses <see cref="ITestData.ToArgs(ArgsCode)"/> for conversion. Compatible with
+    /// xUnit v2 [MemberData], NUnit [TestCaseSource], and MSTest [DynamicData].
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static object?[][] ToArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
@@ -67,6 +152,36 @@ public static class CollectionConverter
     => testDataCollection.ToArray(
         convertRow: testData => testData.ToArgs(argsCode));
 
+    /// <summary>
+    /// Converts a collection of test data into a jagged array of argument arrays using the specified
+    /// argument and properties codes.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to convert. Cannot be null or empty.
+    /// </param>
+    /// <param name="argsCode">
+    /// The argument code determining the primary conversion strategy.
+    /// </param>
+    /// <param name="propsCode">
+    /// The properties code determining which properties to include when flattening.
+    /// </param>
+    /// <returns>
+    /// A jagged array where each element is an <c>object?[]</c> containing arguments extracted according
+    /// to the specified codes.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// This overload uses <see cref="ITestData.ToArgs(ArgsCode, PropsCode)"/> for fine-grained control
+    /// over argument extraction. The combination of codes determines which data is included in each row.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static object?[][] ToArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
@@ -80,6 +195,42 @@ public static class CollectionConverter
 
     #region TRow[]
 
+    /// <summary>
+    /// Converts a collection of test data into an array of rows using a custom conversion function
+    /// with argument code and test method name parameters.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TRow">
+    /// The type of elements in the output array.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to convert. Cannot be null or empty.
+    /// </param>
+    /// <param name="convertRow">
+    /// A function that converts each test data item, along with <paramref name="argsCode"/> and
+    /// <paramref name="testMethodName"/>, to a row of type <typeparamref name="TRow"/>. Cannot be null.
+    /// </param>
+    /// <param name="argsCode">
+    /// The argument code to pass to the conversion function. Cannot be undefined.
+    /// </param>
+    /// <param name="testMethodName">
+    /// The name of the test method, or <see langword="null"/> if not applicable.
+    /// </param>
+    /// <returns>
+    /// An array containing the converted rows.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty or <paramref name="argsCode"/> is undefined.
+    /// </exception>
+    /// <remarks>
+    /// This overload is useful when the conversion function requires both configuration (<paramref name="argsCode"/>)
+    /// and metadata (<paramref name="testMethodName"/>).
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TRow[] ToArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
@@ -93,6 +244,38 @@ public static class CollectionConverter
             argsCode.Defined(nameof(argsCode)),
             testMethodName));
 
+    /// <summary>
+    /// Converts a collection of test data into an array of rows using a custom conversion function
+    /// with test method name parameter.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TRow">
+    /// The type of elements in the output array.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to convert. Cannot be null or empty.
+    /// </param>
+    /// <param name="convertRow">
+    /// A function that converts each test data item and <paramref name="testMethodName"/> to a row
+    /// of type <typeparamref name="TRow"/>. Cannot be null.
+    /// </param>
+    /// <param name="testMethodName">
+    /// The name of the test method, or <see langword="null"/> if not applicable.
+    /// </param>
+    /// <returns>
+    /// An array containing the converted rows.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// This overload is useful when the conversion function needs test method metadata but not argument code configuration.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TRow[] ToArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
@@ -115,7 +298,7 @@ public static class CollectionConverter
     #region TRow[] ToDistinctArray base method
 
     /// <summary>
-    /// Core deduplication method that converts a testDataCollection of test data into a distinct array of _rows
+    /// Core deduplication method that converts a collection of test data into a distinct array of rows
     /// using a custom conversion function.
     /// </summary>
     /// <remarks>
@@ -131,26 +314,26 @@ public static class CollectionConverter
     /// which is used as a filter predicate.
     /// </para>
     /// <para>
-    /// <strong>Order Preservation:</strong> The order of elements from the original testDataCollection is preserved
+    /// <strong>Order Preservation:</strong> The order of elements from the original collection is preserved
     /// in the output array. Duplicates are removed based on first-occurrence semantics.
     /// </para>
     /// </remarks>
     /// <typeparam name="TTestData">
-    /// The type of test data in the input testDataCollection. Must implement <see cref="ITestData"/> 
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> 
     /// (which inherits <see cref="INamedCase"/>) and cannot be null.
     /// </typeparam>
     /// <typeparam name="TRow">
     /// The type of elements in the output array, produced by <paramref name="convertRow"/>.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The testDataCollection of test data to process. Cannot be null or empty.
+    /// The collection of test data to process. Cannot be null or empty.
     /// </param>
     /// <param name="convertRow">
     /// A function that transforms each test data item into a row of type <typeparamref name="TRow"/>.
     /// Cannot be null. Called only for non-duplicate items.
     /// </param>
     /// <returns>
-    /// An array containing the converted _rows for distinct test data items, preserving the order
+    /// An array containing the converted rows for distinct test data items, preserving the order
     /// of first occurrence.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -168,7 +351,7 @@ public static class CollectionConverter
     /// var args = testDataCollection.ToDistinctArray(td => td.ToArgs(ArgsCode.Instance));
     /// 
     /// // Custom row conversion
-    /// var _rows = testDataCollection.ToDistinctArray(td => new 
+    /// var rows = testDataCollection.ToDistinctArray(td => new 
     /// { 
     ///     Name = td.TestCaseName, 
     ///     Args = td.ToArgs(ArgsCode.Instance) 
@@ -201,23 +384,33 @@ public static class CollectionConverter
     #region TTestData[]
 
     /// <summary>
-    /// Creates an array containing distinct elements from the specified test data testDataCollection.
+    /// Creates an array containing distinct elements from the specified test data collection.
     /// </summary>
-    /// <typeparam name="TTestData">The type of elements in the test data testDataCollection. Must implement ITestData and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The testDataCollection of test data elements from which to create a distinct array. Cannot be null.</param>
-    /// <returns>An array containing the distinct elements from the input testDataCollection. The order of elements is
-    /// preserved from the original testDataCollection (first occurrence wins).</returns>
+    /// <typeparam name="TTestData">The type of elements in the test data collection. Must implement ITestData and cannot be null.</typeparam>
+    /// <param name="testDataCollection">The collection of test data elements from which to create a distinct array. Cannot be null.</param>
+    /// <returns>An array containing the distinct elements from the input collection. The order of elements is
+    /// preserved from the original collection (first occurrence wins).</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// Deduplication is based on <see cref="INamedCase.TestCaseName"/> using <see cref="NamedCase.Comparer"/>.
+    /// This is useful for removing duplicate test cases from a collection.
+    /// </remarks>
     /// <example>
     /// <code>
     /// // Basic deduplication
-    /// var row = new[]
+    /// var testData = new[]
     /// {
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
     ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var distinct = row.ToDistinctArray();
+    /// var distinct = testData.ToDistinctArray();
     /// // Result: 2 elements (duplicate removed based on TestCaseName)
     /// </code>
     /// </example>
@@ -233,17 +426,22 @@ public static class CollectionConverter
     #region object?[][]
 
     /// <summary>
-    /// Returns a jagged array of distinct argument arrays generated from the specified test data testDataCollection
+    /// Returns a jagged array of distinct argument arrays generated from the specified test data collection
     /// using the provided argument code.
     /// </summary>
     /// <remarks>Each element in the returned array corresponds to the arguments produced by calling
     /// ToArgs on each test data item with the specified argument code. Duplicates are removed based on
     /// test case name identity using <see cref="NamedCase.Comparer"/>.</remarks>
     /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The testDataCollection of test data items from which to generate argument arrays. Cannot be null.</param>
+    /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null.</param>
     /// <param name="argsCode">The argument code that determines how arguments are extracted from each test data item.</param>
-    /// <returns>A jagged array containing unique argument arrays produced from distinct test data items. 
-    /// The array is empty if the input testDataCollection contains no items.</returns>
+    /// <returns>A jagged array containing unique argument arrays produced from distinct test data items.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static object?[][] ToDistinctArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
@@ -253,18 +451,23 @@ public static class CollectionConverter
         convertRow: testData => testData.ToArgs(argsCode));
 
     /// <summary>
-    /// Creates a jagged array of distinct argument arrays from the specified test data testDataCollection, using the
+    /// Creates a jagged array of distinct argument arrays from the specified test data collection, using the
     /// provided argument and property codes to extract values.
     /// </summary>
     /// <remarks>The returned array contains only distinct argument arrays, where uniqueness is determined by
     /// test case name identity using <see cref="NamedCase.Comparer"/>. The order of elements from the
-    /// original testDataCollection is preserved (first occurrence wins).</remarks>
+    /// original collection is preserved (first occurrence wins).</remarks>
     /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The testDataCollection of test data items from which to generate argument arrays. Cannot be null.</param>
+    /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null.</param>
     /// <param name="argsCode">The code specifying which arguments to extract from each test data item.</param>
     /// <param name="propsCode">The code specifying which properties to extract from each test data item.</param>
-    /// <returns>A jagged array containing unique argument arrays extracted from distinct test data items. 
-    /// The array is empty if no items are found.</returns>
+    /// <returns>A jagged array containing unique argument arrays extracted from distinct test data items.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static object?[][] ToDistinctArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
@@ -279,20 +482,26 @@ public static class CollectionConverter
     #region TRow[]
 
     /// <summary>
-    /// Converts a testDataCollection of test data items to a distinct array of _rows using the specified
+    /// Converts a collection of test data items to a distinct array of rows using the specified
     /// conversion function.
     /// </summary>
-    /// <remarks>The resulting array contains only unique _rows based on test case name identity
-    /// using <see cref="NamedCase.Comparer"/>. The order of elements from the original testDataCollection is preserved.</remarks>
+    /// <remarks>The resulting array contains only unique rows based on test case name identity
+    /// using <see cref="NamedCase.Comparer"/>. The order of elements from the original collection is preserved.</remarks>
     /// <typeparam name="TTestData">The type of the input test data items. Must implement the ITestData interface and cannot be null.</typeparam>
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
-    /// <param name="testDataCollection">The testDataCollection of test data items to convert. Cannot be null.</param>
+    /// <param name="testDataCollection">The collection of test data items to convert. Cannot be null.</param>
     /// <param name="convertRow">A function that converts each test data item, along with the provided ArgsCode and optional test method name, to
     /// a row of type TRow. Cannot be null.</param>
-    /// <param name="argsCode">The ArgsCode instance to pass to the conversion function. Cannot be null.</param>
+    /// <param name="argsCode">The ArgsCode instance to pass to the conversion function. Cannot be undefined.</param>
     /// <param name="testMethodName">An optional name of the test method to provide to the conversion function. May be null.</param>
-    /// <returns>An array containing the distinct _rows produced by applying the conversion function to each distinct test
+    /// <returns>An array containing the distinct rows produced by applying the conversion function to each distinct test
     /// data item.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty or <paramref name="argsCode"/> is undefined.
+    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TRow[] ToDistinctArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
@@ -307,14 +516,24 @@ public static class CollectionConverter
             testMethodName));
 
     /// <summary>
-    /// Converts a testDataCollection of test data to a distinct array of _rows using the specified conversion function and test method name.
+    /// Converts a collection of test data to a distinct array of rows using the specified conversion function and test method name.
     /// </summary>
-    /// <typeparam name="TTestData">The type of test data in the testDataCollection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
+    /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
     /// <typeparam name="TRow">The type of the resulting row elements.</typeparam>
-    /// <param name="testDataCollection">The testDataCollection of test data to convert.</param>
-    /// <param name="convertRow">The function to convert each test data item and test method name to a row.</param>
-    /// <param name="testMethodName">The name of the test method, or <c>null</c>.</param>
-    /// <returns>A distinct array of converted _rows.</returns>
+    /// <param name="testDataCollection">The collection of test data to convert. Cannot be null.</param>
+    /// <param name="convertRow">The function to convert each test data item and test method name to a row. Cannot be null.</param>
+    /// <param name="testMethodName">The name of the test method, or <see langword="null"/>.</param>
+    /// <returns>A distinct array of converted rows.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// Deduplication is based on <see cref="INamedCase.TestCaseName"/> using <see cref="NamedCase.Comparer"/>.
+    /// The order of elements from the original collection is preserved (first occurrence wins).
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TRow[] ToDistinctArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
@@ -332,6 +551,27 @@ public static class CollectionConverter
 
     #endregion ToDistinctArray
 
+    /// <summary>
+    /// Internal helper that validates and snapshots a collection, returning both the snapshot array and its count.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection to snapshot. Cannot be null or empty.
+    /// </param>
+    /// <returns>
+    /// A tuple containing the snapshot array and its length.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// This method is used internally to avoid recalculating array length in performance-critical paths.
+    /// </remarks>
     internal static (TTestData[] snapshot, int count) SnapshotWithCount<TTestData>(
         IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData

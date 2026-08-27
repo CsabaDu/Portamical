@@ -23,6 +23,47 @@ public static class CollectionConverter
 {
     #region ToDataProvider
 
+    /// <summary>
+    /// Converts a collection of test data into an object-array data provider instance with <see cref="ArgsCode"/> and <see cref="PropsCode"/> configuration.
+    /// </summary>
+    /// <typeparam name="TDataProvider">
+    /// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/> with <c>object?[]</c> as the row type.
+    /// </typeparam>
+    /// <typeparam name="TTestData">
+    /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least one item.
+    /// </param>
+    /// <param name="initDataProvider">
+    /// A function that initializes a new data provider instance using a test data item, <see cref="ArgsCode"/>, and <see cref="PropsCode"/>. Cannot be null.
+    /// </param>
+    /// <param name="argsCode">
+    /// The <see cref="ArgsCode"/> configuration for argument extraction. Cannot be undefined.
+    /// </param>
+    /// <param name="propsCode">
+    /// The <see cref="PropsCode"/> configuration for property extraction. Cannot be undefined.
+    /// </param>
+    /// <returns>
+    /// A data provider instance containing test data items from the collection, configured to convert them to <c>object?[]</c> rows.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="initDataProvider"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty, or <paramref name="argsCode"/> or <paramref name="propsCode"/> is undefined.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// This method wraps the <paramref name="initDataProvider"/> function to include <paramref name="argsCode"/> and
+    /// <paramref name="propsCode"/> parameters, then delegates to
+    /// <see cref="DataProviders.CollectionConverter.ToDataProvider{TDataProvider, TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TDataProvider})"/>
+    /// with TRow set to <c>object?[]</c>.
+    /// </para>
+    /// <para>
+    /// This overload does NOT perform deduplication. For deduplication, use <see cref="ToDistinctDataProvider{TDataProvider, TTestData}"/>.
+    /// </para>
+    /// </remarks>
     public static TDataProvider ToDataProvider<TDataProvider, TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, PropsCode, TDataProvider> initDataProvider,
@@ -37,6 +78,50 @@ public static class CollectionConverter
 
     #region ToDistinctDataProvider
 
+    /// <summary>
+    /// Converts a collection of test data into a distinct object-array data provider instance with <see cref="ArgsCode"/> and <see cref="PropsCode"/> configuration.
+    /// Removes duplicates based on <see cref="INamedCase.TestCaseName"/> identity.
+    /// </summary>
+    /// <typeparam name="TDataProvider">
+    /// The type of the data provider to create. Must implement <see cref="ITestDataProvider{TTestData}"/> with <c>object?[]</c> as the row type.
+    /// </typeparam>
+    /// <typeparam name="TTestData">
+    /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least one item.
+    /// </param>
+    /// <param name="initDataProvider">
+    /// A function that initializes a new data provider instance using a test data item, <see cref="ArgsCode"/>, and <see cref="PropsCode"/>. Cannot be null.
+    /// </param>
+    /// <param name="argsCode">
+    /// The <see cref="ArgsCode"/> configuration for argument extraction. Cannot be undefined.
+    /// </param>
+    /// <param name="propsCode">
+    /// The <see cref="PropsCode"/> configuration for property extraction. Cannot be undefined.
+    /// </param>
+    /// <returns>
+    /// A data provider instance containing distinct test data items from the collection, with duplicates removed based on <see cref="INamedCase.TestCaseName"/>.
+    /// Configured to convert test data to <c>object?[]</c> rows.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="initDataProvider"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty, or <paramref name="argsCode"/> or <paramref name="propsCode"/> is undefined.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// This method wraps the <paramref name="initDataProvider"/> function to include <paramref name="argsCode"/> and
+    /// <paramref name="propsCode"/> parameters, then delegates to
+    /// <see cref="DataProviders.CollectionConverter.ToDistinctDataProvider{TDataProvider, TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TDataProvider})"/>
+    /// with TRow set to <c>object?[]</c>.
+    /// </para>
+    /// <para>
+    /// Deduplication uses <see cref="NamedCase.Comparer"/> based on <see cref="INamedCase.TestCaseName"/>.
+    /// Test data with identical <c>TestCaseName</c> values are considered duplicates; only the first occurrence is retained.
+    /// </para>
+    /// </remarks>
     public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, PropsCode, TDataProvider> initDataProvider,

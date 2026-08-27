@@ -3,6 +3,40 @@
 
 namespace Portamical.DataProviders.TypedRow;
 
+/// <summary>
+/// Defines a test data provider that converts test data into custom typed rows with configurable
+/// argument conversion strategy and test method association.
+/// </summary>
+/// <typeparam name="TTestData">
+/// The test data type that implements <see cref="ITestData"/>. Must be a non-nullable reference type.
+/// Marked as contravariant (<c>in</c>) to support variance in test data types.
+/// </typeparam>
+/// <typeparam name="TRow">
+/// The custom row type produced by the provider. This can be any type suitable for the target test framework,
+/// such as xUnit v3's <c>TheoryDataRow&lt;T1, T2, ...&gt;</c>, custom tuple types, or record types.
+/// </typeparam>
+/// <remarks>
+/// <para>
+/// This interface extends <see cref="IDataProvider{TTestData, TRow}"/> with properties for controlling
+/// conversion behavior and associating the provider with a specific test method. It offers the most
+/// flexibility among the test data provider interfaces, supporting custom row types while maintaining
+/// configuration through <see cref="ArgsCode"/> and <see cref="TestMethodName"/>.
+/// </para>
+/// <para>
+/// <strong>Key Features:</strong>
+/// </para>
+/// <list type="bullet">
+///   <item>Generic <typeparamref name="TRow"/> type for framework-specific or custom row formats</item>
+///   <item><see cref="ArgsCode"/> configuration for instance vs. properties conversion</item>
+///   <item><see cref="TestMethodName"/> for test method association and metadata</item>
+///   <item>Contravariant <typeparamref name="TTestData"/> for flexible type hierarchies</item>
+/// </list>
+/// <para>
+/// <strong>Framework Compatibility:</strong> The generic <typeparamref name="TRow"/> makes this interface
+/// suitable for xUnit v3 (strongly-typed rows), custom test frameworks, or scenarios requiring
+/// domain-specific row representations.
+/// </para>
+/// </remarks>
 public interface ITestDataProvider<in TTestData, TRow>
 : IDataProvider<TTestData, TRow>
 where TTestData : notnull, ITestData
@@ -26,7 +60,7 @@ where TTestData : notnull, ITestData
     /// <remarks>
     /// <para>
     /// This property is typically set during construction via the <c>init</c> accessor and remains
-    /// constant throughout the converter's lifetime. It's used internally by <see cref="ConvertRow"/>
+    /// constant throughout the provider's lifetime. It's used internally by <see cref="IDataProvider{TTestData, TRow}.ConvertRow"/>
     /// to determine how to transform test data into row format.
     /// </para>
     /// <para>
@@ -51,7 +85,7 @@ where TTestData : notnull, ITestData
     /// <example>
     /// <code>
     /// // Instance mode: Pass entire test data object
-    /// var instanceProvider = new TestDataProviderBase&lt;TestDataReturns&lt;int&gt;&gt;
+    /// var instanceProvider = new TestDataProvider&lt;TestDataReturns&lt;int&gt;, object[]&gt;
     /// {
     ///     ArgsCode = ArgsCode.Instance
     /// };
@@ -59,7 +93,7 @@ where TTestData : notnull, ITestData
     /// // Test signature: void Test(TestDataReturns&lt;int&gt; testData)
     /// 
     /// // Properties mode: Pass flattened arguments
-    /// var propsProvider = new TestDataProviderBase&lt;TestDataReturns&lt;int&gt;&gt;
+    /// var propsProvider = new TestDataProvider&lt;TestDataReturns&lt;int&gt;, object[]&gt;
     /// {
     ///     ArgsCode = ArgsCode.Properties
     /// };

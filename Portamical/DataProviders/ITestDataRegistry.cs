@@ -3,6 +3,29 @@
 
 namespace Portamical.DataProviders;
 
+/// <summary>
+/// Defines a registry for managing and enumerating test data rows, supporting incremental
+/// construction through builder-pattern methods.
+/// </summary>
+/// <typeparam name="TTestData">
+/// The test data type that implements <see cref="ITestData"/>. Must be a non-nullable reference type.
+/// Marked as contravariant (<c>in</c>) to support variance in test data types.
+/// </typeparam>
+/// <remarks>
+/// <para>
+/// This interface provides a foundation for test data providers that supply data to test frameworks
+/// like xUnit, NUnit, or MSTest. Implementations typically convert and store test data rows internally,
+/// making them available through <see cref="IEnumerable"/> for framework-specific enumeration mechanisms.
+/// </para>
+/// <para>
+/// <strong>Builder Pattern:</strong> The <see cref="AddRow"/> and <see cref="AddRange"/> methods
+/// support incremental construction of test data collections, allowing fluent or step-by-step population.
+/// </para>
+/// <para>
+/// <strong>Type Variance:</strong> The contravariant type parameter allows assignments like
+/// <c>ITestDataRegistry&lt;BaseTestData&gt; = new Registry&lt;DerivedTestData&gt;()</c>.
+/// </para>
+/// </remarks>
 public interface ITestDataRegistry<in TTestData>
 : IEnumerable
 where TTestData : notnull, ITestData
@@ -21,7 +44,7 @@ where TTestData : notnull, ITestData
     /// enumeration mechanisms (e.g., <see cref="System.Collections.IEnumerable"/> for xUnit v2).
     /// </para>
     /// <para>
-    /// <strong>Deduplication:</strong> Some implementations may deduplicate _rows based on test case identity
+    /// <strong>Deduplication:</strong> Some implementations may deduplicate rows based on test case identity
     /// (via <see cref="INamedCase.TestCaseName"/>), though this is not required by the interface contract.
     /// Consult specific implementation documentation for deduplication behavior.
     /// </para>
@@ -33,7 +56,7 @@ where TTestData : notnull, ITestData
     /// <example>
     /// <code>
     /// // Builder pattern usage
-    /// var provider = new DistinctTestDataRegistry&lt;TestDataReturns&lt;int&gt;&gt;(testMethodName: "AddTest");
+    /// var provider = new TestDataProvider&lt;TestDataReturns&lt;int&gt;&gt;();
     /// 
     /// provider.AddRow(new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5));
     /// provider.AddRow(new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12));
@@ -43,5 +66,43 @@ where TTestData : notnull, ITestData
     /// </example>
     void AddRow(TTestData testData);
 
+    /// <summary>
+    /// Adds multiple test data rows to the provider's collection in a single operation.
+    /// </summary>
+    /// <param name="testDataCollection">
+    /// The collection of test data items to add. Each item will be processed and stored as a row.
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// This method provides batch addition of test data, typically iterating over the collection
+    /// and calling <see cref="AddRow"/> for each item. Implementations may validate the collection
+    /// before processing (e.g., checking for <see langword="null"/> or empty collections).
+    /// </para>
+    /// <para>
+    /// <strong>Exception Behavior:</strong> If an exception occurs during enumeration (e.g., duplicate
+    /// test case names), the behavior depends on the implementation. Some implementations may leave
+    /// previously added items from the batch in the collection.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> While this method provides convenience for bulk operations,
+    /// it typically does not offer performance advantages over multiple <see cref="AddRow"/> calls
+    /// in most implementations.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var testDataItems = new[]
+    /// {
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
+    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12),
+    ///     new TestDataReturns&lt;int&gt;("Add(0,0)", [0, 0], 0)
+    /// };
+    /// 
+    /// var provider = new TestDataProvider&lt;TestDataReturns&lt;int&gt;&gt;();
+    /// provider.AddRange(testDataItems);
+    /// 
+    /// // Provider now contains 3 test cases
+    /// </code>
+    /// </example>
     void AddRange(IEnumerable<TTestData> testDataCollection);
 }

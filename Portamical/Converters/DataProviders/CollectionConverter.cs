@@ -332,6 +332,55 @@ public static class CollectionConverter
 
     #endregion
 
+    /// <summary>
+    /// Core helper method that converts a test data collection into a data provider instance,
+    /// with optional deduplication based on test case names.
+    /// </summary>
+    /// <typeparam name="TDataProvider">
+    /// The type of the data provider to create. Must implement <see cref="IDataProvider{TTestData, TRow}"/>.
+    /// </typeparam>
+    /// <typeparam name="TTestData">
+    /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
+    /// </typeparam>
+    /// <typeparam name="TRow">
+    /// The row type for the test framework produced by the data provider.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
+    /// one item.
+    /// </param>
+    /// <param name="initDataProvider">
+    /// A function that initializes a new data provider instance using the first test data item. Cannot be null.
+    /// </param>
+    /// <param name="isDistinct">
+    /// If <see langword="true"/>, removes duplicate test data based on <see cref="INamedCase.TestCaseName"/> using
+    /// <see cref="NamedCase.Comparer"/>; if <see langword="false"/>, adds all items without deduplication.
+    /// </param>
+    /// <returns>
+    /// A data provider instance containing test data items from the collection. If <paramref name="isDistinct"/>
+    /// is <see langword="true"/>, duplicates are removed based on <see cref="INamedCase.TestCaseName"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="initDataProvider"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// <strong>Algorithm:</strong>
+    /// </para>
+    /// <list type="number">
+    ///   <item>Snapshots and validates the collection</item>
+    ///   <item>Initializes the data provider using the first test data item via <paramref name="initDataProvider"/></item>
+    ///   <item>If collection has only one item, returns immediately</item>
+    ///   <item>If <paramref name="isDistinct"/> is <see langword="true"/>, uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/> for O(n) deduplication</item>
+    ///   <item>Iterates through remaining items, adding them according to the deduplication strategy</item>
+    /// </list>
+    /// <para>
+    /// Uses a local <c>addRows</c> method to iterate efficiently through remaining items starting from index 1.
+    /// </para>
+    /// </remarks>
     private static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TDataProvider> initDataProvider,
