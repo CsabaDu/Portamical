@@ -4,7 +4,7 @@
 namespace Portamical.DataProviders.Models;
 
 public abstract class TestDataProvider<TTestData, TRow>
-: DistinctDataProvider<TTestData, TRow>
+: DistinctDataProviderBase<TTestData, TRow>
 where TTestData : notnull, ITestData
 {
     protected TestDataProvider()

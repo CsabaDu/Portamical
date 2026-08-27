@@ -3,22 +3,22 @@
 
 namespace Portamical.DataProviders.Models;
 
-public abstract class DistinctDataProvider<TTestData, TRow>
+public abstract class DistinctDataProviderBase<TTestData, TRow>
 : IDataProvider<TTestData, TRow>
 where TTestData : notnull, ITestData
 {
     private readonly Dictionary<string, TRow> _distinctRows = new(StringComparer.Ordinal);
 
-    private protected DistinctDataProvider()
+    private protected DistinctDataProviderBase()
     {
     }
         
-    private protected DistinctDataProvider(TTestData testData)
+    private protected DistinctDataProviderBase(TTestData testData)
     {
         AddRow(testData);
     }
 
-    private protected DistinctDataProvider(IEnumerable<TTestData> testDataCollection)
+    private protected DistinctDataProviderBase(IEnumerable<TTestData> testDataCollection)
     {
         AddRange(testDataCollection);
     }

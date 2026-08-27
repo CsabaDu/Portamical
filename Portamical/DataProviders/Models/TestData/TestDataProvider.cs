@@ -6,7 +6,7 @@ using Portamical.DataProviders.TestData;
 namespace Portamical.DataProviders.Models.TestData;
 
 public sealed class TestDataProvider<TTestData>
-: DistinctDataProvider<TTestData, TTestData>,
+: DistinctDataProviderBase<TTestData, TTestData>,
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {

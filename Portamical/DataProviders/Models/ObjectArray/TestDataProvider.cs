@@ -6,7 +6,7 @@ using Portamical.DataProviders.ObjectArray;
 namespace Portamical.DataProviders.Models.ObjectArray;
 
 public class TestDataProvider<TTestData>
-: DistinctDataProvider<TTestData, object?[]>,
+: DistinctDataProviderBase<TTestData, object?[]>,
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {

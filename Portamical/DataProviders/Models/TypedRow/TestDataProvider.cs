@@ -6,7 +6,7 @@ using Portamical.DataProviders.TypedRow;
 namespace Portamical.DataProviders.Models.TypedRow;
 
 public abstract class TestDataProvider<TTestData, TRow>
-: DistinctDataProvider<TTestData, TRow>,
+: DistinctDataProviderBase<TTestData, TRow>,
 ITestDataProvider<TTestData, TRow> 
 where TTestData : notnull, ITestData
 {
