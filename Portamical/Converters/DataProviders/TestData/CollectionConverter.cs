@@ -17,6 +17,12 @@ public static class CollectionConverter
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TTestData>(
         initDataProvider);
 
+    public static TDataProvider ToDataProvider<TTestData, TDataProvider>(
+        this IEnumerable<TTestData> testDataCollection)
+    where TDataProvider : notnull, ITestDataProvider<TTestData>, new()
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDataProvider<TDataProvider, TTestData, TTestData>();
+
     #endregion
 
     #region ToDistinctDataProvider
@@ -26,8 +32,14 @@ public static class CollectionConverter
         Func<TTestData, TDataProvider> initDataProvider)
     where TDataProvider : notnull, ITestDataProvider<TTestData>
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TTestData>(
+    => testDataCollection .ToDistinctDataProvider<TDataProvider, TTestData, TTestData>(
         initDataProvider);
+
+    public static TDataProvider ToDistinctDataProvider<TTestData, TDataProvider>(
+        this IEnumerable<TTestData> testDataCollection)
+    where TDataProvider : notnull, ITestDataProvider<TTestData>, new()
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TTestData>();
 
     #endregion
 }

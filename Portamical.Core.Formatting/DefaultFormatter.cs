@@ -373,7 +373,7 @@ internal sealed class DefaultFormatter : IFormatter
 
     #endregion
 
-    #region Private formatter methods
+    #region Private formatting methods
 
     /// <summary>
     /// Formats an object by invoking a provided formatting function.
@@ -1322,7 +1322,7 @@ internal sealed class DefaultFormatter : IFormatter
 
     #endregion
 
-    #region Span<char> helpers
+    #region Span<char> building helpers
 
     /// <summary>
     /// Copies a string into a span starting at the specified index, then inserts a character immediately after,

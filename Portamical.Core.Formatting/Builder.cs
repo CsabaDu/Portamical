@@ -63,8 +63,6 @@ public static class Builder
 
     #region Public methods
 
-    #endregion
-
     /// <summary>
     /// Provides a fallback string when the input is null, ensuring non-null output.
     /// </summary>

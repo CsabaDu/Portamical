@@ -167,7 +167,6 @@ public static class CollectionConverter
     {
         var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
         var dataProvider = new TDataProvider();
-
         dataProvider.AddRange(snapshot);
 
         return dataProvider;
