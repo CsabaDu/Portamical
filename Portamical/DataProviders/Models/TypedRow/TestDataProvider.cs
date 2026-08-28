@@ -44,16 +44,16 @@ namespace Portamical.DataProviders.Models.TypedRow;
 /// <example>
 /// <code>
 /// // Example derived class for xUnit v3
-/// public class XUnit3Provider&lt;T1, T2, TResult&gt; 
-///     : TestDataProvider&lt;TestDataReturns&lt;TResult&gt;, TheoryDataRow&lt;T1, T2, TResult&gt;&gt;
+/// public class XUnit3Provider&lt;T1, T2, TRow&gt; 
+///     : TestDataProvider&lt;TestDataReturns&lt;TRow&gt;, TheoryDataRow&lt;T1, T2, TRow&gt;&gt;
 /// {
 ///     public XUnit3Provider(ArgsCode argsCode, string testMethodName)
 ///         : base(argsCode, testMethodName) { }
 /// 
-///     public override TheoryDataRow&lt;T1, T2, TResult&gt; ConvertRow(TestDataReturns&lt;TResult&gt; testData)
+///     public override TheoryDataRow&lt;T1, T2, TRow&gt; ConvertRow(TestDataReturns&lt;TRow&gt; testData)
 ///     {
 ///         // Convert test data to strongly-typed row
-///         return new TheoryDataRow&lt;T1, T2, TResult&gt;(
+///         return new TheoryDataRow&lt;T1, T2, TRow&gt;(
 ///             (T1)testData.Args[0],
 ///             (T2)testData.Args[1],
 ///             testData.Expected);
