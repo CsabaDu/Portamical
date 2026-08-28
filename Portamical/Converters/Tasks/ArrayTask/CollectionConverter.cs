@@ -1,17 +1,19 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters.TestData;
-using static Portamical.Converters.CollectionConverter;
+using Portamical.Converters.RowArrays;
+using Portamical.Converters.RowArrays.TestData;
+using Portamical.Converters.Tasks;
+using static Portamical.Converters.RowArrays.CollectionConverter;
 
-namespace Portamical.Converters.ArrayTask;
+namespace Portamical.Converters.Tasks.ArrayTask;
 
 /// <summary>
 /// Provides Task-based asynchronous extension methods for converting and deduplicating test data collections.
 /// </summary>
 /// <remarks>
 /// <para>
-/// This class offers Task-based async variants of the synchronous <see cref="Converters.CollectionConverter"/> methods,
+/// This class offers Task-based async variants of the synchronous <see cref="RowArrays.CollectionConverter"/> methods,
 /// enabling integration with asynchronous workflows and providing performance optimizations for
 /// different testDataCollection sizes.
 /// </para>
@@ -24,15 +26,15 @@ namespace Portamical.Converters.ArrayTask;
 /// <para>
 /// <strong>Performance Optimization:</strong> Task-returning methods employ a smart threshold strategy:
 /// <list type="bullet">
-///   <item><strong>Small collections (&lt; 100 items):</strong> Executes synchronously via <see cref="System.Threading.Tasks.Task.FromResult{TResult}"/> to avoid Task.Run overhead</item>
-///   <item><strong>Larger collections (≥ 100 items):</strong> Offloads work to thread pool via <see cref="System.Threading.Tasks.Task.Run{TResult}(Func{TResult})"/> for parallel execution</item>
+///   <item><strong>Small collections (&lt; 100 items):</strong> Executes synchronously via <see cref="Task.FromResult{TResult}"/> to avoid Task.Run overhead</item>
+///   <item><strong>Larger collections (≥ 100 items):</strong> Offloads work to thread pool via <see cref="Task.Run{TResult}(Func{TResult})"/> for parallel execution</item>
 /// </list>
 /// The threshold of 100 items is based on BenchmarkDotNet measurements showing this as the empirical break-even point
 /// where Task.Run benefits outweigh its overhead (~5.8µs synchronous vs ~5.8µs async at 100 items).
 /// </para>
 /// <para>
 /// <strong>Return Type:</strong> All methods return <see cref="Task{TResult}"/> with arrays for compatibility 
-/// with test frameworks (xUnit, NUnit, MSTest). For streaming scenarios, see <see cref="AsyncEnumerable.CollectionConverter"/>.
+/// with test frameworks (xUnit, NUnit, MSTest). For streaming scenarios, see <see cref="AsyncEnumerables.CollectionConverter"/>.
 /// </para>
 /// <para>
 /// <strong>Thread Safety:</strong> All methods are stateless and thread-safe. However, input
@@ -88,7 +90,7 @@ public static class CollectionConverter
     /// <remarks>
     /// <para>
     /// This method uses smart threshold optimization: collections with fewer than 100 items execute synchronously
-    /// via <see cref="System.Threading.Tasks.Task.FromResult{TResult}"/>, while larger collections offload to the thread pool via <see cref="System.Threading.Tasks.Task.Run{TResult}(Func{TResult})"/>.
+    /// via <see cref="Task.FromResult{TResult}"/>, while larger collections offload to the thread pool via <see cref="Task.Run{TResult}(Func{TResult})"/>.
     /// </para>
     /// <para>
     /// Delegates to <see cref="CollectionConverter.ToRowArray{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>.

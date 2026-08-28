@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Converters.TypedRow;
+namespace Portamical.Converters.RowArrays.TypedRow;
 
 public static class CollectionConverter
 {

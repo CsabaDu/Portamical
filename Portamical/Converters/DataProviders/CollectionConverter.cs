@@ -2,7 +2,6 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.DataProviders;
-using static Portamical.Converters.CollectionConverter;
 
 namespace Portamical.Converters.DataProviders;
 
@@ -83,7 +82,7 @@ public static class CollectionConverter
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = td.ToDataProvider(
+    /// var provider = td.ToConvertedRows(
     ///     td => new MyDataProvider(td));
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
@@ -157,7 +156,7 @@ public static class CollectionConverter
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = td.ToDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
+    /// var provider = td.ToConvertedRows&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
@@ -392,7 +391,7 @@ public static class CollectionConverter
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
     {
-        var (snapshot, count) = SnapshotWithCount(testDataCollection);
+        var (snapshot, count) = Converters.CollectionConverter.SnapshotWithCount(testDataCollection);
         var testData = snapshot[0];
         var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
             testData);
