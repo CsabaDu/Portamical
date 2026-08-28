@@ -91,7 +91,7 @@ public static class CollectionConverter
     /// via <see cref="System.Threading.Tasks.Task.FromResult{TResult}"/>, while larger collections offload to the thread pool via <see cref="System.Threading.Tasks.Task.Run{TResult}(Func{TResult})"/>.
     /// </para>
     /// <para>
-    /// Delegates to <see cref="CollectionConverter.ToArrayRow{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>.
+    /// Delegates to <see cref="CollectionConverter.ToArrayRows{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>.
     /// </para>
     /// </remarks>
     public static Task<TRow[]> ToArrayTask<TTestData, TRow>(
@@ -99,7 +99,7 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     => testDataCollection.ToConvertedRowsTask(
-        tdc => tdc.ToArrayRow(convertRow));
+        tdc => tdc.ToArrayRows(convertRow));
 
     /// <summary>
     /// Asynchronously converts a collection of test data into an array, preserving the test data items as-is (identity conversion).
@@ -125,14 +125,14 @@ public static class CollectionConverter
     /// Uses smart threshold optimization (see class remarks for details).
     /// </para>
     /// <para>
-    /// Delegates to <see cref="CollectionConverter.ToArrayRow{TTestData}(IEnumerable{TTestData})"/>.
+    /// Delegates to <see cref="CollectionConverter.ToArrayRows{TTestData}(IEnumerable{TTestData})"/>.
     /// </para>
     /// </remarks>
     public static Task<TTestData[]> ToArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.ToConvertedRowsTask(
-        tdc => tdc.ToArrayRow());
+        tdc => tdc.ToArrayRows());
 
     #endregion
 
@@ -172,7 +172,7 @@ public static class CollectionConverter
     /// </para>
     /// <para>
     /// Uses smart threshold optimization (see class remarks for details).
-    /// Delegates to <see cref="CollectionConverter.ToDistinctArrayRow{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>.
+    /// Delegates to <see cref="CollectionConverter.ToDistinctArrayRows{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>.
     /// </para>
     /// </remarks>
     public static Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(
@@ -180,7 +180,7 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     => testDataCollection.ToConvertedRowsTask(
-        tdc => tdc.ToDistinctArrayRow(convertRow));
+        tdc => tdc.ToDistinctArrayRows(convertRow));
 
     /// <summary>
     /// Asynchronously converts a collection of test data into a distinct array, removing duplicates based on
@@ -209,14 +209,14 @@ public static class CollectionConverter
     /// </para>
     /// <para>
     /// Uses smart threshold optimization (see class remarks for details).
-    /// Delegates to <see cref="CollectionConverter.ToDistinctArrayRow{TTestData}(IEnumerable{TTestData})"/>.
+    /// Delegates to <see cref="CollectionConverter.ToDistinctArrayRows{TTestData}(IEnumerable{TTestData})"/>.
     /// </para>
     /// </remarks>
     public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.ToConvertedRowsTask(
-        tdc => tdc.ToDistinctArrayRow());
+        tdc => tdc.ToDistinctArrayRows());
 
     #endregion
 }

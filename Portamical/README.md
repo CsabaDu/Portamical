@@ -85,7 +85,7 @@ var testData = new[]
 };
 
 // Simple deduplication (identity conversion)
-var distinct = testData.ToDistinctArrayRow();
+var distinct = testData.ToDistinctArrayRows();
 // Result: 2 elements (duplicate removed based on TestCaseName)
 ```
 
@@ -95,11 +95,11 @@ var distinct = testData.ToDistinctArrayRow();
 using Portamical.Converters;
 
 // Convert to object[][] for test frameworks
-var args = testData.ToDistinctArrayRow(ArgsCode.Instance);
+var args = testData.ToDistinctArrayRows(ArgsCode.Instance);
 // Result: [[testData1], [testData2]]
 
 // Or flatten properties
-var flatArgs = testData.ToDistinctArrayRow(ArgsCode.Properties);
+var flatArgs = testData.ToDistinctArrayRows(ArgsCode.Properties);
 // Result: [[2, 3, 5], [5, 7, 12]]
 ```
 
@@ -186,7 +186,7 @@ Located in the root namespace: `Portamical.Converters`
 #### Primary Deduplication Method
 
 ```csharp
-public static TRow[] ToDistinctArrayRow<TTestData, TRow>(
+public static TRow[] ToDistinctArrayRows<TTestData, TRow>(
     this IEnumerable<TTestData> testDataCollection,
     Func<TTestData, TRow> convertRow)
 where TTestData : notnull, ITestData
@@ -217,15 +217,15 @@ var testData = new[]
 };
 
 // Identity conversion
-var distinct = testData.ToDistinctArrayRow(td => td);
+var distinct = testData.ToDistinctArrayRows(td => td);
 // Result: 2 elements
 
 // Convert to argument arrays
-var args = testData.ToDistinctArrayRow(td => td.ToArgs(ArgsCode.Instance));
+var args = testData.ToDistinctArrayRows(td => td.ToArgs(ArgsCode.Instance));
 // Result: [[testData1], [testData2]]
 
 // Custom row conversion
-var rows = testData.ToDistinctArrayRow(td => new 
+var rows = testData.ToDistinctArrayRows(td => new 
 { 
     Name = td.TestCaseName, 
     Args = td.ToArgs(ArgsCode.Instance) 
@@ -236,22 +236,22 @@ var rows = testData.ToDistinctArrayRow(td => new
 
 ```csharp
 // Simple deduplication (identity conversion)
-TTestData[] ToDistinctArrayRow<TTestData>(
+TTestData[] ToDistinctArrayRows<TTestData>(
     this IEnumerable<TTestData> testDataCollection)
 
 // Convert to argument arrays
-object?[][] ToDistinctArrayRow<TTestData>(
+object?[][] ToDistinctArrayRows<TTestData>(
     this IEnumerable<TTestData> testDataCollection,
     ArgsCode argsCode)
 
 // Convert with args and props codes
-object?[][] ToDistinctArrayRow<TTestData>(
+object?[][] ToDistinctArrayRows<TTestData>(
     this IEnumerable<TTestData> testDataCollection,
     ArgsCode argsCode,
     PropsCode propsCode)
 
 // Convert with ArgsCode, test method name
-TRow[] ToDistinctArrayRow<TTestData, TRow>(
+TRow[] ToDistinctArrayRows<TTestData, TRow>(
     this IEnumerable<TTestData> testDataCollection,
     Func<TTestData, string?, TRow> convertRow,
     string? testMethodName)
@@ -603,7 +603,7 @@ var testData = new[]
 };
 
 // Get distinct array
-var distinct = testData.ToDistinctArrayRow();
+var distinct = testData.ToDistinctArrayRows();
 // Result: 2 elements (duplicate removed based on TestCaseName)
 ```
 
@@ -613,11 +613,11 @@ var distinct = testData.ToDistinctArrayRow();
 using Portamical.Converters;
 
 // Convert to object[][] for test frameworks
-var args = testData.ToDistinctArrayRow(ArgsCode.Instance);
+var args = testData.ToDistinctArrayRows(ArgsCode.Instance);
 // Result: [[testData1], [testData2]]
 
 // Or flatten properties
-var flatArgs = testData.ToDistinctArrayRow(ArgsCode.Properties);
+var flatArgs = testData.ToDistinctArrayRows(ArgsCode.Properties);
 // Result: [[2, 3, 5], [5, 7, 12]]
 ```
 
@@ -1032,7 +1032,7 @@ This release extracts data provider interfaces and collection converters from th
 
 2. **Collection Converters**
    - `CollectionConverter` (root namespace) - Synchronous deduplication and array conversion
-     - `ToDistinctArrayRow<TTestData, TRow>()` - Core deduplication with custom conversion
+     - `ToDistinctArrayRows<TTestData, TRow>()` - Core deduplication with custom conversion
      - Wrapper methods for common scenarios (identity, ArgsCode, PropsCode)
    - `CollectionConverter` (AsyncEnumerables) - Streaming variants with `IAsyncEnumerable<T>`
      - `ToDistinctAsyncEnumerable<TTestData, TRow>()` - Memory-efficient async iteration

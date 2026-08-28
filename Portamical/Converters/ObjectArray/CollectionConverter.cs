@@ -5,7 +5,7 @@ namespace Portamical.Converters.ObjectArray;
 
 public static class CollectionConverter
 {
-    #region ToArrayRow
+    #region ToArrayRows
 
     /// <summary>
     /// Converts a collection of test data into a jagged array of argument arrays using the specified argument code.
@@ -33,11 +33,11 @@ public static class CollectionConverter
     /// xUnit v2 [MemberData], NUnit [TestCaseSource], and MSTest [DynamicData].
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static object?[][] ToArrayRow<TTestData>(
+    public static object?[][] ToArrayRows<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToArrayRow(
+    => testDataCollection.ToArrayRows(
         convertRow: testData => testData.ToArgs(argsCode));
 
     /// <summary>
@@ -71,17 +71,17 @@ public static class CollectionConverter
     /// over argument extraction. The combination of codes determines which data is included in each row.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static object?[][] ToArrayRow<TTestData>(
+    public static object?[][] ToArrayRows<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         PropsCode propsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToArrayRow(
+    => testDataCollection.ToArrayRows(
         convertRow: testData => testData.ToArgs(argsCode, propsCode));
 
     #endregion
 
-    #region ToDistinctArrayRow
+    #region ToDistinctArrayRows
 
     /// <summary>
     /// Returns a jagged array of distinct argument arrays generated from the specified test data collection
@@ -101,11 +101,11 @@ public static class CollectionConverter
     /// Thrown when <paramref name="testDataCollection"/> is empty.
     /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static object?[][] ToDistinctArrayRow<TTestData>(
+    public static object?[][] ToDistinctArrayRows<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayRow(
+    => testDataCollection.ToDistinctArrayRows(
         convertRow: testData => testData.ToArgs(argsCode));
 
     /// <summary>
@@ -127,12 +127,12 @@ public static class CollectionConverter
     /// Thrown when <paramref name="testDataCollection"/> is empty.
     /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static object?[][] ToDistinctArrayRow<TTestData>(
+    public static object?[][] ToDistinctArrayRows<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         PropsCode propsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayRow(
+    => testDataCollection.ToDistinctArrayRows(
         convertRow: testData => testData.ToArgs(argsCode, propsCode));
 
     #endregion

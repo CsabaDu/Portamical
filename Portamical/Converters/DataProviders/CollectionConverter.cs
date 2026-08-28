@@ -334,6 +334,8 @@ public static class CollectionConverter
 
     #endregion
 
+    #region Helper methods
+
     /// <summary>
     /// Core helper method that converts a test data collection into a data provider instance,
     /// with optional deduplication based on test case names.
@@ -428,4 +430,6 @@ public static class CollectionConverter
 
         #endregion
     }
+
+    #endregion
 }

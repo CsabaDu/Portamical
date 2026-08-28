@@ -21,7 +21,7 @@ namespace Portamical.Converters.AsyncEnumerable;
 /// </para>
 /// <para>
 /// <strong>Implementation Note:</strong> The deduplication is performed synchronously using the underlying
-/// synchronous <see cref="Converters.CollectionConverter.ToDistinctArrayRow{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>
+/// synchronous <see cref="Converters.CollectionConverter.ToDistinctArrayRows{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>
 /// method, but the resulting elements are yielded asynchronously. This provides a bridge between synchronous
 /// deduplication logic and asynchronous consumption patterns.
 /// </para>
@@ -70,7 +70,7 @@ public static class CollectionConverter
     /// </exception>
     /// <remarks>
     /// <para>
-    /// Delegates to <see cref="Converters.CollectionConverter.ToArrayRow{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>
+    /// Delegates to <see cref="Converters.CollectionConverter.ToArrayRows{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>
     /// for conversion, then wraps the result in an async enumerable for streaming consumption.
     /// </para>
     /// </remarks>
@@ -78,7 +78,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToArrayRow(convertRow).ToAsyncEnumerable();
+    => testDataCollection.ToArrayRows(convertRow).ToAsyncEnumerable();
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of elements (identity conversion).
@@ -86,7 +86,7 @@ public static class CollectionConverter
     /// <remarks>
     /// <para>
     /// This is an identity conversion that yields the test data items themselves without transformation.
-    /// The collection is converted to an array using <see cref="Converters.CollectionConverter.ToArrayRow{TTestData}(IEnumerable{TTestData})"/>,
+    /// The collection is converted to an array using <see cref="Converters.CollectionConverter.ToArrayRows{TTestData}(IEnumerable{TTestData})"/>,
     /// then the resulting elements are yielded asynchronously. This method is useful for integrating
     /// synchronous data into asynchronous workflows or streaming scenarios.
     /// </para>
@@ -120,7 +120,7 @@ public static class CollectionConverter
     public static IAsyncEnumerable<TTestData> ToAsyncEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToArrayRow().ToAsyncEnumerable();
+    => testDataCollection.ToArrayRows().ToAsyncEnumerable();
 
     #endregion
 
@@ -147,7 +147,7 @@ public static class CollectionConverter
     /// Test data with identical <c>TestCaseName</c> values are considered duplicates; only the first occurrence is retained.
     /// </para>
     /// <para>
-    /// Delegates to <see cref="Converters.CollectionConverter.ToDistinctArrayRow{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>
+    /// Delegates to <see cref="Converters.CollectionConverter.ToDistinctArrayRows{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>
     /// for deduplication, then wraps the result in an async enumerable.
     /// </para>
     /// </remarks>
@@ -155,7 +155,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayRow(convertRow).ToAsyncEnumerable();
+    => testDataCollection.ToDistinctArrayRows(convertRow).ToAsyncEnumerable();
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of distinct elements (identity conversion).
@@ -164,7 +164,7 @@ public static class CollectionConverter
     /// <remarks>
     /// <para>
     /// This is an identity conversion that yields the test data items themselves after deduplication.
-    /// The deduplication is performed synchronously using <see cref="Converters.CollectionConverter.ToDistinctArrayRow{TTestData}(IEnumerable{TTestData})"/>,
+    /// The deduplication is performed synchronously using <see cref="Converters.CollectionConverter.ToDistinctArrayRows{TTestData}(IEnumerable{TTestData})"/>,
     /// but the resulting elements are yielded asynchronously. This method is useful for integrating
     /// synchronous deduplicated data into asynchronous workflows or streaming scenarios.
     /// </para>
@@ -202,7 +202,7 @@ public static class CollectionConverter
     public static IAsyncEnumerable<TTestData> ToDistinctAsyncEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayRow().ToAsyncEnumerable();
+    => testDataCollection.ToDistinctArrayRows().ToAsyncEnumerable();
 
     #endregion
 

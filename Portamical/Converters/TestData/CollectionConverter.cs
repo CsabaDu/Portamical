@@ -5,7 +5,7 @@ namespace Portamical.Converters.TestData;
 
 public static class CollectionConverter
 {
-    #region ToArrayRow
+    #region ToArrayRows
 
     /// <summary>
     /// Converts a collection of test data into an array, preserving all elements in their original order.
@@ -26,18 +26,18 @@ public static class CollectionConverter
     /// Thrown when <paramref name="testDataCollection"/> is empty.
     /// </exception>
     /// <remarks>
-    /// This method provides a simple identity conversion to array format. Use <see cref="ToDistinctArrayRow{TTestData}(IEnumerable{TTestData})"/>
+    /// This method provides a simple identity conversion to array format. Use <see cref="ToDistinctArrayRows{TTestData}(IEnumerable{TTestData})"/>
     /// if deduplication is needed.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TTestData[] ToArrayRow<TTestData>(
+    public static TTestData[] ToArrayRows<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
 
     #endregion
 
-    #region ToDistinctArrayRow
+    #region ToDistinctArrayRows
 
     /// <summary>
     /// Creates an array containing distinct elements from the specified test data collection.
@@ -66,15 +66,15 @@ public static class CollectionConverter
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var distinct = testData.ToDistinctArrayRow();
+    /// var distinct = testData.ToDistinctArrayRows();
     /// // Result: 2 elements (duplicate removed based on TestCaseName)
     /// </code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TTestData[] ToDistinctArrayRow<TTestData>(
+    public static TTestData[] ToDistinctArrayRows<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayRow(
+    => testDataCollection.ToDistinctArrayRows(
         convertRow: testData => testData);
 
     #endregion

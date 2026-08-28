@@ -25,7 +25,7 @@ namespace Portamical.Converters;
 /// </remarks>
 public static class CollectionConverter
 {
-    #region ToArrayRow
+    #region ToArrayRows
 
     /// <summary>
     /// Converts a collection of test data into an array of rows using a custom conversion function.
@@ -54,14 +54,14 @@ public static class CollectionConverter
     /// </exception>
     /// <remarks>
     /// <para>
-    /// This is the core conversion method. Other <c>ToArrayRow</c> overloads typically delegate to this method.
+    /// This is the core conversion method. Other <c>ToArrayRows</c> overloads typically delegate to this method.
     /// The collection is validated and snapshotted before conversion to ensure stability.
     /// </para>
     /// <para>
     /// <strong>Performance:</strong> Pre-allocates the result array based on input count for O(n) performance.
     /// </para>
     /// </remarks>
-    public static TRow[] ToArrayRow<TTestData, TRow>(
+    public static TRow[] ToArrayRows<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
@@ -82,7 +82,7 @@ public static class CollectionConverter
 
     #endregion
 
-    #region ToDistinctArrayRow
+    #region ToDistinctArrayRows
 
     /// <summary>
     /// Core deduplication method that converts a collection of test data into a distinct array of rows
@@ -132,20 +132,20 @@ public static class CollectionConverter
     /// <example>
     /// <code>
     /// // Identity conversion (keeping test data as-is)
-    /// var distinct = testDataCollection.ToDistinctArrayRow(td => td);
+    /// var distinct = testDataCollection.ToDistinctArrayRows(td => td);
     /// 
     /// // Convert to argument arrays
-    /// var args = testDataCollection.ToDistinctArrayRow(td => td.ToArgs(ArgsCode.Instance));
+    /// var args = testDataCollection.ToDistinctArrayRows(td => td.ToArgs(ArgsCode.Instance));
     /// 
     /// // Custom row conversion
-    /// var rows = testDataCollection.ToDistinctArrayRow(td => new 
+    /// var rows = testDataCollection.ToDistinctArrayRows(td => new 
     /// { 
     ///     Name = td.TestCaseName, 
     ///     Args = td.ToArgs(ArgsCode.Instance) 
     /// });
     /// </code>
     /// </example>
-    public static TRow[] ToDistinctArrayRow<TTestData, TRow>(
+    public static TRow[] ToDistinctArrayRows<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
