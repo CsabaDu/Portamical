@@ -1328,11 +1328,11 @@ Tests seem slower after migration.
 var testData = GetTestData();  // Returns IEnumerable
 
 // ❌ BAD: Multiple enumeration
-var args1 = testData.ToArrayRows();
+var args1 = testData.ToRowArray();
 var args2 = testData.Count();  // Re-enumerates!
 
 // ✅ GOOD: Materialize once
-var materialized = testData.ToArrayRows();
+var materialized = testData.ToRowArray();
 var args1 = materialized;
 var count = materialized.Length;
 ```

@@ -5,7 +5,7 @@ namespace Portamical.Converters.TypedRow;
 
 public static class CollectionConverter
 {
-    #region ToArrayRows
+    #region ToRowArray
 
     /// <summary>
     /// Converts a collection of test data into an array of rows using a custom conversion function
@@ -44,13 +44,13 @@ public static class CollectionConverter
     /// and metadata (<paramref name="testMethodName"/>).
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TRow[] ToArrayRows<TTestData, TRow>(
+    public static TRow[] ToRowArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TRow> convertRow,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToArrayRows(
+    => testDataCollection.ToRowArray(
         convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             argsCode.Defined(nameof(argsCode)),
@@ -89,19 +89,19 @@ public static class CollectionConverter
     /// This overload is useful when the conversion function needs test method metadata but not argument code configuration.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TRow[] ToArrayRows<TTestData, TRow>(
+    public static TRow[] ToRowArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, string?, TRow> convertRow,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToArrayRows(
+    => testDataCollection.ToRowArray(
         convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             testMethodName));
 
     #endregion
 
-    #region ToDistinctArrayRows
+    #region ToDistinctRowArray
 
     /// <summary>
     /// Converts a collection of test data items to a distinct array of rows using the specified
@@ -125,13 +125,13 @@ public static class CollectionConverter
     /// Thrown when <paramref name="testDataCollection"/> is empty or <paramref name="argsCode"/> is undefined.
     /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TRow[] ToDistinctArrayRows<TTestData, TRow>(
+    public static TRow[] ToDistinctRowArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TRow> convertRow,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayRows(
+    => testDataCollection.ToDistinctRowArray(
         convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             argsCode.Defined(nameof(argsCode)),
@@ -157,12 +157,12 @@ public static class CollectionConverter
     /// The order of elements from the original collection is preserved (first occurrence wins).
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TRow[] ToDistinctArrayRows<TTestData, TRow>(
+    public static TRow[] ToDistinctRowArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, string?, TRow> convertRow,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayRows(
+    => testDataCollection.ToDistinctRowArray(
         convertRow: testData => NotNull(convertRow, nameof(convertRow))(
             testData,
             testMethodName));
