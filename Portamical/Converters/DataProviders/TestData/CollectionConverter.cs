@@ -11,7 +11,7 @@ namespace Portamical.Converters.DataProviders.TestData;
 /// <remarks>
 /// <para>
 /// This class provides specialized converters for identity-conversion data providers where the test data items
-/// are returned as-is (TRow = TTestData). These methods delegate to the base
+/// are returned as-is (TConvertedRows = TTestData). These methods delegate to the base
 /// <see cref="DataProviders.CollectionConverter"/> with the row type set to the test data type.
 /// </para>
 /// <para>
@@ -26,7 +26,7 @@ public static class CollectionConverter
     #region ToDataProvider
 
     /// <summary>
-    /// Converts a collection of test data into an identity data provider instance (TRow = TTestData).
+    /// Converts a collection of test data into an identity data provider instance (TConvertedRows = TTestData).
     /// </summary>
     /// <typeparam name="TTestData">
     /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
@@ -54,7 +54,7 @@ public static class CollectionConverter
     /// <para>
     /// This is an identity-conversion specialization where test data items are returned as-is (row type = test data type).
     /// Delegates to <see cref="DataProviders.CollectionConverter.ToDataProvider{TDataProvider, TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TDataProvider})"/>
-    /// with TRow set to TTestData.
+    /// with TConvertedRows set to TTestData.
     /// </para>
     /// <para>
     /// This overload does NOT perform deduplication. For deduplication, use <see cref="ToDistinctDataProvider{TTestData, TDataProvider}(IEnumerable{TTestData}, Func{TTestData, TDataProvider})"/>.
@@ -69,7 +69,7 @@ public static class CollectionConverter
         initDataProvider);
 
     /// <summary>
-    /// Converts a collection of test data into an identity data provider instance using the default constructor (TRow = TTestData).
+    /// Converts a collection of test data into an identity data provider instance using the default constructor (TConvertedRows = TTestData).
     /// </summary>
     /// <typeparam name="TTestData">
     /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
@@ -95,7 +95,7 @@ public static class CollectionConverter
     /// This is an identity-conversion specialization where test data items are returned as-is (row type = test data type).
     /// Uses the <c>new()</c> constraint to instantiate the data provider directly. Delegates to
     /// <see cref="DataProviders.CollectionConverter.ToDataProvider{TDataProvider, TTestData, TRow}(IEnumerable{TTestData})"/>
-    /// with TRow set to TTestData.
+    /// with TConvertedRows set to TTestData.
     /// </para>
     /// <para>
     /// This overload does NOT perform deduplication. For deduplication, use <see cref="ToDistinctDataProvider{TTestData, TDataProvider}(IEnumerable{TTestData})"/>.
@@ -112,7 +112,7 @@ public static class CollectionConverter
     #region ToDistinctDataProvider
 
     /// <summary>
-    /// Converts a collection of test data into a distinct identity data provider instance (TRow = TTestData).
+    /// Converts a collection of test data into a distinct identity data provider instance (TConvertedRows = TTestData).
     /// Removes duplicates based on <see cref="INamedCase.TestCaseName"/> identity.
     /// </summary>
     /// <typeparam name="TTestData">
@@ -141,7 +141,7 @@ public static class CollectionConverter
     /// <para>
     /// This is an identity-conversion specialization where test data items are returned as-is (row type = test data type).
     /// Delegates to <see cref="DataProviders.CollectionConverter.ToDistinctDataProvider{TDataProvider, TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TDataProvider})"/>
-    /// with TRow set to TTestData.
+    /// with TConvertedRows set to TTestData.
     /// </para>
     /// <para>
     /// Deduplication uses <see cref="NamedCase.Comparer"/> based on <see cref="INamedCase.TestCaseName"/>.
@@ -157,7 +157,7 @@ public static class CollectionConverter
         initDataProvider);
 
     /// <summary>
-    /// Converts a collection of test data into a distinct identity data provider instance using the default constructor (TRow = TTestData).
+    /// Converts a collection of test data into a distinct identity data provider instance using the default constructor (TConvertedRows = TTestData).
     /// Removes duplicates based on <see cref="INamedCase.TestCaseName"/> identity.
     /// </summary>
     /// <typeparam name="TTestData">
@@ -184,7 +184,7 @@ public static class CollectionConverter
     /// This is an identity-conversion specialization where test data items are returned as-is (row type = test data type).
     /// Uses the <c>new()</c> constraint to instantiate the data provider directly. Delegates to
     /// <see cref="DataProviders.CollectionConverter.ToDistinctDataProvider{TDataProvider, TTestData, TRow}(IEnumerable{TTestData})"/>
-    /// with TRow set to TTestData.
+    /// with TConvertedRows set to TTestData.
     /// </para>
     /// <para>
     /// Deduplication uses <see cref="NamedCase.Comparer"/> based on <see cref="INamedCase.TestCaseName"/>.

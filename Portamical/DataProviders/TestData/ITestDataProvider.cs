@@ -13,7 +13,7 @@ namespace Portamical.DataProviders.TestData;
 /// </typeparam>
 /// <remarks>
 /// <para>
-/// This interface specializes <see cref="IDataProvider{TTestData, TRow}"/> where <c>TRow = TTestData</c>,
+/// This interface specializes <see cref="IDataProvider{TTestData, TRow}"/> where <c>TConvertedRows = TTestData</c>,
 /// meaning the row type is identical to the input test data type. This creates an identity provider
 /// where <see cref="IDataProvider{TTestData, TRow}.ConvertRow"/> simply returns the input unchanged.
 /// </para>

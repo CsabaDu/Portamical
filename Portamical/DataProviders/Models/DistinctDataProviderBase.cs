@@ -138,6 +138,7 @@ where TTestData : notnull, ITestData
     /// <remarks>
     /// Lookup uses <see cref="StringComparer.Ordinal"/> comparison. This method does not throw if the test case name is not found.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow? GetRow(string testCaseName)
     => _distinctRows.TryGetValue(testCaseName ?? string.Empty, out var row) ?
         row
@@ -154,6 +155,7 @@ where TTestData : notnull, ITestData
     /// The returned array is a snapshot of the current collection. Subsequent modifications to the provider
     /// will not affect the returned array.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow[] GetRows()
     => [.. _distinctRows.Values];
 
@@ -168,6 +170,7 @@ where TTestData : notnull, ITestData
     /// The returned array is a snapshot of the current collection's keys. The order is determined by
     /// the dictionary's internal structure and may not match insertion order.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string[] GetTestCaseNames()
     => [.. _distinctRows.Keys];
 

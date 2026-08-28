@@ -113,7 +113,7 @@ public static class CollectionConverter
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
     /// <param name="testDataCollection">The collection of test data items to convert. Cannot be null.</param>
     /// <param name="convertRow">A function that converts each test data item, along with the provided ArgsCode and optional test method name, to
-    /// a row of type TRow. Cannot be null.</param>
+    /// a row of type TConvertedRows. Cannot be null.</param>
     /// <param name="argsCode">The ArgsCode instance to pass to the conversion function. Cannot be undefined.</param>
     /// <param name="testMethodName">An optional name of the test method to provide to the conversion function. May be null.</param>
     /// <returns>An array containing the distinct rows produced by applying the conversion function to each distinct test

@@ -176,7 +176,7 @@ public static class CollectionConverter
     /// <typeparam name="TTestData">
     /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
     /// </typeparam>
-    /// <typeparam name="TRow">
+    /// <typeparam name="TConvertedRows">
     /// The type of the conversion result.
     /// </typeparam>
     /// <param name="testDataCollection">
@@ -212,9 +212,9 @@ public static class CollectionConverter
     /// before applying the conversion function.
     /// </para>
     /// </remarks>
-    public static Task<TRow> ToConvertedTask<TTestData, TRow>(
+    public static Task<TConvertedRows> ToConvertedRowsTask<TTestData, TConvertedRows>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<IEnumerable<TTestData>, TRow> convert)
+        Func<IEnumerable<TTestData>, TConvertedRows> convert)
     where TTestData : notnull, ITestData
     {
         const int smallCollectionCountLimit = 100;

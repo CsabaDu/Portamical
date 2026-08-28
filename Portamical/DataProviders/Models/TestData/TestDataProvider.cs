@@ -120,6 +120,7 @@ where TTestData : notnull, ITestData
     /// This method implements the identity function: output equals input. It's called internally
     /// by <see cref="DistinctDataProviderBase{TTestData, TRow}.AddRow"/> during row insertion.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TTestData ConvertRow(TTestData testData)
     => testData;
 }

@@ -98,7 +98,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToConvertedTask(
+    => testDataCollection.ToConvertedRowsTask(
         tdc => tdc.ToArrayRow(convertRow));
 
     /// <summary>
@@ -131,7 +131,7 @@ public static class CollectionConverter
     public static Task<TTestData[]> ToArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToConvertedTask(
+    => testDataCollection.ToConvertedRowsTask(
         tdc => tdc.ToArrayRow());
 
     #endregion
@@ -179,7 +179,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToConvertedTask(
+    => testDataCollection.ToConvertedRowsTask(
         tdc => tdc.ToDistinctArrayRow(convertRow));
 
     /// <summary>
@@ -215,7 +215,7 @@ public static class CollectionConverter
     public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToConvertedTask(
+    => testDataCollection.ToConvertedRowsTask(
         tdc => tdc.ToDistinctArrayRow());
 
     #endregion

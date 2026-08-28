@@ -93,7 +93,7 @@ public interface IDataProvider<out TRow>
 /// </para>
 /// <para>
 /// <strong>Type Variance:</strong> The combination of contravariant input (<c>in TTestData</c>) and
-/// covariant output (<c>out TRow</c>) enables flexible provider hierarchies and adapter patterns.
+/// covariant output (<c>out TConvertedRows</c>) enables flexible provider hierarchies and adapter patterns.
 /// </para>
 /// <para>
 /// <strong>Typical Usage:</strong> Implementations populate the provider using <see cref="ITestDataRegistry{TTestData}.AddRow"/>
@@ -126,7 +126,7 @@ where TTestData : notnull, ITestData
     /// <strong>Integration Pattern:</strong> This method is typically called internally during enumeration:
     /// </para>
     /// <code>
-    /// public IEnumerator&lt;TRow&gt; GetEnumerator()
+    /// public IEnumerator&lt;TConvertedRows&gt; GetEnumerator()
     /// {
     ///     foreach (var testData in _rows)
     ///     {

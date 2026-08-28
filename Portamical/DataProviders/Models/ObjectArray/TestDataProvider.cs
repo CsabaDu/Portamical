@@ -188,6 +188,7 @@ where TTestData : notnull, ITestData
     /// This method delegates to <see cref="ITestData.ToArgs(ArgsCode, PropsCode)"/> on the test data object,
     /// which performs the actual conversion logic based on the configured strategies.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override object?[] ConvertRow(TTestData testData)
     => testData.ToArgs(ArgsCode, PropsCode);
 }
