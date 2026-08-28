@@ -208,6 +208,7 @@ public abstract class NamedCase : INamedCase
     #endregion
 
     /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ExecuteIfDistinct(HashSet<INamedCase> namedCases, Action action)
     {
         if (namedCases?.Add(this) != false)

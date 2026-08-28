@@ -1,9 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.Converters.TestData;
 using static Portamical.Converters.CollectionConverter;
 
-namespace Portamical.Converters.Tasks;
+namespace Portamical.Converters.ArrayTask;
 
 /// <summary>
 /// Provides Task-based asynchronous extension methods for converting and deduplicating test data collections.
@@ -23,15 +24,15 @@ namespace Portamical.Converters.Tasks;
 /// <para>
 /// <strong>Performance Optimization:</strong> Task-returning methods employ a smart threshold strategy:
 /// <list type="bullet">
-///   <item><strong>Small collections (&lt; 100 items):</strong> Executes synchronously via <see cref="Task.FromResult{TResult}"/> to avoid Task.Run overhead</item>
-///   <item><strong>Larger collections (≥ 100 items):</strong> Offloads work to thread pool via <see cref="Task.Run{TResult}(Func{TResult})"/> for parallel execution</item>
+///   <item><strong>Small collections (&lt; 100 items):</strong> Executes synchronously via <see cref="System.Threading.Tasks.Task.FromResult{TResult}"/> to avoid Task.Run overhead</item>
+///   <item><strong>Larger collections (≥ 100 items):</strong> Offloads work to thread pool via <see cref="System.Threading.Tasks.Task.Run{TResult}(Func{TResult})"/> for parallel execution</item>
 /// </list>
 /// The threshold of 100 items is based on BenchmarkDotNet measurements showing this as the empirical break-even point
 /// where Task.Run benefits outweigh its overhead (~5.8µs synchronous vs ~5.8µs async at 100 items).
 /// </para>
 /// <para>
 /// <strong>Return Type:</strong> All methods return <see cref="Task{TResult}"/> with arrays for compatibility 
-/// with test frameworks (xUnit, NUnit, MSTest). For streaming scenarios, see <see cref="AsyncEnumerables.CollectionConverter"/>.
+/// with test frameworks (xUnit, NUnit, MSTest). For streaming scenarios, see <see cref="AsyncEnumerable.CollectionConverter"/>.
 /// </para>
 /// <para>
 /// <strong>Thread Safety:</strong> All methods are stateless and thread-safe. However, input
@@ -87,10 +88,10 @@ public static class CollectionConverter
     /// <remarks>
     /// <para>
     /// This method uses smart threshold optimization: collections with fewer than 100 items execute synchronously
-    /// via <see cref="Task.FromResult{TResult}"/>, while larger collections offload to the thread pool via <see cref="Task.Run{TResult}(Func{TResult})"/>.
+    /// via <see cref="System.Threading.Tasks.Task.FromResult{TResult}"/>, while larger collections offload to the thread pool via <see cref="System.Threading.Tasks.Task.Run{TResult}(Func{TResult})"/>.
     /// </para>
     /// <para>
-    /// Delegates to <see cref="CollectionConverter.ToArray{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>.
+    /// Delegates to <see cref="CollectionConverter.ToArrayRow{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>.
     /// </para>
     /// </remarks>
     public static Task<TRow[]> ToArrayTask<TTestData, TRow>(
@@ -98,7 +99,7 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     => testDataCollection.ToConvertedTask(
-        tdc => tdc.ToArray(convertRow));
+        tdc => tdc.ToArrayRow(convertRow));
 
     /// <summary>
     /// Asynchronously converts a collection of test data into an array, preserving the test data items as-is (identity conversion).
@@ -124,14 +125,14 @@ public static class CollectionConverter
     /// Uses smart threshold optimization (see class remarks for details).
     /// </para>
     /// <para>
-    /// Delegates to <see cref="CollectionConverter.ToArray{TTestData}(IEnumerable{TTestData})"/>.
+    /// Delegates to <see cref="CollectionConverter.ToArrayRow{TTestData}(IEnumerable{TTestData})"/>.
     /// </para>
     /// </remarks>
     public static Task<TTestData[]> ToArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.ToConvertedTask(
-        tdc => tdc.ToArray());
+        tdc => tdc.ToArrayRow());
 
     #endregion
 
@@ -171,7 +172,7 @@ public static class CollectionConverter
     /// </para>
     /// <para>
     /// Uses smart threshold optimization (see class remarks for details).
-    /// Delegates to <see cref="CollectionConverter.ToDistinctArray{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>.
+    /// Delegates to <see cref="CollectionConverter.ToDistinctArrayRow{TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TRow})"/>.
     /// </para>
     /// </remarks>
     public static Task<TRow[]> ToDistinctArrayTask<TTestData, TRow>(
@@ -179,7 +180,7 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     => testDataCollection.ToConvertedTask(
-        tdc => tdc.ToDistinctArray(convertRow));
+        tdc => tdc.ToDistinctArrayRow(convertRow));
 
     /// <summary>
     /// Asynchronously converts a collection of test data into a distinct array, removing duplicates based on
@@ -208,14 +209,14 @@ public static class CollectionConverter
     /// </para>
     /// <para>
     /// Uses smart threshold optimization (see class remarks for details).
-    /// Delegates to <see cref="CollectionConverter.ToDistinctArray{TTestData}(IEnumerable{TTestData})"/>.
+    /// Delegates to <see cref="CollectionConverter.ToDistinctArrayRow{TTestData}(IEnumerable{TTestData})"/>.
     /// </para>
     /// </remarks>
     public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
     => testDataCollection.ToConvertedTask(
-        tdc => tdc.ToDistinctArray());
+        tdc => tdc.ToDistinctArrayRow());
 
     #endregion
 
@@ -251,8 +252,8 @@ public static class CollectionConverter
     /// <para>
     /// <strong>Smart Threshold Strategy:</strong> This method snapshots the collection and evaluates its size:
     /// <list type="bullet">
-    ///   <item><strong>&lt; 100 items:</strong> Executes synchronously via <see cref="Task.FromResult{TResult}"/> (avoids Task.Run overhead)</item>
-    ///   <item><strong>≥ 100 items:</strong> Offloads to thread pool via <see cref="Task.Run{TResult}(Func{TResult})"/> (parallel execution benefit)</item>
+    ///   <item><strong>&lt; 100 items:</strong> Executes synchronously via <see cref="System.Threading.Tasks.Task.FromResult{TResult}"/> (avoids Task.Run overhead)</item>
+    ///   <item><strong>≥ 100 items:</strong> Offloads to thread pool via <see cref="System.Threading.Tasks.Task.Run{TResult}(Func{TResult})"/> (parallel execution benefit)</item>
     /// </list>
     /// </para>
     /// <para>
@@ -264,7 +265,7 @@ public static class CollectionConverter
     /// before applying the conversion function.
     /// </para>
     /// </remarks>
-    public static Task<TResult> ToConvertedTask<TTestData, TResult>(
+    private static Task<TResult> ToConvertedTask<TTestData, TResult>(
         this IEnumerable<TTestData> testDataCollection,
         Func<IEnumerable<TTestData>, TResult> convert)
     where TTestData : notnull, ITestData

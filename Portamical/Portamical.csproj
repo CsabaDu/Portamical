@@ -27,7 +27,7 @@ Extracted Components
   - ITestDataConverter&lt;TTestData, TRow&gt; — converts test data into framework‑specific row formats
   - Full variance support (in/out)
 • Collection Converters
-  - Synchronous: ToDistinctArray&lt;TTestData, TRow&gt;() with identity/ArgsCode/PropsCode wrappers
+  - Synchronous: ToDistinctArrayRow&lt;TTestData, TRow&gt;() with identity/ArgsCode/PropsCode wrappers
   - Async Enumerables: ToDistinctAsyncEnumerable&lt;TTestData, TRow&gt;() for streaming conversion
   - Task‑based: ToDistinctArrayTask&lt;TTestData, TRow&gt;() with smart sync/async threshold
   - Data Provider Conversions: ToDataProvider&lt;TProvider, TTestData&gt;()
