@@ -170,7 +170,7 @@ public static class CollectionConverter
     #region ToTask
 
     /// <summary>
-    /// Core helper method that applies smart threshold-based optimization to convert a collection asynchronously,
+    /// Core helper method that applies smart threshold-based optimization to convertRows a collection asynchronously,
     /// choosing between synchronous and thread-pool execution based on collection size.
     /// </summary>
     /// <typeparam name="TTestData">
@@ -182,7 +182,7 @@ public static class CollectionConverter
     /// <param name="testDataCollection">
     /// The collection of test data to process. Cannot be null or empty.
     /// </param>
-    /// <param name="convert">
+    /// <param name="convertRows">
     /// A function that transforms the collection snapshot into the desired result type.
     /// Cannot be null.
     /// </param>
@@ -190,7 +190,7 @@ public static class CollectionConverter
     /// A <see cref="Task{TResult}"/> containing the conversion result.
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convert"/> is null.
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRows"/> is null.
     /// </exception>
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="testDataCollection"/> is empty.
@@ -214,7 +214,7 @@ public static class CollectionConverter
     /// </remarks>
     public static Task<TConvertedRows> ToConvertedRowsTask<TTestData, TConvertedRows>(
         this IEnumerable<TTestData> testDataCollection,
-        Func<IEnumerable<TTestData>, TConvertedRows> convert)
+        Func<IEnumerable<TTestData>, TConvertedRows> convertRows)
     where TTestData : notnull, ITestData
     {
         const int smallCollectionCountLimit = 100;
@@ -222,8 +222,8 @@ public static class CollectionConverter
         var (snapshot, count) = SnapshotWithCount(testDataCollection);
 
         return count < smallCollectionCountLimit ?
-            Task.FromResult(result: convert(snapshot))
-            : Task.Run(function: () => convert(snapshot));
+            Task.FromResult(result: convertRows(snapshot))
+            : Task.Run(function: () => convertRows(snapshot));
     }
 
     #endregion
