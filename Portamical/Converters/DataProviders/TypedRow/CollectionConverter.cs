@@ -66,6 +66,7 @@ public static class CollectionConverter
     /// This overload does NOT perform deduplication. For deduplication, use <see cref="ToDistinctDataProvider{TDataProvider, TTestData, TRow}"/>.
     /// </para>
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,
@@ -125,6 +126,7 @@ public static class CollectionConverter
     /// Test data with identical <c>TestCaseName</c> values are considered duplicates; only the first occurrence is retained.
     /// </para>
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TDataProvider> initDataProvider,

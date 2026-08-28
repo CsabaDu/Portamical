@@ -88,6 +88,7 @@ public static class CollectionConverter
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TDataProvider> initDataProvider)
@@ -240,6 +241,7 @@ public static class CollectionConverter
     /// // Result: provider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TDataProvider> initDataProvider)
