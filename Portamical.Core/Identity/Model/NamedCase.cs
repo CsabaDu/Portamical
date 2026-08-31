@@ -207,15 +207,15 @@ public abstract class NamedCase : INamedCase
 
     #endregion
 
-    /// <inheritdoc/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ExecuteIfDistinct(HashSet<INamedCase> namedCases, Action action)
-    {
-        if (namedCases?.Add(this) != false)
-        {
-            action();
-        }
-    }
+    ///// <inheritdoc/>
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public void ExecuteIfDistinct(HashSet<INamedCase> namedCases, Action action)
+    //{
+    //    if (namedCases?.Add(this) != false)
+    //    {
+    //        action();
+    //    }
+    //}
 
     /// <summary>
     /// Determines whether the current instance is contained within the specified collection of named test cases.

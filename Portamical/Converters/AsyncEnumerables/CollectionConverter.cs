@@ -62,7 +62,7 @@ public static class CollectionConverter
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
     /// <param name="testDataCollection">The source collection of test data to convert. Cannot be null or empty.</param>
     /// <param name="convertRow">A function that transforms each test data item into a row of type <typeparamref name="TRow"/>. Cannot be null.</param>
-    /// <returns>An asynchronous sequence that yields each converted row.</returns>
+    /// <returns>An asynchronous sequence that yields each convertedRows row.</returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
     /// </exception>
@@ -87,7 +87,7 @@ public static class CollectionConverter
     /// <remarks>
     /// <para>
     /// This is an identity conversion that yields the test data items themselves without transformation.
-    /// The collection is converted to an array using <see cref="RowArrays.CollectionConverter.ToRowArray{TTestData}(IEnumerable{TTestData})"/>,
+    /// The collection is convertedRows to an array using <see cref="RowArrays.CollectionConverter.ToRowArray{TTestData}(IEnumerable{TTestData})"/>,
     /// then the resulting elements are yielded asynchronously. This method is useful for integrating
     /// synchronous data into asynchronous workflows or streaming scenarios.
     /// </para>
@@ -135,7 +135,7 @@ public static class CollectionConverter
     /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
     /// <param name="testDataCollection">The source collection of test data to convert. Cannot be null or empty.</param>
     /// <param name="convertRow">A function that transforms each test data item into a row of type <typeparamref name="TRow"/>. Cannot be null. Called only for non-duplicate items.</param>
-    /// <returns>An asynchronous sequence that yields each distinct converted row once.</returns>
+    /// <returns>An asynchronous sequence that yields each distinct convertedRows row once.</returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
     /// </exception>
@@ -215,7 +215,7 @@ public static class CollectionConverter
     /// <typeparam name="TRow">
     /// The type of elements in the array.
     /// </typeparam>
-    /// <param name="converted">
+    /// <param name="convertedRows">
     /// The source array to wrap. Cannot be null.
     /// </param>
     /// <returns>
@@ -226,9 +226,9 @@ public static class CollectionConverter
     /// The <c>async</c> modifier is required for the iterator pattern, even though no actual
     /// asynchronous I/O occurs.
     /// </remarks>
-    private static async IAsyncEnumerable<TRow> ToAsyncEnumerable<TRow>(this TRow[] converted)
+    private static async IAsyncEnumerable<TRow> ToAsyncEnumerable<TRow>(this TRow[] convertedRows)
     {
-        foreach (var row in converted)
+        foreach (var row in convertedRows)
         {
             yield return row;
         }

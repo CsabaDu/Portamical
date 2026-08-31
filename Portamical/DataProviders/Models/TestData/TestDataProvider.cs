@@ -35,7 +35,7 @@ namespace Portamical.DataProviders.Models.TestData;
 /// </remarks>
 /// <example>
 /// <code>
-/// // Create provider and add test data
+/// // Create provider and addRange test data
 /// var provider = new TestDataProvider&lt;TestDataReturns&lt;int&gt;&gt;();
 /// provider.AddRow(new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5));
 /// provider.AddRow(new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12));
@@ -72,7 +72,7 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance with a single test data item.
     /// </summary>
     /// <param name="testData">
-    /// The initial test data to add to the provider.
+    /// The initial test data to addRange to the provider.
     /// </param>
     /// <exception cref="ArgumentException">
     /// Thrown if the test case name is invalid or conflicts with internal state.
@@ -90,7 +90,7 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance with a collection of test data items.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data to add to the provider.
+    /// The collection of test data to addRange to the provider.
     /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="testDataCollection"/> is <see langword="null"/>.

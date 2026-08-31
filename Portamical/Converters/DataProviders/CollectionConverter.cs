@@ -2,6 +2,7 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.DataProviders;
+using static Portamical.Converters.Utilities;
 
 namespace Portamical.Converters.DataProviders;
 
@@ -95,7 +96,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
         initDataProvider,
-        isDistinct: false);
+        beDistinct: false);
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance using the default constructor.
@@ -162,8 +163,8 @@ public static class CollectionConverter
     /// </example>
     public static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>, new()
+    where TTestData : notnull, ITestData
     {
         var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
         var dataProvider = new TDataProvider();
@@ -248,7 +249,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
         initDataProvider,
-        isDistinct: true);
+        beDistinct: true);
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance using the default constructor.
@@ -315,18 +316,17 @@ public static class CollectionConverter
     /// </example>
     public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>, new()
+    where TTestData : notnull, ITestData
     {
         var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
         var dataProvider = new TDataProvider();
-        var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
 
-        foreach (var testData in snapshot)
-        {
-            testData.ExecuteIfDistinct(namedCases,
-                action: () => dataProvider.AddRow(testData));
-        }
+        AddConvertedRows(
+            snapshot: snapshot,
+            addConvertedRow: dataProvider.AddRow,
+            beDistinct: true,
+            skipFirst: false);
 
         return dataProvider;
     }
@@ -355,12 +355,12 @@ public static class CollectionConverter
     /// <param name="initDataProvider">
     /// A function that initializes a new data provider instance using the first test data item. Cannot be null.
     /// </param>
-    /// <param name="isDistinct">
+    /// <param name="beDistinct">
     /// If <see langword="true"/>, removes duplicate test data based on <see cref="INamedCase.TestCaseName"/> using
     /// <see cref="NamedCase.Comparer"/>; if <see langword="false"/>, adds all items without deduplication.
     /// </param>
     /// <returns>
-    /// A data provider instance containing test data items from the collection. If <paramref name="isDistinct"/>
+    /// A data provider instance containing test data items from the collection. If <paramref name="beDistinct"/>
     /// is <see langword="true"/>, duplicates are removed based on <see cref="INamedCase.TestCaseName"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -377,57 +377,36 @@ public static class CollectionConverter
     ///   <item>Snapshots and validates the collection</item>
     ///   <item>Initializes the data provider using the first test data item via <paramref name="initDataProvider"/></item>
     ///   <item>If collection has only one item, returns immediately</item>
-    ///   <item>If <paramref name="isDistinct"/> is <see langword="true"/>, uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/> for O(n) deduplication</item>
+    ///   <item>If <paramref name="beDistinct"/> is <see langword="true"/>, uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/> for O(n) deduplication</item>
     ///   <item>Iterates through remaining items, adding them according to the deduplication strategy</item>
     /// </list>
     /// <para>
-    /// Uses a local <c>addRows</c> method to iterate efficiently through remaining items starting from index 1.
+    /// Uses a local <c>addRange</c> method to iterate efficiently through remaining items starting from index 1.
     /// </para>
     /// </remarks>
     private static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TDataProvider> initDataProvider,
-        bool isDistinct)
+        bool beDistinct)
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
     {
-        var (snapshot, count) = Converters.CollectionConverter.SnapshotWithCount(testDataCollection);
-        var testData = snapshot[0];
+        var (snapshot, count) = SnapshotWithCount(testDataCollection);
         var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
-            testData);
+            snapshot[0]);
 
         if (count == 1)
         {
             return dataProvider;
         }
 
-        if (isDistinct)
-        {
-            var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-            _ = namedCases.Add(testData);
-
-            addRows(td => td.ExecuteIfDistinct(namedCases,
-                action: () => dataProvider.AddRow(td)));
-        }
-        else
-        {
-            addRows(dataProvider.AddRow);
-        }
+        AddConvertedRows(
+            snapshot: snapshot,
+            addConvertedRow: dataProvider.AddRow,
+            beDistinct: beDistinct,
+            skipFirst: true);
 
         return dataProvider;
-
-        #region Local methods
-
-        void addRows(Action<TTestData> addRow)
-        {
-            for (int i = 1; i < count; i++)
-            {
-                testData = snapshot[i];
-                addRow(testData);
-            }
-        }
-
-        #endregion
     }
 
     #endregion

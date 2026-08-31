@@ -50,7 +50,7 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance and adds a single test data row.
     /// </summary>
     /// <param name="testData">
-    /// The initial test data to add. Will be converted to a row via <see cref="DistinctDataProviderBase{TTestData, TRow}.ConvertRow"/>.
+    /// The initial test data to addRange. Will be converted to a row via <see cref="DistinctDataProviderBase{TTestData, TRow}.ConvertRow"/>.
     /// </param>
     /// <exception cref="ArgumentException">
     /// Thrown if the test case name already exists in the collection.
@@ -68,7 +68,7 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance and adds multiple test data rows.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data to add. Each item will be converted to a row via <see cref="DistinctDataProviderBase{TTestData, TRow}.ConvertRow"/>.
+    /// The collection of test data to addRange. Each item will be converted to a row via <see cref="DistinctDataProviderBase{TTestData, TRow}.ConvertRow"/>.
     /// </param>
     /// <exception cref="ArgumentException">
     /// Thrown if any test case name in the collection is duplicated.

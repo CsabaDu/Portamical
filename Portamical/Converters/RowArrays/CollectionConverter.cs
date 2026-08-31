@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using static Portamical.Converters.Utilities;
+
 namespace Portamical.Converters.RowArrays;
 
 /// <summary>
@@ -49,7 +51,7 @@ public static class CollectionConverter
     /// Cannot be null. Called once for each item in the collection.
     /// </param>
     /// <returns>
-    /// An array containing the converted rows, preserving the order from the input collection.
+    /// An array containing the rows rows, preserving the order from the input collection.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
@@ -71,18 +73,18 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var (snapshot, count) =
+            SnapshotWithCount(testDataCollection);
         _ = NotNull(convertRow, nameof(convertRow));
-        var count = snapshot.Length;
-        var converted = new TRow[count];
+        var rows = new TRow[count];
 
         for (int i = 0; i < count; i++)
         {
             var testData = snapshot[i];
-            converted[i] = convertRow(testData);
+            rows[i] = convertRow(testData);
         }
         
-        return converted;
+        return rows;
     }
 
     #endregion
@@ -125,7 +127,7 @@ public static class CollectionConverter
     /// Cannot be null. Called only for non-duplicate items.
     /// </param>
     /// <returns>
-    /// An array containing the converted rows for distinct test data items, preserving the order
+    /// An array containing the rows rows for distinct test data items, preserving the order
     /// of first occurrence.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -157,14 +159,13 @@ public static class CollectionConverter
     {
         var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
         _ = NotNull(convertRow, nameof(convertRow));
-        var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
         var rows = new List<TRow>(snapshot.Length);
 
-        foreach (var testData in snapshot)
-        {
-            testData.ExecuteIfDistinct(namedCases,
-                action: () => rows.Add(convertRow(testData)));
-        }
+        AddConvertedRows(
+            snapshot: snapshot,
+            addConvertedRow: (testData) => rows.Add(convertRow(testData)),
+            beDistinct: true,
+            skipFirst: false);
 
         return [.. rows];
     }

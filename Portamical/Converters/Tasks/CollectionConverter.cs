@@ -78,7 +78,7 @@ public static class CollectionConverter
         const int smallCollectionCountLimit = 100;
 
         var (snapshot, count) =
-            Converters.CollectionConverter.SnapshotWithCount(testDataCollection);
+            Utilities.SnapshotWithCount(testDataCollection);
 
         return count < smallCollectionCountLimit ?
             Task.FromResult(result: convertRows(snapshot))

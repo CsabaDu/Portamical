@@ -96,7 +96,7 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance with a single test data item and specified conversion strategies.
     /// </summary>
     /// <param name="testData">
-    /// The initial test data to add to the provider.
+    /// The initial test data to addRange to the provider.
     /// </param>
     /// <param name="argsCode">
     /// The argument code determining the primary conversion strategy.
@@ -122,7 +122,7 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance with a collection of test data items and specified conversion strategies.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data to add to the provider.
+    /// The collection of test data to addRange to the provider.
     /// </param>
     /// <param name="argsCode">
     /// The argument code determining the primary conversion strategy.

@@ -34,7 +34,7 @@ where TTestData : notnull, ITestData
     /// Adds a new row of test data to the provider's collection.
     /// </summary>
     /// <param name="testData">
-    /// The test data to add as a new row. The <c>notnull</c> constraint ensures this parameter
+    /// The test data to addRange as a new row. The <c>notnull</c> constraint ensures this parameter
     /// cannot be <see langword="null"/> when nullable reference types are enabled.
     /// </param>
     /// <remarks>
@@ -70,7 +70,7 @@ where TTestData : notnull, ITestData
     /// Adds multiple test data rows to the provider's collection in a single operation.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data items to add. Each item will be processed and stored as a row.
+    /// The collection of test data items to addRange. Each item will be processed and stored as a row.
     /// </param>
     /// <remarks>
     /// <para>

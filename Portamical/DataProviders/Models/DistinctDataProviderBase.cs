@@ -23,7 +23,7 @@ namespace Portamical.DataProviders.Models;
 /// instantiation to derived classes within the same assembly, supporting controlled inheritance patterns.
 /// </para>
 /// <para>
-/// <strong>Deduplication:</strong> Attempting to add a test case with a duplicate name throws
+/// <strong>Deduplication:</strong> Attempting to addRange a test case with a duplicate name throws
 /// <see cref="ArgumentException"/> via the underlying dictionary.
 /// </para>
 /// </remarks>
@@ -48,7 +48,7 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance and adds a single test data row.
     /// </summary>
     /// <param name="testData">
-    /// The initial test data to add. Will be converted to a row via <see cref="ConvertRow"/>.
+    /// The initial test data to addRange. Will be converted to a row via <see cref="ConvertRow"/>.
     /// </param>
     /// <exception cref="ArgumentException">
     /// Thrown if the test case name already exists in the collection.
@@ -66,7 +66,7 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance and adds multiple test data rows.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data to add. Each item will be converted to a row via <see cref="ConvertRow"/>.
+    /// The collection of test data to addRange. Each item will be converted to a row via <see cref="ConvertRow"/>.
     /// </param>
     /// <exception cref="ArgumentException">
     /// Thrown if any test case name in the collection is duplicated.
@@ -84,7 +84,7 @@ where TTestData : notnull, ITestData
     /// Adds a new row of test data to the provider's collection after converting it to the target row format.
     /// </summary>
     /// <param name="testData">
-    /// The test data to add. Will be converted via <see cref="ConvertRow"/> before being stored.
+    /// The test data to addRange. Will be converted via <see cref="ConvertRow"/> before being stored.
     /// </param>
     /// <exception cref="ArgumentException">
     /// Thrown if a test case with the same <see cref="INamedCase.TestCaseName"/> already exists in the collection.
@@ -102,7 +102,7 @@ where TTestData : notnull, ITestData
     /// Adds multiple test data rows to the provider's collection.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data to add. Each item will be converted and added via <see cref="AddRow"/>.
+    /// The collection of test data to addRange. Each item will be converted and added via <see cref="AddRow"/>.
     /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="testDataCollection"/> is <see langword="null"/>.
