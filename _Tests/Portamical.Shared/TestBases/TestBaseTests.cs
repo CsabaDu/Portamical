@@ -4,9 +4,9 @@
 using Portamical.Core.Factories;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes;
-using Portamical.TestBases;
+using Portamical.Shared.TestBases;
 
-namespace Tests.Portamical.TestBases;
+namespace Tests.Portamical.Shared.TestBases;
 
 [TestClass]
 public class TestBaseTests
@@ -17,15 +17,15 @@ public class TestBaseTests
         public static ArgsCode GetAsProperties() => AsProperties;
         public static PropsCode GetWithTestCaseName() => WithTestCaseName;
 
-        public static T Invoke3Args<TTestData, T>(
-            Func<IEnumerable<TTestData>, ArgsCode, string?, T> convert,
+        public static object?[] Invoke3Args<TTestData>(
+            Func<IEnumerable<TTestData>, ArgsCode, string?, object?[]> convert,
             IEnumerable<TTestData> collection,
             string? name)
         where TTestData : notnull, ITestData
             => ConvertAsInstance(convert, collection, name);
 
-        public static T Invoke2Args<TTestData, T>(
-            Func<IEnumerable<TTestData>, ArgsCode, T> convert,
+        public static object?[] Invoke2Args<TTestData>(
+            Func<IEnumerable<TTestData>, ArgsCode, object?[]> convert,
             IEnumerable<TTestData> collection)
         where TTestData : notnull, ITestData
             => ConvertAsInstance(convert, collection);
@@ -54,8 +54,8 @@ public class TestBaseTests
     {
         ArgsCode? captured = null;
 #pragma warning disable IDE0039
-        Func<IEnumerable<ITestData>, ArgsCode, string?, object> convert =
-            (_, ac, _) => { captured = ac; return new object(); };
+        Func<IEnumerable<ITestData>, ArgsCode, string?, object?[]> convert =
+            (_, ac, _) => { captured = ac; return []; };
 #pragma warning restore IDE0039
 
 #pragma warning disable IDE0301
@@ -70,8 +70,8 @@ public class TestBaseTests
     {
         string? capturedName = null;
 #pragma warning disable IDE0039
-        Func<IEnumerable<ITestData>, ArgsCode, string?, object> convert =
-            (_, _, name) => { capturedName = name; return new object(); };
+        Func<IEnumerable<ITestData>, ArgsCode, string?, object?[]> convert =
+            (_, _, name) => { capturedName = name; return []; };
 #pragma warning restore IDE0039
 
 #pragma warning disable IDE0301
@@ -86,8 +86,8 @@ public class TestBaseTests
     {
         string? capturedName = "sentinel";
 #pragma warning disable IDE0039
-        Func<IEnumerable<ITestData>, ArgsCode, string?, object> convert =
-            (_, _, name) => { capturedName = name; return new object(); };
+        Func<IEnumerable<ITestData>, ArgsCode, string?, object?[]> convert =
+            (_, _, name) => { capturedName = name; return []; };
 #pragma warning restore IDE0039
 
 #pragma warning disable IDE0301
@@ -104,8 +104,8 @@ public class TestBaseTests
         var item = TestDataFactory.CreateTestData<int>("def", "result", 1);
         ITestData[] collection = [item];
 #pragma warning disable IDE0039
-        Func<IEnumerable<ITestData>, ArgsCode, string?, object> convert =
-            (col, _, _) => { capturedCollection = col; return new object(); };
+        Func<IEnumerable<ITestData>, ArgsCode, string?, object?[]> convert =
+            (col, _, _) => { capturedCollection = col; return []; };
 #pragma warning restore IDE0039
 
         ConcreteBase.Invoke3Args(convert, collection, null);
@@ -116,7 +116,7 @@ public class TestBaseTests
     [TestMethod]
     public void ConvertAsInstance_3args_nullConvert_throwsArgumentNullException()
     {
-        Func<IEnumerable<ITestData>, ArgsCode, string?, object> nullConvert = null!;
+        Func<IEnumerable<ITestData>, ArgsCode, string?, object?[]> nullConvert = null!;
         Assert.ThrowsExactly<ArgumentNullException>(
 #pragma warning disable IDE0301
             () => ConcreteBase.Invoke3Args(nullConvert, Array.Empty<ITestData>(), null));
@@ -132,8 +132,8 @@ public class TestBaseTests
     {
         ArgsCode? captured = null;
 #pragma warning disable IDE0039
-        Func<IEnumerable<ITestData>, ArgsCode, object> convert =
-            (_, ac) => { captured = ac; return new object(); };
+        Func<IEnumerable<ITestData>, ArgsCode, object?[]> convert =
+            (_, ac) => { captured = ac; return []; };
 #pragma warning restore IDE0039
 
 #pragma warning disable IDE0301
@@ -150,8 +150,8 @@ public class TestBaseTests
         var item = TestDataFactory.CreateTestData<int>("def", "result", 1);
         ITestData[] collection = [item];
 #pragma warning disable IDE0039
-        Func<IEnumerable<ITestData>, ArgsCode, object> convert =
-            (col, _) => { capturedCollection = col; return new object(); };
+        Func<IEnumerable<ITestData>, ArgsCode, object?[]> convert =
+            (col, _) => { capturedCollection = col; return []; };
 #pragma warning restore IDE0039
 
         ConcreteBase.Invoke2Args(convert, collection);
@@ -162,7 +162,7 @@ public class TestBaseTests
     [TestMethod]
     public void ConvertAsInstance_2args_nullConvert_throwsArgumentNullException()
     {
-        Func<IEnumerable<ITestData>, ArgsCode, object> nullConvert = null!;
+        Func<IEnumerable<ITestData>, ArgsCode, object?[]> nullConvert = null!;
         Assert.ThrowsExactly<ArgumentNullException>(
 #pragma warning disable IDE0301
             () => ConcreteBase.Invoke2Args(nullConvert, Array.Empty<ITestData>()));

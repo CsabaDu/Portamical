@@ -3,9 +3,9 @@
 
 using Portamical.Core.Factories;
 using Portamical.Core.TestDataTypes;
-using Portamical.TestBases.TestDataCollection;
+using Portamical.Shared.TestBases.TestDataCollection;
 
-namespace Tests.Portamical.TestBases.TestDataCollection;
+namespace Tests.Portamical.Shared.TestBases.TestDataCollection;
 
 [TestClass]
 public class TestBaseTests

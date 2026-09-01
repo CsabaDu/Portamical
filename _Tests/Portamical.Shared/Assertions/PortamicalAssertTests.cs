@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Assertions;
+using Portamical.Shared.Assertions;
 
-namespace Tests.Portamical.Assertions;
+namespace Tests.Portamical.Shared.Assertions;
 
 [TestClass]
 public class PortamicalAssertTests
@@ -304,6 +304,66 @@ public class PortamicalAssertTests
     public async Task DoesNotThrowAsync_nullAssertFailAsync_throwsArgumentNullException()
         => await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await PortamicalAssert.DoesNotThrowAsync(() => Task.CompletedTask, null!));
+
+    #endregion
+
+    #region ThrowsAny
+
+    [TestMethod]
+    public void ThrowsAny_nullAttempt_throwsArgumentNullException()
+        => Assert.ThrowsExactly<ArgumentNullException>(
+            () => PortamicalAssert.ThrowsAny(null!, _ => { }));
+
+    [TestMethod]
+    public void ThrowsAny_nullAssertFail_throwsArgumentNullException()
+        => Assert.ThrowsExactly<ArgumentNullException>(
+            () => PortamicalAssert.ThrowsAny(() => { }, null!));
+
+    [TestMethod]
+    public void ThrowsAny_exceptionThrown_returnsSameException()
+    {
+        bool assertFailCalled = false;
+        var thrown = new InvalidOperationException("sync oops");
+
+        var result = PortamicalAssert.ThrowsAny(
+            () => throw thrown,
+            _ => assertFailCalled = true);
+
+        Assert.AreSame(thrown, result);
+        Assert.IsFalse(assertFailCalled);
+    }
+
+    [TestMethod]
+    public void ThrowsAny_noException_callsAssertFailWithExpectedMessage()
+    {
+        string? capturedMessage = null;
+
+        var ex = Assert.ThrowsExactly<ApplicationException>(
+            () => PortamicalAssert.ThrowsAny(
+                () => { },
+                msg =>
+                {
+                    capturedMessage = msg;
+                    throw new ApplicationException(msg);
+                }));
+
+        Assert.IsNotNull(capturedMessage);
+        AssertContainsOrdinal(capturedMessage, "Expected exception");
+        AssertContainsOrdinal(capturedMessage, "no exception was thrown");
+        Assert.AreEqual(capturedMessage, ex.Message);
+    }
+
+    [TestMethod]
+    public void ThrowsAny_noException_assertFailDoesNotThrow_throwsFallbackInvalidOperationException()
+    {
+        var ex = Assert.ThrowsExactly<InvalidOperationException>(
+            () => PortamicalAssert.ThrowsAny(
+                () => { },
+                _ => { }));
+
+        AssertContainsOrdinal(ex.Message, "Assertion failed:");
+        AssertContainsOrdinal(ex.Message, "assertFail delegate completed without terminating test execution");
+    }
 
     #endregion
 
