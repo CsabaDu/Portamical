@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using static Portamical.Converters.Utilities;
+using static Portamical.Converters.ConverterHelpers;
 
 namespace Portamical.Converters.RowArrays;
 
@@ -164,7 +164,7 @@ public static class CollectionConverter
         AddConvertedRows(
             snapshot: snapshot,
             addConvertedRow: (testData) => rows.Add(convertRow(testData)),
-            beDistinct: true,
+            removeDuplicates: true,
             skipFirst: false);
 
         return [.. rows];

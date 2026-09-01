@@ -14,14 +14,14 @@ namespace Portamical.Converters;
 /// not part of the public API.
 /// </para>
 /// <para>
-/// <strong>Key Utilities:</strong>
+/// <strong>Key ConverterHelpers:</strong>
 /// </para>
 /// <list type="bullet">
 ///   <item><see cref="AddConvertedRows{TTestData}"/> - Efficient iteration with optional deduplication and skip-first capability</item>
 ///   <item><see cref="SnapshotWithCount{TTestData}"/> - Collection validation and snapshotting with count</item>
 /// </list>
 /// </remarks>
-internal static class Utilities
+internal static class ConverterHelpers
 {
     /// <summary>
     /// Internal helper method that iterates through a snapshot array and applies a conversion action to each item,
@@ -37,7 +37,7 @@ internal static class Utilities
     /// An action that processes and adds each test data item (typically after conversion).
     /// Called once for each item that passes deduplication checks (if enabled).
     /// </param>
-    /// <param name="beDistinct">
+    /// <param name="removeDuplicates">
     /// If <see langword="true"/>, removes duplicate test data based on <see cref="INamedCase.TestCaseName"/>
     /// using <see cref="NamedCase.Comparer"/>. The first item in the snapshot is always added to the deduplication
     /// set before iteration begins. If <see langword="false"/>, processes all items without deduplication.
@@ -52,7 +52,7 @@ internal static class Utilities
     /// the common pattern of iterating through a snapshot with optional deduplication and first-item handling.
     /// </para>
     /// <para>
-    /// <strong>Deduplication Strategy:</strong> When <paramref name="beDistinct"/> is <see langword="true"/>:
+    /// <strong>Deduplication Strategy:</strong> When <paramref name="removeDuplicates"/> is <see langword="true"/>:
     /// </para>
     /// <list type="bullet">
     ///   <item>Creates a <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/> for O(1) lookups</item>
@@ -71,27 +71,31 @@ internal static class Utilities
     /// // Process all items without deduplication
     /// AddConvertedRows(snapshot, 
     ///     addConvertedRow: td => collection.Add(Convert(td)),
-    ///     beDistinct: false,
+    ///     removeDuplicates: false,
     ///     skipFirst: false);
     /// 
     /// // Process remaining items (skip first) with deduplication
     /// AddConvertedRows(snapshot,
     ///     addConvertedRow: td => collection.Add(Convert(td)),
-    ///     beDistinct: true,
+    ///     removeDuplicates: true,
     ///     skipFirst: true);
     /// </code>
     /// </example>
     internal static void AddConvertedRows<TTestData>(
         TTestData[] snapshot,
         Action<TTestData> addConvertedRow,
-        bool beDistinct,
+        bool removeDuplicates,
         bool skipFirst)
     where TTestData : notnull, ITestData
     {
-        if (beDistinct)
+        if (removeDuplicates)
         {
             var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-            _ = namedCases.Add(snapshot[0]);
+
+            if (skipFirst)
+            {
+                _ = namedCases.Add(snapshot[0]);
+            }
 
             addRange((testData) =>
             {

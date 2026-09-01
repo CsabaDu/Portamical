@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using static Portamical.Converters.RowArrays.ObjectArray.CollectionConverter;
+
 namespace Portamical.Shared.TestBases.ObjectArrayCollection;
 
 /// <summary>
@@ -133,7 +135,7 @@ public abstract class TestBase : TestBases.TestBase
         IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray(argsCode);
+    => testDataCollection.ToDistinctRowArray(argsCode, PropsCode.TrimTestCaseName);
 
     /// <summary>
     /// Converts a collection of test data into distinct object arrays using instance mode (default).

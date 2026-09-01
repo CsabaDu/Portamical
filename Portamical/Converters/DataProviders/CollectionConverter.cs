@@ -2,7 +2,7 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.DataProviders;
-using static Portamical.Converters.Utilities;
+using static Portamical.Converters.ConverterHelpers;
 
 namespace Portamical.Converters.DataProviders;
 
@@ -96,7 +96,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
         initDataProvider,
-        beDistinct: false);
+        removeDuplicates: false);
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance using the default constructor.
@@ -249,7 +249,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
         initDataProvider,
-        beDistinct: true);
+        removeDuplicates: true);
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance using the default constructor.
@@ -325,7 +325,7 @@ public static class CollectionConverter
         AddConvertedRows(
             snapshot: snapshot,
             addConvertedRow: dataProvider.AddRow,
-            beDistinct: true,
+            removeDuplicates: true,
             skipFirst: false);
 
         return dataProvider;
@@ -355,12 +355,12 @@ public static class CollectionConverter
     /// <param name="initDataProvider">
     /// A function that initializes a new data provider instance using the first test data item. Cannot be null.
     /// </param>
-    /// <param name="beDistinct">
+    /// <param name="removeDuplicates">
     /// If <see langword="true"/>, removes duplicate test data based on <see cref="INamedCase.TestCaseName"/> using
     /// <see cref="NamedCase.Comparer"/>; if <see langword="false"/>, adds all items without deduplication.
     /// </param>
     /// <returns>
-    /// A data provider instance containing test data items from the collection. If <paramref name="beDistinct"/>
+    /// A data provider instance containing test data items from the collection. If <paramref name="removeDuplicates"/>
     /// is <see langword="true"/>, duplicates are removed based on <see cref="INamedCase.TestCaseName"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -377,7 +377,7 @@ public static class CollectionConverter
     ///   <item>Snapshots and validates the collection</item>
     ///   <item>Initializes the data provider using the first test data item via <paramref name="initDataProvider"/></item>
     ///   <item>If collection has only one item, returns immediately</item>
-    ///   <item>If <paramref name="beDistinct"/> is <see langword="true"/>, uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/> for O(n) deduplication</item>
+    ///   <item>If <paramref name="removeDuplicates"/> is <see langword="true"/>, uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/> for O(n) deduplication</item>
     ///   <item>Iterates through remaining items, adding them according to the deduplication strategy</item>
     /// </list>
     /// <para>
@@ -387,7 +387,7 @@ public static class CollectionConverter
     private static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TDataProvider> initDataProvider,
-        bool beDistinct)
+        bool removeDuplicates)
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
     {
@@ -403,7 +403,7 @@ public static class CollectionConverter
         AddConvertedRows(
             snapshot: snapshot,
             addConvertedRow: dataProvider.AddRow,
-            beDistinct: beDistinct,
+            removeDuplicates: removeDuplicates,
             skipFirst: true);
 
         return dataProvider;
