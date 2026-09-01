@@ -3,7 +3,6 @@
 
 using static Portamical.Converters.RowArrays.TestData.CollectionConverter;
 
-
 namespace Portamical.Shared.TestBases.TestDataCollection;
 
 /// <summary>
