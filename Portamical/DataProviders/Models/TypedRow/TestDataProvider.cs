@@ -93,7 +93,7 @@ where TTestData : notnull, ITestData
     /// <see cref="DistinctDataProviderBase{TTestData, TRow}.AddRange"/>.
     /// </remarks>
     protected TestDataProvider(ArgsCode argsCode, string? testMethodName)
-    : base()
+    : this()
     {
         ArgsCode = argsCode.Defined(nameof(argsCode));
         TestMethodName = testMethodName;

@@ -3,7 +3,7 @@
 
 using Portamical.Core.Factories;
 using Portamical.Core.TestDataTypes;
-using IdentityProvider = Portamical.DataProviders.Models.TestData.TestDataProvider<Portamical.Core.TestDataTypes.ITestData>;
+using Sut = global::Portamical.DataProviders.Models.TestData.TestDataProvider<global::Portamical.Core.TestDataTypes.ITestData>;
 
 namespace Tests.Portamical.DataProviders.Models.TestData;
 
@@ -16,43 +16,62 @@ public class TestDataProviderTests
 #pragma warning restore CA1859
 
     [TestMethod]
-    public void ConvertRow_returnsSameInstance()
+    public void Constructor_withCollection_addsAllItemsAsRows()
     {
-        var item = CreateData("identity", 3);
-        var provider = new IdentityProvider();
+        var item1 = CreateData("first", 1);
+        var item2 = CreateData("second", 2);
+        var item3 = CreateData("third", 3);
+        ITestData[] collection = [item1, item2, item3];
 
-        var row = provider.ConvertRow(item);
+        var provider = new Sut(collection);
+        var rows = provider.GetRows();
 
-        Assert.AreSame(item, row);
+        Assert.IsNotNull(provider);
+        Assert.HasCount(3, rows);
+        Assert.AreSame(item1, rows[0]);
+        Assert.AreSame(item2, rows[1]);
+        Assert.AreSame(item3, rows[2]);
     }
 
     [TestMethod]
-    public void Constructor_withSingleItem_populatesInitialRow()
+    public void Constructor_withCollection_registersRowsByTestCaseName()
     {
-        var item = CreateData("single", 4);
-        var provider = new IdentityProvider(item);
+        var item1 = CreateData("lookup-1", 1);
+        var item2 = CreateData("lookup-2", 2);
+        ITestData[] collection = [item1, item2];
 
-        Assert.AreSame(item, provider.GetRow(item.TestCaseName));
-        Assert.AreSame(item, provider.Single());
+        var provider = new Sut(collection);
+
+        Assert.AreSame(item1, provider.GetRow(item1.TestCaseName));
+        Assert.AreSame(item2, provider.GetRow(item2.TestCaseName));
     }
 
     [TestMethod]
-    public void Constructor_withCollection_populatesAllRows()
+    public void Constructor_withCollection_nullCollection_throwsArgumentNullException()
     {
-        var first = CreateData("first", 1);
-        var second = CreateData("second", 2);
-        var provider = new IdentityProvider([first, second]);
+        IEnumerable<ITestData> nullCollection = null!;
 
-        CollectionAssert.AreEqual([first, second], provider.GetRows());
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => _ = new Sut(nullCollection));
     }
 
     [TestMethod]
-    public void AddRange_duplicateTestCaseName_throwsArgumentException()
+    public void Constructor_withCollection_emptyCollection_throwsArgumentException()
     {
-        var provider = new IdentityProvider();
+        var empty = Array.Empty<ITestData>();
 
-        Assert.ThrowsExactly<ArgumentException>(() => provider.AddRange([
-            CreateData("dup", 1),
-            CreateData("dup", 2)]));
+        Assert.ThrowsExactly<ArgumentException>(
+            () => _ = new Sut(empty));
+    }
+
+    [TestMethod]
+    public void Constructor_withCollection_duplicateTestCaseNames_throwsArgumentException()
+    {
+        var first = CreateData("duplicate-name", 1);
+        var duplicate = TestDataFactory.CreateTestData<int>("duplicate-name", "result", 99);
+        ITestData[] collection = [first, duplicate];
+
+        Assert.ThrowsExactly<ArgumentException>(
+            () => _ = new Sut(collection));
     }
 }

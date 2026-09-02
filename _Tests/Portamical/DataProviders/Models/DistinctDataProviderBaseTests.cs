@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Factories;
-using Portamical.Core.TestDataTypes;
-using Portamical.DataProviders.Models;
 using System.Collections;
+using Portamical.Core.Identity;
+using Portamical.Core.Strategy;
+using Portamical.Core.TestDataTypes;
+using BaseProvider = Portamical.DataProviders.Models.TestDataProvider<Portamical.Core.TestDataTypes.ITestData, string>;
 
 namespace Tests.Portamical.DataProviders.Models;
 
 [TestClass]
 public class DistinctDataProviderBaseTests
 {
-    private sealed class ConcreteProvider : TestDataProvider<ITestData, string>
+    private sealed class ConcreteProvider : BaseProvider
     {
+        public int ConversionCount { get; private set; }
+
         public ConcreteProvider()
         {
         }
@@ -28,62 +31,197 @@ public class DistinctDataProviderBaseTests
         }
 
         public override string ConvertRow(ITestData testData)
-            => testData.TestCaseName;
+        {
+            ConversionCount++;
+            return testData.TestCaseName;
+        }
     }
 
-#pragma warning disable CA1859
-    private static ITestData CreateData(string definition, int arg = 1)
-        => TestDataFactory.CreateTestData<int>(definition, "result", arg);
-#pragma warning restore CA1859
+    private sealed class StubTestData(string testCaseName) : ITestData
+    {
+        public string TestCaseName { get; init; } = testCaseName;
+
+        public bool ContainedBy(IEnumerable<INamedCase>? namedCases)
+            => namedCases?.Any(namedCase => Equals(namedCase)) is true;
+
+        public bool Equals(INamedCase? other)
+            => string.Equals(TestCaseName, other?.TestCaseName, StringComparison.Ordinal);
+
+        public string? GetDisplayName(string? testMethodName)
+            => string.IsNullOrWhiteSpace(testMethodName)
+                ? TestCaseName
+                : $"{testMethodName}(testData: {TestCaseName})";
+
+        public string GetDefinition()
+            => TestCaseName;
+
+        public string GetResult()
+            => TestCaseName;
+
+        public object?[] ToArgs(ArgsCode argsCode)
+            => [this];
+
+        public object?[] ToArgs(ArgsCode argsCode, PropsCode propsCode)
+            => [this];
+    }
+
+    private static ITestData CreateData(string testCaseName)
+        => new StubTestData(testCaseName);
 
     [TestMethod]
-    public void AddRow_and_GetRow_useConvertedRow()
+    public void Constructor_withoutArguments_createsEmptyProvider()
     {
-        var item = CreateData("single");
         var provider = new ConcreteProvider();
 
-        provider.AddRow(item);
-
-        Assert.AreEqual(item.TestCaseName, provider.GetRow(item.TestCaseName));
-        CollectionAssert.AreEqual([item.TestCaseName], provider.GetRows());
+        Assert.AreEqual(0, provider.ConversionCount);
+        CollectionAssert.AreEqual(Array.Empty<string>(), provider.GetRows());
+        CollectionAssert.AreEqual(Array.Empty<string>(), provider.GetTestCaseNames());
+        Assert.IsNull(provider.GetRow("missing"));
+        Assert.IsFalse(provider.GetEnumerator().MoveNext());
     }
 
     [TestMethod]
-    public void Constructor_withCollection_populatesRowsAndNames()
+    public void Constructor_withSingleItem_addsInitialRow()
     {
-        var first = CreateData("first", 1);
-        var second = CreateData("second", 2);
+        var testData = CreateData("single");
+        var provider = new ConcreteProvider(testData);
 
+        Assert.AreEqual(1, provider.ConversionCount);
+        Assert.AreEqual(testData.TestCaseName, provider.GetRow(testData.TestCaseName));
+        CollectionAssert.AreEqual(new[] { testData.TestCaseName }, provider.GetRows());
+        CollectionAssert.AreEqual(new[] { testData.TestCaseName }, provider.GetTestCaseNames());
+    }
+
+    [TestMethod]
+    public void Constructor_withCollection_addsInitialRows()
+    {
+        var first = CreateData("first");
+        var second = CreateData("second");
         var provider = new ConcreteProvider([first, second]);
 
-        CollectionAssert.AreEqual(
-            [first.TestCaseName, second.TestCaseName],
-            provider.GetRows());
-        CollectionAssert.AreEqual(
-            [first.TestCaseName, second.TestCaseName],
-            provider.GetTestCaseNames());
+        Assert.AreEqual(2, provider.ConversionCount);
+        CollectionAssert.AreEqual(new[] { first.TestCaseName, second.TestCaseName }, provider.GetRows());
+        CollectionAssert.AreEqual(new[] { first.TestCaseName, second.TestCaseName }, provider.GetTestCaseNames());
     }
 
     [TestMethod]
-    public void AddRow_duplicateTestCaseName_throwsArgumentException()
+    public void AddRow_duplicateName_throwsArgumentException()
     {
-        var provider = new ConcreteProvider(CreateData("dup", 1));
-        var duplicate = CreateData("dup", 2);
+        var provider = new ConcreteProvider();
+        provider.AddRow(CreateData("duplicate"));
 
-        Assert.ThrowsExactly<ArgumentException>(() => provider.AddRow(duplicate));
+        Assert.ThrowsExactly<ArgumentException>(
+            () => provider.AddRow(CreateData("duplicate")));
     }
 
     [TestMethod]
-    public void GetEnumerator_returnsConvertedRows()
+    public void AddRow_usesOrdinalComparisonForCaseSensitivity()
     {
-        var first = CreateData("enum-1", 1);
-        var second = CreateData("enum-2", 2);
-        var provider = new ConcreteProvider([first, second]);
+        var provider = new ConcreteProvider();
 
-        var genericRows = provider.ToArray();
-        var nongenericRows = ((IEnumerable)provider).Cast<string>().ToArray();
+        provider.AddRow(CreateData("case"));
+        provider.AddRow(CreateData("CASE"));
 
-        CollectionAssert.AreEqual([first.TestCaseName, second.TestCaseName], genericRows);
-        CollectionAssert.AreEqual(genericRows, nongenericRows);
+        CollectionAssert.AreEqual(new[] { "case", "CASE" }, provider.GetRows());
+    }
+
+    [TestMethod]
+    public void AddRange_nullCollection_throwsArgumentNullException()
+    {
+        var provider = new ConcreteProvider();
+        IEnumerable<ITestData> testDataCollection = null!;
+
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => provider.AddRange(testDataCollection));
+    }
+
+    [TestMethod]
+    public void AddRange_emptyCollection_throwsArgumentException()
+    {
+        var provider = new ConcreteProvider();
+
+        Assert.ThrowsExactly<ArgumentException>(
+            () => provider.AddRange(Array.Empty<ITestData>()));
+    }
+
+    [TestMethod]
+    public void AddRange_duplicateInBatch_keepsPreviouslyAddedRows()
+    {
+        var provider = new ConcreteProvider();
+        var first = CreateData("first");
+        var second = CreateData("second");
+        var duplicate = CreateData("first");
+
+        Assert.ThrowsExactly<ArgumentException>(
+            () => provider.AddRange([first, second, duplicate]));
+
+        CollectionAssert.AreEqual(new[] { first.TestCaseName, second.TestCaseName }, provider.GetRows());
+        Assert.AreEqual(3, provider.ConversionCount);
+        Assert.AreEqual(first.TestCaseName, provider.GetRow(first.TestCaseName));
+        Assert.AreEqual(second.TestCaseName, provider.GetRow(second.TestCaseName));
+    }
+
+    [TestMethod]
+    public void GetRow_withNullName_usesEmptyStringKey()
+    {
+        var provider = new ConcreteProvider();
+        provider.AddRow(CreateData(string.Empty));
+
+        Assert.AreEqual(string.Empty, provider.GetRow(null!));
+    }
+
+    [TestMethod]
+    public void GetRows_returnsSnapshot()
+    {
+        var provider = new ConcreteProvider();
+        provider.AddRow(CreateData("first"));
+        var snapshot = provider.GetRows();
+
+        provider.AddRow(CreateData("second"));
+
+        CollectionAssert.AreEqual(new[] { "first" }, snapshot);
+        CollectionAssert.AreEqual(new[] { "first", "second" }, provider.GetRows());
+    }
+
+    [TestMethod]
+    public void GetTestCaseNames_returnsSnapshot()
+    {
+        var provider = new ConcreteProvider();
+        provider.AddRow(CreateData("first"));
+        var snapshot = provider.GetTestCaseNames();
+
+        provider.AddRow(CreateData("second"));
+
+        CollectionAssert.AreEqual(new[] { "first" }, snapshot);
+        CollectionAssert.AreEqual(new[] { "first", "second" }, provider.GetTestCaseNames());
+    }
+
+    [TestMethod]
+    public void GetEnumerator_returnsGenericEnumeratorOverRows()
+    {
+        var provider = new ConcreteProvider();
+        provider.AddRow(CreateData("first"));
+        provider.AddRow(CreateData("second"));
+
+        var rows = provider.ToArray();
+
+        CollectionAssert.AreEqual(new[] { "first", "second" }, rows);
+    }
+
+    [TestMethod]
+    public void NonGenericGetEnumerator_returnsEnumeratorOverRows()
+    {
+        var provider = new ConcreteProvider();
+        provider.AddRow(CreateData("first"));
+        provider.AddRow(CreateData("second"));
+        var enumerator = ((IEnumerable)provider).GetEnumerator();
+        var rows = new List<string>();
+
+        while (enumerator.MoveNext())
+        {
+            rows.Add((string)enumerator.Current!);
+        }
+
+        CollectionAssert.AreEqual(new[] { "first", "second" }, rows);
     }
 }

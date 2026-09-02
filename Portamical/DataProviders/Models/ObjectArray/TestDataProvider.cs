@@ -86,7 +86,7 @@ where TTestData : notnull, ITestData
     /// <see cref="DistinctDataProviderBase{TTestData, TRow}.AddRange"/>.
     /// </remarks>
     public TestDataProvider(ArgsCode argsCode, PropsCode propsCode)
-    : base()
+    : this()
     {
         ArgsCode = argsCode.Defined(nameof(argsCode));
         PropsCode = propsCode.Defined(nameof(propsCode));

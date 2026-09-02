@@ -2,6 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Factories;
+using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes;
 using BaseProvider = Portamical.DataProviders.Models.TypedRow.TestDataProvider<Portamical.Core.TestDataTypes.ITestData, string>;
 
@@ -73,8 +74,7 @@ public class TestDataProviderTests
         var second = CreateData("second", 2);
         var provider = new ConcreteProvider([first, second], ArgsCode.Instance, null);
 
-        CollectionAssert.AreEqual(
-            [first.TestCaseName, second.TestCaseName],
+        CollectionAssert.AreEqual(new object[] { first.TestCaseName, second.TestCaseName },
             provider.GetRows());
     }
 }

@@ -75,7 +75,10 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
-        td => initDataProvider(td, argsCode, testMethodName));
+        testData => NotNull(initDataProvider, nameof(initDataProvider))(
+            testData,
+            argsCode,
+            testMethodName));
 
     #endregion
 
@@ -135,7 +138,10 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
     => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
-        td => initDataProvider(td, argsCode, testMethodName));
+        testData => NotNull(initDataProvider, nameof(initDataProvider))(
+            testData,
+            argsCode,
+            testMethodName));
 
     #endregion
 }
