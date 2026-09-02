@@ -43,7 +43,7 @@ public class CollectionConverter_ToDataProviderTests
 
         Assert.AreEqual(ArgsCode.Instance, provider.ArgsCode);
         Assert.AreEqual(PropsCode.All, provider.PropsCode);
-        Assert.AreEqual(1, provider.GetRows().Length);
+        Assert.HasCount(1, provider.GetRows());
         CollectionAssert.AreEqual(item.ToArgs(default, default), provider.GetRows()[0]);
     }
 
@@ -62,7 +62,7 @@ public class CollectionConverter_ToDataProviderTests
 
         Assert.AreEqual(ArgsCode.Instance, provider.ArgsCode);
         Assert.AreEqual(PropsCode.All, provider.PropsCode);
-        Assert.AreEqual(3, provider.GetRows().Length);
+        Assert.HasCount(3, provider.GetRows());
         CollectionAssert.AreEqual(item1.ToArgs(default, default), provider.GetRows()[0]);
         CollectionAssert.AreEqual(item2.ToArgs(default, default), provider.GetRows()[1]);
         CollectionAssert.AreEqual(item3.ToArgs(default, default), provider.GetRows()[2]);
@@ -143,7 +143,7 @@ public class CollectionConverter_ToDataProviderTests
 
         Assert.AreEqual(ArgsCode.Instance, provider.ArgsCode);
         Assert.AreEqual(PropsCode.All, provider.PropsCode);
-        Assert.AreEqual(1, provider.GetRows().Length);
+        Assert.HasCount(1, provider.GetRows());
         CollectionAssert.AreEqual(first.ToArgs(default, default), provider.GetRows()[0]);
     }
 
@@ -162,7 +162,7 @@ public class CollectionConverter_ToDataProviderTests
             ArgsCode.Instance,
             PropsCode.All);
 
-        Assert.AreEqual(4, provider.GetRows().Length);
+        Assert.HasCount(4, provider.GetRows());
         CollectionAssert.AreEqual(item1.ToArgs(default, default), provider.GetRows()[0]);
         CollectionAssert.AreEqual(item2.ToArgs(default, default), provider.GetRows()[1]);
         CollectionAssert.AreEqual(item3.ToArgs(default, default), provider.GetRows()[2]);
