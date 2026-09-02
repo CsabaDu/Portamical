@@ -901,6 +901,7 @@ internal sealed class DefaultFormatter : IFormatter
                 $"{typeName} (Length: {stream.Length}, Position: {stream.Position})"
                 : $"{typeName} (Position: {stream.Position})";
         }
+#pragma warning disable CS0168 // Variable is used only in DEBUG logging
         catch (Exception ex)
         {
 #if DEBUG
@@ -910,6 +911,7 @@ internal sealed class DefaultFormatter : IFormatter
 #endif
             return null;
         }
+#pragma warning restore CS0168
     }
 
     #endregion

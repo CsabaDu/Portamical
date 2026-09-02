@@ -615,10 +615,11 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withAnonymousLambda_returnsTypeAndAnonymous()
     {
-        Func<int, string> func = x => x.ToString();
-        var result = Formatter.Format(func);
+        var result = Formatter.Format(toString);
         Assert.Contains("Func<int, string>", result!);
         Assert.Contains("anonymous", result!);
+
+        static string toString(int x) => x.ToString();
     }
 
     [TestMethod]
@@ -634,10 +635,11 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withSimpleActionLambda_returnsTypeAndAnonymous()
     {
-        Action simple = () => Console.WriteLine("test");
         var result = Formatter.Format(simple);
         Assert.Contains("Action", result!);
         Assert.Contains("anonymous", result!);
+
+        static void simple() => Console.WriteLine("test");
     }
 
     [TestMethod]
@@ -653,10 +655,11 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withPredicateLambda_returnsTypeAndAnonymous()
     {
-        Predicate<int> pred = x => x > 0;
-        var result = Formatter.Format(pred);
+        var result = Formatter.Format((Predicate<int>)predicate);
         Assert.Contains("Predicate<int>", result!);
         Assert.Contains("anonymous", result!);
+
+        static bool predicate(int x) => x > 0;
     }
 
     [TestMethod]
@@ -681,19 +684,21 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withActionOfTwoParams_returnsTypeAndAnonymous()
     {
-        Action<int, string> action = (x, s) => Console.WriteLine($"{x}: {s}");
-        var result = Formatter.Format(action);
+        var result = Formatter.Format(actionOfTwo);
         Assert.Contains("Action<int, string>", result!);
         Assert.Contains("anonymous", result!);
+
+        static void actionOfTwo(int x, string s) => Console.WriteLine($"{x}: {s}");
     }
 
     [TestMethod]
     public void Format_withFuncOfThreeParams_returnsTypeAndAnonymous()
     {
-        Func<int, string, bool, string> func = (x, s, b) => $"{x}-{s}-{b}";
-        var result = Formatter.Format(func);
+        var result = Formatter.Format(funcOfThree);
         Assert.Contains("Func<int, string, bool, string>", result!);
         Assert.Contains("anonymous", result!);
+
+        static string funcOfThree(int x, string s, bool b) => $"{x}-{s}-{b}";
     }
 
     [TestMethod]
@@ -708,7 +713,9 @@ public class DefaultFormatterTests
     [TestMethod]
     public void Format_withEventHandler_returnsTypeAndAnonymous()
     {
+#pragma warning disable IDE0039 // Lambda expression is intentional for anonymous delegate formatting test
         EventHandler handler = (sender, e) => Console.WriteLine("Event fired");
+#pragma warning restore IDE0039
         var result = Formatter.Format(handler);
         Assert.Contains("EventHandler", result!);
         Assert.Contains("anonymous", result!);
@@ -730,10 +737,11 @@ public class DefaultFormatterTests
     {
         // Compiler-generated methods have angle brackets in their names
         // This test verifies the IsAnonymousDelegate logic detects '<' and '>'
-        Func<int, int> lambda = x => x * 2;
-        var result = Formatter.Format(lambda);
+        var result = Formatter.Format(multiplyByTwo);
         Assert.Contains("Func<int, int>", result!);
         Assert.Contains("anonymous", result!);
+
+        static int multiplyByTwo(int x) => x * 2;
     }
 
     [TestMethod]
@@ -742,10 +750,15 @@ public class DefaultFormatterTests
         // Some compilers may generate method names starting with "lambda_"
         // This verifies that detection works via the lambda_ prefix path
         // Note: Hard to create directly, but the code path exists for it
-        Action action = () => { };
-        var result = Formatter.Format(action);
+        var result = Formatter.Format(emptyLambda);
         Assert.Contains("Action", result!);
         Assert.Contains("anonymous", result!);
+
+#pragma warning disable S1186 // Empty method is intentional for delegate-anonymous detection test
+#pragma warning disable S108 // Empty nested block is intentional in this local test helper
+        static void emptyLambda() { } // This will be compiled as a lambda method
+#pragma warning restore S108
+#pragma warning restore S1186
     }
 
 
