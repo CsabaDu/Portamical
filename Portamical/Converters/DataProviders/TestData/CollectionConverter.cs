@@ -156,7 +156,7 @@ public static class CollectionConverter
         Func<TTestData, TDataProvider> initDataProvider)
     where TDataProvider : notnull, ITestDataProvider<TTestData>
     where TTestData : notnull, ITestData
-    => testDataCollection .ToDistinctDataProvider<TDataProvider, TTestData, TTestData>(
+    => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TTestData>(
         initDataProvider);
 
     /// <summary>

@@ -74,6 +74,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<IEnumerable<TTestData>, TConvertedRows> convertRows)
     where TTestData : notnull, ITestData
+    where TConvertedRows : notnull
     {
         const int smallCollectionCountLimit = 100;
 
