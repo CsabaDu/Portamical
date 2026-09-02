@@ -40,7 +40,7 @@ public class TestDataProviderTests
     }
 
     [TestMethod]
-    public void Constructor_withSingleItem_populatesInitialRow_usingDefaultCodesDuringBaseConstruction()
+    public void Constructor_withSingleItem_populatesInitialRow_usingConfiguredCodes()
     {
         var item = CreateData("single", 4);
         var provider = new DataProvider(item, ArgsCode.Properties, PropsCode.TrimTestCaseName);
@@ -49,15 +49,12 @@ public class TestDataProviderTests
 
         Assert.IsNotNull(row);
         CollectionAssert.AreEqual(
-            item.ToArgs(default, default),
+            item.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName),
             row);
-
-        Assert.AreEqual(ArgsCode.Properties, provider.ArgsCode);
-        Assert.AreEqual(PropsCode.TrimTestCaseName, provider.PropsCode);
     }
 
     [TestMethod]
-    public void Constructor_withCollection_populatesConvertedRows_usingDefaultCodesDuringBaseConstruction()
+    public void Constructor_withCollection_populatesConvertedRows_usingConfiguredCodes()
     {
         var first = CreateData("first", 1);
         var second = CreateData("second", 2);
@@ -74,15 +71,12 @@ public class TestDataProviderTests
         Assert.AreEqual(2, provider.GetRows().Length);
 
         CollectionAssert.AreEqual(
-            first.ToArgs(default, default),
+            first.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName),
             firstRow);
 
         CollectionAssert.AreEqual(
-            second.ToArgs(default, default),
+            second.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName),
             secondRow);
-
-        Assert.AreEqual(ArgsCode.Properties, provider.ArgsCode);
-        Assert.AreEqual(PropsCode.TrimTestCaseName, provider.PropsCode);
     }
 
     [TestMethod]

@@ -8,6 +8,8 @@ namespace Tests.Portamical.Core.Safety;
 [TestClass, DoNotParallelize]
 public sealed class ResolverTests
 {
+    private static readonly int[] s_testArray = [1, 2, 3];
+
     [TestCleanup]
     public void Cleanup() => Resolver.ResetLogCounter();
 
@@ -103,4 +105,165 @@ public sealed class ResolverTests
 
         Assert.AreEqual(1L, index);
     }
+
+
+    #region SnapshotOrNull
+
+    // SnapshotOrNull - Null Input
+
+    [TestMethod]
+    public void SnapshotOrNull_nullEnumerable_returnsNull()
+    {
+        IEnumerable<int>? enumerable = null;
+
+        var result = Resolver.SnapshotOrNull(enumerable);
+
+        Assert.IsNull(result);
+    }
+
+    // SnapshotOrNull - Array Input (O(1) optimization)
+
+    [TestMethod]
+    public void SnapshotOrNull_arrayInput_returnsSameInstance()
+    {
+        int[] array = s_testArray;
+
+        var result = Resolver.SnapshotOrNull(array);
+
+        Assert.AreSame(array, result, "Should return the same array instance without creating a new allocation.");
+    }
+
+    [TestMethod]
+    public void SnapshotOrNull_emptyArray_returnsSameInstance()
+    {
+        int[] array = [];
+
+        var result = Resolver.SnapshotOrNull(array);
+
+        Assert.AreSame(array, result);
+    }
+
+    // SnapshotOrNull - Non-Array IEnumerable (O(n) conversion)
+
+    [TestMethod]
+    public void SnapshotOrNull_listInput_createsArraySnapshot()
+    {
+        List<int> list = [1, 2, 3];
+
+        var result = Resolver.SnapshotOrNull(list);
+
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType<int[]>(result);
+        CollectionAssert.AreEqual(s_testArray, result);
+    }
+
+    [TestMethod]
+    public void SnapshotOrNull_enumerableRange_createsArraySnapshot()
+    {
+        IEnumerable<int> source = Enumerable.Range(1, 3);
+
+        var result = Resolver.SnapshotOrNull(source);
+
+        Assert.IsNotNull(result);
+        CollectionAssert.AreEqual(s_testArray, result);
+    }
+
+    [TestMethod]
+    public void SnapshotOrNull_hashSetInput_createsArraySnapshot()
+    {
+        HashSet<string> hashSet = ["alpha", "beta", "gamma"];
+
+        var result = Resolver.SnapshotOrNull(hashSet);
+
+        Assert.IsNotNull(result);
+        Assert.HasCount(3, result);
+        CollectionAssert.AreEquivalent(hashSet.ToArray(), result);
+    }
+
+    [TestMethod]
+    public void SnapshotOrNull_emptyList_createsEmptyArray()
+    {
+        List<int> list = [];
+
+        var result = Resolver.SnapshotOrNull(list);
+
+        Assert.IsNotNull(result);
+        Assert.IsEmpty(result);
+    }
+
+    // SnapshotOrNull - Prevention of Multiple Enumeration
+
+    [TestMethod]
+    public void SnapshotOrNull_yieldEnumerable_enumeratesOnlyOnce()
+    {
+        int enumerationCount = 0;
+        IEnumerable<int> source = GetEnumerableWithCounter();
+
+        var result = Resolver.SnapshotOrNull(source);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, enumerationCount, "Source should be enumerated exactly once.");
+        CollectionAssert.AreEqual(s_testArray, result);
+
+        IEnumerable<int> GetEnumerableWithCounter()
+        {
+            enumerationCount++;
+            foreach (var item in s_testArray)
+            {
+                yield return item;
+            }
+        }
+    }
+
+    // SnapshotOrNull - Type Variations
+
+    [TestMethod]
+    public void SnapshotOrNull_stringArray_returnsSameInstance()
+    {
+        string[] array = ["alpha", "beta", "gamma"];
+
+        var result = Resolver.SnapshotOrNull(array);
+
+        Assert.AreSame(array, result);
+    }
+
+    [TestMethod]
+    public void SnapshotOrNull_referenceTypeEnumerable_createsArraySnapshot()
+    {
+        IEnumerable<string> source = ["alpha", "beta", "gamma"];
+
+        var result = Resolver.SnapshotOrNull(source);
+
+        Assert.IsNotNull(result);
+        Assert.HasCount(3, result);
+        Assert.AreEqual("alpha", result[0]);
+        Assert.AreEqual("beta", result[1]);
+        Assert.AreEqual("gamma", result[2]);
+    }
+
+    [TestMethod]
+    public void SnapshotOrNull_nullableValueTypeArray_returnsSameInstance()
+    {
+        int?[] array = [1, null, 3];
+
+        var result = Resolver.SnapshotOrNull(array);
+
+        Assert.AreSame(array, result);
+    }
+
+    // SnapshotOrNull - Cast as IEnumerable
+
+    [TestMethod]
+    public void SnapshotOrNull_arrayCastAsIEnumerable_returnsSameInstance()
+    {
+        int[] array = s_testArray;
+        IEnumerable<int> enumerable = array;
+
+        var result = Resolver.SnapshotOrNull(enumerable);
+
+        Assert.AreSame(array, result, "Should recognize the underlying array and return it directly.");
+    }
+
+    #endregion
+
 }
