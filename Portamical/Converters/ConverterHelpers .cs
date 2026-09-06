@@ -97,7 +97,7 @@ internal static class ConverterHelpers
                 _ = namedCases.Add(snapshot[0]);
             }
 
-            addRange((testData) =>
+            addRange(testData =>
             {
                 if (namedCases.Add(testData))
                 {
@@ -110,6 +110,8 @@ internal static class ConverterHelpers
             addRange(addConvertedRow);
         }
 
+        #region Local function
+
         void addRange(Action<TTestData> addConverted)
         {
             var startIndex = skipFirst ? 1 : 0;
@@ -120,6 +122,8 @@ internal static class ConverterHelpers
                 addConverted(testData);
             }
         }
+
+        #endregion
     }
 
     /// <summary>

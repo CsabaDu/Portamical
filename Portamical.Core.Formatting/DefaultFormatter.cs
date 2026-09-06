@@ -352,7 +352,7 @@ internal sealed class DefaultFormatter : IFormatter
         //   (since these implement or may implement 'IEnumerable').
         // - 'IDictionary' is checked separately in 'Format(IEnumerable)'
         //   to delegate to 'FormatDictionary(IDictionary, string?)'.
-        null => null,
+        null                    => null,
         char ch                 => Format(ch),
         string str              => Format(str),
         Type type               => Format(type),
