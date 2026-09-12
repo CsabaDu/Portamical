@@ -391,7 +391,10 @@ public static class CollectionConverter
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
     {
-        var (snapshot, count) = SnapshotWithCount(testDataCollection);
+        var snapshot = NotNullOrEmpty(
+            testDataCollection,
+            nameof(testDataCollection),
+            out var count);
         var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
             snapshot[0]);
 

@@ -125,35 +125,4 @@ internal static class ConverterHelpers
 
         #endregion
     }
-
-    /// <summary>
-    /// Internal helper that validates and snapshots a collection, returning both the snapshot array and its count.
-    /// </summary>
-    /// <typeparam name="TTestData">
-    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
-    /// </typeparam>
-    /// <param name="testDataCollection">
-    /// The collection to snapshot. Cannot be null or empty.
-    /// </param>
-    /// <returns>
-    /// A tuple containing the snapshot array and its length.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="testDataCollection"/> is null.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="testDataCollection"/> is empty.
-    /// </exception>
-    /// <remarks>
-    /// This method is used internally to avoid recalculating array length in performance-critical paths.
-    /// </remarks>
-    internal static (TTestData[] snapshot, int count) SnapshotWithCount<TTestData>(
-        IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
-    {
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
-        var count = snapshot.Length;
-
-        return (snapshot, count);
-    }
 }

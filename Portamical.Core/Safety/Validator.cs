@@ -121,6 +121,38 @@ public static class Validator
     }
 
     /// <summary>
+    /// Returns an array containing the elements of the specified sequence, ensuring that the sequence is not
+    /// <see langword="null"/> or empty, and outputs the element count.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the sequence.</typeparam>
+    /// <param name="enumerable">
+    /// The sequence to validate and convert to an array. Cannot be <see langword="null"/> and must contain at least one element.
+    /// </param>
+    /// <param name="paramName">
+    /// The name of the parameter to include in the exception if the sequence is <see langword="null"/> or empty.
+    /// </param>
+    /// <param name="count">
+    /// When this method returns, contains the number of elements in the returned array.
+    /// </param>
+    /// <returns>
+    /// An array containing the elements of the specified sequence.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if <paramref name="enumerable"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if <paramref name="enumerable"/> contains no elements.
+    /// </exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T[] NotNullOrEmpty<T>(IEnumerable<T>? enumerable, string? paramName, out int count)
+    {
+        var snapshot = NotNullOrEmpty(enumerable, paramName);
+        count = snapshot.Length;
+
+        return snapshot;
+    }
+
+    /// <summary>
     /// Ensures that the specified value is not null, throwing an exception if it is.
     /// </summary>
     /// <typeparam name="T">The type of the value to check for null.</typeparam>

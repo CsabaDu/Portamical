@@ -73,8 +73,10 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        var (snapshot, count) =
-            SnapshotWithCount(testDataCollection);
+        var snapshot = NotNullOrEmpty(
+            testDataCollection,
+            nameof(testDataCollection),
+            out var count);
         _ = NotNull(convertRow, nameof(convertRow));
         var rows = new TRow[count];
 
