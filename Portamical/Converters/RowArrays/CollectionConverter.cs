@@ -80,11 +80,11 @@ public static class CollectionConverter
         _ = NotNull(convertRow, nameof(convertRow));
         var rows = new TRow[count];
 
-        for (int i = 0; i < count; i++)
-        {
-            var testData = snapshot[i];
-            rows[i] = convertRow(testData);
-        }
+        AddConvertedRows(
+            snapshot: snapshot,
+            addConvertedRow: testData => rows[--count] = convertRow(testData),
+            removeDuplicates: false,
+            skipFirst: false);
         
         return rows;
     }

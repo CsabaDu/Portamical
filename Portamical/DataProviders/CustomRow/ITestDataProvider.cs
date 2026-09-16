@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-namespace Portamical.DataProviders.TypedRow;
+namespace Portamical.DataProviders.CustomRow;
 
 /// <summary>
 /// Defines a test data provider that converts test data into custom typed rows with configurable

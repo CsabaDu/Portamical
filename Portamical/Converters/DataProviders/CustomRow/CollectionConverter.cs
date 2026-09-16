@@ -1,9 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.DataProviders.TypedRow;
+using Portamical.DataProviders.CustomRow;
 
-namespace Portamical.Converters.DataProviders.TypedRow;
+namespace Portamical.Converters.DataProviders.CustomRow;
 
 /// <summary>
 /// Provides extension methods for converting test data collections into <see cref="ITestDataAdder{TTestData}"/> instances.

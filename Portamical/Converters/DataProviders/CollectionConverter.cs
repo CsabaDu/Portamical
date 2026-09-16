@@ -395,8 +395,10 @@ public static class CollectionConverter
             testDataCollection,
             nameof(testDataCollection),
             out var count);
-        var dataProvider = NotNull(initDataProvider, nameof(initDataProvider))(
-            snapshot[0]);
+        var dataProvider = NotNull(
+            initDataProvider,
+            nameof(initDataProvider))(
+                snapshot[0]);
 
         if (count == 1)
         {

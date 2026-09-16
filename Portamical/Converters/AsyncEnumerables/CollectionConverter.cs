@@ -45,7 +45,7 @@ namespace Portamical.Converters.AsyncEnumerables;
 ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
 /// };
 /// 
-/// await foreach (var testCase in row.ToDistinctAsyncEnumerable())
+/// await foreach (var testCase in row.ToDistinctAsyncRowEnumerable())
 /// {
 ///     await ProcessTestCaseAsync(testCase);
 /// }
@@ -75,53 +75,11 @@ public static class CollectionConverter
     /// for conversion, then wraps the result in an async enumerable for streaming consumption.
     /// </para>
     /// </remarks>
-    public static IAsyncEnumerable<TRow> ToAsyncEnumerable<TTestData, TRow>(
+    public static IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToRowArray(convertRow).ToAsyncEnumerable();
-
-    /// <summary>
-    /// Converts a synchronous test data collection to an asynchronous sequence of elements (identity conversion).
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This is an identity conversion that yields the test data items themselves without transformation.
-    /// The collection is convertedRows to an array using <see cref="RowArrays.CollectionConverter.ToRowArray{TTestData}(IEnumerable{TTestData})"/>,
-    /// then the resulting elements are yielded asynchronously. This method is useful for integrating
-    /// synchronous data into asynchronous workflows or streaming scenarios.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TTestData">The type of elements in the test data collection. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The source collection of test data elements to convert. Cannot be null or empty.</param>
-    /// <returns>An asynchronous sequence that yields each element, preserving the order from the input collection.</returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="testDataCollection"/> is null.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="testDataCollection"/> is empty.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// // Convert to async stream for consumption in async context
-    /// var testData = new[]
-    /// {
-    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
-    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
-    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
-    /// };
-    /// 
-    /// await foreach (var item in testData.ToAsyncEnumerable())
-    /// {
-    ///     Console.WriteLine(item.TestCaseName);
-    /// }
-    /// // Output: "Add(2,3)", "Add(2,3)", "Add(5,7)" (no deduplication)
-    /// </code>
-    /// </example>
-    public static IAsyncEnumerable<TTestData> ToAsyncEnumerable<TTestData>(
-        this IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToRowArray().ToAsyncEnumerable();
+    => testDataCollection.ToRowArray(convertRow).ToAsyncRowEnumerable();
 
     #endregion
 
@@ -152,58 +110,11 @@ public static class CollectionConverter
     /// for deduplication, then wraps the result in an async enumerable.
     /// </para>
     /// </remarks>
-    public static IAsyncEnumerable<TRow> ToDistinctAsyncEnumerable<TTestData, TRow>(
+    public static IAsyncEnumerable<TRow> ToDistinctAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(convertRow).ToAsyncEnumerable();
-
-    /// <summary>
-    /// Converts a synchronous test data collection to an asynchronous sequence of distinct elements (identity conversion).
-    /// Removes duplicates based on <see cref="INamedCase.TestCaseName"/> identity.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This is an identity conversion that yields the test data items themselves after deduplication.
-    /// The deduplication is performed synchronously using <see cref="RowArrays.CollectionConverter.ToDistinctRowArray{TTestData}(IEnumerable{TTestData})"/>,
-    /// but the resulting elements are yielded asynchronously. This method is useful for integrating
-    /// synchronous deduplicated data into asynchronous workflows or streaming scenarios.
-    /// </para>
-    /// <para>
-    /// Deduplication uses <see cref="NamedCase.Comparer"/> based on <see cref="INamedCase.TestCaseName"/>.
-    /// Test data with identical <c>TestCaseName</c> values are considered duplicates; only the first occurrence is retained.
-    /// </para>
-    /// </remarks>
-    /// <typeparam name="TTestData">The type of elements in the test data collection. Must implement <see cref="ITestData"/> and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The source collection of test data elements to convert. Cannot be null or empty.</param>
-    /// <returns>An asynchronous sequence that yields each distinct element once, preserving the order of first occurrence.</returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="testDataCollection"/> is null.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="testDataCollection"/> is empty.
-    /// </exception>
-    /// <example>
-    /// <code>
-    /// // Convert to async stream for consumption in async context
-    /// var testData = new[]
-    /// {
-    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),
-    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", 5),  // Duplicate
-    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
-    /// };
-    /// 
-    /// await foreach (var item in testData.ToDistinctAsyncEnumerable())
-    /// {
-    ///     Console.WriteLine(item.TestCaseName);
-    /// }
-    /// // Output: "Add(2,3)", "Add(5,7)" (duplicate removed)
-    /// </code>
-    /// </example>
-    public static IAsyncEnumerable<TTestData> ToDistinctAsyncEnumerable<TTestData>(
-        this IEnumerable<TTestData> testDataCollection)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray().ToAsyncEnumerable();
+    => testDataCollection.ToDistinctRowArray(convertRow).ToAsyncRowEnumerable();
 
     #endregion
 
@@ -226,7 +137,7 @@ public static class CollectionConverter
     /// The <c>async</c> modifier is required for the iterator pattern, even though no actual
     /// asynchronous I/O occurs.
     /// </remarks>
-    private static async IAsyncEnumerable<TRow> ToAsyncEnumerable<TRow>(this TRow[] convertedRows)
+    internal static async IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TRow>(this TRow[] convertedRows)
     {
         foreach (var row in convertedRows)
         {

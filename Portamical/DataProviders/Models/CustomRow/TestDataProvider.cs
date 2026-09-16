@@ -1,9 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.DataProviders.TypedRow;
+using Portamical.DataProviders.CustomRow;
 
-namespace Portamical.DataProviders.Models.TypedRow;
+namespace Portamical.DataProviders.Models.CustomRow;
 
 /// <summary>
 /// Provides an abstract base implementation of <see cref="ITestDataProvider{TTestData, TRow}"/> that
