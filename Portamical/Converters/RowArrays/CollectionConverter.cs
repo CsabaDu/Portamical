@@ -159,13 +159,16 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var snapshot = NotNullOrEmpty(
+            testDataCollection,
+            nameof(testDataCollection),
+            out var count);
         _ = NotNull(convertRow, nameof(convertRow));
-        var rows = new List<TRow>(snapshot.Length);
+        var rows = new List<TRow>(count);
 
         AddConvertedRows(
             snapshot: snapshot,
-            addConvertedRow: (testData) => rows.Add(convertRow(testData)),
+            addConvertedRow: testData => rows.Add(convertRow(testData)),
             removeDuplicates: true,
             skipFirst: false);
 

@@ -31,7 +31,7 @@ public abstract class DistinctDataProviderBase<TTestData, TRow>
 : IDataProvider<TTestData, TRow>
 where TTestData : notnull, ITestData
 {
-    private readonly Dictionary<string, TRow> _distinctRows = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, TRow> _distinctNamedRows = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Initializes a new instance with an empty collection of test data rows.
@@ -94,7 +94,7 @@ where TTestData : notnull, ITestData
     /// The converted row is stored immediately, ensuring the collection remains consistent.
     /// </remarks>
     public void AddRow(TTestData testData)
-    => _distinctRows.Add(
+    => _distinctNamedRows.Add(
         key: testData.TestCaseName,
         value: ConvertRow(testData));
 
@@ -140,7 +140,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow? GetRow(string testCaseName)
-    => _distinctRows.TryGetValue(testCaseName ?? string.Empty, out var row) ?
+    => _distinctNamedRows.TryGetValue(testCaseName ?? string.Empty, out var row) ?
         row
         : default;
 
@@ -157,7 +157,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow[] GetRows()
-    => [.. _distinctRows.Values];
+    => [.. _distinctNamedRows.Values];
 
     /// <summary>
     /// Gets an array containing all test case names in the provider's collection.
@@ -172,7 +172,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string[] GetTestCaseNames()
-    => [.. _distinctRows.Keys];
+    => [.. _distinctNamedRows.Keys];
 
     /// <summary>
     /// Returns an enumerator that iterates through the collection of rows.
@@ -185,7 +185,7 @@ where TTestData : notnull, ITestData
     /// The enumeration order is determined by the dictionary's internal structure.
     /// </remarks>
     public IEnumerator<TRow> GetEnumerator()
-    => _distinctRows.Values.GetEnumerator();
+    => _distinctNamedRows.Values.GetEnumerator();
 
     /// <summary>
     /// Returns an enumerator that iterates through the collection.

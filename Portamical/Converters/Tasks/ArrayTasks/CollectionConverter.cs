@@ -3,10 +3,9 @@
 
 using Portamical.Converters.RowArrays;
 using Portamical.Converters.RowArrays.TestData;
-using Portamical.Converters.Tasks;
 using static Portamical.Converters.RowArrays.CollectionConverter;
 
-namespace Portamical.Converters.Tasks.ArrayTask;
+namespace Portamical.Converters.Tasks.ArrayTasks;
 
 /// <summary>
 /// Provides Task-based asynchronous extension methods for converting and deduplicating test data collections.
