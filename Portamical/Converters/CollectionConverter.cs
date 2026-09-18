@@ -4,27 +4,80 @@
 namespace Portamical.Converters;
 
 /// <summary>
-/// Provides internal utility methods for collection conversion operations, including iteration,
-/// snapshotting, and deduplication logic used by converter classes.
+/// Provides internal extension methods for converting collections of test data into arbitrary
+/// converted-rows container types, with optional deduplication based on test case identity.
 /// </summary>
 /// <remarks>
 /// <para>
-/// This class contains low-level helper methods that are shared across multiple converter implementations
-/// in the <see cref="Portamical.Converters"/> namespace. All methods are marked <c>internal</c> and are
-/// not part of the public API.
+/// This class is the generic core of the converter infrastructure in the <see cref="Portamical.Converters"/>
+/// namespace hierarchy. Unlike <see cref="RowArrays.CollectionConverter"/>, which always produces arrays,
+/// this class supports any <typeparamref name="TConvertedRows"/> container type (e.g., <c>List{T}</c>,
+/// custom data provider collections), as long as callers supply the appropriate initialization and
+/// item-adding delegates.
 /// </para>
 /// <para>
-/// <strong>Key CollectionConverter:</strong>
+/// <strong>Two Initialization Strategies:</strong>
 /// </para>
 /// <list type="bullet">
-///   <item><see cref="AddConvertedRows{TTestData}"/> - Efficient iteration with optional deduplication and skip-first capability</item>
-///   <item><see cref="SnapshotWithCount{TTestData}"/> - Collection validation and snapshotting with count</item>
+///   <item>
+///   <strong>Custom initializer:</strong> Overloads accepting <c>initConvertedRows</c> build the container
+///   from the first test data item (useful when the container's construction depends on the first item,
+///   e.g., inferring a capacity or a key).
+///   </item>
+///   <item>
+///   <strong>Parameterless constructor:</strong> Overloads constrained by <c>new()</c> create the container
+///   via its default constructor and add every item, including the first.
+///   </item>
 /// </list>
+/// <para>
+/// <strong>Deduplication:</strong> The <c>ToDistinctConvertedRows</c> methods remove duplicate test data
+/// based on <see cref="INamedCase.TestCaseName"/> using <see cref="NamedCase.Comparer"/>. The first
+/// occurrence of each test case name is kept; later duplicates are skipped.
+/// </para>
+/// <para>
+/// <strong>Thread Safety:</strong> All methods are stateless and thread-safe; however, the returned
+/// <typeparamref name="TConvertedRows"/> instance itself is not thread-safe unless its type guarantees so.
+/// </para>
 /// </remarks>
 internal static class CollectionConverter
 {
     #region ToConvertedRows methods
 
+    /// <summary>
+    /// Converts a collection of test data into a <typeparamref name="TConvertedRows"/> container, initializing
+    /// the container from the first test data item and adding the remaining items without deduplication.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TConvertedRows">
+    /// The type of the container that accumulates the converted rows.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to process. Cannot be null or empty.
+    /// </param>
+    /// <param name="initConvertedRows">
+    /// A function that creates and initializes the <typeparamref name="TConvertedRows"/> container from the
+    /// first test data item in the collection.
+    /// </param>
+    /// <param name="addConvertedRow">
+    /// An action that adds a single test data item to the container. Called once for every item
+    /// after the first.
+    /// </param>
+    /// <returns>
+    /// The <typeparamref name="TConvertedRows"/> container populated with all items from
+    /// <paramref name="testDataCollection"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// This overload delegates to the private helper with <c>removeDuplicates: false</c>. If the collection
+    /// contains a single item, <paramref name="addConvertedRow"/> is never invoked.
+    /// </remarks>
     public static TConvertedRows ToConvertedRows<TTestData, TConvertedRows>(
     this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TConvertedRows> initConvertedRows,
@@ -36,6 +89,36 @@ internal static class CollectionConverter
         addConvertedRow,
         removeDuplicates: false);
 
+    /// <summary>
+    /// Converts a collection of test data into a <typeparamref name="TConvertedRows"/> container, creating the
+    /// container via its parameterless constructor and adding every item without deduplication.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TConvertedRows">
+    /// The type of the container that accumulates the converted rows. Must have a public parameterless constructor.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to process. Cannot be null or empty.
+    /// </param>
+    /// <param name="addConvertedRow">
+    /// An action that adds a single test data item to the container. Called once for every item
+    /// in the collection.
+    /// </param>
+    /// <returns>
+    /// The <typeparamref name="TConvertedRows"/> container populated with all items from
+    /// <paramref name="testDataCollection"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// This overload delegates to the private helper with <c>removeDuplicates: false</c>.
+    /// </remarks>
     public static TConvertedRows ToConvertedRows<TTestData, TConvertedRows>(
     this IEnumerable<TTestData> testDataCollection,
         Action<TConvertedRows, TTestData> addConvertedRow)
@@ -49,6 +132,49 @@ internal static class CollectionConverter
 
     #region ToDistinctConvertedRows methods
 
+    /// <summary>
+    /// Converts a collection of test data into a <typeparamref name="TConvertedRows"/> container, initializing
+    /// the container from the first test data item and adding the remaining items, skipping duplicates based on
+    /// test case name.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TConvertedRows">
+    /// The type of the container that accumulates the converted rows.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to process. Cannot be null or empty.
+    /// </param>
+    /// <param name="initConvertedRows">
+    /// A function that creates and initializes the <typeparamref name="TConvertedRows"/> container from the
+    /// first test data item in the collection.
+    /// </param>
+    /// <param name="addConvertedRow">
+    /// An action that adds a single test data item to the container. Called only for items whose
+    /// <see cref="INamedCase.TestCaseName"/> has not already been seen.
+    /// </param>
+    /// <returns>
+    /// The <typeparamref name="TConvertedRows"/> container populated with the distinct items from
+    /// <paramref name="testDataCollection"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// Deduplication uses <see cref="NamedCase.Comparer"/> to compare <see cref="INamedCase.TestCaseName"/>
+    /// values. The first test data item is always treated as already added to the container (via
+    /// <paramref name="initConvertedRows"/>) and is pre-registered as seen before the remaining items
+    /// are evaluated.
+    /// </para>
+    /// <para>
+    /// This overload delegates to the private helper with <c>removeDuplicates: true</c>.
+    /// </para>
+    /// </remarks>
     public static TConvertedRows ToDistinctConvertedRows<TTestData, TConvertedRows>(
     this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TConvertedRows> initConvertedRows,
@@ -60,6 +186,38 @@ internal static class CollectionConverter
         addConvertedRow,
         removeDuplicates: true);
 
+    /// <summary>
+    /// Converts a collection of test data into a <typeparamref name="TConvertedRows"/> container, creating the
+    /// container via its parameterless constructor and adding only distinct items based on test case name.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TConvertedRows">
+    /// The type of the container that accumulates the converted rows. Must have a public parameterless constructor.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to process. Cannot be null or empty.
+    /// </param>
+    /// <param name="addConvertedRow">
+    /// An action that adds a single test data item to the container. Called only for items whose
+    /// <see cref="INamedCase.TestCaseName"/> has not already been seen.
+    /// </param>
+    /// <returns>
+    /// The <typeparamref name="TConvertedRows"/> container populated with the distinct items from
+    /// <paramref name="testDataCollection"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// Deduplication uses <see cref="NamedCase.Comparer"/> to compare <see cref="INamedCase.TestCaseName"/>
+    /// values, starting with an empty seen-set since no item has been added prior to iteration.
+    /// This overload delegates to the private helper with <c>removeDuplicates: true</c>.
+    /// </remarks>
     public static TConvertedRows ToDistinctConvertedRows<TTestData, TConvertedRows>(
     this IEnumerable<TTestData> testDataCollection,
         Action<TConvertedRows, TTestData> addConvertedRow)
@@ -73,6 +231,44 @@ internal static class CollectionConverter
 
     #region Helper methods
 
+    /// <summary>
+    /// Validates and snapshots <paramref name="testDataCollection"/>, initializes the
+    /// <typeparamref name="TConvertedRows"/> container from the first item, and adds the remaining items,
+    /// optionally skipping duplicates.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TConvertedRows">
+    /// The type of the container that accumulates the converted rows.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to process. Cannot be null or empty.
+    /// </param>
+    /// <param name="initConvertedRows">
+    /// A function that creates and initializes the container from the first test data item.
+    /// </param>
+    /// <param name="addConvertedRow">
+    /// An action that adds a single test data item to the container.
+    /// </param>
+    /// <param name="removeDuplicates">
+    /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates
+    /// an already-processed item (including the first item). If <see langword="false"/>, adds every item.
+    /// </param>
+    /// <returns>
+    /// The <typeparamref name="TConvertedRows"/> container populated according to
+    /// <paramref name="removeDuplicates"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// When the snapshot contains exactly one item, the initialized container is returned immediately
+    /// without invoking <paramref name="addConvertedRow"/> or evaluating <paramref name="removeDuplicates"/>.
+    /// </remarks>
     private static TConvertedRows ToConvertedRows<TTestData, TConvertedRows>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TConvertedRows> initConvertedRows,
@@ -99,6 +295,37 @@ internal static class CollectionConverter
             skipFirst: true);
     }
 
+    /// <summary>
+    /// Validates and snapshots <paramref name="testDataCollection"/>, creates the
+    /// <typeparamref name="TConvertedRows"/> container via its parameterless constructor, and adds every
+    /// item, optionally skipping duplicates.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TConvertedRows">
+    /// The type of the container that accumulates the converted rows. Must have a public parameterless constructor.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to process. Cannot be null or empty.
+    /// </param>
+    /// <param name="addConvertedRow">
+    /// An action that adds a single test data item to the container.
+    /// </param>
+    /// <param name="removeDuplicates">
+    /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates an
+    /// earlier item. If <see langword="false"/>, adds every item.
+    /// </param>
+    /// <returns>
+    /// The <typeparamref name="TConvertedRows"/> container populated according to
+    /// <paramref name="removeDuplicates"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
     private static TConvertedRows ToConvertedRows<TTestData, TConvertedRows>(
         this IEnumerable<TTestData> testDataCollection,
         Action<TConvertedRows, TTestData> addConvertedRow,
@@ -116,6 +343,51 @@ internal static class CollectionConverter
             skipFirst: false);
     }
 
+    /// <summary>
+    /// Iterates over a pre-validated snapshot array, adding each item to <paramref name="convertedRows"/> via
+    /// <paramref name="addConvertedRow"/>, with optional deduplication and skip-first behavior.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the snapshot array. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TConvertedRows">
+    /// The type of the container that accumulates the converted rows.
+    /// </typeparam>
+    /// <param name="snapshot">
+    /// The pre-validated snapshot array of test data to iterate through. Must not be null or empty.
+    /// </param>
+    /// <param name="convertedRows">
+    /// The already-initialized container to which converted rows are added.
+    /// </param>
+    /// <param name="addConvertedRow">
+    /// An action that adds a single test data item to <paramref name="convertedRows"/>.
+    /// </param>
+    /// <param name="removeDuplicates">
+    /// If <see langword="true"/>, removes duplicate test data based on <see cref="INamedCase.TestCaseName"/>
+    /// using <see cref="NamedCase.Comparer"/>. If <paramref name="skipFirst"/> is also <see langword="true"/>,
+    /// <c>snapshot[0]</c> is pre-registered as seen (since it was already added by the caller) before
+    /// iteration begins. If <see langword="false"/>, processes all items without deduplication.
+    /// </param>
+    /// <param name="skipFirst">
+    /// If <see langword="true"/>, starts iteration from index 1 (skipping the first item, which the caller
+    /// has already added to <paramref name="convertedRows"/>). If <see langword="false"/>, starts from index 0.
+    /// </param>
+    /// <returns>
+    /// The <paramref name="convertedRows"/> instance, populated with the processed items.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Deduplication Strategy:</strong> When <paramref name="removeDuplicates"/> is
+    /// <see langword="true"/>, a <see cref="HashSet{T}"/> keyed by <see cref="NamedCase.Comparer"/> tracks
+    /// seen test case names. <see cref="HashSet{T}.Add"/> returns <see langword="true"/> only for items not
+    /// already present, so <paramref name="addConvertedRow"/> is invoked exclusively for distinct items.
+    /// </para>
+    /// <para>
+    /// <strong>Performance:</strong> Uses a local function <c>addRange</c> to avoid duplicating the
+    /// iteration logic between the deduplicated and non-deduplicated code paths, with the start index
+    /// determined once based on <paramref name="skipFirst"/>.
+    /// </para>
+    /// </remarks>
     private static TConvertedRows ToConvertedRows<TTestData, TConvertedRows>(
         this TTestData[] snapshot,
         TConvertedRows convertedRows,
