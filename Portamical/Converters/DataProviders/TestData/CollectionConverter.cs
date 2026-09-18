@@ -105,7 +105,7 @@ public static class CollectionConverter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TDataProvider ToDataProvider<TTestData, TDataProvider>(
         this IEnumerable<TTestData> testDataCollection)
-    where TDataProvider : notnull, ITestDataProvider<TTestData>, new()
+    where TDataProvider : ITestDataProvider<TTestData>, new()
     where TTestData : notnull, ITestData
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TTestData>();
 
@@ -197,7 +197,7 @@ public static class CollectionConverter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TDataProvider ToDistinctDataProvider<TTestData, TDataProvider>(
         this IEnumerable<TTestData> testDataCollection)
-    where TDataProvider : notnull, ITestDataProvider<TTestData>, new()
+    where TDataProvider : ITestDataProvider<TTestData>, new()
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TTestData>();
 

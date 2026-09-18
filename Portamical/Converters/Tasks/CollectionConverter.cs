@@ -35,17 +35,17 @@ public static class CollectionConverter
     /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
     /// </typeparam>
     /// <typeparam name="TConvertedRows">
-    /// The type of the conversion result.
+    /// The type of the conversion distinctArray.
     /// </typeparam>
     /// <param name="testDataCollection">
     /// The collection of test data to process. Cannot be null or empty.
     /// </param>
     /// <param name="convertRows">
-    /// A function that transforms the collection snapshot into the desired result type.
+    /// A function that transforms the collection distinctArray into the desired distinctArray type.
     /// Cannot be null.
     /// </param>
     /// <returns>
-    /// A <see cref="Task{TResult}"/> containing the conversion result.
+    /// A <see cref="Task{TResult}"/> containing the conversion distinctArray.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRows"/> is null.
@@ -66,7 +66,7 @@ public static class CollectionConverter
     /// break-even point where Task.Run benefits outweigh its overhead.
     /// </para>
     /// <para>
-    /// Uses <see cref="SnapshotWithCount{TTestData}(IEnumerable{TTestData})"/> to validate and snapshot the collection
+    /// Uses <see cref="SnapshotWithCount{TTestData}(IEnumerable{TTestData})"/> to validate and distinctArray the collection
     /// before applying the conversion function.
     /// </para>
     /// </remarks>
@@ -75,17 +75,61 @@ public static class CollectionConverter
         Func<IEnumerable<TTestData>, TConvertedRows> convertRows)
     where TTestData : notnull, ITestData
     where TConvertedRows : notnull
+    => testDataCollection.ToDConvertedRowsTask(convertRows,
+        removeDuplicates: false);
+
+    #endregion
+
+    #region ToDistinctConvertedRowsTask
+
+    public static Task<TConvertedRows> ToDistinctConvertedRowsTask<TTestData, TConvertedRows>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<IEnumerable<TTestData>, TConvertedRows> convertRows)
+    where TTestData : notnull, ITestData
+    where TConvertedRows : notnull
+    => testDataCollection.ToDConvertedRowsTask(convertRows,
+        removeDuplicates: true);
+
+    #endregion
+
+    #region Private Helper
+
+    private static Task<TConvertedRows> ToDConvertedRowsTask<TTestData, TConvertedRows>(
+        this IEnumerable<TTestData> testDataCollection,
+        Func<IEnumerable<TTestData>, TConvertedRows> convertRows,
+        bool removeDuplicates)
+    where TTestData : notnull, ITestData
+    where TConvertedRows : notnull
     {
         const int smallCollectionCountLimit = 100;
 
-        var snapshot = NotNullOrEmpty(
-            testDataCollection,
-            nameof(testDataCollection),
-            out var count);
+        var snapshot = toTestDataArray(out var count);
 
         return count < smallCollectionCountLimit ?
             Task.FromResult(result: convertRows(snapshot))
             : Task.Run(function: () => convertRows(snapshot));
+
+        #region Local function
+
+        TTestData[] toTestDataArray(out int count)
+        {
+            if (removeDuplicates)
+            {
+                var distinctArray =
+                    RowArrays.TestData.CollectionConverter.ToDistinctRowArray(
+                        testDataCollection);
+                count = distinctArray.Length;
+
+                return distinctArray;
+            }
+
+            return NotNullOrEmpty(
+                testDataCollection,
+                nameof(testDataCollection),
+                out count);
+        }
+
+        #endregion
     }
 
     #endregion

@@ -2,7 +2,6 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.DataProviders;
-using static Portamical.Converters.ConverterHelpers;
 
 namespace Portamical.Converters.DataProviders;
 
@@ -25,7 +24,7 @@ public static class CollectionConverter
     #region ToDataProvider<TDataProvider, TTestData>
 
     /// <summary>
-    /// Converts a collection of test data into a data provider instance (primary implementation).
+    /// Converts a collection of test data into a data dataProvider instance (primary implementation).
     /// </summary>
     /// <remarks>
     /// <para>
@@ -42,9 +41,9 @@ public static class CollectionConverter
     /// </para>
     /// <list type="number">
     ///   <item>Converts the collection to an array snapshot and validates it is not empty</item>
-    ///   <item>Initializes the data provider with the first test data item</item>
+    ///   <item>Initializes the data dataProvider with the first test data item</item>
     ///   <item>For remaining items, adds only those with unique <c>TestCaseName</c> values</item>
-    ///   <item>Returns the populated data provider</item>
+    ///   <item>Returns the populated data dataProvider</item>
     /// </list>
     /// <para>
     /// <strong>Performance:</strong> Uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/>
@@ -52,20 +51,20 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>.
+    /// The type of the data dataProvider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>.
     /// </typeparam>
     /// <typeparam name="TTestData">
     /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
+    /// The collection of test data items to be provided to the data dataProvider. Cannot be null and must contain at least
     /// one item.
     /// </param>
     /// <param name="initDataProvider">
-    /// A function that initializes a new data provider instance using a test data item. Cannot be null.
+    /// A function that initializes a new data dataProvider instance using a test data item. Cannot be null.
     /// </param>
     /// <returns>
-    /// A data provider instance containing all distinct test data items from the collection, with duplicates
+    /// A data dataProvider instance containing all distinct test data items from the collection, with duplicates
     /// removed based on <see cref="INamedCase.TestCaseName"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -83,9 +82,9 @@ public static class CollectionConverter
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = td.ToConvertedRows(
+    /// var dataProvider = td.ToConvertedRows(
     ///     td => new MyDataProvider(td));
-    /// // Result: provider contains 2 items (duplicate removed)
+    /// // Result: dataProvider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,16 +93,16 @@ public static class CollectionConverter
         Func<TTestData, TDataProvider> initDataProvider)
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
+    => testDataCollection.ToConvertedRows(
         initDataProvider,
-        removeDuplicates: false);
+        addConvertedRow: AddConvertedRow<TTestData, TDataProvider, TRow>);
 
     /// <summary>
-    /// Converts a collection of test data into a data provider instance using the default constructor.
+    /// Converts a collection of test data into a data dataProvider instance using the default constructor.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <strong>This overload</strong> uses the <c>new()</c> constraint to instantiate the data provider
+    /// <strong>This overload</strong> uses the <c>new()</c> constraint to instantiate the data dataProvider
     /// directly, without requiring an initializer function. All test data items are added via
     /// <see cref="ITestDataRegistry{TTestData}.AddRow(TTestData)"/>.
     /// </para>
@@ -117,9 +116,9 @@ public static class CollectionConverter
     /// </para>
     /// <list type="number">
     ///   <item>Converts the collection to an array snapshot and validates it is not empty</item>
-    ///   <item>Creates a new data provider instance using the default constructor</item>
+    ///   <item>Creates a new data dataProvider instance using the default constructor</item>
     ///   <item>Iterates through all items, adding only those with unique <c>TestCaseName</c> values</item>
-    ///   <item>Returns the populated data provider</item>
+    ///   <item>Returns the populated data dataProvider</item>
     /// </list>
     /// <para>
     /// <strong>Performance:</strong> Uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/>
@@ -128,18 +127,18 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>
+    /// The type of the data dataProvider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>
     /// and have a parameterless constructor.
     /// </typeparam>
     /// <typeparam name="TTestData">
     /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
+    /// The collection of test data items to be provided to the data dataProvider. Cannot be null and must contain at least
     /// one item.
     /// </param>
     /// <returns>
-    /// A data provider instance containing all distinct test data items from the collection, with duplicates
+    /// A data dataProvider instance containing all distinct test data items from the collection, with duplicates
     /// removed based on <see cref="INamedCase.TestCaseName"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -157,28 +156,23 @@ public static class CollectionConverter
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = td.ToConvertedRows&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
-    /// // Result: provider contains 2 items (duplicate removed)
+    /// var dataProvider = td.ToConvertedRows&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
+    /// // Result: dataProvider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
     public static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection)
-    where TDataProvider : notnull, IDataProvider<TTestData, TRow>, new()
+    where TDataProvider : IDataProvider<TTestData, TRow>, new()
     where TTestData : notnull, ITestData
-    {
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
-        var dataProvider = new TDataProvider();
-        dataProvider.AddRange(snapshot);
-
-        return dataProvider;
-    }
+    => testDataCollection.ToConvertedRows<TTestData, TDataProvider>(
+        addConvertedRow: AddConvertedRow<TTestData, TDataProvider, TRow>);
 
     #endregion
 
     #region ToDistinctDataProvider<TDataProvider, TTestData>
 
     /// <summary>
-    /// Converts a collection of test data into a data provider instance (primary implementation).
+    /// Converts a collection of test data into a data dataProvider instance (primary implementation).
     /// </summary>
     /// <remarks>
     /// <para>
@@ -195,9 +189,9 @@ public static class CollectionConverter
     /// </para>
     /// <list type="number">
     ///   <item>Converts the collection to an array snapshot and validates it is not empty</item>
-    ///   <item>Initializes the data provider with the first test data item</item>
+    ///   <item>Initializes the data dataProvider with the first test data item</item>
     ///   <item>For remaining items, adds only those with unique <c>TestCaseName</c> values</item>
-    ///   <item>Returns the populated data provider</item>
+    ///   <item>Returns the populated data dataProvider</item>
     /// </list>
     /// <para>
     /// <strong>Performance:</strong> Uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/>
@@ -205,20 +199,20 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>.
+    /// The type of the data dataProvider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>.
     /// </typeparam>
     /// <typeparam name="TTestData">
     /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
+    /// The collection of test data items to be provided to the data dataProvider. Cannot be null and must contain at least
     /// one item.
     /// </param>
     /// <param name="initDataProvider">
-    /// A function that initializes a new data provider instance using a test data item. Cannot be null.
+    /// A function that initializes a new data dataProvider instance using a test data item. Cannot be null.
     /// </param>
     /// <returns>
-    /// A data provider instance containing all distinct test data items from the collection, with duplicates
+    /// A data dataProvider instance containing all distinct test data items from the collection, with duplicates
     /// removed based on <see cref="INamedCase.TestCaseName"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -236,9 +230,9 @@ public static class CollectionConverter
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = td.ToDistinctDataProvider(
+    /// var dataProvider = td.ToDistinctDataProvider(
     ///     td => new MyDataProvider(td));
-    /// // Result: provider contains 2 items (duplicate removed)
+    /// // Result: dataProvider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -247,16 +241,16 @@ public static class CollectionConverter
         Func<TTestData, TDataProvider> initDataProvider)
     where TDataProvider : notnull, IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
+    => testDataCollection.ToDistinctConvertedRows(
         initDataProvider,
-        removeDuplicates: true);
+        addConvertedRow: AddConvertedRow<TTestData, TDataProvider, TRow>);
 
     /// <summary>
-    /// Converts a collection of test data into a data provider instance using the default constructor.
+    /// Converts a collection of test data into a data dataProvider instance using the default constructor.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <strong>This overload</strong> uses the <c>new()</c> constraint to instantiate the data provider
+    /// <strong>This overload</strong> uses the <c>new()</c> constraint to instantiate the data dataProvider
     /// directly, without requiring an initializer function. All test data items are added via
     /// <see cref="ITestDataRegistry{TTestData}.AddRow(TTestData)"/>.
     /// </para>
@@ -270,9 +264,9 @@ public static class CollectionConverter
     /// </para>
     /// <list type="number">
     ///   <item>Converts the collection to an array snapshot and validates it is not empty</item>
-    ///   <item>Creates a new data provider instance using the default constructor</item>
+    ///   <item>Creates a new data dataProvider instance using the default constructor</item>
     ///   <item>Iterates through all items, adding only those with unique <c>TestCaseName</c> values</item>
-    ///   <item>Returns the populated data provider</item>
+    ///   <item>Returns the populated data dataProvider</item>
     /// </list>
     /// <para>
     /// <strong>Performance:</strong> Uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/>
@@ -281,18 +275,18 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>
+    /// The type of the data dataProvider to create. Must implement <see cref="ITestDataRegistry{TTestData}"/>
     /// and have a parameterless constructor.
     /// </typeparam>
     /// <typeparam name="TTestData">
     /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
+    /// The collection of test data items to be provided to the data dataProvider. Cannot be null and must contain at least
     /// one item.
     /// </param>
     /// <returns>
-    /// A data provider instance containing all distinct test data items from the collection, with duplicates
+    /// A data dataProvider instance containing all distinct test data items from the collection, with duplicates
     /// removed based on <see cref="INamedCase.TestCaseName"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -310,109 +304,29 @@ public static class CollectionConverter
     ///     new TestDataReturns&lt;int&gt;("Add(5,7)", 12)
     /// };
     /// 
-    /// var provider = td.ToDistinctDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
-    /// // Result: provider contains 2 items (duplicate removed)
+    /// var dataProvider = td.ToDistinctDataProvider&lt;MyDataProvider, TestDataReturns&lt;int&gt;&gt;();
+    /// // Result: dataProvider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
     public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection)
-    where TDataProvider : notnull, IDataProvider<TTestData, TRow>, new()
+    where TDataProvider : IDataProvider<TTestData, TRow>, new()
     where TTestData : notnull, ITestData
-    {
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
-        var dataProvider = new TDataProvider();
-
-        AddConvertedRows(
-            snapshot: snapshot,
-            addConvertedRow: dataProvider.AddRow,
-            removeDuplicates: true,
-            skipFirst: false);
-
-        return dataProvider;
-    }
+    => testDataCollection.ToDistinctConvertedRows<TTestData, TDataProvider>(
+        addConvertedRow: AddConvertedRow<TTestData, TDataProvider, TRow>);
 
     #endregion
 
     #region Helper methods
 
-    /// <summary>
-    /// Core helper method that converts a test data collection into a data provider instance,
-    /// with optional deduplication based on test case names.
-    /// </summary>
-    /// <typeparam name="TDataProvider">
-    /// The type of the data provider to create. Must implement <see cref="IDataProvider{TTestData, TRow}"/>.
-    /// </typeparam>
-    /// <typeparam name="TTestData">
-    /// The type of test data contained in the collection. Must implement <see cref="ITestData"/> and cannot be null.
-    /// </typeparam>
-    /// <typeparam name="TRow">
-    /// The row type for the test framework produced by the data provider.
-    /// </typeparam>
-    /// <param name="testDataCollection">
-    /// The collection of test data items to be provided to the data provider. Cannot be null and must contain at least
-    /// one item.
-    /// </param>
-    /// <param name="initDataProvider">
-    /// A function that initializes a new data provider instance using the first test data item. Cannot be null.
-    /// </param>
-    /// <param name="removeDuplicates">
-    /// If <see langword="true"/>, removes duplicate test data based on <see cref="INamedCase.TestCaseName"/> using
-    /// <see cref="NamedCase.Comparer"/>; if <see langword="false"/>, adds all items without deduplication.
-    /// </param>
-    /// <returns>
-    /// A data provider instance containing test data items from the collection. If <paramref name="removeDuplicates"/>
-    /// is <see langword="true"/>, duplicates are removed based on <see cref="INamedCase.TestCaseName"/>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="initDataProvider"/> is null.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="testDataCollection"/> is empty.
-    /// </exception>
-    /// <remarks>
-    /// <para>
-    /// <strong>Algorithm:</strong>
-    /// </para>
-    /// <list type="number">
-    ///   <item>Snapshots and validates the collection</item>
-    ///   <item>Initializes the data provider using the first test data item via <paramref name="initDataProvider"/></item>
-    ///   <item>If collection has only one item, returns immediately</item>
-    ///   <item>If <paramref name="removeDuplicates"/> is <see langword="true"/>, uses <see cref="HashSet{T}"/> with <see cref="NamedCase.Comparer"/> for O(n) deduplication</item>
-    ///   <item>Iterates through remaining items, adding them according to the deduplication strategy</item>
-    /// </list>
-    /// <para>
-    /// Uses a local <c>addRange</c> method to iterate efficiently through remaining items starting from index 1.
-    /// </para>
-    /// </remarks>
-    private static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
-        this IEnumerable<TTestData> testDataCollection,
-        Func<TTestData, TDataProvider> initDataProvider,
-        bool removeDuplicates)
-    where TDataProvider : notnull, IDataProvider<TTestData, TRow>
+    private static void AddConvertedRow<TTestData, TDataProvider, TRow>(
+        TDataProvider dataProvider,
+        TTestData testData)
+    where TDataProvider : IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
     {
-        var snapshot = NotNullOrEmpty(
-            testDataCollection,
-            nameof(testDataCollection),
-            out var count);
-        var dataProvider = NotNull(
-            initDataProvider,
-            nameof(initDataProvider))(
-                snapshot[0]);
-
-        if (count == 1)
-        {
-            return dataProvider;
-        }
-
-        AddConvertedRows(
-            snapshot: snapshot,
-            addConvertedRow: dataProvider.AddRow,
-            removeDuplicates: removeDuplicates,
-            skipFirst: true);
-
-        return dataProvider;
-    }
+        dataProvider.AddRow(testData);
 
     #endregion
+    }
 }

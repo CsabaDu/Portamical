@@ -1,7 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using static Portamical.Converters.ConverterHelpers;
+using Portamical.Core.TestDataTypes.Models.General;
+using static Portamical.Converters.CollectionConverter;
 
 namespace Portamical.Converters.RowArrays;
 
@@ -35,7 +36,7 @@ public static class CollectionConverter
     #region ToRowArray
 
     /// <summary>
-    /// Converts a collection of test data into an array of rows using a custom conversion function.
+    /// Converts a collection of test data into an array of rowList using a custom conversion function.
     /// </summary>
     /// <typeparam name="TTestData">
     /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
@@ -51,7 +52,7 @@ public static class CollectionConverter
     /// Cannot be null. Called once for each item in the collection.
     /// </param>
     /// <returns>
-    /// An array containing the rows rows, preserving the order from the input collection.
+    /// An array containing the rowList rowList, preserving the order from the input collection.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
@@ -73,19 +74,17 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        var snapshot = NotNullOrEmpty(
+        var snapshot = NotNullOrEmptyWithNotNullRowConverter(
             testDataCollection,
-            nameof(testDataCollection),
+            convertRow,
             out var count);
-        _ = NotNull(convertRow, nameof(convertRow));
         var rows = new TRow[count];
 
-        AddConvertedRows(
-            snapshot: snapshot,
-            addConvertedRow: testData => rows[--count] = convertRow(testData),
-            removeDuplicates: false,
-            skipFirst: false);
-        
+        for (int i = 0; i < count; i++)
+        {
+            rows[i] = convertRow(snapshot[i]);
+        }
+
         return rows;
     }
 
@@ -94,7 +93,7 @@ public static class CollectionConverter
     #region ToDistinctRowArray
 
     /// <summary>
-    /// Core deduplication method that converts a collection of test data into a distinct array of rows
+    /// Core deduplication method that converts a collection of test data into a distinct array of rowList
     /// using a custom conversion function.
     /// </summary>
     /// <remarks>
@@ -129,7 +128,7 @@ public static class CollectionConverter
     /// Cannot be null. Called only for non-duplicate items.
     /// </param>
     /// <returns>
-    /// An array containing the rows rows for distinct test data items, preserving the order
+    /// An array containing the rowList rowList for distinct test data items, preserving the order
     /// of first occurrence.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -147,7 +146,7 @@ public static class CollectionConverter
     /// var args = testDataCollection.ToDistinctRowArray(td => td.ToArgs(ArgsCode.Instance));
     /// 
     /// // Custom row conversion
-    /// var rows = testDataCollection.ToDistinctRowArray(td => new 
+    /// var rowList = testDataCollection.ToDistinctRowArray(td => new 
     /// { 
     ///     Name = td.TestCaseName, 
     ///     Args = td.ToArgs(ArgsCode.Instance) 
@@ -159,20 +158,43 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
+        var snapshot = NotNullOrEmptyWithNotNullRowConverter(
+            testDataCollection,
+            convertRow,
+            out var count);
+        var rowList = new List<TRow>(count);
+        var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
+
+        for (int i = 0; i < count; i++)
+        {
+            var testData = snapshot[i];
+
+            if (namedCases.Add(testData))
+            {
+                rowList.Add(convertRow(testData));
+            }
+        }
+
+        return [.. rowList];
+    }
+
+    #endregion
+
+    #region Helper method
+
+    private static TTestData[] NotNullOrEmptyWithNotNullRowConverter<TTestData, TRow>(
+        IEnumerable<TTestData> testDataCollection,
+        Func<TTestData, TRow> convertRow,
+        out int count)
+    where TTestData : notnull, ITestData
+    {
         var snapshot = NotNullOrEmpty(
             testDataCollection,
             nameof(testDataCollection),
-            out var count);
+            out count);
         _ = NotNull(convertRow, nameof(convertRow));
-        var rows = new List<TRow>(count);
 
-        AddConvertedRows(
-            snapshot: snapshot,
-            addConvertedRow: testData => rows.Add(convertRow(testData)),
-            removeDuplicates: true,
-            skipFirst: false);
-
-        return [.. rows];
+        return snapshot;
     }
 
     #endregion
