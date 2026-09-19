@@ -25,7 +25,7 @@ namespace Portamical.Converters.DataProviders;
 /// </remarks>
 public static class CollectionConverter
 {
-    #region ToDataProvider<TDataProvider, TTestData>
+    #region ToDataProvider
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance, initializing it from the first
@@ -170,7 +170,7 @@ public static class CollectionConverter
 
     #endregion
 
-    #region ToDistinctDataProvider<TDataProvider, TTestData>
+    #region ToDistinctDataProvider
 
     /// <summary>
     /// Converts a collection of test data into a data provider instance, initializing it from the first

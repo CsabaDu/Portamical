@@ -41,7 +41,7 @@ namespace Portamical.Converters;
 /// </remarks>
 internal static class CollectionConverter
 {
-    #region ToConvertedRows methods
+    #region ToConvertedRows
 
     /// <summary>
     /// Converts a collection of test data into a <typeparamref name="TConvertedRows"/> container, initializing
@@ -132,7 +132,7 @@ internal static class CollectionConverter
 
     #endregion
 
-    #region ToDistinctConvertedRows methods
+    #region ToDistinctConvertedRows
 
     /// <summary>
     /// Converts a collection of test data into a <typeparamref name="TConvertedRows"/> container, initializing

@@ -138,7 +138,7 @@ public static class CollectionConverter
 
     #endregion
 
-    #region Private Helper
+    #region Helper metthods
 
     /// <summary>
     /// Shared implementation that validates, optionally deduplicates, and snapshots
