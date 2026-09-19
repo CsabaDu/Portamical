@@ -5,6 +5,25 @@ using Portamical.Converters.RowArrays.TestData;
 
 namespace Portamical.Converters.AsyncEnumerables.TestData;
 
+/// <summary>
+/// Provides extension methods for converting synchronous test data collections into
+/// <see cref="IAsyncEnumerable{T}"/> sequences of the same test data type (identity conversion),
+/// with optional deduplication based on test case identity.
+/// </summary>
+/// <remarks>
+/// <para>
+/// These methods bridge synchronous collection processing to asynchronous streaming consumption
+/// (<c>await foreach</c>). Conversion and deduplication are performed synchronously via
+/// <see cref="RowArrays.TestData.CollectionConverter"/>, and the resulting array is then wrapped
+/// in an async enumerable using <see cref="AsyncEnumerables.CollectionConverter.ToAsyncRowEnumerable{TRow}(TRow[])"/>.
+/// </para>
+/// <para>
+/// <strong>Deduplication Strategy:</strong> <see cref="ToDistinctAsyncRowEnumerable{TTestData}(IEnumerable{TTestData})"/>
+/// removes duplicates based on <see cref="INamedCase.TestCaseName"/> using <see cref="NamedCase.Comparer"/>.
+/// Test data with identical <c>TestCaseName</c> values are treated as duplicates, with the first occurrence
+/// retained.
+/// </para>
+/// </remarks>
 public static class CollectionConverter
 {
     #region ToRowArray
@@ -15,7 +34,7 @@ public static class CollectionConverter
     /// <remarks>
     /// <para>
     /// This is an identity conversion that yields the test data items themselves without transformation.
-    /// The collection is convertedRows to an array using <see cref="RowArrays.CollectionConverter.ToRowArray{TTestData}(IEnumerable{TTestData})"/>,
+    /// The collection is converted to an array using <see cref="RowArrays.TestData.CollectionConverter.ToRowArray{TTestData}(IEnumerable{TTestData})"/>,
     /// then the resulting elements are yielded asynchronously. This method is useful for integrating
     /// synchronous data into asynchronous workflows or streaming scenarios.
     /// </para>
@@ -62,7 +81,7 @@ public static class CollectionConverter
     /// <remarks>
     /// <para>
     /// This is an identity conversion that yields the test data items themselves after deduplication.
-    /// The deduplication is performed synchronously using <see cref="RowArrays.CollectionConverter.ToDistinctRowArray{TTestData}(IEnumerable{TTestData})"/>,
+    /// The deduplication is performed synchronously using <see cref="RowArrays.TestData.CollectionConverter.ToDistinctRowArray{TTestData}(IEnumerable{TTestData})"/>,
     /// but the resulting elements are yielded asynchronously. This method is useful for integrating
     /// synchronous deduplicated data into asynchronous workflows or streaming scenarios.
     /// </para>

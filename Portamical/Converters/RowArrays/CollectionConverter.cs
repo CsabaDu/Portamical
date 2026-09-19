@@ -1,9 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.TestDataTypes.Models.General;
-using static Portamical.Converters.CollectionConverter;
-
 namespace Portamical.Converters.RowArrays;
 
 /// <summary>
@@ -36,7 +33,7 @@ public static class CollectionConverter
     #region ToRowArray
 
     /// <summary>
-    /// Converts a collection of test data into an array of rowList using a custom conversion function.
+    /// Converts a collection of test data into an array of rows using a custom conversion function.
     /// </summary>
     /// <typeparam name="TTestData">
     /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
@@ -52,7 +49,7 @@ public static class CollectionConverter
     /// Cannot be null. Called once for each item in the collection.
     /// </param>
     /// <returns>
-    /// An array containing the rowList rowList, preserving the order from the input collection.
+    /// An array containing the converted rows, preserving the order from the input collection.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
@@ -74,7 +71,7 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        var snapshot = NotNullOrEmptyWithNotNullRowConverter(
+        var snapshot = ValidateNotNullOrEmptyWithRowConverter(
             testDataCollection,
             convertRow,
             out var count);
@@ -82,7 +79,9 @@ public static class CollectionConverter
 
         for (int i = 0; i < count; i++)
         {
-            rows[i] = convertRow(snapshot[i]);
+            var testData = snapshot[i];
+
+            rows[i] = convertRow(testData);
         }
 
         return rows;
@@ -93,7 +92,7 @@ public static class CollectionConverter
     #region ToDistinctRowArray
 
     /// <summary>
-    /// Core deduplication method that converts a collection of test data into a distinct array of rowList
+    /// Core deduplication method that converts a collection of test data into a distinct array of rows
     /// using a custom conversion function.
     /// </summary>
     /// <remarks>
@@ -128,7 +127,7 @@ public static class CollectionConverter
     /// Cannot be null. Called only for non-duplicate items.
     /// </param>
     /// <returns>
-    /// An array containing the rowList rowList for distinct test data items, preserving the order
+    /// An array containing the converted rows for distinct test data items, preserving the order
     /// of first occurrence.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -158,7 +157,7 @@ public static class CollectionConverter
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
     {
-        var snapshot = NotNullOrEmptyWithNotNullRowConverter(
+        var snapshot = ValidateNotNullOrEmptyWithRowConverter(
             testDataCollection,
             convertRow,
             out var count);
@@ -182,7 +181,41 @@ public static class CollectionConverter
 
     #region Helper method
 
-    private static TTestData[] NotNullOrEmptyWithNotNullRowConverter<TTestData, TRow>(
+    /// <summary>
+    /// Validates that <paramref name="testDataCollection"/> is not <see langword="null"/> or empty and that
+    /// <paramref name="convertRow"/> is not <see langword="null"/>, returning a snapshot array and the
+    /// element count.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TRow">
+    /// The type of elements produced by <paramref name="convertRow"/>. Not used for validation itself, but
+    /// required to type-check the delegate.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to validate and snapshot. Cannot be null or empty.
+    /// </param>
+    /// <param name="convertRow">
+    /// The row conversion function to validate. Cannot be null.
+    /// </param>
+    /// <param name="count">
+    /// When this method returns, contains the number of elements in the returned snapshot array.
+    /// </param>
+    /// <returns>
+    /// A snapshot array containing the elements of <paramref name="testDataCollection"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="testDataCollection"/> is empty.
+    /// </exception>
+    /// <remarks>
+    /// Shared by <see cref="ToRowArray{TTestData, TRow}"/> and <see cref="ToDistinctRowArray{TTestData, TRow}"/>
+    /// to avoid duplicating argument validation logic.
+    /// </remarks>
+    private static TTestData[] ValidateNotNullOrEmptyWithRowConverter<TTestData, TRow>(
         IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow,
         out int count)

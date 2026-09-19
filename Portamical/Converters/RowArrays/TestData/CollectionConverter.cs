@@ -3,6 +3,24 @@
 
 namespace Portamical.Converters.RowArrays.TestData;
 
+/// <summary>
+/// Provides extension methods for converting test data collections into arrays of the same test data type,
+/// with optional deduplication based on test case identity.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Unlike other <c>CollectionConverter</c> classes in the <see cref="Portamical.Converters.RowArrays"/>
+/// namespace hierarchy, this class performs an identity conversion: the row type is the same as the
+/// input test data type (<typeparamref name="TTestData"/>). This is useful when the test data itself
+/// is already the desired row shape for a test framework's data source.
+/// </para>
+/// <para>
+/// <strong>Deduplication Strategy:</strong> <see cref="ToDistinctRowArray{TTestData}(IEnumerable{TTestData})"/>
+/// removes duplicates based on <see cref="INamedCase.TestCaseName"/> using <see cref="NamedCase.Comparer"/>.
+/// Test data with identical <c>TestCaseName</c> values are treated as duplicates, with the first
+/// occurrence retained.
+/// </para>
+/// </remarks>
 public static class CollectionConverter
 {
     #region ToRowArray

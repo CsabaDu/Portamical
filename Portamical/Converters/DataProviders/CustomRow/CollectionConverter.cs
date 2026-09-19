@@ -6,7 +6,8 @@ using Portamical.DataProviders.CustomRow;
 namespace Portamical.Converters.DataProviders.CustomRow;
 
 /// <summary>
-/// Provides extension methods for converting test data collections into <see cref="ITestDataAdder{TTestData}"/> instances.
+/// Provides extension methods for converting test data collections into <see cref="ITestDataProvider{TTestData, TRow}"/>
+/// instances whose row type is a custom, caller-supplied type.
 /// </summary>
 /// <remarks>
 /// <para>

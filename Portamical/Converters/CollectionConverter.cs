@@ -289,6 +289,7 @@ internal static class CollectionConverter
         }
 
         return snapshot.ToConvertedRows(
+            count,
             convertedRows,
             addConvertedRow,
             removeDuplicates,
@@ -333,10 +334,14 @@ internal static class CollectionConverter
     where TTestData : notnull, ITestData
     where TConvertedRows : new()
     {
-        var snapshot = NotNullOrEmpty(testDataCollection, nameof(testDataCollection));
+        var snapshot = NotNullOrEmpty(
+            testDataCollection,
+            nameof(testDataCollection),
+            out var count);
         var convertedRows = new TConvertedRows();
 
         return snapshot.ToConvertedRows(
+            count,
             convertedRows,
             addConvertedRow,
             removeDuplicates,
@@ -390,6 +395,7 @@ internal static class CollectionConverter
     /// </remarks>
     private static TConvertedRows ToConvertedRows<TTestData, TConvertedRows>(
         this TTestData[] snapshot,
+        int count,
         TConvertedRows convertedRows,
         Action<TConvertedRows, TTestData> addConvertedRow,
         bool removeDuplicates,
@@ -415,7 +421,7 @@ internal static class CollectionConverter
         }
         else
         {
-            addRange((testData) => addConvertedRow(convertedRows, testData));
+            addRange(testData => addConvertedRow(convertedRows, testData));
         }
 
         #region Local function
@@ -424,9 +430,10 @@ internal static class CollectionConverter
         {
             var startIndex = skipFirst ? 1 : 0;
 
-            for (int i = startIndex; i < snapshot.Length; i++)
+            for (int i = startIndex; i < count; i++)
             {
                 var testData = snapshot[i];
+
                 addConverted(testData);
             }
         }

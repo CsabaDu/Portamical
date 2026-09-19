@@ -3,6 +3,22 @@
 
 namespace Portamical.Converters.RowArrays.ObjectArray;
 
+/// <summary>
+/// Provides extension methods for converting test data collections into jagged <c>object?[][]</c> arrays
+/// of test method arguments, with optional deduplication based on test case identity.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Each returned row is an <c>object?[]</c> produced via <see cref="ITestData.ToArgs(ArgsCode)"/> or
+/// <see cref="ITestData.ToArgs(ArgsCode, PropsCode)"/>, making the output directly compatible with
+/// xUnit v2 <c>[MemberData]</c>, NUnit <c>[TestCaseSource]</c>, and MSTest <c>[DynamicData]</c>.
+/// </para>
+/// <para>
+/// <strong>Deduplication Strategy:</strong> The <c>ToDistinctRowArray</c> overloads remove duplicates
+/// based on <see cref="INamedCase.TestCaseName"/> using <see cref="NamedCase.Comparer"/>. Test data with
+/// identical <c>TestCaseName</c> values are treated as duplicates, with the first occurrence retained.
+/// </para>
+/// </remarks>
 public static class CollectionConverter
 {
     #region ToRowArray
@@ -87,19 +103,29 @@ public static class CollectionConverter
     /// Returns a jagged array of distinct argument arrays generated from the specified test data collection
     /// using the provided argument code.
     /// </summary>
-    /// <remarks>Each element in the returned array corresponds to the arguments produced by calling
-    /// ToArgs on each test data item with the specified argument code. Duplicates are removed based on
-    /// test case name identity using <see cref="NamedCase.Comparer"/>.</remarks>
-    /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null.</param>
-    /// <param name="argsCode">The argument code that determines how arguments are extracted from each test data item.</param>
-    /// <returns>A jagged array containing unique argument arrays produced from distinct test data items.</returns>
+    /// <typeparam name="TTestData">
+    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to convert. Cannot be null or empty.
+    /// </param>
+    /// <param name="argsCode">
+    /// The argument code determining how arguments are extracted from each test data item.
+    /// </param>
+    /// <returns>
+    /// A jagged array containing unique <c>object?[]</c> argument arrays produced from distinct test data items.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> is null.
     /// </exception>
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="testDataCollection"/> is empty.
     /// </exception>
+    /// <remarks>
+    /// Uses <see cref="ITestData.ToArgs(ArgsCode)"/> for conversion. Duplicates are removed based on
+    /// test case name identity using <see cref="NamedCase.Comparer"/>; the order of elements from the
+    /// original collection is preserved (first occurrence wins).
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static object?[][] ToDistinctRowArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
@@ -112,20 +138,32 @@ public static class CollectionConverter
     /// Creates a jagged array of distinct argument arrays from the specified test data collection, using the
     /// provided argument and property codes to extract values.
     /// </summary>
-    /// <remarks>The returned array contains only distinct argument arrays, where uniqueness is determined by
-    /// test case name identity using <see cref="NamedCase.Comparer"/>. The order of elements from the
-    /// original collection is preserved (first occurrence wins).</remarks>
-    /// <typeparam name="TTestData">The type of the test data elements. Must implement the ITestData interface and cannot be null.</typeparam>
-    /// <param name="testDataCollection">The collection of test data items from which to generate argument arrays. Cannot be null.</param>
-    /// <param name="argsCode">The code specifying which arguments to extract from each test data item.</param>
-    /// <param name="propsCode">The code specifying which properties to extract from each test data item.</param>
-    /// <returns>A jagged array containing unique argument arrays extracted from distinct test data items.</returns>
+    /// <typeparam name="TTestData">
+    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to convert. Cannot be null or empty.
+    /// </param>
+    /// <param name="argsCode">
+    /// The argument code determining the primary conversion strategy.
+    /// </param>
+    /// <param name="propsCode">
+    /// The properties code determining which properties to include when flattening.
+    /// </param>
+    /// <returns>
+    /// A jagged array containing unique <c>object?[]</c> argument arrays extracted from distinct test data items.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> is null.
     /// </exception>
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="testDataCollection"/> is empty.
     /// </exception>
+    /// <remarks>
+    /// Uses <see cref="ITestData.ToArgs(ArgsCode, PropsCode)"/> for fine-grained control over argument
+    /// extraction. Duplicates are removed based on test case name identity using <see cref="NamedCase.Comparer"/>;
+    /// the order of elements from the original collection is preserved (first occurrence wins).
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static object?[][] ToDistinctRowArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,

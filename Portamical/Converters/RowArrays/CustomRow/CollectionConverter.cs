@@ -3,6 +3,24 @@
 
 namespace Portamical.Converters.RowArrays.CustomRow;
 
+/// <summary>
+/// Provides extension methods for converting test data collections into arrays of custom row types,
+/// using conversion functions that also receive contextual metadata such as <see cref="ArgsCode"/> and
+/// the test method name, with optional deduplication based on test case identity.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Unlike the simpler <c>ToRowArray(Func{TTestData, TRow})</c> overloads in
+/// <see cref="RowArrays.CollectionConverter"/>, the methods in this class accept richer conversion
+/// delegates that also take an <see cref="ArgsCode"/> and/or a test method name, letting callers produce
+/// custom row types whose construction depends on this additional context.
+/// </para>
+/// <para>
+/// <strong>Deduplication Strategy:</strong> The <c>ToDistinctRowArray</c> overloads remove duplicates
+/// based on <see cref="INamedCase.TestCaseName"/> using <see cref="NamedCase.Comparer"/>. Test data with
+/// identical <c>TestCaseName</c> values are treated as duplicates, with the first occurrence retained.
+/// </para>
+/// </remarks>
 public static class CollectionConverter
 {
     #region ToRowArray
@@ -104,26 +122,43 @@ public static class CollectionConverter
     #region ToDistinctRowArray
 
     /// <summary>
-    /// Converts a collection of test data items to a distinct array of rows using the specified
-    /// conversion function.
+    /// Converts a collection of test data into a distinct array of rows using a custom conversion function
+    /// with argument code and test method name parameters.
     /// </summary>
-    /// <remarks>The resulting array contains only unique rows based on test case name identity
-    /// using <see cref="NamedCase.Comparer"/>. The order of elements from the original collection is preserved.</remarks>
-    /// <typeparam name="TTestData">The type of the input test data items. Must implement the ITestData interface and cannot be null.</typeparam>
-    /// <typeparam name="TRow">The type of the output row elements produced by the conversion function.</typeparam>
-    /// <param name="testDataCollection">The collection of test data items to convert. Cannot be null.</param>
-    /// <param name="convertRow">A function that converts each test data item, along with the provided ArgsCode and optional test method name, to
-    /// a row of type TConvertedRows. Cannot be null.</param>
-    /// <param name="argsCode">The ArgsCode instance to pass to the conversion function. Cannot be undefined.</param>
-    /// <param name="testMethodName">An optional name of the test method to provide to the conversion function. May be null.</param>
-    /// <returns>An array containing the distinct rows produced by applying the conversion function to each distinct test
-    /// data item.</returns>
+    /// <typeparam name="TTestData">
+    /// The type of test data elements. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TRow">
+    /// The type of elements in the output array.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to convert. Cannot be null or empty.
+    /// </param>
+    /// <param name="convertRow">
+    /// A function that converts each test data item, along with <paramref name="argsCode"/> and
+    /// <paramref name="testMethodName"/>, to a row of type <typeparamref name="TRow"/>. Cannot be null.
+    /// Called only for non-duplicate items.
+    /// </param>
+    /// <param name="argsCode">
+    /// The argument code to pass to the conversion function. Cannot be undefined.
+    /// </param>
+    /// <param name="testMethodName">
+    /// The name of the test method, or <see langword="null"/> if not applicable.
+    /// </param>
+    /// <returns>
+    /// An array containing the converted rows for distinct test data items, preserving the order
+    /// of first occurrence.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
     /// </exception>
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="testDataCollection"/> is empty or <paramref name="argsCode"/> is undefined.
     /// </exception>
+    /// <remarks>
+    /// Deduplication is based on <see cref="INamedCase.TestCaseName"/> using <see cref="NamedCase.Comparer"/>.
+    /// The order of elements from the original collection is preserved (first occurrence wins).
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TRow[] ToDistinctRowArray<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
@@ -138,14 +173,29 @@ public static class CollectionConverter
             testMethodName));
 
     /// <summary>
-    /// Converts a collection of test data to a distinct array of rows using the specified conversion function and test method name.
+    /// Converts a collection of test data into a distinct array of rows using a custom conversion function
+    /// with test method name parameter.
     /// </summary>
-    /// <typeparam name="TTestData">The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
-    /// <typeparam name="TRow">The type of the resulting row elements.</typeparam>
-    /// <param name="testDataCollection">The collection of test data to convert. Cannot be null.</param>
-    /// <param name="convertRow">The function to convert each test data item and test method name to a row. Cannot be null.</param>
-    /// <param name="testMethodName">The name of the test method, or <see langword="null"/>.</param>
-    /// <returns>A distinct array of converted rows.</returns>
+    /// <typeparam name="TTestData">
+    /// The type of test data in the collection. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TRow">
+    /// The type of the resulting row elements.
+    /// </typeparam>
+    /// <param name="testDataCollection">
+    /// The collection of test data to convert. Cannot be null or empty.
+    /// </param>
+    /// <param name="convertRow">
+    /// A function that converts each test data item and <paramref name="testMethodName"/> to a row of type
+    /// <typeparamref name="TRow"/>. Cannot be null. Called only for non-duplicate items.
+    /// </param>
+    /// <param name="testMethodName">
+    /// The name of the test method, or <see langword="null"/> if not applicable.
+    /// </param>
+    /// <returns>
+    /// An array containing the converted rows for distinct test data items, preserving the order
+    /// of first occurrence.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
     /// </exception>

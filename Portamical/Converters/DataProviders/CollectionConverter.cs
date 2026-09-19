@@ -351,10 +351,7 @@ public static class CollectionConverter
         TTestData testData)
     where TDataProvider : IDataProvider<TTestData, TRow>
     where TTestData : notnull, ITestData
-    {
-        dataProvider.AddRow(testData);
-
-    }
+    => dataProvider.AddRow(testData);
 
     #endregion
 }

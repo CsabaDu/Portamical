@@ -6,7 +6,8 @@ using Portamical.DataProviders.ObjectArray;
 namespace Portamical.Converters.DataProviders.ObjectArray;
 
 /// <summary>
-/// Provides extension methods for converting test data collections into <see cref="ITestDataAdder{TTestData}"/> instances.
+/// Provides extension methods for converting test data collections into <see cref="ITestDataProvider{TTestData}"/> instances
+/// whose row type is fixed to <c>object?[]</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -58,7 +59,7 @@ public static class CollectionConverter
     /// This method wraps the <paramref name="initDataProvider"/> function to include <paramref name="argsCode"/> and
     /// <paramref name="propsCode"/> parameters, then delegates to
     /// <see cref="DataProviders.CollectionConverter.ToDataProvider{TDataProvider, TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TDataProvider})"/>
-    /// with TConvertedRows set to <c>object?[]</c>.
+    /// with <c>TRow</c> set to <c>object?[]</c>.
     /// </para>
     /// <para>
     /// This overload does NOT perform deduplication. For deduplication, use <see cref="ToDistinctDataProvider{TDataProvider, TTestData}"/>.
@@ -119,7 +120,7 @@ public static class CollectionConverter
     /// This method wraps the <paramref name="initDataProvider"/> function to include <paramref name="argsCode"/> and
     /// <paramref name="propsCode"/> parameters, then delegates to
     /// <see cref="DataProviders.CollectionConverter.ToDistinctDataProvider{TDataProvider, TTestData, TRow}(IEnumerable{TTestData}, Func{TTestData, TDataProvider})"/>
-    /// with TConvertedRows set to <c>object?[]</c>.
+    /// with <c>TRow</c> set to <c>object?[]</c>.
     /// </para>
     /// <para>
     /// Deduplication uses <see cref="NamedCase.Comparer"/> based on <see cref="INamedCase.TestCaseName"/>.

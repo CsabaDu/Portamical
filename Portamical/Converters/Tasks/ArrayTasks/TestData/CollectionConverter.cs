@@ -5,6 +5,25 @@ using Portamical.Converters.RowArrays.TestData;
 
 namespace Portamical.Converters.Tasks.ArrayTasks.TestData;
 
+/// <summary>
+/// Provides extension methods for asynchronously converting test data collections into arrays of the same
+/// test data type (identity conversion), with optional deduplication based on test case identity.
+/// </summary>
+/// <remarks>
+/// <para>
+/// These methods apply the smart threshold-based optimization implemented by
+/// <see cref="Tasks.CollectionConverter.ToConvertedRowsTask{TTestData, TConvertedRows}(IEnumerable{TTestData}, Func{IEnumerable{TTestData}, TConvertedRows})"/>,
+/// choosing between synchronous and thread-pool execution based on collection size (threshold: 100 items),
+/// while delegating the actual array construction to
+/// <see cref="RowArrays.TestData.CollectionConverter"/>.
+/// </para>
+/// <para>
+/// <strong>Deduplication Strategy:</strong> <see cref="ToDistinctArrayTask{TTestData}(IEnumerable{TTestData})"/>
+/// removes duplicates based on <see cref="INamedCase.TestCaseName"/> using <see cref="NamedCase.Comparer"/>.
+/// Test data with identical <c>TestCaseName</c> values are treated as duplicates, with the first occurrence
+/// retained.
+/// </para>
+/// </remarks>
 public static class CollectionConverter
 {
     #region ToRowArray
@@ -33,7 +52,7 @@ public static class CollectionConverter
     /// Uses smart threshold optimization (see class remarks for details).
     /// </para>
     /// <para>
-    /// Delegates to <see cref="CollectionConverter.ToRowArray{TTestData}(IEnumerable{TTestData})"/>.
+    /// Delegates to <see cref="RowArrays.TestData.CollectionConverter.ToRowArray{TTestData}(IEnumerable{TTestData})"/>.
     /// </para>
     /// </remarks>
     public static Task<TTestData[]> ToArrayTask<TTestData>(
@@ -73,7 +92,7 @@ public static class CollectionConverter
     /// </para>
     /// <para>
     /// Uses smart threshold optimization (see class remarks for details).
-    /// Delegates to <see cref="CollectionConverter.ToDistinctRowArray{TTestData}(IEnumerable{TTestData})"/>.
+    /// Delegates to <see cref="RowArrays.TestData.CollectionConverter.ToDistinctRowArray{TTestData}(IEnumerable{TTestData})"/>.
     /// </para>
     /// </remarks>
     public static Task<TTestData[]> ToDistinctArrayTask<TTestData>(
