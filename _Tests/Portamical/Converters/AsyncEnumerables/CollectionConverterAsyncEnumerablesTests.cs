@@ -20,52 +20,53 @@ public class CollectionConverterAsyncEnumerablesTests
 
     #endregion
 
-    #region ToDistinctAsyncEnumerable base method
+    #region ToAsyncRowEnumerable base method
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_baseMethod_yieldsDistinctRows()
+    public async Task ToAsyncRowEnumerable_baseMethod_yieldsAllRowsInOrderWithoutDeduplication()
     {
-        var data1 = CreateData("async1", 1);
-        var data2 = CreateData("async2", 2);
+        var data1 = CreateData("noasync1", 1);
+        var data2 = CreateData("noasync2", 2);
         ITestData[] collection = [data1, data2];
         var result = new List<string>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, td => td.TestCaseName))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToAsyncRowEnumerable(collection, td => td.TestCaseName))
         {
             result.Add(item);
         }
 
         Assert.HasCount(2, result);
-        Assert.AreEqual("async1 => result", result[0]);
-        Assert.AreEqual("async2 => result", result[1]);
+        Assert.AreEqual("noasync1 => result", result[0]);
+        Assert.AreEqual("noasync2 => result", result[1]);
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_baseMethod_deduplicatesByTestCaseName()
+    public async Task ToAsyncRowEnumerable_baseMethod_doesNotDeduplicate_keepsDuplicates()
     {
-        var first = CreateData("async-dup", 1);
-        var duplicate = TestDataFactory.CreateTestData<int>("async-dup", "result", 2);
+        var first = CreateData("noasync-dup", 1);
+        var duplicate = TestDataFactory.CreateTestData<int>("noasync-dup", "result", 2);
         ITestData[] collection = [first, duplicate];
         var result = new List<ITestData>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, td => td))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToAsyncRowEnumerable(collection, td => td))
         {
             result.Add(item);
         }
 
-        Assert.HasCount(1, result);
+        Assert.HasCount(2, result);
         Assert.AreSame(first, result[0]);
+        Assert.AreSame(duplicate, result[1]);
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_baseMethod_convertsToCustomType()
+    public async Task ToAsyncRowEnumerable_baseMethod_convertsToCustomType()
     {
-        var data1 = CreateData("convert1", 10);
-        var data2 = CreateData("convert2", 20);
+        var data1 = CreateData("convertbase1", 10);
+        var data2 = CreateData("convertbase2", 20);
         ITestData[] collection = [data1, data2];
         var result = new List<int>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, td => td.TestCaseName.Length))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToAsyncRowEnumerable(collection, td => td.TestCaseName.Length))
         {
             result.Add(item);
         }
@@ -74,13 +75,56 @@ public class CollectionConverterAsyncEnumerablesTests
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_baseMethod_nullConverter_throwsArgumentNullException()
+    public async Task ToAsyncRowEnumerable_baseMethod_nullCollection_throwsArgumentNullException()
     {
-        ITestData[] collection = [CreateData("test")];
-        Func<ITestData, string> nullConverter = null!;
+        IEnumerable<ITestData> nullCollection = null!;
+
         try
         {
-            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, nullConverter))
+            await foreach (var item in AsyncEnumerableCollectionConverter.ToAsyncRowEnumerable(nullCollection, td => td.TestCaseName))
+            {
+                Assert.Fail("Should not reach here");
+            }
+            Assert.Fail("Expected ArgumentNullException was not thrown");
+        }
+#pragma warning disable MSTEST0058 // Assertions in catch blocks
+        catch (ArgumentNullException)
+        {
+            // Expected
+        }
+#pragma warning restore MSTEST0058
+    }
+
+    [TestMethod]
+    public async Task ToAsyncRowEnumerable_baseMethod_emptyCollection_throwsArgumentException()
+    {
+        var empty = Array.Empty<ITestData>();
+
+        try
+        {
+            await foreach (var item in AsyncEnumerableCollectionConverter.ToAsyncRowEnumerable(empty, td => td.TestCaseName))
+            {
+                Assert.Fail("Should not reach here");
+            }
+            Assert.Fail("Expected ArgumentException was not thrown");
+        }
+#pragma warning disable MSTEST0058 // Assertions in catch blocks
+        catch (ArgumentException)
+        {
+            // Expected
+        }
+#pragma warning restore MSTEST0058
+    }
+
+    [TestMethod]
+    public async Task ToAsyncRowEnumerable_baseMethod_nullConverter_throwsArgumentNullException()
+    {
+        ITestData[] collection = [CreateData("nullconvbase")];
+        Func<ITestData, string> nullConverter = null!;
+
+        try
+        {
+            await foreach (var item in AsyncEnumerableCollectionConverter.ToAsyncRowEnumerable(collection, nullConverter))
             {
                 Assert.Fail("Should not reach here");
             }
@@ -100,37 +144,35 @@ public class CollectionConverterAsyncEnumerablesTests
 
     #endregion
 
-    #region ToDistinctAsyncEnumerable identity overload
+    #region ToDistinctAsyncRowEnumerable base method
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_identity_yieldsDistinctTestData()
+    public async Task ToDistinctAsyncRowEnumerable_baseMethod_yieldsDistinctRows()
     {
-        var data1 = CreateData("id1", 1);
-        var data2 = CreateData("id2", 2);
-        var data3 = CreateData("id3", 3);
-        ITestData[] collection = [data1, data2, data3];
-        var result = new List<ITestData>();
+        var data1 = CreateData("async1", 1);
+        var data2 = CreateData("async2", 2);
+        ITestData[] collection = [data1, data2];
+        var result = new List<string>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, td => td.TestCaseName))
         {
             result.Add(item);
         }
 
-        Assert.HasCount(3, result);
-        Assert.AreSame(data1, result[0]);
-        Assert.AreSame(data2, result[1]);
-        Assert.AreSame(data3, result[2]);
+        Assert.HasCount(2, result);
+        Assert.AreEqual("async1 => result", result[0]);
+        Assert.AreEqual("async2 => result", result[1]);
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_identity_deduplicatesByTestCaseName()
+    public async Task ToDistinctAsyncRowEnumerable_baseMethod_deduplicatesByTestCaseName()
     {
-        var first = CreateData("identity-dup", 5);
-        var duplicate = TestDataFactory.CreateTestData<int>("identity-dup", "result", 10);
+        var first = CreateData("async-dup", 1);
+        var duplicate = TestDataFactory.CreateTestData<int>("async-dup", "result", 2);
         ITestData[] collection = [first, duplicate];
         var result = new List<ITestData>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, td => td))
         {
             result.Add(item);
         }
@@ -140,54 +182,59 @@ public class CollectionConverterAsyncEnumerablesTests
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_identity_nullCollection_throwsArgumentNullException()
+    public async Task ToDistinctAsyncRowEnumerable_baseMethod_convertsToCustomType()
     {
-        IEnumerable<ITestData> nullCollection = null!;
+        var data1 = CreateData("convert1", 10);
+        var data2 = CreateData("convert2", 20);
+        ITestData[] collection = [data1, data2];
+        var result = new List<int>();
+
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, td => td.TestCaseName.Length))
+        {
+            result.Add(item);
+        }
+
+        Assert.HasCount(2, result);
+    }
+
+    [TestMethod]
+    public async Task ToDistinctAsyncRowEnumerable_baseMethod_nullConverter_throwsArgumentNullException()
+    {
+        ITestData[] collection = [CreateData("test")];
+        Func<ITestData, string> nullConverter = null!;
         try
         {
-            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(nullCollection))
+            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, nullConverter))
             {
                 Assert.Fail("Should not reach here");
             }
             Assert.Fail("Expected ArgumentNullException was not thrown");
         }
-        catch (ArgumentNullException)
+#pragma warning disable MSTEST0058 // Assertions in catch blocks
+        catch (ArgumentNullException ex)
         {
-            // Expected
+            Assert.AreEqual("convertRow", ex.ParamName);
         }
-    }
-
-    [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_identity_emptyCollection_throwsArgumentException()
-    {
-        var empty = Array.Empty<ITestData>();
-        try
+        catch (Exception ex)
         {
-            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(empty))
-            {
-                Assert.Fail("Should not reach here");
-            }
-            Assert.Fail("Expected ArgumentException was not thrown");
+            Assert.Fail($"Unexpected exception type: {ex.GetType().Name}");
         }
-        catch (ArgumentException)
-        {
-            // Expected
-        }
+#pragma warning restore MSTEST0058
     }
 
     #endregion
 
-    #region ToDistinctAsyncEnumerable object-array conversion
+    #region ToDistinctAsyncRowEnumerable object-array conversion
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_withConverter_returnsArgumentArrays()
+    public async Task ToDistinctAsyncRowEnumerable_withConverter_returnsArgumentArrays()
     {
         var data1 = CreateData("argsonly1", 10);
         var data2 = CreateData("argsonly2", 20);
         ITestData[] collection = [data1, data2];
         var result = new List<object?[]>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, testData => testData.ToArgs(ArgsCode.Instance)))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, testData => testData.ToArgs(ArgsCode.Instance)))
         {
             result.Add(item);
         }
@@ -198,14 +245,14 @@ public class CollectionConverterAsyncEnumerablesTests
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_withConverter_deduplicatesByTestCaseName()
+    public async Task ToDistinctAsyncRowEnumerable_withConverter_deduplicatesByTestCaseName()
     {
         var first = CreateData("argsonly-dup", 5);
         var duplicate = TestDataFactory.CreateTestData<int>("argsonly-dup", "result", 10);
         ITestData[] collection = [first, duplicate];
         var result = new List<object?[]>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, testData => testData.ToArgs(ArgsCode.Properties)))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, testData => testData.ToArgs(ArgsCode.Properties)))
         {
             result.Add(item);
         }
@@ -214,12 +261,12 @@ public class CollectionConverterAsyncEnumerablesTests
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_withConverter_undefinedArgsCode_throwsInvalidEnumArgumentException()
+    public async Task ToDistinctAsyncRowEnumerable_withConverter_undefinedArgsCode_throwsInvalidEnumArgumentException()
     {
         ITestData[] collection = [CreateData("invalid-argsonly")];
         try
         {
-            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, testData => testData.ToArgs((ArgsCode)888)))
+            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, testData => testData.ToArgs((ArgsCode)888)))
             {
                 Assert.Fail("Should not reach here");
             }
@@ -232,14 +279,14 @@ public class CollectionConverterAsyncEnumerablesTests
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_withConverterAndPropsCode_returnsArgumentArrays()
+    public async Task ToDistinctAsyncRowEnumerable_withConverterAndPropsCode_returnsArgumentArrays()
     {
         var data1 = CreateData("props1", 30);
         var data2 = CreateData("props2", 40);
         ITestData[] collection = [data1, data2];
         var result = new List<object?[]>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, testData => testData.ToArgs(ArgsCode.Instance, PropsCode.All)))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, testData => testData.ToArgs(ArgsCode.Instance, PropsCode.All)))
         {
             result.Add(item);
         }
@@ -250,14 +297,14 @@ public class CollectionConverterAsyncEnumerablesTests
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_withConverterAndPropsCode_deduplicatesByTestCaseName()
+    public async Task ToDistinctAsyncRowEnumerable_withConverterAndPropsCode_deduplicatesByTestCaseName()
     {
         var first = CreateData("props-async-dup", 15);
         var duplicate = TestDataFactory.CreateTestData<int>("props-async-dup", "result", 25);
         ITestData[] collection = [first, duplicate];
         var result = new List<object?[]>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, testData => testData.ToArgs(ArgsCode.Properties, PropsCode.All)))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, testData => testData.ToArgs(ArgsCode.Properties, PropsCode.All)))
         {
             result.Add(item);
         }
@@ -266,12 +313,12 @@ public class CollectionConverterAsyncEnumerablesTests
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_withConverterAndPropsCode_undefinedArgsCode_throwsInvalidEnumArgumentException()
+    public async Task ToDistinctAsyncRowEnumerable_withConverterAndPropsCode_undefinedArgsCode_throwsInvalidEnumArgumentException()
     {
         ITestData[] collection = [CreateData("invalid-props-args")];
         try
         {
-            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, testData => testData.ToArgs((ArgsCode)777, PropsCode.All)))
+            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, testData => testData.ToArgs((ArgsCode)777, PropsCode.All)))
             {
                 Assert.Fail("Should not reach here");
             }
@@ -284,13 +331,13 @@ public class CollectionConverterAsyncEnumerablesTests
     }
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_withConverterAndPropsCode_usesPropsCode()
+    public async Task ToDistinctAsyncRowEnumerable_withConverterAndPropsCode_usesPropsCode()
     {
         var data1 = CreateData("props-async", 5);
         ITestData[] collection = [data1];
         var result = new List<object?[]>();
 
-        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, testData => testData.ToArgs(ArgsCode.Properties, PropsCode.All)))
+        await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, testData => testData.ToArgs(ArgsCode.Properties, PropsCode.All)))
         {
             result.Add(item);
         }
@@ -304,13 +351,13 @@ public class CollectionConverterAsyncEnumerablesTests
     #region Error handling
 
     [TestMethod]
-    public async Task ToDistinctAsyncEnumerable_nullConverter_throwsArgumentNullException()
+    public async Task ToDistinctAsyncRowEnumerable_nullConverter_throwsArgumentNullException()
     {
         ITestData[] collection = [CreateData("test")];
         Func<ITestData, object?[]> nullConverter = null!;
         try
         {
-            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncEnumerable(collection, nullConverter))
+            await foreach (var item in AsyncEnumerableCollectionConverter.ToDistinctAsyncRowEnumerable(collection, nullConverter))
             {
                 Assert.Fail("Should not reach here");
             }

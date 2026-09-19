@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters.DataProviders.TypedRow;
+using Portamical.Converters.DataProviders.CustomRow;
 using Portamical.Core.Factories;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes;
-using BaseProvider = global::Portamical.DataProviders.Models.TypedRow.TestDataProvider<global::Portamical.Core.TestDataTypes.ITestData, string>;
+using BaseProvider = global::Portamical.DataProviders.Models.CustomRow.TestDataProvider<global::Portamical.Core.TestDataTypes.ITestData, string>;
 
-namespace Tests.Portamical.Converters.DataProviders.TypedRow;
+namespace Tests.Portamical.Converters.DataProviders.CustomRow;
 
 [TestClass]
 public class CollectionConverter_ToDataProviderTests

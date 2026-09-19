@@ -3,7 +3,7 @@
 
 using Portamical.Converters.RowArrays.ObjectArray;
 using Portamical.Converters.RowArrays.TestData;
-using Portamical.Converters.RowArrays.TypedRow;
+using Portamical.Converters.RowArrays.CustomRow;
 using Portamical.Core.Factories;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes;
@@ -34,7 +34,7 @@ public class CollectionConverterTests
         }
     }
 
-    private sealed class TypedRowConverter
+    private sealed class CustomRowConverter
     {
         public ArgsCode? LastArgsCode { get; private set; }
         public string? LastMethodName { get; private set; }
@@ -162,7 +162,7 @@ public class CollectionConverterTests
     [TestMethod]
     public void ToRowArray_converterWithArgsCode_passesAllParametersCorrectly()
     {
-        var converter = new TypedRowConverter();
+        var converter = new CustomRowConverter();
         var data1 = CreateData("args-test", 5);
         var data2 = CreateData("args-test2", 10);
         ITestData[] collection = [data1, data2];
@@ -234,7 +234,7 @@ public class CollectionConverterTests
     [TestMethod]
     public void ToRowArray_converterWithMethodName_passesTestMethodNameToConverter()
     {
-        var converter = new TypedRowConverter();
+        var converter = new CustomRowConverter();
         var item = CreateData("method-name", 7);
         ITestData[] collection = [item];
 

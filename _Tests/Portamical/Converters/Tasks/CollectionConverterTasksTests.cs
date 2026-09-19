@@ -2,7 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using System.ComponentModel;
-using ArrayTaskCollectionConverter = global::Portamical.Converters.Tasks.ArrayTask.CollectionConverter;
+using ArrayTaskCollectionConverter = global::Portamical.Converters.Tasks.ArrayTasks.CollectionConverter;
 using Portamical.Core.Factories;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes;
@@ -25,7 +25,7 @@ public class CollectionConverterTasksTests
         var item = CreateData("a");
         ITestData[] collection = [item];
 
-        var result = await ArrayTaskCollectionConverter.ToArrayTask(collection);
+        var result = await ArrayTaskCollectionConverter.ToArrayTask(collection, td => td);
 
         Assert.HasCount(1, result);
         Assert.AreSame(item, result[0]);
@@ -39,7 +39,7 @@ public class CollectionConverterTasksTests
         var third = CreateData("c", 3);
         ITestData[] collection = [first, second, third];
 
-        var result = await ArrayTaskCollectionConverter.ToArrayTask(collection);
+        var result = await ArrayTaskCollectionConverter.ToArrayTask(collection, td => td);
 
         Assert.HasCount(3, result);
         Assert.AreSame(first, result[0]);
@@ -52,7 +52,7 @@ public class CollectionConverterTasksTests
     {
         ITestData[] collection = [CreateData("1"), CreateData("2"), CreateData("3")];
 
-        var task = ArrayTaskCollectionConverter.ToArrayTask(collection);
+        var task = ArrayTaskCollectionConverter.ToArrayTask(collection, td => td);
 
         Assert.IsTrue(task.IsCompleted);
 
@@ -68,7 +68,7 @@ public class CollectionConverterTasksTests
             .Select(i => CreateData($"item{i}", i))
             .ToArray();
 
-        var result = await ArrayTaskCollectionConverter.ToArrayTask(collection);
+        var result = await ArrayTaskCollectionConverter.ToArrayTask(collection, td => td);
 
         Assert.HasCount(100, result);
     }
@@ -124,7 +124,7 @@ public class CollectionConverterTasksTests
     public async Task ToDistinctArrayTask_identity_singleElement_returnsArrayOfOne()
     {
         ITestData[] collection = [CreateData("a")];
-        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection);
+        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection, td => td);
         Assert.HasCount(1, result);
     }
 
@@ -132,7 +132,7 @@ public class CollectionConverterTasksTests
     public async Task ToDistinctArrayTask_identity_multipleDistinctElements_returnsAll()
     {
         ITestData[] collection = [CreateData("a"), CreateData("b"), CreateData("c")];
-        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection);
+        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection, td => td);
         Assert.HasCount(3, result);
     }
 
@@ -142,7 +142,7 @@ public class CollectionConverterTasksTests
         var first = CreateData("same");
         var duplicate = TestDataFactory.CreateTestData<int>("same", "result", 99);
         ITestData[] collection = [first, duplicate];
-        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection);
+        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection, td => td);
         Assert.HasCount(1, result);
         Assert.AreSame(first, result[0]);
     }
@@ -152,7 +152,7 @@ public class CollectionConverterTasksTests
     {
         // Collections < 10 items should use Task.FromResult
         ITestData[] collection = [CreateData("1"), CreateData("2"), CreateData("3")];
-        var task = ArrayTaskCollectionConverter.ToDistinctArrayTask(collection);
+        var task = ArrayTaskCollectionConverter.ToDistinctArrayTask(collection, td => td);
         // Task should complete synchronously
         Assert.IsTrue(task.IsCompleted);
         var result = await task;
@@ -166,7 +166,7 @@ public class CollectionConverterTasksTests
         var collection = Enumerable.Range(0, 15)
             .Select(i => CreateData($"item{i}", i))
             .ToArray();
-        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection);
+        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection, td => td);
         Assert.HasCount(15, result);
     }
 
@@ -228,7 +228,7 @@ public class CollectionConverterTasksTests
         IEnumerable<ITestData> nullCollection = null!;
         try
         {
-            await ArrayTaskCollectionConverter.ToDistinctArrayTask(nullCollection);
+            await ArrayTaskCollectionConverter.ToDistinctArrayTask(nullCollection, td => td);
             Assert.Fail("Expected ArgumentNullException was not thrown");
         }
         catch (ArgumentNullException)
@@ -243,7 +243,7 @@ public class CollectionConverterTasksTests
         var empty = Array.Empty<ITestData>();
         try
         {
-            await ArrayTaskCollectionConverter.ToDistinctArrayTask(empty);
+            await ArrayTaskCollectionConverter.ToDistinctArrayTask(empty, td => td);
             Assert.Fail("Expected ArgumentException was not thrown");
         }
         catch (ArgumentException)
@@ -271,7 +271,7 @@ public class CollectionConverterTasksTests
     {
         // Small collections should complete very quickly
         ITestData[] collection = [CreateData("perf1"), CreateData("perf2")];
-var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection);
+var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection, td => td);
 Assert.HasCount(2, result);
     }
 
@@ -283,7 +283,7 @@ Assert.HasCount(2, result);
             .Select(i => CreateData($"large{i}", i))
             .ToArray();
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection);
+        var result = await ArrayTaskCollectionConverter.ToDistinctArrayTask(collection, td => td);
         stopwatch.Stop();
 
         Assert.HasCount(100, result);

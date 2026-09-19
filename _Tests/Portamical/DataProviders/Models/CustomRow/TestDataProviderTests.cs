@@ -4,9 +4,9 @@
 using Portamical.Core.Factories;
 using Portamical.Core.Strategy;
 using Portamical.Core.TestDataTypes;
-using BaseProvider = Portamical.DataProviders.Models.TypedRow.TestDataProvider<Portamical.Core.TestDataTypes.ITestData, string>;
+using BaseProvider = Portamical.DataProviders.Models.CustomRow.TestDataProvider<Portamical.Core.TestDataTypes.ITestData, string>;
 
-namespace Tests.Portamical.DataProviders.Models.TypedRow;
+namespace Tests.Portamical.DataProviders.Models.CustomRow;
 
 [TestClass]
 public class TestDataProviderTests

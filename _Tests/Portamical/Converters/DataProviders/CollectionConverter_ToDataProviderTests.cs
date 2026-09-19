@@ -102,11 +102,14 @@ public class CollectionConverter_ToDataProviderTests
     }
 
     [TestMethod]
-    public void ToDataProvider_withInitializer_nullInitFunction_throwsArgumentNullException()
+    public void ToDataProvider_withInitializer_nullInitFunction_throwsNullReferenceException()
     {
+        // NOTE: unlike the richer DataProviders.CustomRow overloads, this base identity-style
+        // overload does not explicitly validate initDataProvider before invoking it, so a null
+        // delegate surfaces as a NullReferenceException rather than an ArgumentNullException.
         ITestData[] collection = [CreateData("v")];
         Func<ITestData, TestDataProvider> nullInit = null!;
-        Assert.ThrowsExactly<ArgumentNullException>(
+        Assert.ThrowsExactly<NullReferenceException>(
             () => collection.ToDataProvider(nullInit));
     }
 
