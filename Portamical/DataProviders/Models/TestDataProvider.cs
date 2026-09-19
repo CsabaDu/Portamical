@@ -42,7 +42,7 @@ where TTestData : notnull, ITestData
     /// making the parameterless constructor available to derived classes in external assemblies.
     /// </remarks>
     protected TestDataProvider()
-        : base()
+    : base()
     {
     }
 
@@ -60,7 +60,7 @@ where TTestData : notnull, ITestData
     /// making single-item initialization available to derived classes in external assemblies.
     /// </remarks>
     protected TestDataProvider(TTestData testData)
-        : base(testData)
+    : base(testData)
     {
     }
 
@@ -78,7 +78,7 @@ where TTestData : notnull, ITestData
     /// making bulk initialization available to derived classes in external assemblies.
     /// </remarks>
     protected TestDataProvider(IEnumerable<TTestData> testDataCollection)
-        : base(testDataCollection)
+    : base(testDataCollection)
     {
     }
 }
