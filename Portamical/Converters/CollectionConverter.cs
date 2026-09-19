@@ -78,6 +78,7 @@ internal static class CollectionConverter
     /// This overload delegates to the private helper with <c>removeDuplicates: false</c>. If the collection
     /// contains a single item, <paramref name="addConvertedRow"/> is never invoked.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TConvertedRows ToConvertedRows<TTestData, TConvertedRows>(
     this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TConvertedRows> initConvertedRows,
@@ -119,6 +120,7 @@ internal static class CollectionConverter
     /// <remarks>
     /// This overload delegates to the private helper with <c>removeDuplicates: false</c>.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TConvertedRows ToConvertedRows<TTestData, TConvertedRows>(
     this IEnumerable<TTestData> testDataCollection,
         Action<TConvertedRows, TTestData> addConvertedRow)
@@ -175,6 +177,7 @@ internal static class CollectionConverter
     /// This overload delegates to the private helper with <c>removeDuplicates: true</c>.
     /// </para>
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TConvertedRows ToDistinctConvertedRows<TTestData, TConvertedRows>(
     this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TConvertedRows> initConvertedRows,
@@ -218,6 +221,7 @@ internal static class CollectionConverter
     /// values, starting with an empty seen-set since no item has been added prior to iteration.
     /// This overload delegates to the private helper with <c>removeDuplicates: true</c>.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TConvertedRows ToDistinctConvertedRows<TTestData, TConvertedRows>(
     this IEnumerable<TTestData> testDataCollection,
         Action<TConvertedRows, TTestData> addConvertedRow)

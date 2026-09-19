@@ -160,6 +160,7 @@ public static class CollectionConverter
     /// // Result: dataProvider contains all 2 items
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TDataProvider ToDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection)
     where TDataProvider : IDataProvider<TTestData, TRow>, new()
@@ -316,6 +317,7 @@ public static class CollectionConverter
     /// // Result: dataProvider contains 2 items (duplicate removed)
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TDataProvider ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection)
     where TDataProvider : IDataProvider<TTestData, TRow>, new()
@@ -346,6 +348,7 @@ public static class CollectionConverter
     /// and its distinct counterpart, bridging the generic converter infrastructure to
     /// <see cref="ITestDataRegistry{TTestData}.AddRow(TTestData)"/>.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void AddConvertedRow<TTestData, TDataProvider, TRow>(
         TDataProvider dataProvider,
         TTestData testData)

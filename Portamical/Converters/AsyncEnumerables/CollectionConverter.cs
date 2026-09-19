@@ -75,6 +75,7 @@ public static class CollectionConverter
     /// for conversion, then wraps the result in an async enumerable for streaming consumption.
     /// </para>
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
@@ -110,6 +111,7 @@ public static class CollectionConverter
     /// for deduplication, then wraps the result in an async enumerable.
     /// </para>
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IAsyncEnumerable<TRow> ToDistinctAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)

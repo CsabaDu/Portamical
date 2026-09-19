@@ -65,6 +65,7 @@ public static class CollectionConverter
     /// // Output: "Add(2,3)", "Add(2,3)", "Add(5,7)" (no deduplication)
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IAsyncEnumerable<TTestData> ToAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
@@ -116,6 +117,7 @@ public static class CollectionConverter
     /// // Output: "Add(2,3)", "Add(5,7)" (duplicate removed)
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IAsyncEnumerable<TTestData> ToDistinctAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
