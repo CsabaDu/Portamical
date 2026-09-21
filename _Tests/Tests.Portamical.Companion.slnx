@@ -6,5 +6,6 @@
   <Project Path="../Portamical.Companion/Companion.Emit/Companion.Emit.csproj" />
   <Project Path="../Portamical.Companion/Companion.Mcp/Companion.Mcp.csproj" />
   <Project Path="../Portamical.Companion/Companion.Cli/Companion.Cli.csproj" />
+  <Project Path="../Portamical.Core/Portamical.Core.csproj" />
 </Solution>
 

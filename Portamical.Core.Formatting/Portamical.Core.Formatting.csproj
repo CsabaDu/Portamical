@@ -30,25 +30,26 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v2.2.0 (2026-08-07) - Safety and Quality Improvements
+      v3.0.0 (2026-09-21) - API Surface and Null-Safety Refinements
 
-      Builder Enhancements:
-      • Added truncation safety in CopyAsSpan for insufficient buffer space
-      • Enhanced DEBUG diagnostics with Debug.WriteLine (no production overhead)
-      • Prevents buffer overflow exceptions with automatic span slicing
+      Breaking Change:
+      • DefaultFormatter is now internal; use Formatter.Format(...) or Formatter.GetFormatter(...) instead
 
-      Code Quality:
-      • Reorganized DefaultFormatter with #region directives for better navigation
-      • Enhanced exception formatting consistency in Stream error handling
-      • Fixed FileVersion typo in Portamical.NUnit.csproj
+      Formatter API:
+      • GetFormatter now accepts Type? and returns the default formatter for null input
+      • Unregistered non-null types continue to use the default formatter
+      • XML documentation now describes the null-safe fallback contract
 
-      Testing:
-      • Added 4 new CopyAsSpan safety tests for edge cases (358 total tests)
-      • Expanded coverage for truncation and boundary scenarios
+      Internal Maintenance:
+      • Renamed Builder's private separator constant for clarity
+      • Clarified enumerable and formatter-region naming
+      • Added scoped warning suppression for DEBUG-only stream diagnostics
+      • Removed redundant explicit imports supplied by implicit/global usings
+      • Refined XML documentation references and implementation descriptions
 
       Compatibility:
-      • No breaking changes - drop-in replacement for v2.1.1
-      • Zero-allocation performance characteristics preserved
+      • Formatter.Format, formatter registration, Formatter&lt;T&gt;, and public Builder APIs are unchanged
+      • Direct DefaultFormatter usage must migrate to the public Formatter facade
 
       For details: https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md
     </PackageReleaseNotes>

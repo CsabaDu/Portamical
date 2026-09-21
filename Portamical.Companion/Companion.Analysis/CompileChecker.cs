@@ -35,7 +35,7 @@ public static class CompileChecker
             .Select(s => CSharpSyntaxTree.ParseText(s))
             .ToList();
 
-        var references = GetRuntimeReferences()
+        var references = RuntimeReferences.GetAll()
             .Concat((referencePaths ?? [])
                 .Select(p => (MetadataReference)MetadataReference.CreateFromFile(p)))
             .ToList();
@@ -56,25 +56,4 @@ public static class CompileChecker
         return new CompileCheckResult(errors.Count == 0, errors);
     }
 
-    private static IEnumerable<MetadataReference> GetRuntimeReferences()
-    {
-        string? trustedAssemblies = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
-
-        if (string.IsNullOrEmpty(trustedAssemblies))
-        {
-            yield break;
-        }
-
-        foreach (string path in trustedAssemblies.Split(Path.PathSeparator))
-        {
-            string fileName = Path.GetFileName(path);
-
-            // Core runtime surface is enough for compile checks; skip niche assemblies.
-            if (fileName.StartsWith("System.", StringComparison.OrdinalIgnoreCase)
-                || fileName is "mscorlib.dll" or "netstandard.dll" or "System.dll")
-            {
-                yield return MetadataReference.CreateFromFile(path);
-            }
-        }
-    }
 }

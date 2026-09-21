@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-2.2.0-orange.svg)](https://www.nuget.org/packages/Portamical.Core.Formatting)
+[![Version](https://img.shields.io/badge/version-3.0.0-orange.svg)](https://www.nuget.org/packages/Portamical.Core.Formatting)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 > **Extensible formatters, zero-allocation string building, and thread-safe custom formatter registry for human-readable test case names and diagnostic output.**
@@ -52,6 +52,12 @@
 - **`Builder.CopyAsSpan`** - Efficient character copying for `Span<char>`
 - **`Builder.FallbackIfNull`** - Consistent `null` → `"null"` conversion
 - **`Builder.FallbackIfNullSeparator`** - Consistent `null` → `", "` conversion
+
+### **3.0 API Refinements**
+- **Null-safe formatter lookup** - `Formatter.GetFormatter(Type? type)` returns the default formatter when `type` is `null`
+- **Smaller public surface** - `DefaultFormatter` is now an internal implementation detail; use `Formatter.Format(...)` and `Formatter.GetFormatter(...)`
+- **Clearer internal terminology** - The private default-separator constant and enumerable variables use descriptive names
+- **Improved diagnostics documentation** - XML documentation now reflects null fallback behavior, buffer truncation, and DEBUG-only stream diagnostics
 
 ---
 
@@ -175,7 +181,7 @@ All formatting types are in the root `Portamical.Core.Formatting` namespace:
 - **`IFormatter.cs`** - Public base contract for all formatters
 - **`Formatter.cs`** - Static registry + formatting pipeline class + abstract `Formatter<T>` base class  
 - **`Builder.cs`** - String building utilities (FallbackIfNull, JoinWithComma, CreateSeparatedString)
-- **`DefaultFormatter.cs`** - Singleton built-in formatter with intelligent type-specific formatting
+- **`DefaultFormatter.cs`** - Internal singleton implementation with intelligent type-specific formatting
 
 
 ### Formatter Hierarchy
@@ -183,7 +189,7 @@ All formatting types are in the root `Portamical.Core.Formatting` namespace:
 ```
 IFormatter (non-generic, public)
 	│
-	├── DefaultFormatter (built-in, 12+ type patterns)
+	├── DefaultFormatter (internal built-in implementation, 12+ type patterns)
 	│
 	└── Formatter<T> (abstract base class)
 			│
@@ -288,7 +294,7 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | `IsFormatterRegistered<T>()` | `bool`| Check if a formatter is registered for `T` |
 | `IsFormatterRegistered(Type)` | `bool`| Check if a formatter is registered for a type |
 | `GetFormatter<T>()` | `IFormatter`| Get the formatter for `T` (custom or default) |
-| `GetFormatter(Type)` | `IFormatter`| Get the formatter for a type (custom or default) |
+| `GetFormatter(Type?)` | `IFormatter`| Get the formatter for a type; a null or unregistered type returns the default formatter |
 | `ClearFormatters()` | (void) | Remove all custom formatters |
 
 ### Builder Methods
@@ -302,18 +308,11 @@ Custom formatters registered in `Formatter` are automatically used by Portamical
 | `FallbackIfNull(string?)` | `string` | Convert `null` to `"null"` (inlined) |
 | `FallbackIfNullSeparator(string?)` | `string` | Convert `null` separator to `", "` (inlined) |
 
-### DefaultFormatter Methods
-
-| Method | Type | Description |
-|--------|------|-------------|
-| `Format(object?)` | `string?` | Formats an object into a predefined human-readable string representation, or returns `null` |
-
 ### Static Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `Formatter.Registry` | `IReadOnlyDictionary<Type, IFormatter>` | The registered custom formatter map |
-| `DefaultFormatter.Instance` | `IFormatter`| The singleton instance of `DefaultFormatter` |
 
 ### Constants
 
@@ -443,6 +442,50 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 
 ## Changelog
 
+### **Version 3.0.0 - Current** (2026-09-21)
+
+**API Surface and Null-Safety Refinements**
+
+**BREAKING CHANGE:**
+- **`DefaultFormatter` is now internal**
+  - Consumers should format values through `Formatter.Format(...)`.
+  - Consumers that need an `IFormatter` instance should use `Formatter.GetFormatter(...)`.
+  - The built-in formatter remains the fallback implementation, but it is no longer part of the public type surface.
+
+**FORMATTER API:**
+- **`Formatter.GetFormatter(Type?)` now accepts a nullable type**
+  - A null type returns the built-in default formatter rather than throwing `ArgumentNullException`.
+  - Unregistered non-null types continue to return the same default formatter.
+  - XML documentation now explicitly describes this safe fallback contract and includes a null-input example.
+
+**BUILDER AND DEFAULT FORMATTER MAINTENANCE:**
+- Renamed the private `Builder` separator constant from `Comma_` to `DefaultSeparator` for clarity.
+- Clarified enumerable variable names and formatter-region names in `DefaultFormatter`.
+- Added a scoped `CS0168` suppression around DEBUG-only stream exception diagnostics so Release builds remain warning-free.
+- Removed redundant explicit `System.*` imports now supplied by implicit/global usings.
+- Refined XML documentation references, including the exact `Debug.WriteLine(string)` overload and internal implementation terminology.
+
+**COMPATIBILITY AND MIGRATION:**
+- Existing use of `Formatter.Format`, custom formatter registration, `Formatter<T>`, and all public `Builder` methods remains compatible.
+- Replace direct references to `DefaultFormatter` with the public facade:
+
+```csharp
+// Before
+IFormatter formatter = DefaultFormatter.Instance;
+string? text = DefaultFormatter.Format(value);
+
+// Version 3.0.0
+IFormatter formatter = Formatter.GetFormatter(value?.GetType());
+string? text = Formatter.Format(value);
+```
+
+Update the package reference:
+
+```bash
+dotnet add package Portamical.Core.Formatting --version 3.0.0
+```
+
+---
 
 ### **Version 2.0.0** (2026-06-27)
 
@@ -656,7 +699,7 @@ dotnet add package Portamical.Core.Formatting --version 2.1.0
 
 ---
 
-#### **Version 2.2.0 - Current** (2026-08-07)
+#### **Version 2.2.0** (2026-08-07)
 
 **Safety and Quality Improvements**
 
@@ -774,4 +817,3 @@ dotnet add package Portamical.Core.Formatting --version 2.2.0
 **Made by [CsabaDu](https://github.com/CsabaDu)**
 
 *Portamical: Test data as a domain, not an afterthought.*
-
