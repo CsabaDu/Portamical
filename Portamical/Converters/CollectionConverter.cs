@@ -415,13 +415,8 @@ internal static class CollectionConverter
                 _ = namedCases.Add(snapshot[0]);
             }
 
-            addRange(testData =>
-            {
-                if (namedCases.Add(testData))
-                {
-                    addConvertedRow(convertedRows, testData);
-                }
-            });
+            addRange(td => td.AddConvertedIfDistinct(namedCases,
+                addConverted: testData => addConvertedRow(convertedRows, testData)));
         }
         else
         {
@@ -436,15 +431,47 @@ internal static class CollectionConverter
 
             for (int i = startIndex; i < count; i++)
             {
-                var testData = snapshot[i];
-
-                addConverted(testData);
+                addConverted(snapshot[i]);
             }
         }
 
         return convertedRows;
 
         #endregion
+    }
+
+    /// <summary>
+    /// Adds <paramref name="testData"/> to <paramref name="addConverted"/> only if it has not already been
+    /// seen, based on <see cref="INamedCase.TestCaseName"/> identity.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <param name="testData">
+    /// The test data item to conditionally process.
+    /// </param>
+    /// <param name="namedCases">
+    /// The set of already-seen test cases, compared via <see cref="NamedCase.Comparer"/>. Updated in place
+    /// with <paramref name="testData"/> when it is not already present.
+    /// </param>
+    /// <param name="addConverted">
+    /// The action invoked with <paramref name="testData"/> when it is not a duplicate.
+    /// </param>
+    /// <remarks>
+    /// Uses <see cref="HashSet{T}.Add(T)"/> as an atomic seen-check-and-register operation: if
+    /// <paramref name="testData"/> is successfully added to <paramref name="namedCases"/> (i.e., it was not
+    /// already present), <paramref name="addConverted"/> is invoked; otherwise the item is skipped as a duplicate.
+    /// </remarks>
+    internal static void AddConvertedIfDistinct<TTestData>(
+        this TTestData testData,
+        HashSet<INamedCase> namedCases,
+        Action<TTestData> addConverted)
+    where TTestData : notnull, ITestData
+    {
+        if (namedCases.Add(testData))
+        {
+            addConverted(testData);
+        }
     }
 
     #endregion

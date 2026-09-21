@@ -80,7 +80,6 @@ public static class CollectionConverter
         for (int i = 0; i < count; i++)
         {
             var testData = snapshot[i];
-
             rows[i] = convertRow(testData);
         }
 
@@ -166,12 +165,8 @@ public static class CollectionConverter
 
         for (int i = 0; i < count; i++)
         {
-            var testData = snapshot[i];
-
-            if (namedCases.Add(testData))
-            {
-                rowList.Add(convertRow(testData));
-            }
+            snapshot[i].AddConvertedIfDistinct(namedCases,
+                addConverted: testData => rowList.Add(convertRow(testData)));
         }
 
         return [.. rowList];
