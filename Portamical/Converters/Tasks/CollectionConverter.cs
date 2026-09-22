@@ -192,33 +192,37 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TConvertedRows : notnull
     {
-        const int smallCollectionCountLimit = 100;
+        const int smallSnapshotCountLimit = 100;
 
-        var snapshot = toTestDataArray(out var count);
+        var snapshot = toSnapshot(out var count);
+        _ = NotNull(convertRows, nameof(convertRows));
 
-        return count < smallCollectionCountLimit ?
-            Task.FromResult(result: convertRows(snapshot))
-            : Task.Run(function: () => convertRows(snapshot));
+        return count < smallSnapshotCountLimit ?
+            Task.FromResult(result: convertSnapshot())
+            : Task.Run(function: convertSnapshot);
 
-        #region Local function
+        #region Local functions
 
-        TTestData[] toTestDataArray(out int count)
+        TTestData[] toSnapshot(out int count)
         {
-            if (removeDuplicates)
+            if (!removeDuplicates)
             {
-                var distinctRows =
-                    RowArrays.TestData.CollectionConverter.ToDistinctRowArray(
-                        testDataCollection);
-                count = distinctRows.Length;
-
-                return distinctRows;
+                return NotNullOrEmpty(
+                    testDataCollection,
+                    nameof(testDataCollection),
+                    out count);
             }
 
-            return NotNullOrEmpty(
-                testDataCollection,
-                nameof(testDataCollection),
-                out count);
+            var distinctSnapshot =
+                RowArrays.TestData.CollectionConverter.ToDistinctRowArray(
+                    testDataCollection);
+            count = distinctSnapshot.Length;
+
+            return distinctSnapshot;
         }
+
+        TConvertedRows convertSnapshot()
+        => convertRows(snapshot);
 
         #endregion
     }

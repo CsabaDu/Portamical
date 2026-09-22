@@ -235,6 +235,10 @@ internal static class CollectionConverter
 
     #region Helper methods
 
+    #region Private ToConvertedRows
+
+    #region TConvertedRows : notnull
+
     /// <summary>
     /// Validates and snapshots <paramref name="testDataCollection"/>, initializes the
     /// <typeparamref name="TConvertedRows"/> container from the first item, and adds the remaining items,
@@ -300,6 +304,10 @@ internal static class CollectionConverter
             skipFirst: true);
     }
 
+    #endregion
+
+    #region TConvertedRows : new()
+
     /// <summary>
     /// Validates and snapshots <paramref name="testDataCollection"/>, creates the
     /// <typeparamref name="TConvertedRows"/> container via its parameterless constructor, and adds every
@@ -351,6 +359,10 @@ internal static class CollectionConverter
             removeDuplicates,
             skipFirst: false);
     }
+
+    #endregion
+
+    #region Base ToConvertedRows
 
     /// <summary>
     /// Iterates over a pre-validated snapshot array, adding each item to <paramref name="convertedRows"/> via
@@ -415,7 +427,7 @@ internal static class CollectionConverter
                 _ = namedCases.Add(snapshot[0]);
             }
 
-            addRange(td => td.AddConvertedIfDistinct(namedCases,
+            addRange(td => AddConvertedIfDistinct(td, namedCases,
                 addConverted: testData => addConvertedRow(convertedRows, testData)));
         }
         else
@@ -440,6 +452,12 @@ internal static class CollectionConverter
         #endregion
     }
 
+    #endregion
+
+    #endregion
+
+    #region Internal AddConvertedIfDistinct
+
     /// <summary>
     /// Adds <paramref name="testData"/> to <paramref name="addConverted"/> only if it has not already been
     /// seen, based on <see cref="INamedCase.TestCaseName"/> identity.
@@ -463,7 +481,7 @@ internal static class CollectionConverter
     /// already present), <paramref name="addConverted"/> is invoked; otherwise the item is skipped as a duplicate.
     /// </remarks>
     internal static void AddConvertedIfDistinct<TTestData>(
-        this TTestData testData,
+        TTestData testData,
         HashSet<INamedCase> namedCases,
         Action<TTestData> addConverted)
     where TTestData : notnull, ITestData
@@ -473,6 +491,8 @@ internal static class CollectionConverter
             addConverted(testData);
         }
     }
+
+    #endregion
 
     #endregion
 }
