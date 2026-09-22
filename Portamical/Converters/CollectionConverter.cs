@@ -427,17 +427,17 @@ internal static class CollectionConverter
                 _ = namedCases.Add(snapshot[0]);
             }
 
-            addRange(td => AddConvertedIfDistinct(td, namedCases,
-                addConverted: testData => addConvertedRow(convertedRows, testData)));
+            addRange(testData => AddConvertedIfDistinct(
+                testData, namedCases, addConverted));
         }
         else
         {
-            addRange(testData => addConvertedRow(convertedRows, testData));
+            addRange(addConverted);
         }
 
         return convertedRows;
 
-        #region Local function
+        #region Local methods
 
         void addRange(Action<TTestData> addConverted)
         {
@@ -445,9 +445,13 @@ internal static class CollectionConverter
 
             for (int i = startIndex; i < count; i++)
             {
-                addConverted(snapshot[i]);
+                var testData = snapshot[i];
+                addConverted(testData);
             }
         }
+
+        void addConverted(TTestData testData)
+        => addConvertedRow(convertedRows, testData);
 
         #endregion
     }

@@ -72,21 +72,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    {
-        var snapshot = ValidateNotNullOrEmptyWithRowConverter(
-            testDataCollection,
-            convertRow,
-            out var count);
-        var rows = new TRow[count];
-
-        for (int i = 0; i < count; i++)
-        {
-            var testData = snapshot[i];
-            rows[i] = convertRow(testData);
-        }
-
-        return rows;
-    }
+    => testDataCollection.ToRowArray(convertRow, removeDuplicates: false);
 
     #endregion
 
@@ -157,50 +143,38 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    {
-        var snapshot = ValidateNotNullOrEmptyWithRowConverter(
-            testDataCollection,
-            convertRow,
-            out var count);
-        var rowList = new List<TRow>(count);
-        var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
-
-        for (int i = 0; i < count; i++)
-        {
-            AddConvertedIfDistinct(snapshot[i], namedCases,
-                addConverted: testData => rowList.Add(convertRow(testData)));
-        }
-
-        return [.. rowList];
-    }
+    => testDataCollection.ToRowArray(convertRow, removeDuplicates: true);
 
     #endregion
 
-    #region Helper method
+    #region Private base ToRowArray
 
     /// <summary>
-    /// Validates that <paramref name="testDataCollection"/> is not <see langword="null"/> or empty and that
-    /// <paramref name="convertRow"/> is not <see langword="null"/>, returning a snapshot array and the
-    /// element count.
+    /// Shared implementation that validates and snapshots the collection, then converts it into an array
+    /// of rows using a custom conversion function, optionally removing duplicate rows.
     /// </summary>
     /// <typeparam name="TTestData">
     /// The type of test data in the input collection. Must implement <see cref="ITestData"/> and be non-null.
     /// </typeparam>
     /// <typeparam name="TRow">
-    /// The type of elements produced by <paramref name="convertRow"/>. Not used for validation itself, but
-    /// required to type-check the delegate.
+    /// The type of elements in the output array, produced by <paramref name="convertRow"/>.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to validate and snapshot. Cannot be null or empty.
+    /// The collection of test data to process. Cannot be null or empty.
     /// </param>
     /// <param name="convertRow">
-    /// The row conversion function to validate. Cannot be null.
+    /// A function that transforms each test data item into a row of type <typeparamref name="TRow"/>.
+    /// Cannot be null. When <paramref name="removeDuplicates"/> is <see langword="true"/>, called only
+    /// for non-duplicate items.
     /// </param>
-    /// <param name="count">
-    /// When this method returns, contains the number of elements in the returned snapshot array.
+    /// <param name="removeDuplicates">
+    /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates an
+    /// already-processed item, based on <see cref="NamedCase.Comparer"/>. If <see langword="false"/>,
+    /// converts every item.
     /// </param>
     /// <returns>
-    /// A snapshot array containing the elements of <paramref name="testDataCollection"/>.
+    /// An array containing the converted rows, preserving the order from the input collection
+    /// (or the order of first occurrence when <paramref name="removeDuplicates"/> is <see langword="true"/>).
     /// </returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="testDataCollection"/> or <paramref name="convertRow"/> is null.
@@ -208,23 +182,41 @@ public static class CollectionConverter
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="testDataCollection"/> is empty.
     /// </exception>
-    /// <remarks>
-    /// Shared by <see cref="ToRowArray{TTestData, TRow}"/> and <see cref="ToDistinctRowArray{TTestData, TRow}"/>
-    /// to avoid duplicating argument validation logic.
-    /// </remarks>
-    private static TTestData[] ValidateNotNullOrEmptyWithRowConverter<TTestData, TRow>(
-        IEnumerable<TTestData> testDataCollection,
+    private static TRow[] ToRowArray<TTestData, TRow>(
+        this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow,
-        out int count)
+        bool removeDuplicates)
     where TTestData : notnull, ITestData
     {
         var snapshot = NotNullOrEmpty(
             testDataCollection,
             nameof(testDataCollection),
-            out count);
+            out var count);
         _ = NotNull(convertRow, nameof(convertRow));
 
-        return snapshot;
+        if (removeDuplicates)
+        {
+            var rowList = new List<TRow>(count);
+            var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
+
+            for (int i = 0; i < count; i++)
+            {
+                AddConvertedIfDistinct(testData: snapshot[i], namedCases: namedCases,
+                    addConverted: testData => rowList.Add(convertRow(testData)));
+            }
+
+            return [.. rowList];
+        }
+
+        var rows = new TRow[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            var testData = snapshot[i];
+            rows[i] = convertRow(testData);
+        }
+
+        return rows;
     }
 
     #endregion
