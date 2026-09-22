@@ -96,12 +96,12 @@ public class CollectionConverterTests
     }
 
     [TestMethod]
-    public async Task ToConvertedRowsTask_nullConvertRows_throwsNullReferenceException()
+    public async Task ToConvertedRowsTask_nullConvertRows_throwsArgumentNullException()
     {
         ITestData[] collection = [CreateData("a")];
         Func<IEnumerable<ITestData>, int> nullConvertRows = null!;
 
-        await Assert.ThrowsExactlyAsync<NullReferenceException>(
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await TaskCollectionConverter.ToConvertedRowsTask(
                 collection,
                 nullConvertRows));
@@ -193,12 +193,12 @@ public class CollectionConverterTests
     }
 
     [TestMethod]
-    public async Task ToDistinctConvertedRowsTask_nullConvertRows_throwsNullReferenceException()
+    public async Task ToDistinctConvertedRowsTask_nullConvertRows_throwsArgumentNullException()
     {
         ITestData[] collection = [CreateData("a")];
         Func<IEnumerable<ITestData>, int> nullConvertRows = null!;
 
-        await Assert.ThrowsExactlyAsync<NullReferenceException>(
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await TaskCollectionConverter.ToDistinctConvertedRowsTask(
                 collection,
                 nullConvertRows));

@@ -435,6 +435,8 @@ internal static class CollectionConverter
             addRange(testData => addConvertedRow(convertedRows, testData));
         }
 
+        return convertedRows;
+
         #region Local function
 
         void addRange(Action<TTestData> addConverted)
@@ -446,8 +448,6 @@ internal static class CollectionConverter
                 addConverted(snapshot[i]);
             }
         }
-
-        return convertedRows;
 
         #endregion
     }

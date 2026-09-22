@@ -87,12 +87,10 @@ public class CollectionConverterAsyncEnumerablesTests
             }
             Assert.Fail("Expected ArgumentNullException was not thrown");
         }
-#pragma warning disable MSTEST0058 // Assertions in catch blocks
         catch (ArgumentNullException)
         {
             // Expected
         }
-#pragma warning restore MSTEST0058
     }
 
     [TestMethod]
@@ -108,12 +106,10 @@ public class CollectionConverterAsyncEnumerablesTests
             }
             Assert.Fail("Expected ArgumentException was not thrown");
         }
-#pragma warning disable MSTEST0058 // Assertions in catch blocks
         catch (ArgumentException)
         {
             // Expected
         }
-#pragma warning restore MSTEST0058
     }
 
     [TestMethod]

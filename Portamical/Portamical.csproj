@@ -54,6 +54,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Tests.Portamical" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Portamical.Core\Portamical.Core.csproj" />
   </ItemGroup>
 
