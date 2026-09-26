@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.Processing;
+
 namespace Portamical.Converters;
 
 /// <summary>
@@ -61,7 +63,7 @@ internal static class CollectionConverter
     /// first test data item in the collection.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An action that adds a single test data item to the container. Called once for every item
+    /// An process that adds a single test data item to the container. Called once for every item
     /// after the first.
     /// </param>
     /// <returns>
@@ -104,7 +106,7 @@ internal static class CollectionConverter
     /// The collection of test data to process. Cannot be null or empty.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An action that adds a single test data item to the container. Called once for every item
+    /// An process that adds a single test data item to the container. Called once for every item
     /// in the collection.
     /// </param>
     /// <returns>
@@ -153,7 +155,7 @@ internal static class CollectionConverter
     /// first test data item in the collection.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An action that adds a single test data item to the container. Called only for items whose
+    /// An process that adds a single test data item to the container. Called only for items whose
     /// <see cref="INamedCase.TestCaseName"/> has not already been seen.
     /// </param>
     /// <returns>
@@ -203,7 +205,7 @@ internal static class CollectionConverter
     /// The collection of test data to process. Cannot be null or empty.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An action that adds a single test data item to the container. Called only for items whose
+    /// An process that adds a single test data item to the container. Called only for items whose
     /// <see cref="INamedCase.TestCaseName"/> has not already been seen.
     /// </param>
     /// <returns>
@@ -233,8 +235,6 @@ internal static class CollectionConverter
 
     #endregion
 
-    #region Helper methods
-
     #region Private ToConvertedRows
 
     #region TConvertedRows : notnull
@@ -257,7 +257,7 @@ internal static class CollectionConverter
     /// A function that creates and initializes the container from the first test data item.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An action that adds a single test data item to the container.
+    /// An process that adds a single test data item to the container.
     /// </param>
     /// <param name="removeDuplicates">
     /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates
@@ -287,18 +287,12 @@ internal static class CollectionConverter
     {
         var snapshot = NotNullOrEmpty(
             testDataCollection,
-            nameof(testDataCollection),
-            out var count);
+            nameof(testDataCollection));
+        _ = NotNull(initConvertedRows, nameof(initConvertedRows));
         var convertedRows = initConvertedRows(snapshot[0]);
 
-        if (count == 1)
-        {
-            return convertedRows;
-        }
-
-        return snapshot.ToConvertedRows(
-            count,
-            convertedRows,
+        return convertedRows.AddRange(
+            snapshot,
             addConvertedRow,
             removeDuplicates,
             skipFirst: true);
@@ -323,7 +317,7 @@ internal static class CollectionConverter
     /// The collection of test data to process. Cannot be null or empty.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An action that adds a single test data item to the container.
+    /// An process that adds a single test data item to the container.
     /// </param>
     /// <param name="removeDuplicates">
     /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates an
@@ -348,13 +342,11 @@ internal static class CollectionConverter
     {
         var snapshot = NotNullOrEmpty(
             testDataCollection,
-            nameof(testDataCollection),
-            out var count);
+            nameof(testDataCollection));
         var convertedRows = new TConvertedRows();
 
-        return snapshot.ToConvertedRows(
-            count,
-            convertedRows,
+        return convertedRows.AddRange(
+            snapshot,
             addConvertedRow,
             removeDuplicates,
             skipFirst: false);
@@ -362,141 +354,28 @@ internal static class CollectionConverter
 
     #endregion
 
-    #region Base ToConvertedRows
+    #endregion
 
-    /// <summary>
-    /// Iterates over a pre-validated snapshot array, adding each item to <paramref name="convertedRows"/> via
-    /// <paramref name="addConvertedRow"/>, with optional deduplication and skip-first behavior.
-    /// </summary>
-    /// <typeparam name="TTestData">
-    /// The type of test data in the snapshot array. Must implement <see cref="ITestData"/> and be non-null.
-    /// </typeparam>
-    /// <typeparam name="TConvertedRows">
-    /// The type of the container that accumulates the converted rows.
-    /// </typeparam>
-    /// <param name="snapshot">
-    /// The pre-validated snapshot array of test data to iterate through. Must not be null or empty.
-    /// </param>
-    /// <param name="convertedRows">
-    /// The already-initialized container to which converted rows are added.
-    /// </param>
-    /// <param name="addConvertedRow">
-    /// An action that adds a single test data item to <paramref name="convertedRows"/>.
-    /// </param>
-    /// <param name="removeDuplicates">
-    /// If <see langword="true"/>, removes duplicate test data based on <see cref="INamedCase.TestCaseName"/>
-    /// using <see cref="NamedCase.Comparer"/>. If <paramref name="skipFirst"/> is also <see langword="true"/>,
-    /// <c>snapshot[0]</c> is pre-registered as seen (since it was already added by the caller) before
-    /// iteration begins. If <see langword="false"/>, processes all items without deduplication.
-    /// </param>
-    /// <param name="skipFirst">
-    /// If <see langword="true"/>, starts iteration from index 1 (skipping the first item, which the caller
-    /// has already added to <paramref name="convertedRows"/>). If <see langword="false"/>, starts from index 0.
-    /// </param>
-    /// <returns>
-    /// The <paramref name="convertedRows"/> instance, populated with the processed items.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Deduplication Strategy:</strong> When <paramref name="removeDuplicates"/> is
-    /// <see langword="true"/>, a <see cref="HashSet{T}"/> keyed by <see cref="NamedCase.Comparer"/> tracks
-    /// seen test case names. <see cref="HashSet{T}.Add"/> returns <see langword="true"/> only for items not
-    /// already present, so <paramref name="addConvertedRow"/> is invoked exclusively for distinct items.
-    /// </para>
-    /// <para>
-    /// <strong>Performance:</strong> Uses a local function <c>addRange</c> to avoid duplicating the
-    /// iteration logic between the deduplicated and non-deduplicated code paths, with the start index
-    /// determined once based on <paramref name="skipFirst"/>.
-    /// </para>
-    /// </remarks>
-    private static TConvertedRows ToConvertedRows<TTestData, TConvertedRows>(
-        this TTestData[] snapshot,
-        int count,
-        TConvertedRows convertedRows,
+    #region Helper methods
+
+    private static TConvertedRows AddRange<TTestData, TConvertedRows>(
+        this TConvertedRows convertedRows,
+        TTestData[] snapshot,
         Action<TConvertedRows, TTestData> addConvertedRow,
         bool removeDuplicates,
         bool skipFirst)
     where TTestData : notnull, ITestData
     {
-        if (removeDuplicates)
-        {
-            var namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
+        _ = NotNull(addConvertedRow, nameof(addConvertedRow));
 
-            if (skipFirst)
-            {
-                _ = namedCases.Add(snapshot[0]);
-            }
-
-            addRange(testData => AddConvertedIfDistinct(
-                testData, namedCases, addConverted));
-        }
-        else
-        {
-            addRange(addConverted);
-        }
+        TestDataProcessor.ProcessCollection(
+            testDataCollection: snapshot,
+            process: testData => addConvertedRow(convertedRows, testData),
+            removeDuplicates,
+            skipFirst);
 
         return convertedRows;
-
-        #region Local methods
-
-        void addRange(Action<TTestData> addConverted)
-        {
-            var startIndex = skipFirst ? 1 : 0;
-
-            for (int i = startIndex; i < count; i++)
-            {
-                var testData = snapshot[i];
-                addConverted(testData);
-            }
-        }
-
-        void addConverted(TTestData testData)
-        => addConvertedRow(convertedRows, testData);
-
-        #endregion
     }
-
-    #endregion
-
-    #endregion
-
-    #region Internal AddConvertedIfDistinct
-
-    /// <summary>
-    /// Adds <paramref name="testData"/> to <paramref name="addConverted"/> only if it has not already been
-    /// seen, based on <see cref="INamedCase.TestCaseName"/> identity.
-    /// </summary>
-    /// <typeparam name="TTestData">
-    /// The type of test data. Must implement <see cref="ITestData"/> and be non-null.
-    /// </typeparam>
-    /// <param name="testData">
-    /// The test data item to conditionally process.
-    /// </param>
-    /// <param name="namedCases">
-    /// The set of already-seen test cases, compared via <see cref="NamedCase.Comparer"/>. Updated in place
-    /// with <paramref name="testData"/> when it is not already present.
-    /// </param>
-    /// <param name="addConverted">
-    /// The action invoked with <paramref name="testData"/> when it is not a duplicate.
-    /// </param>
-    /// <remarks>
-    /// Uses <see cref="HashSet{T}.Add(T)"/> as an atomic seen-check-and-register operation: if
-    /// <paramref name="testData"/> is successfully added to <paramref name="namedCases"/> (i.e., it was not
-    /// already present), <paramref name="addConverted"/> is invoked; otherwise the item is skipped as a duplicate.
-    /// </remarks>
-    internal static void AddConvertedIfDistinct<TTestData>(
-        TTestData testData,
-        HashSet<INamedCase> namedCases,
-        Action<TTestData> addConverted)
-    where TTestData : notnull, ITestData
-    {
-        if (namedCases.Add(testData))
-        {
-            addConverted(testData);
-        }
-    }
-
-    #endregion
 
     #endregion
 }

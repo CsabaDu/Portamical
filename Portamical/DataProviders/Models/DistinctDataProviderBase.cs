@@ -31,7 +31,22 @@ public abstract class DistinctDataProviderBase<TTestData, TRow>
 : IDataProvider<TTestData, TRow>
 where TTestData : notnull, ITestData
 {
-    private readonly Dictionary<string, TRow> _distinctNamedRows = new(StringComparer.Ordinal);
+    #region Fields
+
+    /// <summary>
+    /// The backing store of distinct test cases, keyed by identity via <see cref="NamedCase.Comparer"/>.
+    /// </summary>
+    /// <remarks>
+    /// Although declared as <see cref="HashSet{T}"/> of <see cref="INamedCase"/>, every stored entry is
+    /// actually an instance of <typeparamref name="TTestData"/>, since only <see cref="AddRow"/> and
+    /// <see cref="AddRange"/> populate this collection. This invariant allows safe casting back to
+    /// <typeparamref name="TTestData"/> when converting entries to rows.
+    /// </remarks>
+    private readonly HashSet<INamedCase> namedCases = new(NamedCase.Comparer);
+
+    #endregion
+
+    #region Constructors
 
     /// <summary>
     /// Initializes a new instance with an empty collection of test data rows.
@@ -80,6 +95,10 @@ where TTestData : notnull, ITestData
         AddRange(testDataCollection);
     }
 
+    #endregion
+
+    #region ITestDataRegistry implementation
+
     /// <summary>
     /// Adds a new row of test data to the provider's collection after converting it to the target row format.
     /// </summary>
@@ -93,10 +112,9 @@ where TTestData : notnull, ITestData
     /// This method uses <see cref="INamedCase.TestCaseName"/> as the dictionary key with <see cref="StringComparer.Ordinal"/>.
     /// The converted row is stored immediately, ensuring the collection remains consistent.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddRow(TTestData testData)
-    => _distinctNamedRows.Add(
-        key: testData.TestCaseName,
-        value: ConvertRow(testData));
+    => namedCases.Add(testData);
 
     /// <summary>
     /// Adds multiple test data rows to the provider's collection.
@@ -127,22 +145,69 @@ where TTestData : notnull, ITestData
     }
 
     /// <summary>
+    /// Gets an array containing all test case testCaseNames in the provider's collection.
+    /// </summary>
+    /// <returns>
+    /// An array of strings containing all test case testCaseNames (keys) from the collection.
+    /// Returns an empty array if no rows have been added.
+    /// </returns>
+    /// <remarks>
+    /// The returned array is a snapshot of the current collection's keys. The order is determined by
+    /// the dictionary's internal structure and may not match insertion order.
+    /// </remarks>
+    public string[] GetTestCaseNames()
+    {
+        var testCaseNames = new string[namedCases.Count];
+        int i = 0;
+
+        foreach (var namedCase in namedCases)
+        {
+            testCaseNames[i++] = namedCase.TestCaseName;
+        }
+
+        return testCaseNames;
+    }
+
+    #endregion
+
+    #region IDataProvider implementation
+
+    /// <summary>
     /// Retrieves the row associated with the specified test case name.
     /// </summary>
     /// <param name="testCaseName">
     /// The test case name to look up. <see langword="null"/> is treated as <see cref="string.Empty"/>.
     /// </param>
     /// <returns>
-    /// The row of type <typeparamref name="TRow"/> if found; otherwise, <see langword="default"/> (<see langword="null"/> for reference types).
+    /// The row of type <typeparamref name="TRow"/> if testCaseNameFound; otherwise, <see langword="default"/> (<see langword="null"/> for reference types).
     /// </returns>
     /// <remarks>
-    /// Lookup uses <see cref="StringComparer.Ordinal"/> comparison. This method does not throw if the test case name is not found.
+    /// Lookup uses <see cref="StringComparer.Ordinal"/> comparison. This method does not throw if the test case name is not testCaseNameFound.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow? GetRow(string testCaseName)
-    => _distinctNamedRows.TryGetValue(testCaseName ?? string.Empty, out var row) ?
-        row
-        : default;
+    => GetRow(context: testCaseName,
+        matchFound: namedCase => namedCase.HasName(testCaseName));
+
+    /// <summary>
+    /// Retrieves the row associated with the specified test case.
+    /// </summary>
+    /// <param name="namedCase">
+    /// The <see cref="INamedCase"/> identifying the test case to look up.
+    /// </param>
+    /// <returns>
+    /// The row of type <typeparamref name="TRow"/> if a matching entry is matchFound; otherwise,
+    /// <see langword="default"/> (<see langword="null"/> for reference types), including when
+    /// <paramref name="namedCase"/> is <see langword="null"/>.
+    /// </returns>
+    /// <remarks>
+    /// Lookup uses <see cref="NamedCase.Comparer"/> equality via <see cref="object.Equals(object?)"/>.
+    /// This method does not throw if a matching entry is not matchFound.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TRow? GetRow(INamedCase namedCase)
+    => GetRow(context: namedCase,
+        matchFound: namedCase.Equals);
 
     /// <summary>
     /// Gets an array containing all rows in the provider's collection.
@@ -155,24 +220,22 @@ where TTestData : notnull, ITestData
     /// The returned array is a snapshot of the current collection. Subsequent modifications to the provider
     /// will not affect the returned array.
     /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow[] GetRows()
-    => [.. _distinctNamedRows.Values];
+    {
+        var rows = new TRow[namedCases.Count];
+        int i = 0;
 
-    /// <summary>
-    /// Gets an array containing all test case names in the provider's collection.
-    /// </summary>
-    /// <returns>
-    /// An array of strings containing all test case names (keys) from the collection.
-    /// Returns an empty array if no rows have been added.
-    /// </returns>
-    /// <remarks>
-    /// The returned array is a snapshot of the current collection's keys. The order is determined by
-    /// the dictionary's internal structure and may not match insertion order.
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string[] GetTestCaseNames()
-    => [.. _distinctNamedRows.Keys];
+        foreach (var namedCase in namedCases)
+        {
+            rows[i++] = ConvertAsTestData(namedCase);
+        }
+
+        return rows;
+    }
+
+    #endregion
+
+    #region IEnumerable implementation
 
     /// <summary>
     /// Returns an enumerator that iterates through the collection of rows.
@@ -185,7 +248,12 @@ where TTestData : notnull, ITestData
     /// The enumeration order is determined by the dictionary's internal structure.
     /// </remarks>
     public IEnumerator<TRow> GetEnumerator()
-    => _distinctNamedRows.Values.GetEnumerator();
+    {
+        foreach (var namedCase in namedCases)
+        {
+            yield return ConvertAsTestData(namedCase);
+        }
+    }
 
     /// <summary>
     /// Returns an enumerator that iterates through the collection.
@@ -195,6 +263,10 @@ where TTestData : notnull, ITestData
     /// </returns>
     IEnumerator IEnumerable.GetEnumerator()
     => GetEnumerator();
+
+    #endregion
+
+    #region Abstract conversion method
 
     /// <summary>
     /// When overridden in a derived class, converts a test data item into a row representation
@@ -211,4 +283,53 @@ where TTestData : notnull, ITestData
     /// stateless and produce consistent results for the same input.
     /// </remarks>
     public abstract TRow ConvertRow(TTestData testData);
+
+    #endregion
+
+    #region Private Helper Methods
+
+    /// <summary>
+    /// Casts a stored <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> and converts it to a row.
+    /// </summary>
+    /// <param name="namedCase">
+    /// The stored entry to convert. Must be an instance of <typeparamref name="TTestData"/>, as guaranteed by
+    /// the invariant that only <typeparamref name="TTestData"/> instances are ever added to the collection.
+    /// </param>
+    /// <returns>
+    /// The row of type <typeparamref name="TRow"/> produced by <see cref="ConvertRow"/>.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TRow ConvertAsTestData(INamedCase namedCase)
+    => ConvertRow((TTestData)namedCase);
+
+    /// <summary>
+    /// Locates the first stored test case that satisfies <paramref name="matchFound"/> and converts it to a row.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type of <paramref name="context"/>, used only for the <see langword="null"/> short-circuit check.
+    /// </typeparam>
+    /// <param name="context">
+    /// The lookup value (e.g., a test case name or <see cref="INamedCase"/>) that <paramref name="matchFound"/>
+    /// was built from. If <see langword="null"/>, the lookup is skipped and <see langword="default"/> is returned.
+    /// </param>
+    /// <param name="matchFound">
+    /// A predicate that identifies the matching <see cref="INamedCase"/> entry in the collection.
+    /// </param>
+    /// <returns>
+    /// The converted <typeparamref name="TRow"/> for the first matching entry; otherwise, <see langword="default"/>.
+    /// </returns>
+    /// <remarks>
+    /// This helper centralizes the shared lookup-and-convert logic used by both <see cref="GetRow(string)"/>
+    /// and <see cref="GetRow(INamedCase)"/> overloads.
+    /// </remarks>
+    private TRow? GetRow<T>(T context, Func<INamedCase, bool> matchFound)
+    {
+        if (context is null) return default;
+
+        return namedCases.Where(matchFound)
+            .Select(ConvertAsTestData)
+            .FirstOrDefault();
+    }
+
+    #endregion
 }

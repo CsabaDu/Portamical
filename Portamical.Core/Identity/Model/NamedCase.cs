@@ -65,6 +65,8 @@ namespace Portamical.Core.Identity.Model;
     Justification = "This abstract base class implements IEquatable<T>, not IEqualityComparer<T>. The nested NamedCaseEqualityComparer that implements IEqualityComparer<T> is properly sealed.")]
 public abstract class NamedCase : INamedCase
 {
+    #region Properties
+
     /// <summary>
     /// Gets the unique name identifying this test case.
     /// </summary>
@@ -121,6 +123,8 @@ public abstract class NamedCase : INamedCase
     public static IEqualityComparer<INamedCase> Comparer { get; } =
         new NamedCaseEqualityComparer();
 
+    #endregion
+
     #region Comparer Implementation
 
     /// <summary>
@@ -175,9 +179,7 @@ public abstract class NamedCase : INamedCase
 
             if (x is null || y is null) return false;
 
-            return StringComparer.Ordinal.Equals(
-                x.TestCaseName,
-                y.TestCaseName);
+            return x.HasName(y.TestCaseName);
         }
 
         /// <summary>
@@ -207,15 +209,7 @@ public abstract class NamedCase : INamedCase
 
     #endregion
 
-    ///// <inheritdoc/>
-    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //public void ExecuteIfDistinct(HashSet<INamedCase> namedCases, Action action)
-    //{
-    //    if (namedCases?.Add(this) != false)
-    //    {
-    //        action();
-    //    }
-    //}
+    #region INamedCase Implementation
 
     /// <summary>
     /// Determines whether the current instance is contained within the specified collection of named test cases.
@@ -252,6 +246,24 @@ public abstract class NamedCase : INamedCase
     => CreateDisplayName(testMethodName, TestCaseName);
 
     /// <summary>
+    /// Determines whether this instance's <see cref="TestCaseName"/> matches the specified name.
+    /// </summary>
+    /// <param name="testCaseName">
+    /// The test case name to compare against <see cref="TestCaseName"/>. Can be <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if <paramref name="testCaseName"/> equals <see cref="TestCaseName"/>
+    /// using ordinal (case-sensitive) comparison; otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <remarks>
+    /// Comparison is performed using <see cref="StringComparison.Ordinal"/>, consistent with the
+    /// equality semantics used elsewhere for <see cref="TestCaseName"/> (e.g., <see cref="Comparer"/>
+    /// and <see cref="Equals(INamedCase)"/>).
+    /// </remarks>
+    public bool HasName(string? testCaseName)
+    => string.Equals(TestCaseName, testCaseName, StringComparison.Ordinal);
+
+    /// <summary>
     /// Determines equality with another <see cref="INamedCase"/> based on test case name comparison.
     /// </summary>
     /// <param name="other">The <see cref="INamedCase"/> to compare against.</param>
@@ -260,6 +272,10 @@ public abstract class NamedCase : INamedCase
     /// </returns>
     public bool Equals(INamedCase? other)
     => Comparer.Equals(this, other);
+
+    #endregion
+
+    #region object overrides
 
     /// <summary>
     /// Determines whether the specified object is equal to the current instance.
@@ -295,6 +311,8 @@ public abstract class NamedCase : INamedCase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override sealed string ToString()
     => TestCaseName;
+
+    #endregion
 
     #region Static Methods
 

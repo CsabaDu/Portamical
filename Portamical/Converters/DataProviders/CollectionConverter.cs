@@ -327,7 +327,7 @@ public static class CollectionConverter
 
     #endregion
 
-    #region Helper methods
+    #region Private helper methods
 
     /// <summary>
     /// Adds a single test data item to a data provider's row registry.

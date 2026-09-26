@@ -6,6 +6,7 @@
 
 using Portamical.Core.Factories;
 using Portamical.Core.Strategy;
+using Portamical.Core.TestDataTypes;
 using Portamical.Core.TestDataTypes.Models;
 using System.ComponentModel;
 
@@ -292,5 +293,143 @@ public class TestDataBaseTests
         Assert.HasCount(1, result);
         Assert.AreSame(sut, result[0]);
     }
+    #endregion
+
+    #region ProcessTestDataCollection
+    [TestMethod]
+    public void ProcessTestDataCollection_nullCollection_throwsArgumentNullException()
+    {
+        IEnumerable<ITestData>? testDataCollection = null;
+
+        var exception = Assert.ThrowsExactly<ArgumentNullException>(
+            () => TestDataBase.ProcessTestDataCollection<ITestData>(
+                testDataCollection!,
+                static _ => { },
+                removeDuplicates: false,
+                skipFirst: false));
+
+        Assert.AreEqual(nameof(testDataCollection), exception.ParamName);
+    }
+
+    [TestMethod]
+    public void ProcessTestDataCollection_emptyCollection_throwsArgumentException()
+    {
+        IEnumerable<ITestData> testDataCollection = [];
+
+        var exception = Assert.ThrowsExactly<ArgumentException>(
+            () => TestDataBase.ProcessTestDataCollection(
+                testDataCollection,
+                static _ => { },
+                removeDuplicates: false,
+                skipFirst: false));
+
+        Assert.AreEqual(nameof(testDataCollection), exception.ParamName);
+    }
+
+    [TestMethod]
+    public void ProcessTestDataCollection_withoutDuplicateRemoval_processesAllItemsInOrder()
+    {
+        ITestData first = CreateTestData("first", Result, 1);
+        ITestData duplicate1 = CreateTestData("duplicate", Result, 2);
+        ITestData duplicate2 = CreateTestData("duplicate", Result, 3);
+        List<ITestData> processed = [];
+
+        TestDataBase.ProcessTestDataCollection(
+            [first, duplicate1, duplicate2],
+            processed.Add,
+            removeDuplicates: false,
+            skipFirst: false);
+
+        Assert.HasCount(3, processed);
+        Assert.AreSame(first, processed[0]);
+        Assert.AreSame(duplicate1, processed[1]);
+        Assert.AreSame(duplicate2, processed[2]);
+    }
+
+    [TestMethod]
+    public void ProcessTestDataCollection_skipFirstWithoutDuplicateRemoval_skipsOnlyFirstItem()
+    {
+        ITestData first = CreateTestData("first", Result, 1);
+        ITestData second = CreateTestData("second", Result, 2);
+        ITestData third = CreateTestData("third", Result, 3);
+        List<ITestData> processed = [];
+
+        TestDataBase.ProcessTestDataCollection(
+            [first, second, third],
+            processed.Add,
+            removeDuplicates: false,
+            skipFirst: true);
+
+        Assert.HasCount(2, processed);
+        Assert.AreSame(second, processed[0]);
+        Assert.AreSame(third, processed[1]);
+    }
+
+    [TestMethod]
+    public void ProcessTestDataCollection_removeDuplicates_processesFirstOccurrenceOfEachTestCaseName()
+    {
+        ITestData first = CreateTestData("duplicate", Result, 1);
+        ITestData duplicate = CreateTestData("duplicate", Result, 2);
+        ITestData unique = CreateTestData("unique", Result, 3);
+        ITestData uniqueDuplicate = CreateTestData("unique", Result, 4);
+        List<ITestData> processed = [];
+
+        TestDataBase.ProcessTestDataCollection(
+            [first, duplicate, unique, uniqueDuplicate],
+            processed.Add,
+            removeDuplicates: true,
+            skipFirst: false);
+
+        Assert.HasCount(2, processed);
+        Assert.AreSame(first, processed[0]);
+        Assert.AreSame(unique, processed[1]);
+    }
+
+    [TestMethod]
+    public void ProcessTestDataCollection_removeDuplicatesAndSkipFirst_registersFirstItemAsSeen()
+    {
+        ITestData first = CreateTestData("duplicate", Result, 1);
+        ITestData duplicateOfFirst = CreateTestData("duplicate", Result, 2);
+        ITestData unique = CreateTestData("unique", Result, 3);
+        ITestData duplicateOfUnique = CreateTestData("unique", Result, 4);
+        ITestData anotherUnique = CreateTestData("another unique", Result, 5);
+        List<ITestData> processed = [];
+
+        TestDataBase.ProcessTestDataCollection(
+            [first, duplicateOfFirst, unique, duplicateOfUnique, anotherUnique],
+            processed.Add,
+            removeDuplicates: true,
+            skipFirst: true);
+
+        Assert.HasCount(2, processed);
+        Assert.AreSame(unique, processed[0]);
+        Assert.AreSame(anotherUnique, processed[1]);
+    }
+
+    [TestMethod]
+    public void ProcessTestDataCollection_nonArrayEnumerable_enumeratesSourceOnce()
+    {
+        int enumerationCount = 0;
+        List<ITestData> processed = [];
+
+        TestDataBase.ProcessTestDataCollection(
+            GetTestDataSequence(),
+            processed.Add,
+            removeDuplicates: false,
+            skipFirst: false);
+
+        Assert.AreEqual(1, enumerationCount);
+        Assert.HasCount(2, processed);
+
+        IEnumerable<ITestData> GetTestDataSequence()
+        {
+            enumerationCount++;
+            yield return CreateTestData("first", Result, 1);
+            yield return CreateTestData("second", Result, 2);
+        }
+    }
+
+    private static ITestData CreateTestData(string definition, string result, int arg)
+    => TestDataFactory.CreateTestData(definition, result, arg);
     #endregion
 }

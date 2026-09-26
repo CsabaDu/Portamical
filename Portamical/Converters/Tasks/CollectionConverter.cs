@@ -138,7 +138,7 @@ public static class CollectionConverter
 
     #endregion
 
-    #region Helper metthods
+    #region Private Base ToDConvertedRowsTask
 
     /// <summary>
     /// Shared implementation that validates, optionally deduplicates, and snapshots

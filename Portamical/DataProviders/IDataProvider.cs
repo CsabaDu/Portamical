@@ -36,7 +36,7 @@ public interface IDataProvider<out TRow>
     /// (e.g., by treating it as <see cref="string.Empty"/>).
     /// </param>
     /// <returns>
-    /// The row of type <typeparamref name="TRow"/> if found; otherwise, <see langword="null"/> or
+    /// The row of type <typeparamref name="TRow"/> if testCaseNameFound; otherwise, <see langword="null"/> or
     /// <see langword="default"/> for the row type.
     /// </returns>
     /// <remarks>
@@ -45,6 +45,24 @@ public interface IDataProvider<out TRow>
     /// is determined by the implementation.
     /// </remarks>
     TRow? GetRow(string testCaseName);
+
+    /// <summary>
+    /// Retrieves the row associated with the specified test case.
+    /// </summary>
+    /// <param name="namedCase">
+    /// The <see cref="INamedCase"/> identifying the test case to look up. Implementations should handle
+    /// <see langword="null"/> gracefully by returning <see langword="default"/>.
+    /// </param>
+    /// <returns>
+    /// The row of type <typeparamref name="TRow"/> if a matching test case is found; otherwise,
+    /// <see langword="null"/> or <see langword="default"/> for the row type.
+    /// </returns>
+    /// <remarks>
+    /// This overload enables lookup by identity object rather than raw test case name, useful when the
+    /// caller already holds an <see cref="INamedCase"/> instance (e.g., from enumeration). The matching
+    /// mechanism (equality comparer, case sensitivity) is determined by the implementation.
+    /// </remarks>
+    TRow? GetRow(INamedCase namedCase);
 
     /// <summary>
     /// Gets an array containing all rows in the provider's collection.
@@ -58,19 +76,6 @@ public interface IDataProvider<out TRow>
     /// may or may not match insertion order, depending on the implementation.
     /// </remarks>
     TRow[] GetRows();
-
-    /// <summary>
-    /// Gets an array containing all test case names in the provider's collection.
-    /// </summary>
-    /// <returns>
-    /// An array of strings representing the test case names (typically from <see cref="INamedCase.TestCaseName"/>).
-    /// Returns an empty array if no rows are available.
-    /// </returns>
-    /// <remarks>
-    /// This method is useful for discovering available test cases, generating reports, or
-    /// implementing test filtering logic. The order of names may or may not match insertion order.
-    /// </remarks>
-    string[] GetTestCaseNames();
 }
 
 /// <summary>

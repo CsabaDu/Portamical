@@ -126,27 +126,20 @@ public interface INamedCase : IEquatable<INamedCase>
     /// </example>
     string TestCaseName { get; init; }
 
-    ///// <summary>
-    ///// Executes the specified action if this instance is distinct (not already present) in the provided collection.
-    ///// </summary>
-    ///// <param name="namedCases">
-    ///// A <see cref="HashSet{T}"/> of <see cref="INamedCase"/> instances used to track distinct cases.
-    ///// If this instance is not already in the set, it will be added before executing the action.
-    ///// </param>
-    ///// <param name="action">
-    ///// The action to execute if this instance is distinct. The action is only invoked when this instance
-    ///// is successfully added to the <paramref name="namedCases"/> collection (i.e., when no duplicate exists).
-    ///// </param>
-    ///// <remarks>
-    ///// <para>
-    ///// This method is typically used for deduplication scenarios where an operation should only be performed
-    ///// once per unique test case name. The distinctness is determined by the comparer used by the
-    ///// <paramref name="namedCases"/> HashSet, which should be based on <see cref="TestCaseName"/> equality.
-    ///// </para>
-    ///// <para>
-    ///// If a case with the same <see cref="TestCaseName"/> already exists in the collection, the
-    ///// <paramref name="action"/> is not executed, and the existing entry is retained.
-    ///// </para>
-    ///// </remarks>
-    //void ExecuteIfDistinct(HashSet<INamedCase> namedCases, Action action);
+    /// <summary>
+    /// Determines whether this instance's <see cref="TestCaseName"/> matches the specified name.
+    /// </summary>
+    /// <param name="testCaseName">
+    /// The test case name to compare against <see cref="TestCaseName"/>. Can be <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if <paramref name="testCaseName"/> equals <see cref="TestCaseName"/>
+    /// using ordinal (case-sensitive) comparison; otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <remarks>
+    /// Comparison is performed using <see cref="StringComparison.Ordinal"/>, consistent with the
+    /// equality semantics used elsewhere for <see cref="TestCaseName"/> (e.g., <see cref="IEquatable{T}"/>
+    /// implementation and deduplication).
+    /// </remarks>
+    bool HasName(string? testCaseName);
 }
