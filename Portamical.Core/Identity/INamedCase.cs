@@ -35,6 +35,36 @@ namespace Portamical.Core.Identity;
 public interface INamedCase : IEquatable<INamedCase>
 {
     /// <summary>
+    /// Gets the unique name of the test case used for identification and display purposes.
+    /// </summary>
+    /// <value>
+    /// A non-null string representing the test case identity. Typically formatted as:
+    /// <c>"scenario description =&gt; expected outcome"</c>
+    /// </value>
+    /// <remarks>
+    /// <para>
+    /// This property serves as the primary identity for the test case and is used for:
+    /// <list type="bullet">
+    ///   <item>Deduplication of test cases</item>
+    ///   <item>Test framework display names</item>
+    ///   <item>Equality comparison via <see cref="IEquatable{T}"/></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <strong>Immutability:</strong> Uses <see langword="init"/> accessor to ensure immutability after construction.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var testCase = new TestData&lt;int&gt;
+    /// {
+    ///     TestCaseName = "Adding two positive numbers =&gt; returns their sum"
+    /// };
+    /// </code>
+    /// </example>
+    string TestCaseName { get; init; }
+
+    /// <summary>
     /// Determines whether the current instance is contained within the specified collection of named test cases.
     /// </summary>
     /// <param name="namedCases">
@@ -95,36 +125,6 @@ public interface INamedCase : IEquatable<INamedCase>
     /// </code>
     /// </example>
     string? GetDisplayName(string? testMethodName);
-
-    /// <summary>
-    /// Gets the unique name of the test case used for identification and display purposes.
-    /// </summary>
-    /// <value>
-    /// A non-null string representing the test case identity. Typically formatted as:
-    /// <c>"scenario description =&gt; expected outcome"</c>
-    /// </value>
-    /// <remarks>
-    /// <para>
-    /// This property serves as the primary identity for the test case and is used for:
-    /// <list type="bullet">
-    ///   <item>Deduplication of test cases</item>
-    ///   <item>Test framework display names</item>
-    ///   <item>Equality comparison via <see cref="IEquatable{T}"/></item>
-    /// </list>
-    /// </para>
-    /// <para>
-    /// <strong>Immutability:</strong> Uses <see langword="init"/> accessor to ensure immutability after construction.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// var testCase = new TestData&lt;int&gt;
-    /// {
-    ///     TestCaseName = "Adding two positive numbers =&gt; returns their sum"
-    /// };
-    /// </code>
-    /// </example>
-    string TestCaseName { get; init; }
 
     /// <summary>
     /// Determines whether this instance's <see cref="TestCaseName"/> matches the specified name.

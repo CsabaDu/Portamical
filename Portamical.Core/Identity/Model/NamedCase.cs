@@ -263,6 +263,8 @@ public abstract class NamedCase : INamedCase
     public bool HasName(string? testCaseName)
     => string.Equals(TestCaseName, testCaseName, StringComparison.Ordinal);
 
+    #region IEquatable<INamedCase> Implementation
+
     /// <summary>
     /// Determines equality with another <see cref="INamedCase"/> based on test case name comparison.
     /// </summary>
@@ -272,6 +274,8 @@ public abstract class NamedCase : INamedCase
     /// </returns>
     public bool Equals(INamedCase? other)
     => Comparer.Equals(this, other);
+
+    #endregion
 
     #endregion
 

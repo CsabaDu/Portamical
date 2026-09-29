@@ -4,7 +4,7 @@
 using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using Portamical.Core.Strategy;
-using static Portamical.Core.Formatting.Builder;
+using Portamical.Core.Formatting;
 
 namespace Portamical.Core.TestDataTypes.Models;
 
@@ -187,7 +187,7 @@ public abstract class TestDataBase(string definition)
     /// </para>
     /// </remarks>
     protected string CreateTestCaseName()
-    => CreateSeparatedString(
+    => Builder.CreateSeparatedString(
         baseString: GetDefinition(),
         separator: Separator,
         appendix: GetResult());
