@@ -158,18 +158,9 @@ where TTestData : notnull, ITestData
     /// The returned array is a snapshot of the current collection's keys. The order is determined by
     /// the dictionary's internal structure and may not match insertion order.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string[] GetTestCaseNames()
-    {
-        var testCaseNames = new string[distinctRows.Count];
-        int i = 0;
-
-        foreach (var namedCase in distinctRows.Keys )
-        {
-            testCaseNames[i++] = namedCase.TestCaseName;
-        }
-
-        return testCaseNames;
-    }
+    => ExtractFromDistinctRowsKeys(namedCase => namedCase.TestCaseName);
 
     #endregion
 
@@ -305,22 +296,52 @@ where TTestData : notnull, ITestData
     /// to the provider will not affect the returned array.
     /// </para>
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TTestData[] GetBaseRows()
-    {
-        var baseRows = new TTestData[distinctRows.Count];
-        int i = 0;
-
-        foreach (var namedCase in distinctRows.Keys)
-        {
-            baseRows[i++] = (TTestData)namedCase;
-        }
-
-        return baseRows;
-    }
+    => ExtractFromDistinctRowsKeys(namedCase => (TTestData)namedCase);
 
     #endregion
 
     #region Private Helper Methods
+
+    /// <summary>
+    /// Projects each key of <see cref="distinctRows"/> into an array using the specified extraction function.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type of the elements produced by <paramref name="extract"/> and returned in the resulting array.
+    /// </typeparam>
+    /// <param name="extract">
+    /// A function that converts each <see cref="INamedCase"/> key into a value of type <typeparamref name="T"/>.
+    /// Called once for every key in <see cref="distinctRows"/>.
+    /// </param>
+    /// <returns>
+    /// An array of <typeparamref name="T"/> containing the projected values for all keys in
+    /// <see cref="distinctRows"/>. Returns an empty array if no rows have been added.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This is the shared implementation behind <see cref="GetTestCaseNames"/> and <see cref="GetBaseRows"/>.
+    /// It pre-allocates the result array based on <see cref="Dictionary{TKey, TValue}.Count"/> to avoid
+    /// resizing, then fills it in a single pass over <see cref="distinctRows"/>'s keys.
+    /// </para>
+    /// <para>
+    /// The order of elements is determined by the dictionary's internal key enumeration order and may not
+    /// match insertion order. The returned array is a snapshot; subsequent modifications to the provider
+    /// will not affect it.
+    /// </para>
+    /// </remarks>
+    private T[] ExtractFromDistinctRowsKeys<T>(Func<INamedCase, T> extract)
+    {
+        var extractions = new T[distinctRows.Count];
+        int i = 0;
+
+        foreach (var namedCase in distinctRows.Keys)
+        {
+            extractions[i++] = extract(namedCase);
+        }
+
+        return extractions;
+    }
 
     /// <summary>
     /// Locates the first stored test case that satisfies <paramref name="matchFound"/> and converts it to a row.
