@@ -1,12 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Identity;
-using Portamical.Core.Identity.Model;
-using Portamical.Core.TestDataTypes;
-using static Portamical.Core.Safety.Validator;
-
-namespace Portamical.Core.Processing;
+namespace Portamical.Processing;
 
 /// <summary>
 /// Provides processing helpers for strongly typed <see cref="ITestData"/> sequences.
@@ -49,21 +44,38 @@ public sealed class TestDataProcessor
     /// The process to invoke when <paramref name="testData"/> has not already been seen. If <see langword="null"/>,
     /// no process is invoked, but <paramref name="testData"/> is still registered in <see cref="namedCases"/>.
     /// </param>
+    /// <returns>
+    /// <see langword="false"/> if <paramref name="testData"/> was already registered in <see cref="namedCases"/>
+    /// (the item is a duplicate and <paramref name="process"/> is never invoked); <see langword="null"/> if
+    /// <paramref name="testData"/> was newly registered but <paramref name="process"/> is <see langword="null"/>;
+    /// otherwise <see langword="true"/> after <paramref name="testData"/> was newly registered and
+    /// <paramref name="process"/> was invoked.
+    /// </returns>
     /// <remarks>
     /// Uses <see cref="HashSet{T}.Add(T)"/> as an atomic seen-check-and-register operation: if
     /// <paramref name="testData"/> is successfully added to <see cref="namedCases"/> (i.e., it was not
-    /// already present), <paramref name="process"/> is invoked; otherwise the item is skipped as a duplicate.
+    /// already present), <paramref name="process"/> is invoked (when non-<see langword="null"/>); otherwise
+    /// the item is skipped as a duplicate.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ProcessIfDistinct<TTestData>(
+    public bool? ProcessIfDistinct<TTestData>(
         TTestData testData,
-        Action<TTestData> process)
+        Action<TTestData>? process)
     where TTestData : notnull, ITestData
     {
-        if (namedCases.Add(testData))
+        if (!namedCases.Add(testData))
         {
-            process?.Invoke(testData);
+            return false;
         }
+
+        if (process is null)
+        {
+            return null;
+        }
+
+        process(testData);
+
+        return true;
     }
 
     /// <summary>
@@ -106,7 +118,7 @@ public sealed class TestDataProcessor
     /// </remarks>
     public static void ProcessCollection<TTestData>(
         IEnumerable<TTestData> testDataCollection,
-        Action<TTestData> process,
+        Action<TTestData>? process,
         bool removeDuplicates,
         bool skipFirst)
     where TTestData : notnull, ITestData
@@ -126,7 +138,7 @@ public sealed class TestDataProcessor
             }
 
             processSnapshot(processTestData: testData =>
-                testDataProcessor.ProcessIfDistinct(testData, process)
+                _ = testDataProcessor.ProcessIfDistinct(testData, process)
             );
         }
         else if (process is not null)

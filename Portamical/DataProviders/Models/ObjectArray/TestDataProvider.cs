@@ -54,44 +54,28 @@ namespace Portamical.DataProviders.Models.ObjectArray;
 /// // Row: [2, 3, 5]
 /// </code>
 /// </example>
-public class TestDataProvider<TTestData>
-: DistinctDataProviderBase<TTestData, object?[]>,
+/// <remarks>
+/// Initializes a new instance with specified conversion strategies.
+/// </remarks>
+/// <param name="argsCode">
+/// The argument code determining the primary conversion strategy.
+/// </param>
+/// <param name="propsCode">
+/// The properties code determining which properties to include when flattening.
+/// </param>
+/// <exception cref="ArgumentException">
+/// Thrown if <paramref name="argsCode"/> or <paramref name="propsCode"/> is undefined or invalid.
+/// </exception>
+/// <remarks>
+/// Use this constructor when building the test data collection incrementally via
+/// <see cref="DataProviderBase{TTestData, TRow}.AddRow"/> or
+/// <see cref="DataProviderBase{TTestData, TRow}.AddRange"/>.
+/// </remarks>
+public sealed class TestDataProvider<TTestData>(ArgsCode argsCode, PropsCode propsCode)
+: DataProviderBase<TTestData, object?[]>(),
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {
-    /// <summary>
-    /// Initializes a new instance with an empty collection. Private to enforce explicit
-    /// <see cref="ArgsCode"/> and <see cref="PropsCode"/> configuration.
-    /// </summary>
-    private TestDataProvider()
-    : base()
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance with specified conversion strategies.
-    /// </summary>
-    /// <param name="argsCode">
-    /// The argument code determining the primary conversion strategy.
-    /// </param>
-    /// <param name="propsCode">
-    /// The properties code determining which properties to include when flattening.
-    /// </param>
-    /// <exception cref="ArgumentException">
-    /// Thrown if <paramref name="argsCode"/> or <paramref name="propsCode"/> is undefined or invalid.
-    /// </exception>
-    /// <remarks>
-    /// Use this constructor when building the test data collection incrementally via
-    /// <see cref="DistinctDataProviderBase{TTestData, TRow}.AddRow"/> or
-    /// <see cref="DistinctDataProviderBase{TTestData, TRow}.AddRange"/>.
-    /// </remarks>
-    public TestDataProvider(ArgsCode argsCode, PropsCode propsCode)
-    : this()
-    {
-        ArgsCode = argsCode.Defined(nameof(argsCode));
-        PropsCode = propsCode.Defined(nameof(propsCode));
-    }
-
     /// <summary>
     /// Initializes a new instance with a single test data item and specified conversion strategies.
     /// </summary>
@@ -112,10 +96,9 @@ where TTestData : notnull, ITestData
     /// The test data is converted and added immediately during construction.
     /// </remarks>
     public TestDataProvider(TTestData testData, ArgsCode argsCode, PropsCode propsCode)
-    : base(testData)
+    : this(argsCode, propsCode)
     {
-        ArgsCode = argsCode.Defined(nameof(argsCode));
-        PropsCode = propsCode.Defined(nameof(propsCode));
+        AddRow(testData);
     }
 
     /// <summary>
@@ -141,10 +124,9 @@ where TTestData : notnull, ITestData
     /// All items are converted and added during construction.
     /// </remarks>
     public TestDataProvider(IEnumerable<TTestData> testDataCollection, ArgsCode argsCode, PropsCode propsCode)
-    : base(testDataCollection)
+    : this(argsCode, propsCode)
     {
-        ArgsCode = argsCode.Defined(nameof(argsCode));
-        PropsCode = propsCode.Defined(nameof(propsCode));
+        AddRange(testDataCollection);
     }
 
     /// <summary>
@@ -158,7 +140,7 @@ where TTestData : notnull, ITestData
     /// This property is immutable after construction (init-only). It works together with
     /// <see cref="PropsCode"/> to determine the final row structure in <see cref="ConvertRow"/>.
     /// </remarks>
-    public ArgsCode ArgsCode { get; init; }
+    public ArgsCode ArgsCode { get; init; } = argsCode.Defined(nameof(argsCode));
 
     /// <summary>
     /// Gets the properties code that determines which properties to include when flattening test data.
@@ -171,7 +153,7 @@ where TTestData : notnull, ITestData
     /// This property is immutable after construction (init-only). It is most relevant when
     /// <see cref="ArgsCode"/> is set to <see cref="ArgsCode.Properties"/>.
     /// </remarks>
-    public PropsCode PropsCode { get; init; }
+    public PropsCode PropsCode { get; init; } = propsCode.Defined(nameof(propsCode));
 
     /// <summary>
     /// Converts test data into an <c>object?[]</c> row using the configured <see cref="ArgsCode"/>

@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Processing;
+using Portamical.Processing;
 
 namespace Portamical.Converters.RowArrays;
 

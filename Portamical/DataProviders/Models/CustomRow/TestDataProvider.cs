@@ -19,7 +19,7 @@ namespace Portamical.DataProviders.Models.CustomRow;
 /// <remarks>
 /// <para>
 /// This abstract class provides the foundation for building custom typed row providers. Derived classes
-/// must implement <see cref="DistinctDataProviderBase{TTestData, TRow}.ConvertRow"/> to define how
+/// must implement <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/> to define how
 /// test data is transformed into the target <typeparamref name="TRow"/> type.
 /// </para>
 /// <para>
@@ -39,6 +39,18 @@ namespace Portamical.DataProviders.Models.CustomRow;
 /// <para>
 /// <strong>Framework Compatibility:</strong> The generic <typeparamref name="TRow"/> parameter makes this
 /// class adaptable to any test framework or custom row format requirement.
+/// </para>
+/// <para>
+/// <strong>Constructor Ordering Contract:</strong> The constructors that accept <c>testData</c> or
+/// <c>testDataCollection</c> chain to <c>this(argsCode, testMethodName)</c> before calling
+/// <see cref="DataProviderBase{TTestData, TRow}.AddRow"/> or
+/// <see cref="DataProviderBase{TTestData, TRow}.AddRange"/>, guaranteeing that <see cref="ArgsCode"/>
+/// and <see cref="TestMethodName"/> are fully initialized before any row conversion occurs. Derived classes
+/// that introduce additional constructor parameters or fields consumed by their
+/// <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/> override <strong>must preserve this
+/// ordering</strong>: any state referenced by <c>ConvertRow</c> has to be assigned via constructor chaining
+/// (e.g. <c>: this(...)</c> or <c>: base(...)</c>) before invoking <c>AddRow</c>/<c>AddRange</c>, since those
+/// methods trigger <c>ConvertRow</c> immediately and will otherwise observe uninitialized (default) values.
 /// </para>
 /// </remarks>
 /// <example>
@@ -62,7 +74,7 @@ namespace Portamical.DataProviders.Models.CustomRow;
 /// </code>
 /// </example>
 public abstract class TestDataProvider<TTestData, TRow>
-: DistinctDataProviderBase<TTestData, TRow>,
+: DataProviderBase<TTestData, TRow>,
 ITestDataProvider<TTestData, TRow> 
 where TTestData : notnull, ITestData
 {
@@ -89,8 +101,8 @@ where TTestData : notnull, ITestData
     /// </exception>
     /// <remarks>
     /// Use this constructor when building the test data collection incrementally via
-    /// <see cref="DistinctDataProviderBase{TTestData, TRow}.AddRow"/> or
-    /// <see cref="DistinctDataProviderBase{TTestData, TRow}.AddRange"/>.
+    /// <see cref="DataProviderBase{TTestData, TRow}.AddRow"/> or
+    /// <see cref="DataProviderBase{TTestData, TRow}.AddRange"/>.
     /// </remarks>
     protected TestDataProvider(ArgsCode argsCode, string? testMethodName)
     : this()
@@ -115,13 +127,12 @@ where TTestData : notnull, ITestData
     /// Thrown if <paramref name="argsCode"/> is undefined or invalid, or if the test case name conflicts.
     /// </exception>
     /// <remarks>
-    /// The test data is converted and added immediately during construction via <see cref="DistinctDataProviderBase{TTestData, TRow}.ConvertRow"/>.
+    /// The test data is converted and added immediately during construction via <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/>.
     /// </remarks>
     protected TestDataProvider(TTestData testData, ArgsCode argsCode, string? testMethodName)
-    : base(testData)
+    : this(argsCode, testMethodName)
     {
-        ArgsCode = argsCode.Defined(nameof(argsCode));
-        TestMethodName = testMethodName;
+        AddRow(testData);
     }
 
     /// <summary>
@@ -147,10 +158,9 @@ where TTestData : notnull, ITestData
     /// All items are converted and added during construction.
     /// </remarks>
     protected TestDataProvider(IEnumerable<TTestData> testDataCollection, ArgsCode argsCode, string? testMethodName)
-    : base(testDataCollection)
+    : this(argsCode, testMethodName)
     {
-        ArgsCode = argsCode.Defined(nameof(argsCode));
-        TestMethodName = testMethodName;
+        AddRange(testDataCollection);
     }
 
     /// <summary>
@@ -158,11 +168,11 @@ where TTestData : notnull, ITestData
     /// </summary>
     /// <value>
     /// An <see cref="ArgsCode"/> value set during construction, controlling the conversion strategy
-    /// used by derived class implementations of <see cref="DistinctDataProviderBase{TTestData, TRow}.ConvertRow"/>.
+    /// used by derived class implementations of <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/>.
     /// </value>
     /// <remarks>
     /// This property is immutable after construction (init-only). Derived classes should use this
-    /// value in their <see cref="DistinctDataProviderBase{TTestData, TRow}.ConvertRow"/> implementation
+    /// value in their <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/> implementation
     /// to determine whether to pass instance or flatten properties.
     /// </remarks>
     public ArgsCode ArgsCode { get; init; }

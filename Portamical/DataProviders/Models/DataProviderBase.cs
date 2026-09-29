@@ -27,22 +27,23 @@ namespace Portamical.DataProviders.Models;
 /// <see cref="ArgumentException"/> via the underlying dictionary.
 /// </para>
 /// </remarks>
-public abstract class DistinctDataProviderBase<TTestData, TRow>
+public abstract class DataProviderBase<TTestData, TRow>
 : IDataProvider<TTestData, TRow>
 where TTestData : notnull, ITestData
 {
     #region Fields
 
     /// <summary>
-    /// The backing store of distinct test cases, keyed by identity via <see cref="NamedCase.Comparer"/>.
+    /// The backing store of distinct test cases, keyed by identity via <see cref="NamedCase.Comparer"/>,
+    /// mapping each <see cref="INamedCase"/> key to its already-converted <typeparamref name="TRow"/> value.
     /// </summary>
     /// <remarks>
-    /// Although declared as <see cref="HashSet{T}"/> of <see cref="INamedCase"/>, every stored entry is
-    /// actually an instance of <typeparamref name="TTestData"/>, since only <see cref="AddRow"/> and
-    /// <see cref="AddRange"/> populate this collection. This invariant allows safe casting back to
-    /// <typeparamref name="TTestData"/> when converting entries to rows.
+    /// Although declared as <see cref="Dictionary{TKey, TValue}"/> keyed on <see cref="INamedCase"/>, every
+    /// stored key is actually an instance of <typeparamref name="TTestData"/>, since only <see cref="AddRow"/>
+    /// and <see cref="AddRange"/> populate this collection. This invariant allows safe casting back to
+    /// <typeparamref name="TTestData"/> when needed.
     /// </remarks>
-    private readonly HashSet<INamedCase> namedCases = new(NamedCase.Comparer);
+    private readonly Dictionary<INamedCase, TRow> distinctRows = new(NamedCase.Comparer);
 
     #endregion
 
@@ -55,7 +56,7 @@ where TTestData : notnull, ITestData
     /// This constructor is <c>private protected</c> to allow derived types within the same assembly
     /// to instantiate the provider without initial data, supporting builder-pattern usage.
     /// </remarks>
-    private protected DistinctDataProviderBase()
+    private protected DataProviderBase()
     {
     }
 
@@ -72,7 +73,7 @@ where TTestData : notnull, ITestData
     /// This constructor is <c>private protected</c> to restrict instantiation to derived types
     /// within the same assembly.
     /// </remarks>
-    private protected DistinctDataProviderBase(TTestData testData)
+    private protected DataProviderBase(TTestData testData)
     {
         AddRow(testData);
     }
@@ -90,7 +91,7 @@ where TTestData : notnull, ITestData
     /// This constructor is <c>private protected</c> to restrict instantiation to derived types
     /// within the same assembly.
     /// </remarks>
-    private protected DistinctDataProviderBase(IEnumerable<TTestData> testDataCollection)
+    private protected DataProviderBase(IEnumerable<TTestData> testDataCollection)
     {
         AddRange(testDataCollection);
     }
@@ -114,7 +115,9 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddRow(TTestData testData)
-    => namedCases.Add(testData);
+    => distinctRows.Add(
+        key: testData,
+        value: ConvertRow(testData));
 
     /// <summary>
     /// Adds multiple test data rows to the provider's collection.
@@ -157,10 +160,10 @@ where TTestData : notnull, ITestData
     /// </remarks>
     public string[] GetTestCaseNames()
     {
-        var testCaseNames = new string[namedCases.Count];
+        var testCaseNames = new string[distinctRows.Count];
         int i = 0;
 
-        foreach (var namedCase in namedCases)
+        foreach (var namedCase in distinctRows.Keys )
         {
             testCaseNames[i++] = namedCase.TestCaseName;
         }
@@ -221,17 +224,7 @@ where TTestData : notnull, ITestData
     /// will not affect the returned array.
     /// </remarks>
     public TRow[] GetRows()
-    {
-        var rows = new TRow[namedCases.Count];
-        int i = 0;
-
-        foreach (var namedCase in namedCases)
-        {
-            rows[i++] = ConvertAsTestData(namedCase);
-        }
-
-        return rows;
-    }
+    => [.. distinctRows.Values];
 
     #endregion
 
@@ -248,12 +241,7 @@ where TTestData : notnull, ITestData
     /// The enumeration order is determined by the dictionary's internal structure.
     /// </remarks>
     public IEnumerator<TRow> GetEnumerator()
-    {
-        foreach (var namedCase in namedCases)
-        {
-            yield return ConvertAsTestData(namedCase);
-        }
-    }
+    => distinctRows.Values.GetEnumerator();
 
     /// <summary>
     /// Returns an enumerator that iterates through the collection.
@@ -286,21 +274,53 @@ where TTestData : notnull, ITestData
 
     #endregion
 
-    #region Private Helper Methods
+    #region GetBaseRows
 
     /// <summary>
-    /// Casts a stored <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> and converts it to a row.
+    /// Gets an array containing all original test data items that were added to the provider's collection.
     /// </summary>
-    /// <param name="namedCase">
-    /// The stored entry to convert. Must be an instance of <typeparamref name="TTestData"/>, as guaranteed by
-    /// the invariant that only <typeparamref name="TTestData"/> instances are ever added to the collection.
-    /// </param>
     /// <returns>
-    /// The row of type <typeparamref name="TRow"/> produced by <see cref="ConvertRow"/>.
+    /// An array of <typeparamref name="TTestData"/> containing all test data items in their original,
+    /// unconverted form. Returns an empty array if no rows have been added.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TRow ConvertAsTestData(INamedCase namedCase)
-    => ConvertRow((TTestData)namedCase);
+    /// <remarks>
+    /// <para>
+    /// This method is intentionally <strong>not</strong> declared on <see cref="ITestDataRegistry{TTestData}"/>
+    /// or any other interface implemented by this class. <typeparamref name="TTestData"/> is contravariant
+    /// (<c>in</c>) on <see cref="ITestDataRegistry{TTestData}"/>, which only permits the type parameter to
+    /// appear in input positions (e.g., method parameters). Returning <typeparamref name="TTestData"/> from
+    /// a method is an output position, which would violate contravariance and is disallowed by the compiler.
+    /// <see cref="GetBaseRows"/> is therefore exposed only as a concrete member of
+    /// <see cref="DataProviderBase{TTestData, TRow}"/>, not as part of any interface contract.
+    /// </para>
+    /// <para>
+    /// This method relies on the invariant documented on <see cref="distinctRows"/>: every key stored in
+    /// the backing dictionary is actually an instance of <typeparamref name="TTestData"/>, since only
+    /// <see cref="AddRow"/> and <see cref="AddRange"/> populate the collection. The cast from
+    /// <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> is therefore always safe.
+    /// </para>
+    /// <para>
+    /// The returned array is a snapshot of the current collection's keys. The order is determined by
+    /// the dictionary's internal structure and may not match insertion order. Subsequent modifications
+    /// to the provider will not affect the returned array.
+    /// </para>
+    /// </remarks>
+    public TTestData[] GetBaseRows()
+    {
+        var baseRows = new TTestData[distinctRows.Count];
+        int i = 0;
+
+        foreach (var namedCase in distinctRows.Keys)
+        {
+            baseRows[i++] = (TTestData)namedCase;
+        }
+
+        return baseRows;
+    }
+
+    #endregion
+
+    #region Private Helper Methods
 
     /// <summary>
     /// Locates the first stored test case that satisfies <paramref name="matchFound"/> and converts it to a row.
@@ -326,8 +346,8 @@ where TTestData : notnull, ITestData
     {
         if (context is null) return default;
 
-        return namedCases.Where(matchFound)
-            .Select(ConvertAsTestData)
+        return distinctRows.Keys.Where(matchFound)
+            .Select(namedCase => distinctRows[namedCase])
             .FirstOrDefault();
     }
 

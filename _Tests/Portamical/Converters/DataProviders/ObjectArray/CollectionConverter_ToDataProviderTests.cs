@@ -12,19 +12,6 @@ namespace Tests.Portamical.Converters.DataProviders.ObjectArray;
 [TestClass]
 public class CollectionConverter_ToDataProviderTests
 {
-    private sealed class ConcreteProvider : BaseProvider
-    {
-        public ConcreteProvider(ArgsCode argsCode, PropsCode propsCode)
-            : base(argsCode, propsCode)
-        {
-        }
-
-        public ConcreteProvider(ITestData testData, ArgsCode argsCode, PropsCode propsCode)
-            : base(testData, argsCode, propsCode)
-        {
-        }
-    }
-
 #pragma warning disable CA1859
     private static ITestData CreateData(string definition, int arg = 1)
         => TestDataFactory.CreateTestData<int>(definition, "result", arg);
@@ -36,8 +23,8 @@ public class CollectionConverter_ToDataProviderTests
         var item = CreateData("init", 1);
         ITestData[] collection = [item];
 
-        var provider = collection.ToDataProvider<ConcreteProvider, ITestData>(
-            (first, argsCode, propsCode) => new ConcreteProvider(first, argsCode, propsCode),
+        var provider = collection.ToDataProvider<BaseProvider, ITestData>(
+            (first, argsCode, propsCode) => new BaseProvider(first, argsCode, propsCode),
             ArgsCode.Instance,
             PropsCode.All);
 
@@ -55,8 +42,8 @@ public class CollectionConverter_ToDataProviderTests
         var item3 = CreateData("p3", 3);
         ITestData[] collection = [item1, item2, item3];
 
-        var provider = collection.ToDataProvider<ConcreteProvider, ITestData>(
-            (first, argsCode, propsCode) => new ConcreteProvider(first, argsCode, propsCode),
+        var provider = collection.ToDataProvider<BaseProvider, ITestData>(
+            (first, argsCode, propsCode) => new BaseProvider(first, argsCode, propsCode),
             ArgsCode.Instance,
             PropsCode.All);
 
@@ -72,10 +59,10 @@ public class CollectionConverter_ToDataProviderTests
     public void ToDataProvider_withInitializer_nullInitFunction_throwsArgumentNullException()
     {
         ITestData[] collection = [CreateData("v")];
-        Func<ITestData, ArgsCode, PropsCode, ConcreteProvider> nullInit = null!;
+        Func<ITestData, ArgsCode, PropsCode, BaseProvider> nullInit = null!;
 
         Assert.ThrowsExactly<ArgumentNullException>(
-            () => collection.ToDataProvider<ConcreteProvider, ITestData>(
+            () => collection.ToDataProvider<BaseProvider, ITestData>(
                 nullInit,
                 ArgsCode.Instance,
                 PropsCode.All));
@@ -87,8 +74,8 @@ public class CollectionConverter_ToDataProviderTests
         IEnumerable<ITestData> nullCollection = null!;
 
         Assert.ThrowsExactly<ArgumentNullException>(
-            () => nullCollection.ToDataProvider<ConcreteProvider, ITestData>(
-                (first, argsCode, propsCode) => new ConcreteProvider(first, argsCode, propsCode),
+            () => nullCollection.ToDataProvider<BaseProvider, ITestData>(
+                (first, argsCode, propsCode) => new BaseProvider(first, argsCode, propsCode),
                 ArgsCode.Instance,
                 PropsCode.All));
     }
@@ -99,8 +86,8 @@ public class CollectionConverter_ToDataProviderTests
         var empty = Array.Empty<ITestData>();
 
         Assert.ThrowsExactly<ArgumentException>(
-            () => empty.ToDataProvider<ConcreteProvider, ITestData>(
-                (first, argsCode, propsCode) => new ConcreteProvider(first, argsCode, propsCode),
+            () => empty.ToDataProvider<BaseProvider, ITestData>(
+                (first, argsCode, propsCode) => new BaseProvider(first, argsCode, propsCode),
                 ArgsCode.Instance,
                 PropsCode.All));
     }
@@ -111,8 +98,8 @@ public class CollectionConverter_ToDataProviderTests
         ITestData[] collection = [CreateData("invalid")];
 
         Assert.ThrowsExactly<System.ComponentModel.InvalidEnumArgumentException>(
-            () => collection.ToDataProvider<ConcreteProvider, ITestData>(
-                (first, argsCode, propsCode) => new ConcreteProvider(first, argsCode, propsCode),
+            () => collection.ToDataProvider<BaseProvider, ITestData>(
+                (first, argsCode, propsCode) => new BaseProvider(first, argsCode, propsCode),
                 (ArgsCode)999,
                 PropsCode.All));
     }
@@ -123,8 +110,8 @@ public class CollectionConverter_ToDataProviderTests
         ITestData[] collection = [CreateData("invalid")];
 
         Assert.ThrowsExactly<System.ComponentModel.InvalidEnumArgumentException>(
-            () => collection.ToDataProvider<ConcreteProvider, ITestData>(
-                (first, argsCode, propsCode) => new ConcreteProvider(first, argsCode, propsCode),
+            () => collection.ToDataProvider<BaseProvider, ITestData>(
+                (first, argsCode, propsCode) => new BaseProvider(first, argsCode, propsCode),
                 ArgsCode.Instance,
                 (PropsCode)999));
     }
@@ -136,8 +123,8 @@ public class CollectionConverter_ToDataProviderTests
         var duplicate = TestDataFactory.CreateTestData<int>("dup", "result", 99);
         ITestData[] collection = [first, duplicate];
 
-        var provider = collection.ToDistinctDataProvider<ConcreteProvider, ITestData>(
-            (item, argsCode, propsCode) => new ConcreteProvider(item, argsCode, propsCode),
+        var provider = collection.ToDistinctDataProvider<BaseProvider, ITestData>(
+            (item, argsCode, propsCode) => new BaseProvider(item, argsCode, propsCode),
             ArgsCode.Instance,
             PropsCode.All);
 
@@ -157,8 +144,8 @@ public class CollectionConverter_ToDataProviderTests
         var item4 = CreateData("unique3", 4);
         ITestData[] collection = [item1, item2, item3, duplicate, item4];
 
-        var provider = collection.ToDistinctDataProvider<ConcreteProvider, ITestData>(
-            (item, argsCode, propsCode) => new ConcreteProvider(item, argsCode, propsCode),
+        var provider = collection.ToDistinctDataProvider<BaseProvider, ITestData>(
+            (item, argsCode, propsCode) => new BaseProvider(item, argsCode, propsCode),
             ArgsCode.Instance,
             PropsCode.All);
 
@@ -173,10 +160,10 @@ public class CollectionConverter_ToDataProviderTests
     public void ToDistinctDataProvider_withInitializer_nullInitFunction_throwsArgumentNullException()
     {
         ITestData[] collection = [CreateData("v")];
-        Func<ITestData, ArgsCode, PropsCode, ConcreteProvider> nullInit = null!;
+        Func<ITestData, ArgsCode, PropsCode, BaseProvider> nullInit = null!;
 
         Assert.ThrowsExactly<ArgumentNullException>(
-            () => collection.ToDistinctDataProvider<ConcreteProvider, ITestData>(
+            () => collection.ToDistinctDataProvider<BaseProvider, ITestData>(
                 nullInit,
                 ArgsCode.Instance,
                 PropsCode.All));
@@ -188,8 +175,8 @@ public class CollectionConverter_ToDataProviderTests
         ITestData[] collection = [CreateData("invalid")];
 
         Assert.ThrowsExactly<System.ComponentModel.InvalidEnumArgumentException>(
-            () => collection.ToDistinctDataProvider<ConcreteProvider, ITestData>(
-                (first, argsCode, propsCode) => new ConcreteProvider(first, argsCode, propsCode),
+            () => collection.ToDistinctDataProvider<BaseProvider, ITestData>(
+                (first, argsCode, propsCode) => new BaseProvider(first, argsCode, propsCode),
                 (ArgsCode)999,
                 PropsCode.All));
     }
@@ -200,8 +187,8 @@ public class CollectionConverter_ToDataProviderTests
         ITestData[] collection = [CreateData("invalid")];
 
         Assert.ThrowsExactly<System.ComponentModel.InvalidEnumArgumentException>(
-            () => collection.ToDistinctDataProvider<ConcreteProvider, ITestData>(
-                (first, argsCode, propsCode) => new ConcreteProvider(first, argsCode, propsCode),
+            () => collection.ToDistinctDataProvider<BaseProvider, ITestData>(
+                (first, argsCode, propsCode) => new BaseProvider(first, argsCode, propsCode),
                 ArgsCode.Instance,
                 (PropsCode)999));
     }

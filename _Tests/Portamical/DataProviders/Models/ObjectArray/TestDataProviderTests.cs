@@ -49,7 +49,7 @@ public class TestDataProviderTests
 
         Assert.IsNotNull(row);
         CollectionAssert.AreEqual(
-            item.ToArgs(default, default),
+            item.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName),
             row);
     }
 
@@ -71,11 +71,11 @@ public class TestDataProviderTests
         Assert.HasCount(2, provider.GetRows());
 
         CollectionAssert.AreEqual(
-            first.ToArgs(default, default),
+            first.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName),
             firstRow);
 
         CollectionAssert.AreEqual(
-            second.ToArgs(default, default),
+            second.ToArgs(ArgsCode.Properties, PropsCode.TrimTestCaseName),
             secondRow);
     }
 

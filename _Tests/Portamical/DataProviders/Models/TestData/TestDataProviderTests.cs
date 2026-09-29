@@ -68,10 +68,64 @@ public class TestDataProviderTests
     public void Constructor_withCollection_duplicateTestCaseNames_throwsArgumentException()
     {
         var first = CreateData("duplicate-name", 1);
-        var duplicate = TestDataFactory.CreateTestData<int>("duplicate-name", "result", 99);
+        var duplicate = TestDataFactory.CreateTestData("duplicate-name", "result", 99);
         ITestData[] collection = [first, duplicate];
 
         Assert.ThrowsExactly<ArgumentException>(
             () => _ = new Sut(collection));
+    }
+
+    [TestMethod]
+    public void GetBaseRows_singleItemProvider_returnsSingleItemArray()
+    {
+        var item = CreateData("only", 1);
+        var provider = new Sut(item);
+
+        var baseRows = provider.GetBaseRows();
+
+        Assert.HasCount(1, baseRows);
+        Assert.AreSame(item, baseRows[0]);
+    }
+
+    [TestMethod]
+    public void GetBaseRows_returnsOriginalTestDataInstances()
+    {
+        var item1 = CreateData("base-1", 1);
+        var item2 = CreateData("base-2", 2);
+        var item3 = CreateData("base-3", 3);
+        ITestData[] collection = [item1, item2, item3];
+
+        var provider = new Sut(collection);
+        var baseRows = provider.GetBaseRows();
+
+        Assert.HasCount(3, baseRows);
+        Assert.AreSame(item1, baseRows[0]);
+        Assert.AreSame(item2, baseRows[1]);
+        Assert.AreSame(item3, baseRows[2]);
+    }
+
+    [TestMethod]
+    public void GetBaseRows_calledTwice_returnsIndependentSnapshots()
+    {
+        var item = CreateData("snapshot", 1);
+        var provider = new Sut(item);
+
+        var firstCall = provider.GetBaseRows();
+        var secondCall = provider.GetBaseRows();
+
+        Assert.AreNotSame(firstCall, secondCall);
+        CollectionAssert.AreEqual(firstCall, secondCall);
+    }
+
+    [TestMethod]
+    public void GetBaseRows_returnsSameCountAsGetRows()
+    {
+        var item1 = CreateData("count-1", 1);
+        var item2 = CreateData("count-2", 2);
+        ITestData[] collection = [item1, item2];
+
+        var provider = new Sut(collection);
+
+        Assert.HasCount(provider.GetRows().Length, provider.GetBaseRows());
     }
 }

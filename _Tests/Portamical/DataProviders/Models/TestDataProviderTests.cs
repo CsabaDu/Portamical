@@ -2,6 +2,7 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Factories;
+using Portamical.Core.Identity;
 using Portamical.Core.TestDataTypes;
 using BaseProvider = Portamical.DataProviders.Models.TestDataProvider<Portamical.Core.TestDataTypes.ITestData, string>;
 
@@ -52,15 +53,47 @@ public class TestDataProviderTests
     }
 
     [TestMethod]
-    public void Constructor_withSingleItem_populatesInitialRow()
+    public void Constructor_withSingleItem_populatesInitialRow_andEagerlyConverts()
     {
         var item = CreateData("single", 4);
         var provider = new ConcreteProvider(item);
 
+        // Conversion is eager: adding a row invokes ConvertRow during construction.
         Assert.AreEqual(1, provider.ConversionCount);
-        Assert.AreEqual(item.TestCaseName, provider.GetRow(item.TestCaseName));
-        CollectionAssert.AreEqual(new[] { item.TestCaseName }, provider.GetRows());
+
         CollectionAssert.AreEqual(new[] { item.TestCaseName }, provider.GetTestCaseNames());
+        // GetTestCaseNames() does not alter conversion count.
+        Assert.AreEqual(1, provider.ConversionCount);
+    }
+
+    [TestMethod]
+    public void GetRow_withSingleItem_returnsConvertedRow_whenConstructed()
+    {
+        var item = CreateData("single", 4);
+        var provider = new ConcreteProvider(item);
+
+        // ConvertRow was already invoked during construction
+        Assert.AreEqual(1, provider.ConversionCount);
+
+        var row = provider.GetRow(item.TestCaseName);
+
+        Assert.AreEqual(item.TestCaseName, row);
+        Assert.AreEqual(1, provider.ConversionCount);
+    }
+
+    [TestMethod]
+    public void GetRows_withSingleItem_returnsConvertedRow()
+    {
+        var item = CreateData("single", 4);
+        var provider = new ConcreteProvider(item);
+
+        // ConvertRow invoked during construction
+        Assert.AreEqual(1, provider.ConversionCount);
+
+        var rows = provider.GetRows();
+
+        CollectionAssert.AreEqual(new[] { item.TestCaseName }, rows);
+        Assert.AreEqual(1, provider.ConversionCount);
     }
 
     [TestMethod]
@@ -70,10 +103,123 @@ public class TestDataProviderTests
         var second = CreateData("second", 2);
         var provider = new ConcreteProvider([first, second]);
 
+        // Conversion occurs during construction for each provided item
         Assert.AreEqual(2, provider.ConversionCount);
-        CollectionAssert.AreEqual(new[] { first.TestCaseName, second.TestCaseName }, provider.GetRows());
+
         CollectionAssert.AreEqual(new[] { first.TestCaseName, second.TestCaseName }, provider.GetTestCaseNames());
+        Assert.AreEqual(2, provider.ConversionCount);
     }
+
+    [TestMethod]
+    public void GetRows_withCollection_convertsAllRows()
+    {
+        var first = CreateData("first", 1);
+        var second = CreateData("second", 2);
+        var provider = new ConcreteProvider([first, second]);
+
+        var rows = provider.GetRows();
+
+        CollectionAssert.AreEqual(new[] { first.TestCaseName, second.TestCaseName }, rows);
+        Assert.AreEqual(2, provider.ConversionCount);
+    }
+
+    [TestMethod]
+    public void GetRows_calledTwice_doesNotReconvert_whenAlreadyConverted()
+    {
+        // Conversion is eager and results are stored; repeated retrieval does not re-invoke ConvertRow.
+        var first = CreateData("first", 1);
+        var second = CreateData("second", 2);
+        var provider = new ConcreteProvider([first, second]);
+
+        Assert.AreEqual(2, provider.ConversionCount);
+
+        _ = provider.GetRows();
+        _ = provider.GetRows();
+
+        Assert.AreEqual(2, provider.ConversionCount);
+    }
+
+    #region GetRow(INamedCase)
+
+    [TestMethod]
+    public void GetRow_withINamedCase_matchingExistingItem_returnsConvertedRow()
+    {
+        var item = CreateData("single", 4);
+        var provider = new ConcreteProvider(item);
+
+        // ConvertRow invoked during construction
+        Assert.AreEqual(1, provider.ConversionCount);
+
+        var row = provider.GetRow((INamedCase)item);
+
+        Assert.AreEqual(item.TestCaseName, row);
+        Assert.AreEqual(1, provider.ConversionCount);
+    }
+
+    [TestMethod]
+    public void GetRow_withINamedCase_matchingBySameTestCaseName_returnsConvertedRow()
+    {
+        // Equality is based on TestCaseName (via NamedCase.Comparer), not reference identity.
+        var item = CreateData("single", 4);
+        var provider = new ConcreteProvider(item);
+        var other = CreateData("single", 99);
+
+        var row = provider.GetRow((INamedCase)other);
+
+        Assert.AreEqual(item.TestCaseName, row);
+    }
+
+    [TestMethod]
+    public void GetRow_withINamedCase_noMatch_returnsNull()
+    {
+        var item = CreateData("single", 4);
+        var provider = new ConcreteProvider(item);
+        var missing = CreateData("missing", 1);
+
+        var row = provider.GetRow((INamedCase)missing);
+
+        Assert.IsNull(row);
+        // Construction already converted the stored item
+        Assert.AreEqual(1, provider.ConversionCount);
+    }
+
+    [TestMethod]
+    public void GetRow_withNullINamedCase_throwsNullReferenceException()
+    {
+        // NOTE: The XML doc for GetRow(INamedCase) states that a null namedCase returns default,
+        // but matchFound: namedCase.Equals is a method-group conversion evaluated eagerly on the
+        // null argument, so it throws NullReferenceException before the null-check in GetRow<T> runs.
+        var item = CreateData("single", 4);
+        var provider = new ConcreteProvider(item);
+
+        Assert.ThrowsExactly<NullReferenceException>(
+            () => provider.GetRow((INamedCase)null!));
+    }
+
+    [TestMethod]
+    public void GetRow_withINamedCase_emptyProvider_returnsNull()
+    {
+        var provider = new ConcreteProvider();
+        var item = CreateData("single", 4);
+
+        var row = provider.GetRow((INamedCase)item);
+
+        Assert.IsNull(row);
+    }
+
+    [TestMethod]
+    public void GetRow_withINamedCase_multipleItems_returnsMatchingRowOnly()
+    {
+        var first = CreateData("first", 1);
+        var second = CreateData("second", 2);
+        var provider = new ConcreteProvider([first, second]);
+
+        var row = provider.GetRow((INamedCase)second);
+
+        Assert.AreEqual(second.TestCaseName, row);
+    }
+
+    #endregion
 
     [TestMethod]
     public void Constructor_withDuplicateCollection_throwsArgumentException()
@@ -101,7 +247,7 @@ public class TestDataProviderTests
 
         // Since we can't easily create an empty-named test case, we verify the null handling
         // by ensuring that GetRow(null) is equivalent to GetRow("") behavior
-        var rowFromNull = provider.GetRow(null!);
+        var rowFromNull = provider.GetRow((string)null!);
         var rowFromEmpty = provider.GetRow(string.Empty);
 
         // Both should be either null or the same value (demonstrating null coalescing works)
@@ -118,7 +264,7 @@ public class TestDataProviderTests
         var provider = new ConcreteProvider(item);
 
         // Calling with null should look for empty string in the dictionary (after coalescing)
-        var rowFromNull = provider.GetRow(null!);
+        var rowFromNull = provider.GetRow((string)null!);
 
         // Since "only_item" != "", this should return null
         Assert.IsNull(rowFromNull, "GetRow(null) should treat null as empty string");
