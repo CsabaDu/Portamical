@@ -65,14 +65,17 @@ public class TestDataProviderTests
     }
 
     [TestMethod]
-    public void Constructor_withCollection_duplicateTestCaseNames_throwsArgumentException()
+    public void Constructor_withCollection_duplicateTestCaseNames_filtersOutDuplicate()
     {
         var first = CreateData("duplicate-name", 1);
         var duplicate = TestDataFactory.CreateTestData("duplicate-name", "result", 99);
         ITestData[] collection = [first, duplicate];
 
-        Assert.ThrowsExactly<ArgumentException>(
-            () => _ = new Sut(collection));
+        var provider = new Sut(collection);
+        var rows = provider.GetRows();
+
+        Assert.HasCount(1, rows);
+        Assert.AreSame(first, rows[0]);
     }
 
     [TestMethod]

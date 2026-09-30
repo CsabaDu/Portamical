@@ -50,11 +50,10 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance and adds a single test data row.
     /// </summary>
     /// <param name="testData">
-    /// The initial test data to addRange. Will be converted to a row via <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/>.
+    /// The initial test data to addRange. It is stored unconverted; conversion via
+    /// <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/> happens lazily whenever the
+    /// corresponding row is subsequently read.
     /// </param>
-    /// <exception cref="ArgumentException">
-    /// Thrown if the test case name already exists in the collection.
-    /// </exception>
     /// <remarks>
     /// This constructor forwards to <see cref="DataProviderBase{TTestData, TRow}"/>,
     /// making single-item initialization available to derived classes in external assemblies.
@@ -68,10 +67,13 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance and adds multiple test data rows.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data to addRange. Each item will be converted to a row via <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/>.
+    /// The collection of test data to addRange. Each item is stored unconverted; conversion via
+    /// <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/> happens lazily whenever the
+    /// corresponding row is subsequently read. Duplicate test cases (per <see cref="NamedCase.Comparer"/>)
+    /// are silently filtered out.
     /// </param>
     /// <exception cref="ArgumentException">
-    /// Thrown if any test case name in the collection is duplicated.
+    /// Thrown if the collection is empty.
     /// </exception>
     /// <remarks>
     /// This constructor forwards to <see cref="DataProviderBase{TTestData, TRow}"/>,

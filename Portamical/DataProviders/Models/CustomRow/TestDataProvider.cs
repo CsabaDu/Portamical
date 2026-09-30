@@ -130,9 +130,10 @@ where TTestData : notnull, ITestData
     /// The test data is converted and added immediately during construction via <see cref="DataProviderBase{TTestData, TRow}.ConvertRow"/>.
     /// </remarks>
     protected TestDataProvider(TTestData testData, ArgsCode argsCode, string? testMethodName)
-    : this(argsCode, testMethodName)
+    : base(testData)
     {
-        AddRow(testData);
+        ArgsCode = argsCode.Defined(nameof(argsCode));
+        TestMethodName = testMethodName;
     }
 
     /// <summary>
@@ -158,9 +159,10 @@ where TTestData : notnull, ITestData
     /// All items are converted and added during construction.
     /// </remarks>
     protected TestDataProvider(IEnumerable<TTestData> testDataCollection, ArgsCode argsCode, string? testMethodName)
-    : this(argsCode, testMethodName)
+    : base(testDataCollection)
     {
-        AddRange(testDataCollection);
+        ArgsCode = argsCode.Defined(nameof(argsCode));
+        TestMethodName = testMethodName;
     }
 
     /// <summary>

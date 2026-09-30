@@ -30,7 +30,7 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v3.0.0 (2026-09-21) - API Surface and Null-Safety Refinements
+      v3.0.0 (2026-09-29) - API Surface and Null-Safety Refinements
 
       Breaking Change:
       • DefaultFormatter is now internal; use Formatter.Format(...) or Formatter.GetFormatter(...) instead
@@ -64,6 +64,15 @@
 
     <!-- Documentation -->
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <BaseOutputPath>bin\</BaseOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>

@@ -71,16 +71,24 @@ namespace Portamical.DataProviders.Models.ObjectArray;
 /// <see cref="DataProviderBase{TTestData, TRow}.AddRow"/> or
 /// <see cref="DataProviderBase{TTestData, TRow}.AddRange"/>.
 /// </remarks>
-public sealed class TestDataProvider<TTestData>(ArgsCode argsCode, PropsCode propsCode)
-: DataProviderBase<TTestData, object?[]>(),
+public sealed class TestDataProvider<TTestData>
+: DataProviderBase<TTestData, object?[]>,
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {
+    public TestDataProvider(ArgsCode argsCode, PropsCode propsCode)
+    : base()
+    {
+        ArgsCode = argsCode.Defined(nameof(argsCode));
+        PropsCode = propsCode.Defined(nameof(propsCode));
+    }
+
     /// <summary>
     /// Initializes a new instance with a single test data item and specified conversion strategies.
     /// </summary>
     /// <param name="testData">
-    /// The initial test data to addRange to the provider.
+    /// The initial test data to addRange to the provider. It is stored unconverted; conversion via
+    /// <see cref="ConvertRow"/> happens lazily whenever the corresponding row is subsequently read.
     /// </param>
     /// <param name="argsCode">
     /// The argument code determining the primary conversion strategy.
@@ -89,23 +97,26 @@ where TTestData : notnull, ITestData
     /// The properties code determining which properties to include when flattening.
     /// </param>
     /// <exception cref="ArgumentException">
-    /// Thrown if <paramref name="argsCode"/> or <paramref name="propsCode"/> is undefined or invalid,
-    /// or if the test case name conflicts.
+    /// Thrown if <paramref name="argsCode"/> or <paramref name="propsCode"/> is undefined or invalid.
     /// </exception>
     /// <remarks>
-    /// The test data is converted and added immediately during construction.
+    /// The test data is stored immediately during construction; conversion is deferred until the row is read.
     /// </remarks>
     public TestDataProvider(TTestData testData, ArgsCode argsCode, PropsCode propsCode)
-    : this(argsCode, propsCode)
+    : base(testData)
     {
-        AddRow(testData);
+        ArgsCode = argsCode.Defined(nameof(argsCode));
+        PropsCode = propsCode.Defined(nameof(propsCode));
     }
 
     /// <summary>
     /// Initializes a new instance with a collection of test data items and specified conversion strategies.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data to addRange to the provider.
+    /// The collection of test data to addRange to the provider. Each item is stored unconverted;
+    /// conversion via <see cref="ConvertRow"/> happens lazily whenever the corresponding row is
+    /// subsequently read. Duplicate test cases (per <see cref="NamedCase.Comparer"/>) are silently
+    /// filtered out.
     /// </param>
     /// <param name="argsCode">
     /// The argument code determining the primary conversion strategy.
@@ -118,15 +129,16 @@ where TTestData : notnull, ITestData
     /// </exception>
     /// <exception cref="ArgumentException">
     /// Thrown if <paramref name="argsCode"/> or <paramref name="propsCode"/> is undefined or invalid,
-    /// if the collection is empty, or if it contains duplicate test case names.
+    /// or if the collection is empty.
     /// </exception>
     /// <remarks>
-    /// All items are converted and added during construction.
+    /// All items are stored immediately during construction; conversion is deferred until each row is read.
     /// </remarks>
     public TestDataProvider(IEnumerable<TTestData> testDataCollection, ArgsCode argsCode, PropsCode propsCode)
-    : this(argsCode, propsCode)
+    : base(testDataCollection)
     {
-        AddRange(testDataCollection);
+        ArgsCode = argsCode.Defined(nameof(argsCode));
+        PropsCode = propsCode.Defined(nameof(propsCode));
     }
 
     /// <summary>
@@ -140,7 +152,7 @@ where TTestData : notnull, ITestData
     /// This property is immutable after construction (init-only). It works together with
     /// <see cref="PropsCode"/> to determine the final row structure in <see cref="ConvertRow"/>.
     /// </remarks>
-    public ArgsCode ArgsCode { get; init; } = argsCode.Defined(nameof(argsCode));
+    public ArgsCode ArgsCode { get; init; }
 
     /// <summary>
     /// Gets the properties code that determines which properties to include when flattening test data.
@@ -153,7 +165,7 @@ where TTestData : notnull, ITestData
     /// This property is immutable after construction (init-only). It is most relevant when
     /// <see cref="ArgsCode"/> is set to <see cref="ArgsCode.Properties"/>.
     /// </remarks>
-    public PropsCode PropsCode { get; init; } = propsCode.Defined(nameof(propsCode));
+    public PropsCode PropsCode { get; init; }
 
     /// <summary>
     /// Converts test data into an <c>object?[]</c> row using the configured <see cref="ArgsCode"/>
@@ -168,7 +180,9 @@ where TTestData : notnull, ITestData
     /// </returns>
     /// <remarks>
     /// This method delegates to <see cref="ITestData.ToArgs(ArgsCode, PropsCode)"/> on the test data object,
-    /// which performs the actual conversion logic based on the configured strategies.
+    /// which performs the actual conversion logic based on the configured strategies. It is invoked lazily
+    /// whenever a stored row is read (e.g., via <c>GetRow</c>, <c>GetRows</c>, or enumeration), not once at
+    /// <c>AddRow</c> time.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override object?[] ConvertRow(TTestData testData)

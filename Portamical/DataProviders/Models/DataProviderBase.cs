@@ -5,7 +5,8 @@ namespace Portamical.DataProviders.Models;
 
 /// <summary>
 /// Provides an abstract base implementation of <see cref="IDataProvider{TTestData, TRow}"/> that ensures
-/// each test case name maps to exactly one row, using ordinal string comparison for deduplication.
+/// each test case is stored at most once, using <see cref="NamedCase.Comparer"/> identity comparison for
+/// deduplication.
 /// </summary>
 /// <typeparam name="TTestData">
 /// The test data type that implements <see cref="ITestData"/>. Must be a non-nullable reference type.
@@ -15,16 +16,22 @@ namespace Portamical.DataProviders.Models;
 /// </typeparam>
 /// <remarks>
 /// <para>
-/// This class is the foundation for test data providers in the Portamical library. It maintains a dictionary
-/// of distinct test cases keyed by <see cref="INamedCase.TestCaseName"/> using <see cref="StringComparer.Ordinal"/>.
+/// This class is the foundation for test data providers in the Portamical library. It maintains a
+/// <see cref="HashSet{T}"/> of distinct test cases, keyed by identity via <see cref="NamedCase.Comparer"/>.
 /// </para>
 /// <para>
 /// <strong>Constructor Accessibility:</strong> All constructors are marked <c>private protected</c> to restrict
 /// instantiation to derived classes within the same assembly, supporting controlled inheritance patterns.
 /// </para>
 /// <para>
-/// <strong>Deduplication:</strong> Attempting to addRange a test case with a duplicate name throws
-/// <see cref="ArgumentException"/> via the underlying dictionary.
+/// <strong>Deduplication:</strong> Adding a test case with a duplicate identity (per <see cref="NamedCase.Comparer"/>)
+/// does not throw; the duplicate is silently ignored and the previously stored entry is preserved. See
+/// <see cref="AddRow"/>.
+/// </para>
+/// <para>
+/// <strong>Lazy Conversion:</strong> Test data is stored as-is when added. Conversion via <see cref="ConvertRow"/>
+/// happens on demand, each time a row is read (e.g., via <see cref="GetRow(string)"/>, <see cref="GetRows"/>,
+/// or enumeration), rather than once at insertion time.
 /// </para>
 /// </remarks>
 public abstract class DataProviderBase<TTestData, TRow>
@@ -34,16 +41,16 @@ where TTestData : notnull, ITestData
     #region Fields
 
     /// <summary>
-    /// The backing store of distinct test cases, keyed by identity via <see cref="NamedCase.Comparer"/>,
-    /// mapping each <see cref="INamedCase"/> key to its already-converted <typeparamref name="TRow"/> value.
+    /// The backing store of distinct test cases, keyed by identity via <see cref="NamedCase.Comparer"/>.
     /// </summary>
     /// <remarks>
-    /// Although declared as <see cref="Dictionary{TKey, TValue}"/> keyed on <see cref="INamedCase"/>, every
-    /// stored key is actually an instance of <typeparamref name="TTestData"/>, since only <see cref="AddRow"/>
-    /// and <see cref="AddRange"/> populate this collection. This invariant allows safe casting back to
-    /// <typeparamref name="TTestData"/> when needed.
+    /// Although declared as <see cref="HashSet{T}"/> of <see cref="INamedCase"/>, every stored element is
+    /// actually an instance of <typeparamref name="TTestData"/>, since only <see cref="AddRow"/> and
+    /// <see cref="AddRange"/> populate this collection. This invariant allows safe casting back to
+    /// <typeparamref name="TTestData"/> when needed. Elements are stored unconverted; <see cref="ConvertRow"/>
+    /// is invoked lazily whenever a row is read, not when it is added.
     /// </remarks>
-    private readonly Dictionary<INamedCase, TRow> distinctRows = new(NamedCase.Comparer);
+    private readonly HashSet<INamedCase> namedCases = new(NamedCase.Comparer);
 
     #endregion
 
@@ -64,11 +71,9 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance and adds a single test data row.
     /// </summary>
     /// <param name="testData">
-    /// The initial test data to addRange. Will be converted to a row via <see cref="ConvertRow"/>.
+    /// The initial test data to addRange. It is stored unconverted; conversion via <see cref="ConvertRow"/>
+    /// happens lazily whenever the corresponding row is read.
     /// </param>
-    /// <exception cref="ArgumentException">
-    /// Thrown if the test case name already exists in the collection.
-    /// </exception>
     /// <remarks>
     /// This constructor is <c>private protected</c> to restrict instantiation to derived types
     /// within the same assembly.
@@ -82,10 +87,12 @@ where TTestData : notnull, ITestData
     /// Initializes a new instance and adds multiple test data rows.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data to addRange. Each item will be converted to a row via <see cref="ConvertRow"/>.
+    /// The collection of test data to addRange. Each item is stored unconverted via <see cref="AddRow"/>;
+    /// conversion via <see cref="ConvertRow"/> happens lazily whenever the corresponding row is read.
+    /// Duplicate test cases (per <see cref="NamedCase.Comparer"/>) are silently filtered out.
     /// </param>
     /// <exception cref="ArgumentException">
-    /// Thrown if any test case name in the collection is duplicated.
+    /// Thrown if the collection is empty.
     /// </exception>
     /// <remarks>
     /// This constructor is <c>private protected</c> to restrict instantiation to derived types
@@ -101,40 +108,40 @@ where TTestData : notnull, ITestData
     #region ITestDataRegistry implementation
 
     /// <summary>
-    /// Adds a new row of test data to the provider's collection after converting it to the target row format.
+    /// Adds a new row of test data to the provider's collection.
     /// </summary>
     /// <param name="testData">
-    /// The test data to addRange. Will be converted via <see cref="ConvertRow"/> before being stored.
+    /// The test data to addRange. It is stored unconverted; <see cref="ConvertRow"/> is invoked lazily
+    /// whenever the corresponding row is subsequently read (e.g., via <see cref="GetRow(string)"/>,
+    /// <see cref="GetRows"/>, or enumeration).
     /// </param>
-    /// <exception cref="ArgumentException">
-    /// Thrown if a test case with the same <see cref="INamedCase.TestCaseName"/> already exists in the collection.
-    /// </exception>
     /// <remarks>
-    /// This method uses <see cref="INamedCase.TestCaseName"/> as the dictionary key with <see cref="StringComparer.Ordinal"/>.
-    /// The converted row is stored immediately, ensuring the collection remains consistent.
+    /// This method uses <see cref="NamedCase.Comparer"/> equality to deduplicate entries via the backing
+    /// <see cref="HashSet{T}"/>. If a test case with the same identity already exists in the collection,
+    /// <paramref name="testData"/> is silently ignored and the existing entry is preserved; no exception
+    /// is thrown.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddRow(TTestData testData)
-    => distinctRows.Add(
-        key: testData,
-        value: ConvertRow(testData));
+    => namedCases.Add(testData);
 
     /// <summary>
     /// Adds multiple test data rows to the provider's collection.
     /// </summary>
     /// <param name="testDataCollection">
-    /// The collection of test data to addRange. Each item will be converted and added via <see cref="AddRow"/>.
+    /// The collection of test data to addRange. Each item will be added via <see cref="AddRow"/>.
     /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="testDataCollection"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown if the collection is empty, or if any test case name already exists in the collection.
+    /// Thrown if the collection is empty.
     /// </exception>
     /// <remarks>
     /// The collection is validated and snapshotted before enumeration to ensure stability during iteration.
-    /// If any duplicate test case name is encountered during enumeration, an exception is thrown and
-    /// previously added items from this batch remain in the collection.
+    /// Duplicate test cases (per <see cref="NamedCase.Comparer"/>), whether duplicated within
+    /// <paramref name="testDataCollection"/> itself or already present in the provider, are silently
+    /// filtered out by <see cref="AddRow"/>; no exception is thrown for duplicates.
     /// </remarks>
     public void AddRange(IEnumerable<TTestData> testDataCollection)
     {
@@ -160,7 +167,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string[] GetTestCaseNames()
-    => ExtractFromDistinctRowsKeys(namedCase => namedCase.TestCaseName);
+    => SelectFromNamedCases(namedCase => namedCase.TestCaseName);
 
     #endregion
 
@@ -215,7 +222,7 @@ where TTestData : notnull, ITestData
     /// will not affect the returned array.
     /// </remarks>
     public TRow[] GetRows()
-    => [.. distinctRows.Values];
+    => SelectFromNamedCases(ConvertCasted);
 
     #endregion
 
@@ -232,7 +239,12 @@ where TTestData : notnull, ITestData
     /// The enumeration order is determined by the dictionary's internal structure.
     /// </remarks>
     public IEnumerator<TRow> GetEnumerator()
-    => distinctRows.Values.GetEnumerator();
+    {
+        foreach (var namedCase in namedCases)
+        {
+            yield return ConvertCasted(namedCase);
+        }
+    }
 
     /// <summary>
     /// Returns an enumerator that iterates through the collection.
@@ -258,8 +270,10 @@ where TTestData : notnull, ITestData
     /// A row of type <typeparamref name="TRow"/> representing the converted test data.
     /// </returns>
     /// <remarks>
-    /// This method is called by <see cref="AddRow"/> during row insertion. Implementations should be
-    /// stateless and produce consistent results for the same input.
+    /// This method is invoked lazily whenever a stored row is read (e.g., via <see cref="GetRow(string)"/>,
+    /// <see cref="GetRows"/>, or enumeration), rather than once at <see cref="AddRow"/> time. Implementations
+    /// should be stateless and produce consistent results for the same input, since the same item may be
+    /// converted multiple times across repeated reads.
     /// </remarks>
     public abstract TRow ConvertRow(TTestData testData);
 
@@ -285,7 +299,7 @@ where TTestData : notnull, ITestData
     /// <see cref="DataProviderBase{TTestData, TRow}"/>, not as part of any interface contract.
     /// </para>
     /// <para>
-    /// This method relies on the invariant documented on <see cref="distinctRows"/>: every key stored in
+    /// This method relies on the invariant documented on <see cref="namedCases"/>: every key stored in
     /// the backing dictionary is actually an instance of <typeparamref name="TTestData"/>, since only
     /// <see cref="AddRow"/> and <see cref="AddRange"/> populate the collection. The cast from
     /// <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> is therefore always safe.
@@ -298,31 +312,74 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TTestData[] GetBaseRows()
-    => ExtractFromDistinctRowsKeys(namedCase => (TTestData)namedCase);
+    => SelectFromNamedCases(CastToTestData);
 
     #endregion
 
     #region Private Helper Methods
 
     /// <summary>
-    /// Projects each key of <see cref="distinctRows"/> into an array using the specified extraction function.
+    /// Casts an <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> and converts it to a row
+    /// via <see cref="ConvertRow"/>.
+    /// </summary>
+    /// <param name="namedCase">
+    /// The stored <see cref="INamedCase"/> key to convert. Must actually be a <typeparamref name="TTestData"/>
+    /// instance, per the invariant documented on <see cref="namedCases"/>.
+    /// </param>
+    /// <returns>
+    /// The row of type <typeparamref name="TRow"/> produced by <see cref="ConvertRow"/> for the underlying
+    /// <typeparamref name="TTestData"/> instance.
+    /// </returns>
+    /// <remarks>
+    /// This helper centralizes the cast-then-convert step shared by <see cref="GetRows"/> and
+    /// <see cref="GetEnumerator"/>. <see cref="MethodImplOptions.AggressiveInlining"/> only benefits the
+    /// direct call site in <see cref="GetEnumerator"/>'s iterator body; when passed as a method group to
+    /// <see cref="SelectFromNamedCases{T}"/> (as in <see cref="GetRows"/>), the call is dispatched through
+    /// a delegate and is not inlined by the JIT.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TRow ConvertCasted(INamedCase namedCase)
+    => ConvertRow(CastToTestData(namedCase));
+
+    /// <summary>
+    /// Casts an <see cref="INamedCase"/> back to <typeparamref name="TTestData"/>.
+    /// </summary>
+    /// <param name="namedCase">
+    /// The stored <see cref="INamedCase"/> key to cast. Must actually be a <typeparamref name="TTestData"/>
+    /// instance, per the invariant documented on <see cref="namedCases"/>.
+    /// </param>
+    /// <returns>
+    /// The <paramref name="namedCase"/> cast to <typeparamref name="TTestData"/>.
+    /// </returns>
+    /// <remarks>
+    /// <see cref="MethodImplOptions.AggressiveInlining"/> only benefits the direct call site in
+    /// <see cref="ConvertCasted"/>; when passed as a method group to <see cref="SelectFromNamedCases{T}"/>
+    /// (as in <see cref="GetBaseRows"/>), the call is dispatched through a delegate and is not inlined
+    /// by the JIT.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static TTestData CastToTestData(INamedCase namedCase)
+    => (TTestData)namedCase;
+
+    /// <summary>
+    /// Projects each key of <see cref="namedCases"/> into an array using the specified extraction function.
     /// </summary>
     /// <typeparam name="T">
-    /// The type of the elements produced by <paramref name="extract"/> and returned in the resulting array.
+    /// The type of the elements produced by <paramref name="selector"/> and returned in the resulting array.
     /// </typeparam>
-    /// <param name="extract">
+    /// <param name="selector">
     /// A function that converts each <see cref="INamedCase"/> key into a value of type <typeparamref name="T"/>.
-    /// Called once for every key in <see cref="distinctRows"/>.
+    /// Called once for every key in <see cref="namedCases"/>.
     /// </param>
     /// <returns>
     /// An array of <typeparamref name="T"/> containing the projected values for all keys in
-    /// <see cref="distinctRows"/>. Returns an empty array if no rows have been added.
+    /// <see cref="namedCases"/>. Returns an empty array if no rows have been added.
     /// </returns>
     /// <remarks>
     /// <para>
     /// This is the shared implementation behind <see cref="GetTestCaseNames"/> and <see cref="GetBaseRows"/>.
     /// It pre-allocates the result array based on <see cref="Dictionary{TKey, TValue}.Count"/> to avoid
-    /// resizing, then fills it in a single pass over <see cref="distinctRows"/>'s keys.
+    /// resizing, then fills it in a single pass over <see cref="namedCases"/>'s keys.
     /// </para>
     /// <para>
     /// The order of elements is determined by the dictionary's internal key enumeration order and may not
@@ -330,14 +387,14 @@ where TTestData : notnull, ITestData
     /// will not affect it.
     /// </para>
     /// </remarks>
-    private T[] ExtractFromDistinctRowsKeys<T>(Func<INamedCase, T> extract)
+    private T[] SelectFromNamedCases<T>(Func<INamedCase, T> selector)
     {
-        var extractions = new T[distinctRows.Count];
+        var extractions = new T[namedCases.Count];
         int i = 0;
 
-        foreach (var namedCase in distinctRows.Keys)
+        foreach (var namedCase in namedCases)
         {
-            extractions[i++] = extract(namedCase);
+            extractions[i++] = selector(namedCase);
         }
 
         return extractions;
@@ -367,8 +424,8 @@ where TTestData : notnull, ITestData
     {
         if (context is null) return default;
 
-        return distinctRows.Keys.Where(matchFound)
-            .Select(namedCase => distinctRows[namedCase])
+        return namedCases.Where(matchFound)
+            .Select(namedCase => ConvertRow((TTestData)namedCase))
             .FirstOrDefault();
     }
 

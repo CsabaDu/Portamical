@@ -53,17 +53,17 @@ public class TestDataProviderTests
     }
 
     [TestMethod]
-    public void Constructor_withSingleItem_populatesInitialRow_andEagerlyConverts()
+    public void Constructor_withSingleItem_populatesInitialRow_withoutConverting()
     {
         var item = CreateData("single", 4);
         var provider = new ConcreteProvider(item);
 
-        // Conversion is eager: adding a row invokes ConvertRow during construction.
-        Assert.AreEqual(1, provider.ConversionCount);
+        // Conversion is lazy: adding a row does not invoke ConvertRow during construction.
+        Assert.AreEqual(0, provider.ConversionCount);
 
         CollectionAssert.AreEqual(new[] { item.TestCaseName }, provider.GetTestCaseNames());
-        // GetTestCaseNames() does not alter conversion count.
-        Assert.AreEqual(1, provider.ConversionCount);
+        // GetTestCaseNames() does not invoke ConvertRow either.
+        Assert.AreEqual(0, provider.ConversionCount);
     }
 
     [TestMethod]
@@ -72,8 +72,8 @@ public class TestDataProviderTests
         var item = CreateData("single", 4);
         var provider = new ConcreteProvider(item);
 
-        // ConvertRow was already invoked during construction
-        Assert.AreEqual(1, provider.ConversionCount);
+        // ConvertRow has not been invoked yet; conversion happens on read.
+        Assert.AreEqual(0, provider.ConversionCount);
 
         var row = provider.GetRow(item.TestCaseName);
 
@@ -87,8 +87,8 @@ public class TestDataProviderTests
         var item = CreateData("single", 4);
         var provider = new ConcreteProvider(item);
 
-        // ConvertRow invoked during construction
-        Assert.AreEqual(1, provider.ConversionCount);
+        // ConvertRow has not been invoked yet; conversion happens on read.
+        Assert.AreEqual(0, provider.ConversionCount);
 
         var rows = provider.GetRows();
 
@@ -97,17 +97,17 @@ public class TestDataProviderTests
     }
 
     [TestMethod]
-    public void Constructor_withCollection_populatesConvertedRows()
+    public void Constructor_withCollection_populatesRows_withoutConverting()
     {
         var first = CreateData("first", 1);
         var second = CreateData("second", 2);
         var provider = new ConcreteProvider([first, second]);
 
-        // Conversion occurs during construction for each provided item
-        Assert.AreEqual(2, provider.ConversionCount);
+        // Conversion is lazy; it does not occur during construction for provided items.
+        Assert.AreEqual(0, provider.ConversionCount);
 
         CollectionAssert.AreEqual(new[] { first.TestCaseName, second.TestCaseName }, provider.GetTestCaseNames());
-        Assert.AreEqual(2, provider.ConversionCount);
+        Assert.AreEqual(0, provider.ConversionCount);
     }
 
     [TestMethod]
@@ -124,19 +124,20 @@ public class TestDataProviderTests
     }
 
     [TestMethod]
-    public void GetRows_calledTwice_doesNotReconvert_whenAlreadyConverted()
+    public void GetRows_calledTwice_reconvertsEachTime()
     {
-        // Conversion is eager and results are stored; repeated retrieval does not re-invoke ConvertRow.
+        // Conversion is lazy; each call to GetRows() re-invokes ConvertRow for every stored item.
         var first = CreateData("first", 1);
         var second = CreateData("second", 2);
         var provider = new ConcreteProvider([first, second]);
 
+        Assert.AreEqual(0, provider.ConversionCount);
+
+        _ = provider.GetRows();
         Assert.AreEqual(2, provider.ConversionCount);
 
         _ = provider.GetRows();
-        _ = provider.GetRows();
-
-        Assert.AreEqual(2, provider.ConversionCount);
+        Assert.AreEqual(4, provider.ConversionCount);
     }
 
     #region GetRow(INamedCase)
@@ -147,8 +148,8 @@ public class TestDataProviderTests
         var item = CreateData("single", 4);
         var provider = new ConcreteProvider(item);
 
-        // ConvertRow invoked during construction
-        Assert.AreEqual(1, provider.ConversionCount);
+        // ConvertRow has not been invoked yet; conversion happens on read.
+        Assert.AreEqual(0, provider.ConversionCount);
 
         var row = provider.GetRow((INamedCase)item);
 
@@ -179,8 +180,8 @@ public class TestDataProviderTests
         var row = provider.GetRow((INamedCase)missing);
 
         Assert.IsNull(row);
-        // Construction already converted the stored item
-        Assert.AreEqual(1, provider.ConversionCount);
+        // No match found, so ConvertRow is never invoked.
+        Assert.AreEqual(0, provider.ConversionCount);
     }
 
     [TestMethod]
@@ -222,13 +223,14 @@ public class TestDataProviderTests
     #endregion
 
     [TestMethod]
-    public void Constructor_withDuplicateCollection_throwsArgumentException()
+    public void Constructor_withDuplicateCollection_filtersOutDuplicate()
     {
         var first = CreateData("duplicate", 1);
         var duplicate = CreateData("duplicate", 2);
 
-        Assert.ThrowsExactly<ArgumentException>(
-            () => _ = new ConcreteProvider([first, duplicate]));
+        var provider = new ConcreteProvider([first, duplicate]);
+
+        CollectionAssert.AreEqual(new[] { first.TestCaseName }, provider.GetTestCaseNames());
     }
 
     #region GetRow - Null TestCaseName Handling (covering line 144: testCaseName ??= string.Empty;)

@@ -442,7 +442,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](../LICENS
 
 ## Changelog
 
-### **Version 3.0.0 - Current** (2026-09-21)
+### **Version 3.0.0 - Current** (2026-09-29)
 
 **API Surface and Null-Safety Refinements**
 
