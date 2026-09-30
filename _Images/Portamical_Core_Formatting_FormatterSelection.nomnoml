@@ -8,40 +8,74 @@
 #.default: fill=#C9DEEF title=center,bold body=left
 
 [<start>
-Formatter.Format(value)
+Formatter.Format(value?)
 |
-[
-Check
+
+// Elements
+
+[Null-check]
+
+[Check
 Formatter.Registry
-for Type of value
+for Type of value]
+
+[<choice>value
+is null?]
+
+[<choice>Custom
+formatter
+found?]
+
+[<default>Use DefaultFormatter]
+
+[<custom>Use custom formatter]
+
+[Return
+formatted string
+(or null)]
+
+// Diagram
+
+[
+Null-check
+] -> [
+value
+]
+
+[
+value
+] no -> [
+Check
 ]
 
 [
 Check
-] -> [<choice>
+] -> [
 Custom
-formatter
-found?
 ]
 
 [
 Custom
-] yes -> [<custom>
+] yes -> [
 Use custom formatter
-]
-
-[
-Custom
-] no -> [<default>
-Use DefaultFormatter
 ]
 
 [
 Use custom formatter
 ] -> [
 Return
-formatted string
-(or null)
+]
+
+[
+value
+] yes -> [
+Use DefaultFormatter
+]
+
+[
+Custom
+] no -> [
+Use DefaultFormatter
 ]
 
 [
@@ -51,7 +85,6 @@ Return
 ]
 
 ]
-
 
 
 
