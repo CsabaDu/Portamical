@@ -138,8 +138,7 @@ public sealed class TestDataProcessor
             }
 
             processSnapshot(processTestData: testData =>
-                _ = testDataProcessor.ProcessIfDistinct(testData, process)
-            );
+                _ = testDataProcessor.ProcessIfDistinct(testData, process));
         }
         else if (process is not null)
         {
