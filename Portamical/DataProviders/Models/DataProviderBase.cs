@@ -389,15 +389,15 @@ where TTestData : notnull, ITestData
     /// </remarks>
     private T[] SelectFromNamedCases<T>(Func<INamedCase, T> selector)
     {
-        var extractions = new T[namedCases.Count];
+        var selection = new T[namedCases.Count];
         int i = 0;
 
         foreach (var namedCase in namedCases)
         {
-            extractions[i++] = selector(namedCase);
+            selection[i++] = selector(namedCase);
         }
 
-        return extractions;
+        return selection;
     }
 
     /// <summary>
@@ -425,7 +425,7 @@ where TTestData : notnull, ITestData
         if (context is null) return default;
 
         return namedCases.Where(matchFound)
-            .Select(namedCase => ConvertRow((TTestData)namedCase))
+            .Select(ConvertCasted)
             .FirstOrDefault();
     }
 
