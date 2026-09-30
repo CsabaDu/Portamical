@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Version](https://img.shields.io/badge/version-4.2.0-orange.svg)](https://www.nuget.org/packages/Portamical.Core)
+[![Version](https://img.shields.io/badge/version-5.0.0-orange.svg)](https://www.nuget.org/packages/Portamical.Core)
 [![C#](https://img.shields.io/badge/language-C%23-239120.svg)](https://docs.microsoft.com/dotnet/csharp/)
 
 **Framework-agnostic foundation of Portamical**: Universal, identity-driven test data modeling for .NET 10.
@@ -512,6 +512,35 @@ This project is licensed under the [MIT License](https://github.com/CsabaDu/Port
 
 ## Changelog
 
+### **Version 5.0.0 - Current** (2026-09-30)
+
+**Dependency Update: Formatting Library Breaking Change + New Safety/Identity Features**
+
+This release updates the `Portamical.Core.Formatting` dependency to v3.0.0 (a breaking change for direct consumers of that package) and adds several small, targeted API additions to the core safety and identity infrastructure.
+
+**Breaking Changes**
+
+1. **Portamical.Core.Formatting v2.2.0 → v3.0.0**
+   - `DefaultFormatter` is now an internal implementation detail; it is no longer part of the public API
+   - **Migration:** Replace direct `DefaultFormatter` usage with `Formatter.Format(...)` or `Formatter.GetFormatter(...)`
+   - `Formatter.GetFormatter(Type?)` now accepts a nullable type and returns the default formatter for `null`
+
+**New Features**
+
+- **`INamedCase.HasName(string?)`** - Determines whether the instance's `TestCaseName` matches the specified name using ordinal (case-sensitive) comparison
+- **`Validator.NotNullOrEmpty<T>(IEnumerable<T>?, string?, out int count)`** - New overload that exposes the validated element count, avoiding a redundant `Length` re-evaluation for callers that also need the count
+- **`Resolver.SnapshotOrNull<T>(IEnumerable<T>?)`** - Snapshot helper that materializes a sequence into an array (reusing the source array when already an array) while preventing multiple enumeration; used internally by `Validator.NotNullOrEmpty`
+
+**Compatibility**
+
+- ✅ No breaking changes to `Portamical.Core` public API
+- ⚠️ Breaking change only affects direct consumers of `Portamical.Core.Formatting`'s `DefaultFormatter` type
+- ✅ Drop-in replacement for v4.2.0 for typical `Portamical.Core` consumers
+
+**For Details:** See [Portamical.Core.Formatting v3.0.0 Release Notes](https://github.com/CsabaDu/Portamical/blob/master/Portamical.Core.Formatting/README.md)
+
+---
+
 ### **Version 4.0.0** (2026-06-26)
 
 **Architectural Evolution: Standalone Formatting Library**
@@ -742,7 +771,7 @@ This release updates the `Portamical.Core.Formatting` dependency from v2.1.0 to 
 
 ---
 
-#### **Version 4.2.0 - Current** (2026-08-11)
+#### **Version 4.2.0** (2026-08-11)
 
 • This release updates the formatting library dependency to v2.2.0, bringing documentation completeness, string building optimizations, and code quality improvements - all with full backward compatibility.  
 • Enhanced global usings for `System.Runtime.CompilerServices`  

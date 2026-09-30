@@ -30,8 +30,11 @@
 
     <!-- Release Notes -->
     <PackageReleaseNotes>
-      v5.0.0 (2026-09-19) 
-      
+      v5.0.0 (2026-09-30)
+      - Dependency update: Portamical.Core.Formatting to v3.0.0 (breaking change: DefaultFormatter is now internal; use Formatter.Format(...) / Formatter.GetFormatter(...)).
+      - New: INamedCase.HasName(string?) for ordinal test case name matching.
+      - New: Validator.NotNullOrEmpty(IEnumerable&lt;T&gt;?, string?, out int count) overload avoiding redundant Length re-evaluation.
+      - New: Resolver.SnapshotOrNull(IEnumerable&lt;T&gt;?) snapshot helper preventing multiple enumeration.
     </PackageReleaseNotes>
 
     <!-- Package Generation -->
@@ -62,8 +65,9 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="Portamical.Core.Formatting" Version="3.0.0" />
+    <InternalsVisibleTo Include="Tests.Portamical.Core" />
   </ItemGroup>
 
   <!-- T4 tooling support -->
@@ -116,7 +120,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Tests.Portamical.Core" />
+    <PackageReference Include="Portamical.Core.Formatting" Version="3.0.0" />
   </ItemGroup>
   
 </Project>
