@@ -1,0 +1,196 @@
+<svg version="1.1" baseProfile="full" width="554.0" height="602.5" viewBox="0 0 554 602.5" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<title >Portamical_Core_Formatting_GetFormatterSelection</title>
+	<desc >#title: Portamical_Core_Formatting_GetFormatterSelection
+	#direction: down
+	
+	// #.start: fill=#ffcc99 title=center,bold, body=left visual=input
+	#.start: title=center,bold, body=left
+	#.step: title=center,italic body=left,italic
+	#.custom: fill=#DCE8CF title=center bold body=left
+	#.default: fill=#C9DEEF title=center,bold body=left
+	
+	[&lt;start&gt;
+	Formatter.GetFormatter(type?)
+	|
+	
+	// Elements
+	
+	[Null-check]
+	
+	[Check
+	Formatter.Registry
+	for type]
+	
+	[&lt;choice&gt;type
+	is null?]
+	
+	[&lt;choice&gt;Custom
+	formatter
+	found?]
+	
+	[&lt;default&gt;Return DefaultFormatter]
+	
+	[&lt;custom&gt;Return custom formatter]
+	
+	
+	// Diagram
+	
+	[
+	Null-check
+	] -&gt; [
+	type
+	]
+	
+	
+	
+	[
+	type
+	] yes -&gt; [
+	Return DefaultFormatter
+	]
+	
+	
+	[
+	Custom
+	] no -&gt; [
+	Return DefaultFormatter
+	]
+	[
+	type
+	] no -&gt; [
+	Check
+	]
+	[
+	Custom
+	] yes -&gt; [
+	Return custom formatter
+	]
+	
+	[
+	Check
+	] -&gt; [
+	Custom
+	]
+	
+	]
+	
+	
+	
+	</desc>
+	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="bold" font-style="normal">
+		<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+			<g stroke="transparent" fill="transparent">
+				<rect x="0.0" y="0.0" height="602.5" width="554.0" stroke="none"></rect>
+			</g>
+			<g transform="translate(8, 8)" fill="#33322E">
+				<g transform="translate(20, 20)">
+					<g data-name="Formatter.GetFormatter(type?)">
+						<g fill="#eee8d5" stroke="#33322E" data-name="Formatter.GetFormatter(type?)">
+							<rect x="0.0" y="0.0" height="546.5" width="498.0" data-name="Formatter.GetFormatter(type?)"></rect>
+							<path d="M0.0 32.0 L498.0 32.0" fill="none" data-name="Formatter.GetFormatter(type?)"></path>
+						</g>
+						<g transform="translate(0, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Formatter.GetFormatter(type?)" data-compartment="0">
+							<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Formatter.GetFormatter(type?)" data-compartment="0">
+								<text x="241.0" y="14.1" stroke="none" text-anchor="middle" data-name="Formatter.GetFormatter(type?)" data-compartment="0">Formatter.GetFormatter(type?)</text>
+								
+							</g>
+						</g>
+						<g transform="translate(0, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Formatter.GetFormatter(type?)" data-compartment="1">
+							<g transform="translate(8, 8)" fill="#33322E" data-name="Formatter.GetFormatter(type?)" data-compartment="1">
+								<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Formatter.GetFormatter(type?)" data-compartment="1">
+									<path d="M220.5 32.0 L220.5 52 L220.5 65.33333333333333 L220.5 65.3 " fill="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<path d="M215.2 58.7 L220.5 65.3 L225.8 58.7 L220.5 72.0 Z" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<text x="174.5" y="149.5" stroke="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1">yes</text>
+									<path d="M166.5 129.5 L80 164 L80 216.5 L80 216.5 L80 269 L80 269 L80 337.75 L80 337.75 L80 406.5 L80 406.5 L87.87349156992023 420.6722848258564 L87.9 420.7 " fill="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<path d="M80.0 417.4 L87.9 420.7 L89.3 412.3 L91.1 426.5 Z" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<text x="264.5" y="394.5" stroke="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1">no</text>
+									<path d="M256.5 374.5 L200.5 406.5 L150.94282395187938 424.2518242560432 L150.9 424.3 " fill="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<path d="M155.4 417.0 L150.9 424.3 L159.0 427.0 L144.7 426.5 Z" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<text x="247.1" y="158.1" stroke="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1">no</text>
+									<path d="M274.5 138.1 L321 164 L321 177.33333333333334 L321.0 177.3 " fill="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<path d="M315.7 170.7 L321.0 177.3 L326.3 170.7 L321.0 184.0 Z" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<text x="300.8" y="406.5" stroke="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1">yes</text>
+									<path d="M335.2 386.5 L341 406.5 L341 419.8333333333333 L341.0 419.8 " fill="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<path d="M335.7 413.2 L341.0 419.8 L346.3 413.2 L341.0 426.5 Z" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<path d="M321.0 249.0 L321 269 L321 282.3333333333333 L321.0 282.3 " fill="none" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<path d="M315.7 275.7 L321.0 282.3 L326.3 275.7 L321.0 289.0 Z" data-name="Formatter.GetFormatter(type?)" data-compartment="1"></path>
+									<g data-name="Null-check">
+										<g fill="#fdf6e3" stroke="#33322E" data-name="Null-check">
+											<rect x="172.5" y="0.0" height="32.0" width="96.0" data-name="Null-check"></rect>
+										</g>
+										<g transform="translate(172.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Null-check" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Null-check" data-compartment="0">
+												<text x="40.0" y="14.1" stroke="none" text-anchor="middle" data-name="Null-check" data-compartment="0">Null-check</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Check">
+										<g fill="#fdf6e3" stroke="#33322E" data-name="Check">
+											<rect x="242.5" y="184.0" height="65.0" width="157.0" data-name="Check"></rect>
+										</g>
+										<g transform="translate(242.5, 184)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Check" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Check" data-compartment="0">
+												<text x="70.5" y="14.1" stroke="none" text-anchor="middle" data-name="Check" data-compartment="0">Check</text>
+												<text x="70.5" y="30.3" stroke="none" text-anchor="middle" data-name="Check" data-compartment="0">Formatter.Registry</text>
+												<text x="70.5" y="46.5" stroke="none" text-anchor="middle" data-name="Check" data-compartment="0">for type</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="type">
+										<g fill="#fdf6e3" stroke="#33322E" data-name="type">
+											<path d="M220.5 72.0 L274.5 108.0 L220.5 144.0 L166.5 108.0 Z" data-name="type"></path>
+										</g>
+										<g transform="translate(184.5, 84)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="type" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="type" data-compartment="0">
+												<text x="28.0" y="14.1" stroke="none" text-anchor="middle" data-name="type" data-compartment="0">type</text>
+												<text x="28.0" y="30.3" stroke="none" text-anchor="middle" data-name="type" data-compartment="0">is null?</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Custom">
+										<g fill="#fdf6e3" stroke="#33322E" data-name="Custom">
+											<path d="M321.0 289.0 L385.5 337.8 L321.0 386.5 L256.5 337.8 Z" data-name="Custom"></path>
+										</g>
+										<g transform="translate(278, 305.25)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Custom" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Custom" data-compartment="0">
+												<text x="35.0" y="14.1" stroke="none" text-anchor="middle" data-name="Custom" data-compartment="0">Custom</text>
+												<text x="35.0" y="30.3" stroke="none" text-anchor="middle" data-name="Custom" data-compartment="0">formatter</text>
+												<text x="35.0" y="46.5" stroke="none" text-anchor="middle" data-name="Custom" data-compartment="0">found?</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Return DefaultFormatter">
+										<g fill="#C9DEEF" stroke="#33322E" data-name="Return DefaultFormatter">
+											<rect x="0.0" y="426.5" height="32.0" width="200.0" data-name="Return DefaultFormatter"></rect>
+										</g>
+										<g transform="translate(0, 426.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Return DefaultFormatter" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Return DefaultFormatter" data-compartment="0">
+												<text x="92.0" y="14.1" stroke="none" text-anchor="middle" data-name="Return DefaultFormatter" data-compartment="0">Return DefaultFormatter</text>
+												
+											</g>
+										</g>
+									</g>
+									<g data-name="Return custom formatter">
+										<g fill="#DCE8CF" stroke="#33322E" data-name="Return custom formatter">
+											<rect x="240.0" y="426.5" height="32.0" width="202.0" data-name="Return custom formatter"></rect>
+										</g>
+										<g transform="translate(240, 426.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Return custom formatter" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Return custom formatter" data-compartment="0">
+												<text x="93.0" y="14.1" stroke="none" text-anchor="middle" data-name="Return custom formatter" data-compartment="0">Return custom formatter</text>
+												
+											</g>
+										</g>
+									</g>
+								</g>
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

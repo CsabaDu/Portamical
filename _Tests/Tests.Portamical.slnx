@@ -1,5 +1,4 @@
 <Solution>
-  <Project Path="../Portamical.Core/Portamical.Core.csproj" />
   <Project Path="../Portamical/Portamical.csproj" />
   <Project Path="Portamical/Tests.Portamical.csproj" />
 </Solution>

@@ -442,6 +442,11 @@ public static class Formatter
     /// </remarks>
     public static string? Format<T>(T value)
     {
+        if (value is null)
+        {
+            return null;
+        }
+
         var formatter = GetFormatter<T>();
 
         return formatter.Format(value);
