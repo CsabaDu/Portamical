@@ -50,7 +50,7 @@ where TTestData : notnull, ITestData
     /// <typeparamref name="TTestData"/> when needed. Elements are stored unconverted; <see cref="ConvertRow"/>
     /// is invoked lazily whenever a row is read, not when it is added.
     /// </remarks>
-    private readonly HashSet<INamedCase> namedCases = new(NamedCase.Comparer);
+    private readonly HashSet<INamedCase> _namedCases = new(NamedCase.Comparer);
 
     #endregion
 
@@ -123,7 +123,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddRow(TTestData testData)
-    => namedCases.Add(testData);
+    => _namedCases.Add(testData);
 
     /// <summary>
     /// Adds multiple test data rows to the provider's collection.
@@ -240,7 +240,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     public IEnumerator<TRow> GetEnumerator()
     {
-        foreach (var namedCase in namedCases)
+        foreach (var namedCase in _namedCases)
         {
             yield return ConvertCasted(namedCase);
         }
@@ -299,7 +299,7 @@ where TTestData : notnull, ITestData
     /// <see cref="DataProviderBase{TTestData, TRow}"/>, not as part of any interface contract.
     /// </para>
     /// <para>
-    /// This method relies on the invariant documented on <see cref="namedCases"/>: every key stored in
+    /// This method relies on the invariant documented on <see cref="_namedCases"/>: every key stored in
     /// the backing dictionary is actually an instance of <typeparamref name="TTestData"/>, since only
     /// <see cref="AddRow"/> and <see cref="AddRange"/> populate the collection. The cast from
     /// <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> is therefore always safe.
@@ -324,7 +324,7 @@ where TTestData : notnull, ITestData
     /// </summary>
     /// <param name="namedCase">
     /// The stored <see cref="INamedCase"/> key to convert. Must actually be a <typeparamref name="TTestData"/>
-    /// instance, per the invariant documented on <see cref="namedCases"/>.
+    /// instance, per the invariant documented on <see cref="_namedCases"/>.
     /// </param>
     /// <returns>
     /// The row of type <typeparamref name="TRow"/> produced by <see cref="ConvertRow"/> for the underlying
@@ -346,7 +346,7 @@ where TTestData : notnull, ITestData
     /// </summary>
     /// <param name="namedCase">
     /// The stored <see cref="INamedCase"/> key to cast. Must actually be a <typeparamref name="TTestData"/>
-    /// instance, per the invariant documented on <see cref="namedCases"/>.
+    /// instance, per the invariant documented on <see cref="_namedCases"/>.
     /// </param>
     /// <returns>
     /// The <paramref name="namedCase"/> cast to <typeparamref name="TTestData"/>.
@@ -362,24 +362,24 @@ where TTestData : notnull, ITestData
     => (TTestData)namedCase;
 
     /// <summary>
-    /// Projects each key of <see cref="namedCases"/> into an array using the specified extraction function.
+    /// Projects each key of <see cref="_namedCases"/> into an array using the specified extraction function.
     /// </summary>
     /// <typeparam name="T">
     /// The type of the elements produced by <paramref name="selector"/> and returned in the resulting array.
     /// </typeparam>
     /// <param name="selector">
     /// A function that converts each <see cref="INamedCase"/> key into a value of type <typeparamref name="T"/>.
-    /// Called once for every key in <see cref="namedCases"/>.
+    /// Called once for every key in <see cref="_namedCases"/>.
     /// </param>
     /// <returns>
     /// An array of <typeparamref name="T"/> containing the projected values for all keys in
-    /// <see cref="namedCases"/>. Returns an empty array if no rows have been added.
+    /// <see cref="_namedCases"/>. Returns an empty array if no rows have been added.
     /// </returns>
     /// <remarks>
     /// <para>
     /// This is the shared implementation behind <see cref="GetTestCaseNames"/> and <see cref="GetBaseRows"/>.
     /// It pre-allocates the result array based on <see cref="Dictionary{TKey, TValue}.Count"/> to avoid
-    /// resizing, then fills it in a single pass over <see cref="namedCases"/>'s keys.
+    /// resizing, then fills it in a single pass over <see cref="_namedCases"/>'s keys.
     /// </para>
     /// <para>
     /// The order of elements is determined by the dictionary's internal key enumeration order and may not
@@ -389,10 +389,10 @@ where TTestData : notnull, ITestData
     /// </remarks>
     private T[] SelectFromNamedCases<T>(Func<INamedCase, T> selector)
     {
-        var selection = new T[namedCases.Count];
+        var selection = new T[_namedCases.Count];
         int i = 0;
 
-        foreach (var namedCase in namedCases)
+        foreach (var namedCase in _namedCases)
         {
             selection[i++] = selector(namedCase);
         }
@@ -424,7 +424,7 @@ where TTestData : notnull, ITestData
     {
         if (context is null) return default;
 
-        return namedCases.Where(matchFound)
+        return _namedCases.Where(matchFound)
             .Select(ConvertCasted)
             .FirstOrDefault();
     }

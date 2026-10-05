@@ -8,7 +8,7 @@
 #.default: fill=#C9DEEF title=center,bold body=left
 
 [<start>
-Formatter.Format(value?)
+Formatter.Format(value)
 |
 
 // Elements
@@ -31,8 +31,7 @@ found?]
 [<custom>Use custom formatter]
 
 [Return
-formatted string
-(or null)]
+formatted string]
 
 // Diagram
 
@@ -44,8 +43,8 @@ value
 
 [
 value
-] no -> [
-Check
+] yes -> [
+Return null
 ]
 
 [
@@ -55,31 +54,31 @@ Custom
 ]
 
 [
-Custom
-] yes -> [
-Use custom formatter
+value
+] no -> [
+Check
 ]
 
 [
-Use custom formatter
+Custom
+] no -> [
+Use DefaultFormatter
+]
+
+[
+Use DefaultFormatter
 ] -> [
 Return
 ]
 
 [
-value
-] yes -> [
-Use DefaultFormatter
-]
-
-[
 Custom
-] no -> [
-Use DefaultFormatter
+] yes -> [
+Use custom formatter
 ]
 
 [
-Use DefaultFormatter
+Use custom formatter
 ] -> [
 Return
 ]

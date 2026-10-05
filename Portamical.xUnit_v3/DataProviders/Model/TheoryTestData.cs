@@ -185,7 +185,7 @@ namespace Portamical.xUnit_v3.DataProviders.Model;
 /// 
 /// // Wrong generic type:
 /// var wrongRow = new TheoryTestDataRow&lt;TestDataReturns&lt;string&gt;&gt;(
-///     testData,
+///     testDataCollection,
 ///     ArgsCode.Properties,
 ///     null);
 /// 
@@ -198,7 +198,7 @@ namespace Portamical.xUnit_v3.DataProviders.Model;
 /// <para><strong>Example 4: Manual Conversion (ConvertRow)</strong></para>
 /// <code>
 /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(
-///     testData,
+///     testDataCollection,
 ///     ArgsCode.Properties,
 ///     null);
 /// 
@@ -221,6 +221,14 @@ ITheoryTestData<TTestData>
 where TTestData : notnull, ITestData
 {
     #region Constructors
+
+    private TheoryTestData(
+        ArgsCode argsCode,
+        string? testMethodName)
+    {
+        ArgsCode = argsCode.Defined(nameof(argsCode));
+        TestMethodName = testMethodName;
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TheoryTestData{TTestData}"/> class with the specified
@@ -286,11 +294,22 @@ where TTestData : notnull, ITestData
         TTestData testData,
         ArgsCode argsCode,
         string? testMethodName)
+    : this(argsCode, testMethodName)
     {
-        ArgsCode = argsCode.Defined(nameof(argsCode));
-        TestMethodName = testMethodName;
-
         AddRow(testData);
+    }
+
+    internal TheoryTestData(
+        IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        string? testMethodName)
+    : this(argsCode, testMethodName)
+    {
+        var snapshot = NotNullOrEmpty(
+            testDataCollection,
+            nameof(testDataCollection)).ToList();
+
+        AddRange(snapshot);
     }
 
     #endregion
@@ -323,8 +342,7 @@ where TTestData : notnull, ITestData
     /// compared to O(n) for linear searches in lists.
     /// </para>
     /// </remarks>
-    private readonly HashSet<INamedCase> _namedCases =
-        new(NamedCase.Comparer);
+    private readonly HashSet<INamedCase> _namedCases = new(NamedCase.Comparer);
 
     #endregion
 
@@ -387,6 +405,8 @@ where TTestData : notnull, ITestData
     #endregion
 
     #region Methods
+
+    #region TheoryDataBase overrides
 
     /// <summary>
     /// Adds a theory test data row to the collection with automatic deduplication and runtime type validation.
@@ -519,7 +539,7 @@ where TTestData : notnull, ITestData
     /// <seealso cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Add(TTheoryDataRow)"/>
     public override void Add(ITheoryTestDataRow row)
     {
-        if (NotNull(row, nameof(row)) is not TheoryTestDataRow<TTestData>)
+        if (NotNull(row, nameof(row)) is not TheoryTestDataRow<TTestData> typedRow)
         {
             throw new ArgumentException(
                 $"The provided test data row has an incompatible type. " +
@@ -529,11 +549,134 @@ where TTestData : notnull, ITestData
         }
 
         // Deduplication: only add if TestCaseName is unique
-        if (_namedCases.Add(row))
+        if (_namedCases.Add(typedRow))
         {
-            base.Add(row);
+            base.Add(typedRow);
         }
     }
+
+    /// <summary>
+    /// Converts Portamical test data to an xUnit v3 theory test data row using instance configuration.
+    /// </summary>
+    /// <param name="row">
+    /// The Portamical test data to convert.
+    /// </param>
+    /// <returns>
+    /// An <see cref="ITheoryTestDataRow"/> instance containing the converted test data, using
+    /// <see cref="ArgsCode"/> and <see cref="TestMethodName"/> from this instance.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Template Method Implementation:</strong>
+    /// </para>
+    /// <para>
+    /// This method implements the abstract <see cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Convert(TDataDeclarationPointer)"/>
+    /// template method from xUnit v3's <see cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}"/> base class.
+    /// </para>
+    /// <para>
+    /// It delegates to <see cref="ConvertRow"/> with instance configuration:
+    /// </para>
+    /// <code>
+    /// protected override ITheoryTestDataRow Convert(TTestData row)
+    /// =&gt; ConvertRow(testDataCollection: row, TestMethodName);
+    /// //            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode (implicitly), this.TestMethodName
+    /// </code>
+    /// <para>
+    /// <strong>Usage:</strong>
+    /// </para>
+    /// <para>
+    /// This method is called internally by <see cref="AddRow"/> to convert test data using the instance's
+    /// configured <see cref="ArgsCode"/> and <see cref="TestMethodName"/> properties.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(
+    ///     testDataCollection,
+    ///     ArgsCode.Properties,
+    ///     "TestAdd");
+    /// 
+    /// // AddRow uses Convert internally:
+    /// data.AddRow(new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12));
+    /// 
+    /// // Internally:
+    /// // 1. AddRow calls Convert(testDataCollection)
+    /// // 2. Convert calls ConvertRow(testDataCollection, "TestAdd")
+    /// // 3. ConvertRow creates TheoryTestDataRow(testDataCollection, ArgsCode.Properties, "TestAdd")
+    /// </code>
+    /// </example>
+    /// <seealso cref="ConvertRow"/>
+    /// <seealso cref="AddRow"/>
+    /// <seealso cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Convert(TDataDeclarationPointer)"/>
+    protected override ITheoryTestDataRow Convert(TTestData row)
+    => ConvertRow(testData: row);
+
+    #endregion
+
+    #region ITheoryTestData<TTestData> implementation
+
+    /// <summary>
+    /// Adds a test data item to the collection using the builder pattern.
+    /// </summary>
+    /// <param name="testData">
+    /// The Portamical test data to convert and add to the collection.
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// <strong>Builder Pattern:</strong>
+    /// </para>
+    /// <para>
+    /// This method implements the builder pattern, allowing incremental construction of test data:
+    /// </para>
+    /// <code>
+    /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(...);
+    /// data.AddRow(testData2);  // ← Builder method
+    /// data.AddRow(testData3);  // ← Builder method
+    /// </code>
+    /// <para>
+    /// <strong>Delegation Chain:</strong>
+    /// </para>
+    /// <para>
+    /// This method delegates to <see cref="Add"/> after converting the test data:
+    /// </para>
+    /// <code>
+    /// AddRow(testDataCollection)
+    ///   ↓ calls
+    /// Convert(testDataCollection)  // Uses ArgsCode, TestMethodName
+    ///   ↓ calls
+    /// ConvertRow(testDataCollection, ArgsCode, TestMethodName)
+    ///   ↓ creates
+    /// TheoryTestDataRow&lt;TTestData&gt;
+    ///   ↓ passed to
+    /// Add(row)  // Type validation + Deduplication + add to base collection
+    /// </code>
+    /// <para>
+    /// <strong>Automatic Deduplication:</strong>
+    /// </para>
+    /// <para>
+    /// Duplicate test cases (same <see cref="INamedCase.TestCaseName"/>) are silently ignored by
+    /// <see cref="Add"/>. See <see cref="Add"/> for details.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(
+    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
+    ///     ArgsCode.Properties,
+    ///     "TestAdd");
+    /// 
+    /// // Add rows using builder pattern:
+    /// data.AddRow(new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12));
+    /// data.AddRow(new TestDataReturns&lt;int&gt;("Add(-1,1)", [-1, 1], 0));
+    /// 
+    /// // data.Count == 3
+    /// </code>
+    /// </example>
+    /// <seealso cref="Add"/>
+    /// <seealso cref="Convert(TTestData)"/>
+    /// <seealso cref="ITestDataProvider{TTestData}.AddRow"/>
+    public void AddRow(TTestData testData)
+    => Add(ConvertRow(testData));
 
     /// <summary>
     /// Converts Portamical test data to an xUnit v3 theory test data row using instance <see cref="ArgsCode"/> configuration.
@@ -571,15 +714,15 @@ where TTestData : notnull, ITestData
     /// //             ^^^^^^^^^^^^^^^^^^^ Uses this.TestMethodName
     /// 
     /// // ConvertRow (public) - explicit testMethodName parameter:
-    /// public ITheoryTestDataRow ConvertRow(TTestData testData, string? testMethodName)
-    /// =&gt; new TheoryTestDataRow&lt;TTestData&gt;(testData, ArgsCode, testMethodName);
+    /// public ITheoryTestDataRow ConvertRow(TTestData testDataCollection, string? testMethodName)
+    /// =&gt; new TheoryTestDataRow&lt;TTestData&gt;(testDataCollection, ArgsCode, testMethodName);
     /// //                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode, explicit testMethodName
     /// </code>
     /// </remarks>
     /// <example>
     /// <code>
     /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(
-    ///     testData,
+    ///     testDataCollection,
     ///     ArgsCode.Properties,
     ///     "TestAdd");
     /// 
@@ -597,134 +740,50 @@ where TTestData : notnull, ITestData
     /// </example>
     /// <seealso cref="Convert(TTestData)"/>
     /// <seealso cref="AddRow"/>
-    public ITheoryTestDataRow ConvertRow(
-        TTestData testData)
+    public ITheoryTestDataRow ConvertRow(TTestData testData)
     => new TheoryTestDataRow<TTestData>(
         testData,
         ArgsCode,
         TestMethodName);
 
-    /// <summary>
-    /// Converts Portamical test data to an xUnit v3 theory test data row using instance configuration.
-    /// </summary>
-    /// <param name="row">
-    /// The Portamical test data to convert.
-    /// </param>
-    /// <returns>
-    /// An <see cref="ITheoryTestDataRow"/> instance containing the converted test data, using
-    /// <see cref="ArgsCode"/> and <see cref="TestMethodName"/> from this instance.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Template Method Implementation:</strong>
-    /// </para>
-    /// <para>
-    /// This method implements the abstract <see cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Convert(TDataDeclarationPointer)"/>
-    /// template method from xUnit v3's <see cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}"/> base class.
-    /// </para>
-    /// <para>
-    /// It delegates to <see cref="ConvertRow"/> with instance configuration:
-    /// </para>
-    /// <code>
-    /// protected override ITheoryTestDataRow Convert(TTestData row)
-    /// =&gt; ConvertRow(testData: row, TestMethodName);
-    /// //            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Uses this.ArgsCode (implicitly), this.TestMethodName
-    /// </code>
-    /// <para>
-    /// <strong>Usage:</strong>
-    /// </para>
-    /// <para>
-    /// This method is called internally by <see cref="AddRow"/> to convert test data using the instance's
-    /// configured <see cref="ArgsCode"/> and <see cref="TestMethodName"/> properties.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(
-    ///     testData,
-    ///     ArgsCode.Properties,
-    ///     "TestAdd");
-    /// 
-    /// // AddRow uses Convert internally:
-    /// data.AddRow(new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12));
-    /// 
-    /// // Internally:
-    /// // 1. AddRow calls Convert(testData)
-    /// // 2. Convert calls ConvertRow(testData, "TestAdd")
-    /// // 3. ConvertRow creates TheoryTestDataRow(testData, ArgsCode.Properties, "TestAdd")
-    /// </code>
-    /// </example>
-    /// <seealso cref="ConvertRow"/>
-    /// <seealso cref="AddRow"/>
-    /// <seealso cref="TheoryDataBase{TTheoryDataRow, TDataDeclarationPointer}.Convert(TDataDeclarationPointer)"/>
-    protected override ITheoryTestDataRow Convert(TTestData row)
-    => ConvertRow(testData: row);
-
-    /// <summary>
-    /// Adds a test data item to the collection using the builder pattern.
-    /// </summary>
-    /// <param name="testData">
-    /// The Portamical test data to convert and add to the collection.
-    /// </param>
-    /// <remarks>
-    /// <para>
-    /// <strong>Builder Pattern:</strong>
-    /// </para>
-    /// <para>
-    /// This method implements the builder pattern, allowing incremental construction of test data:
-    /// </para>
-    /// <code>
-    /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(...);
-    /// data.AddRow(testData2);  // ← Builder method
-    /// data.AddRow(testData3);  // ← Builder method
-    /// </code>
-    /// <para>
-    /// <strong>Delegation Chain:</strong>
-    /// </para>
-    /// <para>
-    /// This method delegates to <see cref="Add"/> after converting the test data:
-    /// </para>
-    /// <code>
-    /// AddRow(testData)
-    ///   ↓ calls
-    /// Convert(testData)  // Uses ArgsCode, TestMethodName
-    ///   ↓ calls
-    /// ConvertRow(testData, ArgsCode, TestMethodName)
-    ///   ↓ creates
-    /// TheoryTestDataRow&lt;TTestData&gt;
-    ///   ↓ passed to
-    /// Add(row)  // Type validation + Deduplication + add to base collection
-    /// </code>
-    /// <para>
-    /// <strong>Automatic Deduplication:</strong>
-    /// </para>
-    /// <para>
-    /// Duplicate test cases (same <see cref="INamedCase.TestCaseName"/>) are silently ignored by
-    /// <see cref="Add"/>. See <see cref="Add"/> for details.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// var data = new TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt;(
-    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
-    ///     ArgsCode.Properties,
-    ///     "TestAdd");
-    /// 
-    /// // Add rows using builder pattern:
-    /// data.AddRow(new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12));
-    /// data.AddRow(new TestDataReturns&lt;int&gt;("Add(-1,1)", [-1, 1], 0));
-    /// 
-    /// // data.Count == 3
-    /// </code>
-    /// </example>
-    /// <seealso cref="Add"/>
-    /// <seealso cref="Convert(TTestData)"/>
-    /// <seealso cref="ITestDataProvider{TTestData}.AddRow"/>
-    public void AddRow(TTestData testData)
-    => Add(ConvertRow(testData));
-
     public ITheoryTestDataRow[] GetRows()
     => [.. this];
+
+    public ITheoryTestDataRow? GetRow(string testCaseName)
+    => GetRow(context: testCaseName,
+        matchFound: namedCase => namedCase.HasName(testCaseName));
+
+    public ITheoryTestDataRow? GetRow(INamedCase namedCase)
+    => GetRow(context: namedCase,
+        matchFound: namedCase.Equals);
+
+    public string[] GetTestCaseNames()
+    {
+        var testCaseNames = new string[_namedCases.Count];
+        int i = 0;
+
+        foreach (var namedCase in _namedCases)
+        {
+            testCaseNames[i++] = namedCase.TestCaseName;
+        }
+
+        return testCaseNames;
+    }
+
+    #endregion
+
+    #region Helpers
+
+    private ITheoryTestDataRow? GetRow<T>(T context, Func<INamedCase, bool> matchFound)
+    {
+        if (context is null) return default;
+
+        return _namedCases.Where(matchFound)
+            .Select(namedCase => (ITheoryTestDataRow)namedCase)
+            .FirstOrDefault();
+    }
+
+    #endregion
 
     #endregion
 }

@@ -25,7 +25,7 @@ namespace Portamical.Converters.Tasks.ArrayTasks.CustomRow;
 /// </remarks>
 public static class CollectionConverter
 {
-    #region ToRowArray
+    #region ToArrayTask
 
     /// <summary>
     /// Asynchronously converts a collection of test data into an array of rows using a custom conversion
@@ -115,7 +115,7 @@ public static class CollectionConverter
 
     #endregion
 
-    #region ToDistinctRowArray
+    #region ToDistinctArrayTask
 
     /// <summary>
     /// Asynchronously converts a collection of test data into a distinct array of rows using a custom

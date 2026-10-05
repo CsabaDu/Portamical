@@ -228,4 +228,4 @@ namespace Portamical.xUnit_v3.TestDataTypes;
 /// <seealso cref="ArgsCode"/>
 public interface ITheoryTestDataRow
 : ITheoryDataRow,
-  INamedCase;
+INamedCase;

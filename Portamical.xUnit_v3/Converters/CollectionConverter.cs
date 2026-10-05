@@ -3,7 +3,13 @@
 
 using Portamical.xUnit_v3.DataProviders.Model;
 using Portamical.xUnit_v3.TestDataTypes;
-using static Portamical.Converters.DataProviders.Converted.CollectionConverter;
+using Portamical.xUnit_v3.TestDataTypes.Model;
+using Portamical.Converters.DataProviders.CustomRow;
+using Portamical.Converters.Tasks.ArrayTasks.CustomRow;
+using Portamical.Converters.RowArrays.CustomRow;
+using Portamical.Converters.AsyncEnumerables.CustomRow;
+using Portamical.Converters;
+using Portamical.DataProviders.Models.ObjectArray;
 
 namespace Portamical.xUnit_v3.Converters;
 
@@ -24,7 +30,7 @@ namespace Portamical.xUnit_v3.Converters;
 ///     <description>Deduplication</description>
 ///   </listheader>
 ///   <item>
-///     <term><see cref="ToTheoryTestData{TTestData}"/></term>
+///     <term><see cref="ToDataProvider{TTestData}"/></term>
 ///     <description><see cref="TheoryTestData{TTestData}"/></description>
 ///     <description>Portamical collection with builder pattern</description>
 ///     <description>✅ Automatic (via HashSet)</description>
@@ -55,9 +61,9 @@ namespace Portamical.xUnit_v3.Converters;
 /// IEnumerable&lt;TTestData&gt;.ToDistinctReadOnly(convertRow, argsCode, testMethodName)
 /// 
 /// // xUnit v3 facade (this class):
-/// testDataCollection.ToTheoryTestData(...)
+/// testDataCollection.ToDataProvider(...)
 ///   ↓ delegates to
-/// ToDataProvider(TestDataConverter.ToTheoryTestData, ...)
+/// ToDataProvider(TestDataConverter.ToDataProvider, ...)
 ///   ↓ uses xUnit v3-specific converter
 /// TheoryTestData&lt;TTestData&gt;
 /// </code>
@@ -69,7 +75,7 @@ namespace Portamical.xUnit_v3.Converters;
 /// All methods automatically remove duplicate test cases based on <see cref="INamedCase.TestCaseName"/> equality:
 /// <list type="bullet">
 ///   <item><description>
-///     <see cref="ToTheoryTestData{TTestData}"/> - Uses <see cref="TheoryTestData{TTestData}"/>'s internal HashSet
+///     <see cref="ToDataProvider{TTestData}"/> - Uses <see cref="TheoryTestData{TTestData}"/>'s internal HashSet
 ///   </description></item>
 ///   <item><description>
 ///     <see cref="ToTheoryTestDataRowCollection{TTestData}"/> - Uses LINQ's <c>Distinct()</c> with <see cref="INamedCase"/> comparer
@@ -84,7 +90,7 @@ namespace Portamical.xUnit_v3.Converters;
 /// <strong>Choosing the Right Method:</strong>
 /// </para>
 /// <para>
-/// <strong>Use <see cref="ToTheoryTestData{TTestData}"/> when:</strong>
+/// <strong>Use <see cref="ToDataProvider{TTestData}"/> when:</strong>
 /// <list type="bullet">
 ///   <item><description>You need builder pattern (adding rows incrementally after batch conversion)</description></item>
 ///   <item><description>You want Portamical's collection features (ArgsCode, TestMethodName configuration)</description></item>
@@ -95,7 +101,7 @@ namespace Portamical.xUnit_v3.Converters;
 /// <strong>Use <see cref="ToTheoryTestDataRowCollection{TTestData}"/> when:</strong>
 /// <list type="bullet">
 ///   <item><description>You need <see cref="INamedCase"/> interface (for manual deduplication or filtering)</description></item>
-///   <item><description>You want Portamical's row features (TestCaseName, Equals, GetHashCode)</description></item>
+///   <item><description>You want Portamical's theoryDataRow features (TestCaseName, Equals, GetHashCode)</description></item>
 ///   <item><description>You prefer immutable read-only collections</description></item>
 /// </list>
 /// </para>
@@ -109,7 +115,7 @@ namespace Portamical.xUnit_v3.Converters;
 /// </para>
 /// </remarks>
 /// <example>
-/// <para><strong>Example 1: ToTheoryTestData (Builder Pattern + Deduplication)</strong></para>
+/// <para><strong>Example 1: ToDataProvider (Builder Pattern + Deduplication)</strong></para>
 /// <code>
 /// using Xunit;
 /// using Portamical.xUnit_v3.Converters;
@@ -126,7 +132,7 @@ namespace Portamical.xUnit_v3.Converters;
 ///     public static TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt; GetAddTestData()
 ///     {
 ///         // Batch convert to Portamical collection:
-///         var data = AddTestData.ToTheoryTestData(
+///         var data = AddTestData.ToDataProvider(
 ///             ArgsCode.Properties,
 ///             testMethodName: "TestAdd");
 ///         
@@ -164,7 +170,7 @@ namespace Portamical.xUnit_v3.Converters;
 ///     
 ///     public static IReadOnlyCollection&lt;ITheoryTestDataRow&gt; GetAddTestData()
 ///     {
-///         // Batch convert to Portamical row collection (immutable):
+///         // Batch convert to Portamical theoryDataRow collection (immutable):
 ///         return AddTestData.ToTheoryTestDataRowCollection(
 ///             ArgsCode.Properties,
 ///             testMethodName: "TestAdd");
@@ -190,7 +196,7 @@ namespace Portamical.xUnit_v3.Converters;
 ///         new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12)
 ///     };
 ///     
-///     // Batch convert to xUnit v3 native row collection (lightweight):
+///     // Batch convert to xUnit v3 native theoryDataRow collection (lightweight):
 ///     return testData.ToTheoryDataRowCollection(
 ///         ArgsCode.Properties,
 ///         testMethodName: "TestAdd");
@@ -207,7 +213,7 @@ namespace Portamical.xUnit_v3.Converters;
 /// };
 /// 
 /// // All methods automatically remove duplicates:
-/// var collection1 = testData.ToTheoryTestData(ArgsCode.Properties, null);
+/// var collection1 = testData.ToDataProvider(ArgsCode.Properties, null);
 /// // collection1.Count == 2 (duplicate removed)
 /// 
 /// var collection2 = testData.ToTheoryTestDataRowCollection(ArgsCode.Properties, null);
@@ -224,6 +230,15 @@ namespace Portamical.xUnit_v3.Converters;
 /// <seealso cref="ArgsCode"/>
 public static class CollectionConverter
 {
+    public static ITheoryTestDataRow[] ToDistinctRowArray<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctRowArray<TTestData, ITheoryTestDataRow>(
+        convertRow: TestDataConverter.ToTheoryTestDataRow,
+        argsCode, testMethodName);
+
     /// <summary>
     /// Converts a collection of Portamical test data to a <see cref="TheoryTestData{TTestData}"/> collection
     /// with builder pattern and automatic deduplication.
@@ -265,7 +280,7 @@ public static class CollectionConverter
     /// </para>
     /// <code>
     /// testDataCollection.ToDataProvider(
-    ///     initDataProvider: TestDataConverter.ToTheoryTestData,  // ← xUnit v3 factory
+    ///     initDataProvider: TestDataConverter.ToDataProvider,  // ← xUnit v3 factory
     ///     argsCode,
     ///     testMethodName);
     /// </code>
@@ -277,7 +292,7 @@ public static class CollectionConverter
     /// allowing additional rows to be added after batch conversion:
     /// </para>
     /// <code>
-    /// var data = testDataCollection.ToTheoryTestData(ArgsCode.Properties, "TestAdd");
+    /// var data = testDataCollection.ToDataProvider(ArgsCode.Properties, "TestAdd");
     /// 
     /// // Add more rows using builder pattern:
     /// data.AddRow(new TestDataReturns&lt;int&gt;("Add(10,20)", [10, 20], 30));
@@ -316,7 +331,7 @@ public static class CollectionConverter
     /// 
     /// // Batch convert to TheoryTestData collection:
     /// TheoryTestData&lt;TestDataReturns&lt;int&gt;&gt; collection =
-    ///     testData.ToTheoryTestData(
+    ///     testData.ToDataProvider(
     ///         ArgsCode.Properties,
     ///         testMethodName: "TestAdd");
     /// 
@@ -336,265 +351,42 @@ public static class CollectionConverter
     public static TheoryTestData<TTestData> ToTheoryTestData<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
-        string? testMethodName = null)
+        string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDataProvider<TheoryTestData<TTestData>, TTestData, ITheoryTestDataRow>(
-        initDataProvider: TestDataConverter.ToTheoryTestData,
-        argsCode,
-        testMethodName);
+    => new(testDataCollection, argsCode, testMethodName);
 
-    /// <summary>
-    /// Converts a collection of Portamical test data to an immutable read-only collection of
-    /// <see cref="ITheoryTestDataRow"/> (Portamical rows with <see cref="INamedCase"/> support).
-    /// </summary>
-    /// <typeparam name="TTestData">
-    /// The type of test data, which must be a reference type implementing <see cref="ITestData"/>.
-    /// </typeparam>
-    /// <param name="testDataCollection">
-    /// The collection of Portamical test data to convert.
-    /// </param>
-    /// <param name="argsCode">
-    /// Specifies how to convert test data to test method arguments:
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Instance"/> - Pass entire <see cref="ITestData"/> object as single argument
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
-    ///   </description></item>
-    /// </list>
-    /// </param>
-    /// <param name="testMethodName">
-    /// Optional test method name to prepend to test case names in display names.
-    /// </param>
-    /// <returns>
-    /// An immutable <see cref="IReadOnlyCollection{T}"/> of <see cref="ITheoryTestDataRow"/> containing
-    /// converted test data rows, with duplicates removed based on <see cref="INamedCase.TestCaseName"/>.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Delegation to Framework-Agnostic Base:</strong>
-    /// </para>
-    /// <para>
-    /// This method delegates to <c>Portamical.Converters.CollectionConverter.ToDistinctReadOnly</c>, which is
-    /// framework-agnostic and shared across NUnit, MSTest, and xUnit adapters. This method provides
-    /// xUnit v3-specific configuration by injecting <see cref="TestDataConverter.ToTheoryTestDataRow{TTestData}"/>
-    /// as the row converter:
-    /// </para>
-    /// <code>
-    /// testDataCollection.ToDistinctReadOnly(
-    ///     convertRow: TestDataConverter.ToTheoryTestDataRow,  // ← xUnit v3 converter
-    ///     argsCode,
-    ///     testMethodName);
-    /// </code>
-    /// <para>
-    /// <strong>Immutable Collection:</strong>
-    /// </para>
-    /// <para>
-    /// The returned collection is immutable (<see cref="IReadOnlyCollection{T}"/>), meaning rows cannot be
-    /// added or removed after creation. This is different from <see cref="ToTheoryTestData{TTestData}"/>,
-    /// which returns a mutable collection with builder pattern support.
-    /// </para>
-    /// <para>
-    /// <strong>Automatic Deduplication:</strong>
-    /// </para>
-    /// <para>
-    /// The underlying <c>ToDistinctReadOnly</c> method automatically removes duplicate test cases using
-    /// LINQ's <c>Distinct()</c> with <see cref="INamedCase"/> comparer (equality based on <c>TestCaseName</c>).
-    /// </para>
-    /// <para>
-    /// <strong>Portamical Row Features:</strong>
-    /// </para>
-    /// <para>
-    /// Each row in the collection is of type <see cref="TheoryTestDataRow{TTestData}"/>, which implements:
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     <see cref="ITheoryTestDataRow"/> - xUnit v3 compatibility (custom display names, skip, timeout, traits)
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="INamedCase"/> - Test case naming with equality and hashing based on <c>TestCaseName</c>
-    ///   </description></item>
-    /// </list>
-    /// </para>
-    /// <para>
-    /// <strong>vs. ToTheoryTestData:</strong>
-    /// </para>
-    /// <para>
-    /// Use <see cref="ToTheoryTestData{TTestData}"/> when you need builder pattern (adding rows after batch conversion).
-    /// Use <see cref="ToTheoryTestDataRowCollection{TTestData}"/> when you prefer immutable collections.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// var testData = new[]
-    /// {
-    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
-    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12),
-    ///     new TestDataReturns&lt;int&gt;("Add(-1,1)", [-1, 1], 0)
-    /// };
-    /// 
-    /// // Batch convert to immutable Portamical row collection:
-    /// IReadOnlyCollection&lt;ITheoryTestDataRow&gt; rows =
-    ///     testData.ToTheoryTestDataRowCollection(
-    ///         ArgsCode.Properties,
-    ///         testMethodName: "TestAdd");
-    /// 
-    /// // rows.Count == 3
-    /// // rows is immutable (cannot add/remove rows)
-    /// 
-    /// // Each row implements ITheoryTestDataRow + INamedCase:
-    /// foreach (var row in rows)
-    /// {
-    ///     string? displayName = row.TestDisplayName;  // "TestAdd - Add(2,3)", etc.
-    ///     string testCaseName = row.TestCaseName;     // "Add(2,3)", etc.
-    ///     object?[] data = row.GetData();             // [2, 3, 5], etc.
-    /// }
-    /// </code>
-    /// </example>
-    /// <seealso cref="ToTheoryTestData{TTestData}"/>
-    /// <seealso cref="ToTheoryDataRowCollection{TTestData}"/>
-    /// <seealso cref="ITheoryTestDataRow"/>
-    /// <seealso cref="TestDataConverter.ToTheoryTestDataRow{TTestData}"/>
-    public static IReadOnlyCollection<ITheoryTestDataRow> ToTheoryTestDataRowCollection<TTestData>(
+    public static TTheoryData ToDistinctTheoryData<TTestData, TTheoryData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
-        string? testMethodName = null)
+        string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray(
+    where TTheoryData : TheoryData, new()
+    => testDataCollection.ToDistinctConvertedRows<TTestData, TTheoryData>(
+        addConvertedRow: (theoryData, testData) =>
+        {
+            var theoryDataRow = new TheoryDataRow(testData.ToArgs(argsCode))
+            {
+                TestDisplayName = testData.GetDisplayName(testMethodName),
+            };
+
+            theoryData.Add(theoryDataRow);
+        });
+
+    public static Task<ITheoryTestDataRow[]> ToDistinctRowArrayTask<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctArrayTask<TTestData, ITheoryTestDataRow>(
         convertRow: TestDataConverter.ToTheoryTestDataRow,
-        argsCode,
-        testMethodName);
+        argsCode, testMethodName);
 
-    /// <summary>
-    /// Converts a collection of Portamical test data to an immutable read-only collection of
-    /// <see cref="ITheoryDataRow"/> (xUnit v3 native rows, lightweight).
-    /// </summary>
-    /// <typeparam name="TTestData">
-    /// The type of test data, which must be a reference type implementing <see cref="ITestData"/>.
-    /// </typeparam>
-    /// <param name="testDataCollection">
-    /// The collection of Portamical test data to convert.
-    /// </param>
-    /// <param name="argsCode">
-    /// Specifies how to convert test data to test method arguments:
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Instance"/> - Pass entire <see cref="ITestData"/> object as single argument
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
-    ///   </description></item>
-    /// </list>
-    /// </param>
-    /// <param name="testMethodName">
-    /// Optional test method name to prepend to test case names in display names.
-    /// </param>
-    /// <returns>
-    /// An immutable <see cref="IReadOnlyCollection{T}"/> of <see cref="ITheoryDataRow"/> (xUnit v3's built-in type)
-    /// containing converted test data rows, with duplicates removed.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>xUnit v3 Native Rows (Lightweight):</strong>
-    /// </para>
-    /// <para>
-    /// This method creates xUnit v3's built-in <see cref="Xunit.v3.TheoryDataRow"/> instead of Portamical's
-    /// <see cref="TheoryTestDataRow{TTestData}"/>. The key differences:
-    /// </para>
-    /// <list type="table">
-    ///   <listheader>
-    ///     <term>Feature</term>
-    ///     <description>Portamical (ToTheoryTestDataRowCollection)</description>
-    ///     <description>xUnit Native (ToTheoryDataRowCollection)</description>
-    ///   </listheader>
-    ///   <item>
-    ///     <term>Return Type</term>
-    ///     <description><see cref="IReadOnlyCollection{T}"/> of <see cref="ITheoryTestDataRow"/></description>
-    ///     <description><see cref="IReadOnlyCollection{T}"/> of <see cref="ITheoryDataRow"/></description>
-    ///   </item>
-    ///   <item>
-    ///     <term>INamedCase</term>
-    ///     <description>✅ Yes (deduplication support)</description>
-    ///     <description>❌ No (deduplication via underlying conversion)</description>
-    ///   </item>
-    ///   <item>
-    ///     <term>Weight</term>
-    ///     <description>Heavier (Portamical features)</description>
-    ///     <description>Lighter (xUnit built-in)</description>
-    ///   </item>
-    /// </list>
-    /// <para>
-    /// <strong>Delegation to Framework-Agnostic Base:</strong>
-    /// </para>
-    /// <para>
-    /// This method delegates to <c>Portamical.Converters.CollectionConverter.ToDistinctReadOnly</c>,
-    /// injecting <see cref="TestDataConverter.ToTheoryDataRow{TTestData}"/> as the row converter:
-    /// </para>
-    /// <code>
-    /// testDataCollection.ToDistinctReadOnly(
-    ///     convertRow: TestDataConverter.ToTheoryDataRow,  // ← xUnit v3 native converter
-    ///     argsCode,
-    ///     testMethodName);
-    /// </code>
-    /// <para>
-    /// <strong>Automatic Deduplication:</strong>
-    /// </para>
-    /// <para>
-    /// Although the returned rows don't implement <see cref="INamedCase"/>, deduplication still occurs
-    /// during conversion because the underlying conversion process uses <c>ToDistinctReadOnly</c>, which
-    /// removes duplicates based on <see cref="ITestData.TestCaseName"/> before creating xUnit rows.
-    /// </para>
-    /// <para>
-    /// <strong>When to Use xUnit Native Rows:</strong>
-    /// </para>
-    /// <para>
-    /// Use this method when:
-    /// <list type="bullet">
-    ///   <item><description>You don't need Portamical's <see cref="INamedCase"/> features</description></item>
-    ///   <item><description>You want lightweight xUnit v3 integration</description></item>
-    ///   <item><description>You prefer xUnit v3's built-in types</description></item>
-    /// </list>
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// var testData = new[]
-    /// {
-    ///     new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
-    ///     new TestDataReturns&lt;int&gt;("Add(5,7)", [5, 7], 12),
-    ///     new TestDataReturns&lt;int&gt;("Add(-1,1)", [-1, 1], 0)
-    /// };
-    /// 
-    /// // Batch convert to xUnit v3 native row collection (lightweight):
-    /// IReadOnlyCollection&lt;ITheoryDataRow&gt; rows =
-    ///     testData.ToTheoryDataRowCollection(
-    ///         ArgsCode.Properties,
-    ///         testMethodName: "TestAdd");
-    /// 
-    /// // rows.Count == 3
-    /// // rows is immutable (cannot add/remove rows)
-    /// 
-    /// // Each row is xUnit's built-in TheoryDataRow:
-    /// foreach (var row in rows)
-    /// {
-    ///     string? displayName = row.TestDisplayName;  // "TestAdd - Add(2,3)", etc.
-    ///     object?[] data = row.GetData();             // [2, 3, 5], etc.
-    ///     
-    ///     // No INamedCase members available (not implemented)
-    /// }
-    /// </code>
-    /// </example>
-    /// <seealso cref="ToTheoryTestData{TTestData}"/>
-    /// <seealso cref="ToTheoryTestDataRowCollection{TTestData}"/>
-    /// <seealso cref="ITheoryDataRow"/>
-    /// <seealso cref="TestDataConverter.ToTheoryDataRow{TTestData}"/>
-    public static IReadOnlyCollection<ITheoryDataRow> ToTheoryDataRowCollection<TTestData>(
+    public static IAsyncEnumerable<ITheoryTestDataRow> ToDistinctAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
-        string? testMethodName = null)
+        string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray(
-        convertRow: TestDataConverter.ToTheoryDataRow,
-        argsCode,
-        testMethodName);
+    => testDataCollection.ToDistinctAsyncRowEnumerable<TTestData, ITheoryTestDataRow>(
+        convertRow: TestDataConverter.ToTheoryTestDataRow,
+        argsCode, testMethodName);
 }

@@ -13,11 +13,11 @@ namespace Portamical.Processing;
 /// and iterate the items in a consistent way.
 /// </para>
 /// <para>
-/// The helpers in this type are used when the caller needs to process each test data item directly, while still
+/// The helpers in this type are used when the caller needs to processor each test data item directly, while still
 /// optionally skipping the first item and/or removing duplicates by <see cref="INamedCase.TestCaseName"/>.
 /// </para>
 /// <para>
-/// Instances of this type track already-seen <see cref="INamedCase"/> identities via <see cref="namedCases"/>,
+/// Instances of this type track already-seen <see cref="INamedCase"/> identities via <see cref="_namedCases"/>,
 /// which enables the identity-based deduplication used by <see cref="ProcessIfDistinct{TTestData}(TTestData, Action{TTestData})"/>
 /// and the static <see cref="ProcessCollection{TTestData}(IEnumerable{TTestData}, Action{TTestData}, bool, bool)"/> helper.
 /// </para>
@@ -29,62 +29,62 @@ public sealed class TestDataProcessor
     /// </summary>
     /// <remarks>
     /// The set is compared using <see cref="NamedCase.Comparer"/>, based on <see cref="INamedCase.TestCaseName"/>.
-    /// Callers may pre-populate this set (e.g., to mark an item as already seen without invoking an process for it)
+    /// Callers may pre-populate this set (e.g., to mark an item as already seen without invoking an processor for it)
     /// before calling <see cref="ProcessIfDistinct{TTestData}(TTestData, Action{TTestData})"/>.
     /// </remarks>
-    private readonly HashSet<INamedCase> namedCases = new(NamedCase.Comparer);
+    private readonly HashSet<INamedCase> _namedCases = new(NamedCase.Comparer);
 
     /// <summary>
-    /// Invokes <paramref name="process"/> for <paramref name="testData"/> only if its
-    /// <see cref="INamedCase.TestCaseName"/> has not already been registered in <see cref="namedCases"/>.
+    /// Invokes <paramref name="processor"/> for <paramref name="testData"/> only if its
+    /// <see cref="INamedCase.TestCaseName"/> has not already been registered in <see cref="_namedCases"/>.
     /// </summary>
-    /// <typeparam name="TTestData">The type of test data to process. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
-    /// <param name="testData">The test data item to conditionally process.</param>
-    /// <param name="process">
-    /// The process to invoke when <paramref name="testData"/> has not already been seen. If <see langword="null"/>,
-    /// no process is invoked, but <paramref name="testData"/> is still registered in <see cref="namedCases"/>.
+    /// <typeparam name="TTestData">The type of test data to processor. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
+    /// <param name="testData">The test data item to conditionally processor.</param>
+    /// <param name="processor">
+    /// The processor to invoke when <paramref name="testData"/> has not already been seen. If <see langword="null"/>,
+    /// no processor is invoked, but <paramref name="testData"/> is still registered in <see cref="_namedCases"/>.
     /// </param>
     /// <returns>
-    /// <see langword="false"/> if <paramref name="testData"/> was already registered in <see cref="namedCases"/>
-    /// (the item is a duplicate and <paramref name="process"/> is never invoked); <see langword="null"/> if
-    /// <paramref name="testData"/> was newly registered but <paramref name="process"/> is <see langword="null"/>;
+    /// <see langword="false"/> if <paramref name="testData"/> was already registered in <see cref="_namedCases"/>
+    /// (the item is a duplicate and <paramref name="processor"/> is never invoked); <see langword="null"/> if
+    /// <paramref name="testData"/> was newly registered but <paramref name="processor"/> is <see langword="null"/>;
     /// otherwise <see langword="true"/> after <paramref name="testData"/> was newly registered and
-    /// <paramref name="process"/> was invoked.
+    /// <paramref name="processor"/> was invoked.
     /// </returns>
     /// <remarks>
     /// Uses <see cref="HashSet{T}.Add(T)"/> as an atomic seen-check-and-register operation: if
-    /// <paramref name="testData"/> is successfully added to <see cref="namedCases"/> (i.e., it was not
-    /// already present), <paramref name="process"/> is invoked (when non-<see langword="null"/>); otherwise
+    /// <paramref name="testData"/> is successfully added to <see cref="_namedCases"/> (i.e., it was not
+    /// already present), <paramref name="processor"/> is invoked (when non-<see langword="null"/>); otherwise
     /// the item is skipped as a duplicate.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool? ProcessIfDistinct<TTestData>(
         TTestData testData,
-        Action<TTestData>? process)
+        Action<TTestData>? processor)
     where TTestData : notnull, ITestData
     {
-        if (!namedCases.Add(testData))
+        if (!_namedCases.Add(testData))
         {
             return false;
         }
 
-        if (process is null)
+        if (processor is null)
         {
             return null;
         }
 
-        process(testData);
+        processor(testData);
 
         return true;
     }
 
     /// <summary>
-    /// Validates a sequence of strongly typed test data, snapshots it, and invokes an process for each item.
+    /// Validates a sequence of strongly typed test data, snapshots it, and invokes an processor for each item.
     /// </summary>
-    /// <typeparam name="TTestData">The type of test data to process. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
-    /// <param name="testDataCollection">The source sequence of test data to process. Cannot be <see langword="null"/> or empty.</param>
-    /// <param name="process">
-    /// The process to invoke for each processed item. If <see langword="null"/>, no process is invoked for any
+    /// <typeparam name="TTestData">The type of test data to processor. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
+    /// <param name="testDataCollection">The source sequence of test data to processor. Cannot be <see langword="null"/> or empty.</param>
+    /// <param name="processor">
+    /// The processor to invoke for each processed item. If <see langword="null"/>, no processor is invoked for any
     /// item, but the snapshot is still validated, deduplication (when requested) still registers seen items,
     /// and no exception is thrown.
     /// </param>
@@ -94,7 +94,7 @@ public sealed class TestDataProcessor
     /// contains more than one item.
     /// </param>
     /// <param name="skipFirst">
-    /// When <see langword="true"/>, the first item in the snapshot is excluded from the process callback.
+    /// When <see langword="true"/>, the first item in the snapshot is excluded from the processor callback.
     /// This is useful when the caller has already handled the first item separately, such as during container setup.
     /// If <paramref name="removeDuplicates"/> is also <see langword="true"/>, the first item is still registered as
     /// seen so later duplicates of that item are skipped.
@@ -112,13 +112,13 @@ public sealed class TestDataProcessor
     /// <see cref="ProcessIfDistinct{TTestData}(TTestData, Action{TTestData})"/> is invoked for each candidate item.
     /// </para>
     /// <para>
-    /// When deduplication is not required (or the snapshot has a single item) and <paramref name="process"/> is
+    /// When deduplication is not required (or the snapshot has a single item) and <paramref name="processor"/> is
     /// <see langword="null"/>, the snapshot is not iterated at all, since there is no work to perform.
     /// </para>
     /// </remarks>
     public static void ProcessCollection<TTestData>(
         IEnumerable<TTestData> testDataCollection,
-        Action<TTestData>? process,
+        Action<TTestData>? processor,
         bool removeDuplicates,
         bool skipFirst)
     where TTestData : notnull, ITestData
@@ -130,19 +130,19 @@ public sealed class TestDataProcessor
 
         if (removeDuplicates && count > 1)
         {
-            var testDataProcessor = new TestDataProcessor();
+            var instance = new TestDataProcessor();
 
             if (skipFirst)
             {
-                _ = testDataProcessor.namedCases.Add(snapshot[0]);
+                _ = instance._namedCases.Add(snapshot[0]);
             }
 
             processSnapshot(processTestData: testData =>
-                _ = testDataProcessor.ProcessIfDistinct(testData, process));
+                _ = instance.ProcessIfDistinct(testData, processor));
         }
-        else if (process is not null)
+        else if (processor is not null)
         {
-            processSnapshot(processTestData: process);
+            processSnapshot(processTestData: processor);
         }
 
         #region Local methods

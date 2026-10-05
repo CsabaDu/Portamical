@@ -57,7 +57,7 @@ namespace Portamical.Core.TestDataTypes.Models;
 /// </para>
 /// </remarks>
 public abstract class TestDataBase(string definition)
-    : NamedCase, ITestData
+: NamedCase, ITestData
 {
     #region Fields
 

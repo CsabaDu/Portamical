@@ -58,7 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Portamical.Shared\Portamical.Shared.csproj" />
+    <ProjectReference Include="..\Portamical\Portamical.csproj" />
   </ItemGroup>
 
   <ItemGroup>

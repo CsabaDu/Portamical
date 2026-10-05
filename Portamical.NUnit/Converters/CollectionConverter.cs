@@ -1,8 +1,11 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
-using Portamical.NUnit.TestDataTypes;
+using Portamical.Converters.RowArrays.CustomRow;
+using Portamical.NUnit.DataProviders.Models.TestCaseTestData;
+using Portamical.Converters.Tasks.ArrayTasks.CustomRow;
+using Portamical.Converters.AsyncEnumerables.CustomRow;
+using Portamical.NUnit.TestDataTypes.Models;
 
 namespace Portamical.NUnit.Converters;
 
@@ -46,174 +49,6 @@ namespace Portamical.NUnit.Converters;
 /// </remarks>
 public static class CollectionConverter
 {
-    /// <summary>
-    /// Converts a collection of Portamical test data to a read-only collection of NUnit's base
-    /// <see cref="TestCaseData"/> instances, removing duplicates based on test case name.
-    /// </summary>
-    /// <typeparam name="TTestData">
-    /// The type of the test data, which must implement <see cref="ITestData"/>.
-    /// </typeparam>
-    /// <param name="testDataCollection">
-    /// The collection of Portamical test data to convert.
-    /// </param>
-    /// <param name="argsCode">
-    /// Specifies the test data representation strategy:
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Instance"/> - Pass entire test data object as single argument
-    ///     (Shared Style: framework-agnostic test methods)
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
-    ///     (Native Style: idiomatic NUnit test methods)
-    ///   </description></item>
-    /// </list>
-    /// </param>
-    /// <param name="testMethodName">
-    /// Optional test method name to prepend to each test case name in the display name.
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     If provided and non-empty: Display name = "testMethodName - TestCaseName"
-    ///   </description></item>
-    ///   <item><description>
-    ///     If <c>null</c> or empty: Display name = "TestCaseName"
-    ///   </description></item>
-    /// </list>
-    /// </param>
-    /// <returns>
-    /// A read-only collection of <see cref="TestCaseData"/> instances with duplicates removed
-    /// (based on <see cref="INamedCase.TestCaseName"/> equality).
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This method delegates to <see cref="Portamical.Converters"/> extension method
-    /// <c>ToDistinctReadOnly</c>, which:
-    /// <list type="number">
-    ///   <item><description>
-    ///     Converts each test data item using <see cref="TestDataConverter.ToTestCaseData{TTestData}"/>
-    ///   </description></item>
-    ///   <item><description>
-    ///     Removes duplicate test cases (those with identical <see cref="INamedCase.TestCaseName"/>)
-    ///   </description></item>
-    ///   <item><description>
-    ///     Returns an immutable read-only collection
-    ///   </description></item>
-    /// </list>
-    /// </para>
-    /// <para>
-    /// <strong>Primary Use Case:</strong> Batch conversion for <c>[TestCaseSource]</c> attributes.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <para><strong>Example 1: Shared Style (ArgsCode.Instance)</strong></para>
-    /// <code>
-    /// [TestFixture]
-    /// public class CalculatorTests
-    /// {
-    ///     private static IEnumerable&lt;TestCaseData&gt; SharedStyleTests()
-    ///     {
-    ///         var testData = new[]
-    ///         {
-    ///             new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
-    ///             new TestDataReturns&lt;int&gt;("Add(0,0)", [0, 0], 0)
-    ///         };
-    ///         
-    ///         // Pass entire test data object as single argument
-    ///         return testData.ToTestCaseDataCollection(
-    ///             ArgsCode.Instance,
-    ///             nameof(TestAddShared));
-    ///     }
-    ///     
-    ///     [TestCaseSource(nameof(SharedStyleTests))]
-    ///     public void TestAddShared(TestDataReturns&lt;int&gt; testData)
-    ///     {
-    ///         // Framework-agnostic test method
-    ///         var args = testData.Args;
-    ///         var expected = testData.Expected;
-    ///         
-    ///         int result = Calculator.Add((int)args[0], (int)args[1]);
-    ///         Assert.That(result, Is.EqualTo(expected));
-    ///     }
-    /// }
-    /// 
-    /// // NUnit Test Explorer displays:
-    /// // ✓ TestAddShared - Add(2,3)
-    /// // ✓ TestAddShared - Add(0,0)
-    /// </code>
-    /// 
-    /// <para><strong>Example 2: Native Style (ArgsCode.Properties)</strong></para>
-    /// <code>
-    /// [TestFixture]
-    /// public class CalculatorTests
-    /// {
-    ///     private static IEnumerable&lt;TestCaseData&gt; NativeStyleTests()
-    ///     {
-    ///         var testData = new[]
-    ///         {
-    ///             new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
-    ///             new TestDataReturns&lt;int&gt;("Add(0,0)", [0, 0], 0),
-    ///             new TestDataReturns&lt;int&gt;("Add(2,3)", [5, 7], 12)  // Duplicate name (removed)
-    ///         };
-    ///         
-    ///         // Pass flattened properties as separate arguments
-    ///         return testData.ToTestCaseDataCollection(
-    ///             ArgsCode.Properties,
-    ///             nameof(TestAddNative));
-    ///     }
-    ///     
-    ///     [TestCaseSource(nameof(NativeStyleTests))]
-    ///     public void TestAddNative(int x, int y)
-    ///     {
-    ///         // Idiomatic NUnit test method
-    ///         int result = Calculator.Add(x, y);
-    ///         // NUnit automatically compares result with ExpectedResult
-    ///     }
-    /// }
-    /// 
-    /// // NUnit Test Explorer displays:
-    /// // ✓ TestAddNative - Add(2,3)
-    /// // ✓ TestAddNative - Add(0,0)
-    /// // (Duplicate "Add(2,3)" removed)
-    /// </code>
-    /// 
-    /// <para><strong>Example 3: Generic Test Method (ArgsCode.Properties)</strong></para>
-    /// <code>
-    /// private static IEnumerable&lt;TestCaseData&gt; GenericTests()
-    /// {
-    ///     var testData = new[]
-    ///     {
-    ///         new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
-    ///         new TestDataReturns&lt;string&gt;("Concat", ["Hello", "World"], "HelloWorld")
-    ///     };
-    ///     
-    ///     return testData.ToTestCaseDataCollection(
-    ///         ArgsCode.Properties,
-    ///         nameof(TestGeneric));
-    ///     // Sets TypeArgs for generic test method instantiation
-    /// }
-    /// 
-    /// [TestCaseSource(nameof(GenericTests))]
-    /// public void TestGeneric&lt;T&gt;(T arg1, T arg2)
-    /// {
-    ///     // NUnit uses TypeArgs to instantiate:
-    ///     // TestGeneric&lt;int&gt;(2, 3)
-    ///     // TestGeneric&lt;string&gt;("Hello", "World")
-    /// }
-    /// </code>
-    /// </example>
-    /// <seealso cref="ToTestCaseTestDataCollection{TTestData}"/>
-    /// <seealso cref="TestDataConverter.ToTestCaseData{TTestData}"/>
-    /// <seealso cref="ArgsCode"/>
-    public static IReadOnlyCollection<TestCaseData> ToTestCaseDataCollection<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode,
-        string? testMethodName = null)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray(
-        TestDataConverter.ToTestCaseData,
-        argsCode,
-        testMethodName);
-
     /// <summary>
     /// Converts a collection of Portamical test data to a read-only collection of
     /// <see cref="TestCaseTestData{TTestData}"/> instances (rich NUnit adapter with
@@ -307,13 +142,206 @@ public static class CollectionConverter
     /// <seealso cref="ToTestCaseDataCollection{TTestData}"/>
     /// <seealso cref="TestDataConverter.ToTestCaseTestData{TTestData}"/>
     /// <seealso cref="ArgsCode"/>
-    public static IReadOnlyCollection<TestCaseTestData<TTestData>> ToTestCaseTestDataCollection<TTestData>(
+    public static TestCaseTestData<TTestData>[] ToDistinctRowArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
-        string? testMethodName = null)
+        string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray(
-        TestDataConverter.ToTestCaseTestData,
-        argsCode,
-        testMethodName);
+    => testDataCollection.ToDistinctRowArray(ConvertRow, argsCode, testMethodName);
+
+    public static TestDataProvider<TTestData> ToDataProvider<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => new(testDataCollection, argsCode, testMethodName);
+
+    public static Task<TestCaseTestData<TTestData>[]> ToDistinctArrayTask<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctArrayTask(ConvertRow, argsCode, testMethodName);
+
+    public static IAsyncEnumerable<TestCaseTestData<TTestData>> ToDistinctAsyncRowEnumerable<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctAsyncRowEnumerable(ConvertRow, argsCode, testMethodName);
+
+    private static TestCaseTestData<TTestData> ConvertRow<TTestData>(
+        TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => new(testData, argsCode, testMethodName);
+
+    ///// <summary>
+    ///// Converts a collection of Portamical test data to a read-only collection of NUnit's base
+    ///// <see cref="TestCaseData"/> instances, removing duplicates based on test case name.
+    ///// </summary>
+    ///// <typeparam name="TTestData">
+    ///// The type of the test data, which must implement <see cref="ITestData"/>.
+    ///// </typeparam>
+    ///// <param name="testDataCollection">
+    ///// The collection of Portamical test data to convert.
+    ///// </param>
+    ///// <param name="argsCode">
+    ///// Specifies the test data representation strategy:
+    ///// <list type="bullet">
+    /////   <item><description>
+    /////     <see cref="ArgsCode.Instance"/> - Pass entire test data object as single argument
+    /////     (Shared Style: framework-agnostic test methods)
+    /////   </description></item>
+    /////   <item><description>
+    /////     <see cref="ArgsCode.Properties"/> - Pass flattened properties as separate arguments
+    /////     (Native Style: idiomatic NUnit test methods)
+    /////   </description></item>
+    ///// </list>
+    ///// </param>
+    ///// <param name="testMethodName">
+    ///// Optional test method name to prepend to each test case name in the display name.
+    ///// <list type="bullet">
+    /////   <item><description>
+    /////     If provided and non-empty: Display name = "testMethodName - TestCaseName"
+    /////   </description></item>
+    /////   <item><description>
+    /////     If <c>null</c> or empty: Display name = "TestCaseName"
+    /////   </description></item>
+    ///// </list>
+    ///// </param>
+    ///// <returns>
+    ///// A read-only collection of <see cref="TestCaseData"/> instances with duplicates removed
+    ///// (based on <see cref="INamedCase.TestCaseName"/> equality).
+    ///// </returns>
+    ///// <remarks>
+    ///// <para>
+    ///// This method delegates to <see cref="Portamical.Converters"/> extension method
+    ///// <c>ToDistinctReadOnly</c>, which:
+    ///// <list type="number">
+    /////   <item><description>
+    /////     Converts each test data item using <see cref="TestDataConverter.ToTestCaseData{TTestData}"/>
+    /////   </description></item>
+    /////   <item><description>
+    /////     Removes duplicate test cases (those with identical <see cref="INamedCase.TestCaseName"/>)
+    /////   </description></item>
+    /////   <item><description>
+    /////     Returns an immutable read-only collection
+    /////   </description></item>
+    ///// </list>
+    ///// </para>
+    ///// <para>
+    ///// <strong>Primary Use Case:</strong> Batch conversion for <c>[TestCaseSource]</c> attributes.
+    ///// </para>
+    ///// </remarks>
+    ///// <example>
+    ///// <para><strong>Example 1: Shared Style (ArgsCode.Instance)</strong></para>
+    ///// <code>
+    ///// [TestFixture]
+    ///// public class CalculatorTests
+    ///// {
+    /////     private static IEnumerable&lt;TestCaseData&gt; SharedStyleTests()
+    /////     {
+    /////         var testData = new[]
+    /////         {
+    /////             new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
+    /////             new TestDataReturns&lt;int&gt;("Add(0,0)", [0, 0], 0)
+    /////         };
+    /////         
+    /////         // Pass entire test data object as single argument
+    /////         return testData.ToTestCaseDataCollection(
+    /////             ArgsCode.Instance,
+    /////             nameof(TestAddShared));
+    /////     }
+    /////     
+    /////     [TestCaseSource(nameof(SharedStyleTests))]
+    /////     public void TestAddShared(TestDataReturns&lt;int&gt; testData)
+    /////     {
+    /////         // Framework-agnostic test method
+    /////         var args = testData.Args;
+    /////         var expected = testData.Expected;
+    /////         
+    /////         int result = Calculator.Add((int)args[0], (int)args[1]);
+    /////         Assert.That(result, Is.EqualTo(expected));
+    /////     }
+    ///// }
+    ///// 
+    ///// // NUnit Test Explorer displays:
+    ///// // ✓ TestAddShared - Add(2,3)
+    ///// // ✓ TestAddShared - Add(0,0)
+    ///// </code>
+    ///// 
+    ///// <para><strong>Example 2: Native Style (ArgsCode.Properties)</strong></para>
+    ///// <code>
+    ///// [TestFixture]
+    ///// public class CalculatorTests
+    ///// {
+    /////     private static IEnumerable&lt;TestCaseData&gt; NativeStyleTests()
+    /////     {
+    /////         var testData = new[]
+    /////         {
+    /////             new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
+    /////             new TestDataReturns&lt;int&gt;("Add(0,0)", [0, 0], 0),
+    /////             new TestDataReturns&lt;int&gt;("Add(2,3)", [5, 7], 12)  // Duplicate name (removed)
+    /////         };
+    /////         
+    /////         // Pass flattened properties as separate arguments
+    /////         return testData.ToTestCaseDataCollection(
+    /////             ArgsCode.Properties,
+    /////             nameof(TestAddNative));
+    /////     }
+    /////     
+    /////     [TestCaseSource(nameof(NativeStyleTests))]
+    /////     public void TestAddNative(int x, int y)
+    /////     {
+    /////         // Idiomatic NUnit test method
+    /////         int result = Calculator.Add(x, y);
+    /////         // NUnit automatically compares result with ExpectedResult
+    /////     }
+    ///// }
+    ///// 
+    ///// // NUnit Test Explorer displays:
+    ///// // ✓ TestAddNative - Add(2,3)
+    ///// // ✓ TestAddNative - Add(0,0)
+    ///// // (Duplicate "Add(2,3)" removed)
+    ///// </code>
+    ///// 
+    ///// <para><strong>Example 3: Generic Test Method (ArgsCode.Properties)</strong></para>
+    ///// <code>
+    ///// private static IEnumerable&lt;TestCaseData&gt; GenericTests()
+    ///// {
+    /////     var testData = new[]
+    /////     {
+    /////         new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5),
+    /////         new TestDataReturns&lt;string&gt;("Concat", ["Hello", "World"], "HelloWorld")
+    /////     };
+    /////     
+    /////     return testData.ToTestCaseDataCollection(
+    /////         ArgsCode.Properties,
+    /////         nameof(TestGeneric));
+    /////     // Sets TypeArgs for generic test method instantiation
+    ///// }
+    ///// 
+    ///// [TestCaseSource(nameof(GenericTests))]
+    ///// public void TestGeneric&lt;T&gt;(T arg1, T arg2)
+    ///// {
+    /////     // NUnit uses TypeArgs to instantiate:
+    /////     // TestGeneric&lt;int&gt;(2, 3)
+    /////     // TestGeneric&lt;string&gt;("Hello", "World")
+    ///// }
+    ///// </code>
+    ///// </example>
+    ///// <seealso cref="ToTestCaseTestDataCollection{TTestData}"/>
+    ///// <seealso cref="TestDataConverter.ToTestCaseData{TTestData}"/>
+    ///// <seealso cref="ArgsCode"/>
+    //public static IReadOnlyCollection<TestCaseData> ToTestCaseDataCollection<TTestData>(
+    //    this IEnumerable<TTestData> testDataCollection,
+    //    ArgsCode argsCode,
+    //    string? testMethodName = null)
+    //where TTestData : notnull, ITestData
+    //=> testDataCollection.ToDistinctRowArray(
+    //    TestDataConverter.ToTestCaseData,
+    //    argsCode,
+    //    testMethodName);
 }

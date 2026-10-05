@@ -179,7 +179,7 @@ public abstract class NamedCase : INamedCase
 
             if (x is null || y is null) return false;
 
-            return x.HasName(y.TestCaseName);
+            return HasName(x, y.TestCaseName);
         }
 
         /// <summary>
@@ -261,7 +261,7 @@ public abstract class NamedCase : INamedCase
     /// and <see cref="Equals(INamedCase)"/>).
     /// </remarks>
     public bool HasName(string? testCaseName)
-    => string.Equals(TestCaseName, testCaseName, StringComparison.Ordinal);
+    => HasName(this, testCaseName);
 
     #region IEquatable<INamedCase> Implementation
 
@@ -319,6 +319,12 @@ public abstract class NamedCase : INamedCase
     #endregion
 
     #region Static Methods
+
+    public static bool HasName(INamedCase? namedCase, string? testCaseName)
+    => namedCase is not null &&
+        testCaseName is not null &&
+        string.Equals(namedCase.TestCaseName, testCaseName,
+            StringComparison.Ordinal);
 
     /// <summary>
     /// Implicitly converts a <see cref="NamedCase"/> instance to its <see cref="TestCaseName"/> string.

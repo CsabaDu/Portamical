@@ -583,6 +583,8 @@ ITheoryTestDataRow
 
     #region Methods
 
+    #region INamedCase implementation
+
     /// <summary>
     /// Determines whether this test case is contained in the specified collection of named cases.
     /// </summary>
@@ -625,6 +627,57 @@ ITheoryTestDataRow
     => Contains(this, namedCases);
 
     /// <summary>
+    /// Creates a display name for the test case by combining the test method name with the test case name.
+    /// </summary>
+    /// <param name="testMethodName">
+    /// Optional test method name to prepend to the test case name.
+    /// <list type="bullet">
+    ///   <item><description>
+    ///     If provided and non-empty: Returns "testMethodName - TestCaseName"
+    ///   </description></item>
+    ///   <item><description>
+    ///     If <c>null</c> or empty: Returns just "TestCaseName"
+    ///   </description></item>
+    /// </list>
+    /// </param>
+    /// <returns>
+    /// A display name formatted as "testMethodName - TestCaseName" or just "TestCaseName" if
+    /// <paramref name="testMethodName"/> is <c>null</c> or empty.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This method delegates to the static helper <see cref="NamedCase.CreateDisplayName(string?, string)"/>,
+    /// which handles the logic for combining the method name and test case name with a " - " separator.
+    /// </para>
+    /// <para>
+    /// <strong>Use Case:</strong>
+    /// </para>
+    /// <para>
+    /// This method is called during construction to populate <see cref="TheoryDataRowBase.TestDisplayName"/>,
+    /// which is used by xUnit v3 to display test names in the Test Explorer.
+    /// </para>
+    /// <para>
+    /// <strong>Format Examples:</strong>
+    /// </para>
+    /// <code>
+    /// // With testMethodName:
+    /// GetDisplayName("TestAdd")
+    /// // Returns: "TestAdd - Add(2,3)"
+    /// 
+    /// // Without testMethodName:
+    /// GetDisplayName(null)
+    /// // Returns: "Add(2,3)"
+    /// </code>
+    /// </remarks>
+    /// <seealso cref="TheoryDataRowBase.TestDisplayName"/>
+    /// <seealso cref="NamedCase.CreateDisplayName(string?, string)"/>
+    public string? GetDisplayName(string? testMethodName)
+    => CreateDisplayName(testMethodName, TestCaseName);
+
+    public bool HasName(string? testCaseName)
+    => NamedCase.HasName(this, testCaseName);
+
+    /// <summary>
     /// Determines whether this test case is equal to another named case based on <see cref="TestCaseName"/>.
     /// </summary>
     /// <param name="other">
@@ -664,6 +717,10 @@ ITheoryTestDataRow
     /// <seealso cref="NamedCase.Comparer"/>
     public bool Equals(INamedCase? other)
     => Comparer.Equals(this, other);
+
+    #endregion
+
+    #region object overrides
 
     /// <summary>
     /// Determines whether this test case is equal to the specified object.
@@ -714,54 +771,6 @@ ITheoryTestDataRow
     => Equals(obj as INamedCase);
 
     /// <summary>
-    /// Creates a display name for the test case by combining the test method name with the test case name.
-    /// </summary>
-    /// <param name="testMethodName">
-    /// Optional test method name to prepend to the test case name.
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     If provided and non-empty: Returns "testMethodName - TestCaseName"
-    ///   </description></item>
-    ///   <item><description>
-    ///     If <c>null</c> or empty: Returns just "TestCaseName"
-    ///   </description></item>
-    /// </list>
-    /// </param>
-    /// <returns>
-    /// A display name formatted as "testMethodName - TestCaseName" or just "TestCaseName" if
-    /// <paramref name="testMethodName"/> is <c>null</c> or empty.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This method delegates to the static helper <see cref="NamedCase.CreateDisplayName(string?, string)"/>,
-    /// which handles the logic for combining the method name and test case name with a " - " separator.
-    /// </para>
-    /// <para>
-    /// <strong>Use Case:</strong>
-    /// </para>
-    /// <para>
-    /// This method is called during construction to populate <see cref="TheoryDataRowBase.TestDisplayName"/>,
-    /// which is used by xUnit v3 to display test names in the Test Explorer.
-    /// </para>
-    /// <para>
-    /// <strong>Format Examples:</strong>
-    /// </para>
-    /// <code>
-    /// // With testMethodName:
-    /// GetDisplayName("TestAdd")
-    /// // Returns: "TestAdd - Add(2,3)"
-    /// 
-    /// // Without testMethodName:
-    /// GetDisplayName(null)
-    /// // Returns: "Add(2,3)"
-    /// </code>
-    /// </remarks>
-    /// <seealso cref="TheoryDataRowBase.TestDisplayName"/>
-    /// <seealso cref="NamedCase.CreateDisplayName(string?, string)"/>
-    public string? GetDisplayName(string? testMethodName)
-    => CreateDisplayName(testMethodName, TestCaseName);
-
-    /// <summary>
     /// Returns a hash code for this test case based on its <see cref="TestCaseName"/>.
     /// </summary>
     /// <returns>
@@ -808,7 +817,12 @@ ITheoryTestDataRow
     public override int GetHashCode()
     => Comparer.GetHashCode(this);
 
-    #region Non-Public Methods
+    public override string ToString()
+    => TestCaseName;
+
+    #endregion
+
+    #region TheoryDataRowBase overrides
 
     /// <summary>
     /// Returns the cached test method arguments.

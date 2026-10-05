@@ -26,7 +26,7 @@ namespace Portamical.Converters.AsyncEnumerables.CustomRow;
 /// </remarks>
 public static class CollectionConverter
 {
-    #region ToRowArray
+    #region ToAsyncRowEnumerable
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of rows using a custom
@@ -116,7 +116,7 @@ public static class CollectionConverter
 
     #endregion
 
-    #region ToDistinctRowArray
+    #region ToDistinctAsyncRowEnumerable
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of distinct rows using a

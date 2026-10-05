@@ -1,7 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters;
+using Portamical.Converters.AsyncEnumerables.ObjectArray;
+using Portamical.Converters.RowArrays.ObjectArray;
+using Portamical.Converters.Tasks.ArrayTasks.ObjectArray;
+using Portamical.DataProviders.Models.ObjectArray;
 
 namespace Portamical.MSTest.Converters;
 
@@ -51,6 +54,10 @@ namespace Portamical.MSTest.Converters;
 /// </remarks>
 public static class CollectionConverter
 {
+    // Prepends all ITestData properties before args
+    // Array format: [TestCaseName, arg1, arg2, ...]
+    private const PropsCode PropsCodeAll = PropsCode.All;
+
     /// <summary>
     /// Converts a collection of Portamical test data into MSTest-compatible parameter arrays
     /// with test case names prepended for identification.
@@ -272,13 +279,27 @@ public static class CollectionConverter
     /// <seealso cref="PropsCode"/>
     /// <seealso cref="ITestData"/>
     /// <seealso cref="INamedCase.TestCaseName"/>
-    public static IReadOnlyCollection<object?[]> ToArgsWithTestCaseName<TTestData>(
+    public static object?[][] ToDistinctRowArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArray(
-        argsCode,
-        // Prepends all ITestData properties before args
-        // Array format: [TestCaseName, arg1, arg2, ...]
-        PropsCode.All);
+    => testDataCollection.ToDistinctRowArray(argsCode, PropsCodeAll);
+
+    public static TestDataProvider<TTestData> ToDataProvider<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode)
+    where TTestData : notnull, ITestData
+    => new(testDataCollection, argsCode, PropsCodeAll);
+
+    public static Task<object?[][]> ToDistinctArrayTask<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctArrayTask(argsCode, PropsCodeAll);
+
+    public static IAsyncEnumerable<object?[]> ToDistinctAsyncRowEnumerable<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode)
+    where TTestData : notnull, ITestData
+    => testDataCollection.ToDistinctAsyncRowEnumerable(argsCode, PropsCodeAll);
 }

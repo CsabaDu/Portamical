@@ -3,8 +3,9 @@
 
 using NUnit.Framework.Interfaces;
 using Portamical.Core.Identity.Model;
+using Portamical.NUnit.TestDataTypes.Models;
 using System.Reflection;
-using static Portamical.NUnit.TestDataTypes.TestCaseTestData;
+using static Portamical.NUnit.TestDataTypes.Models.TestCaseTestData;
 
 namespace Portamical.NUnit.Attributes;
 
@@ -236,6 +237,7 @@ public abstract class PortamicalBaseDataAttribute(
         };
 
         #region Local Methods
+
         /// <summary>
         /// Validates that the source type is appropriate for test data provision.
         /// </summary>
@@ -326,6 +328,7 @@ public abstract class PortamicalBaseDataAttribute(
                 "Ensure it exists and is public static.",
                 nameof(sourceName));
         }
+
         #endregion
     }
 
@@ -448,6 +451,7 @@ public abstract class PortamicalBaseDataAttribute(
         }
 
         #region Local Functions
+
         /// <summary>
         /// Determines whether a test method should have its display name enhanced.
         /// </summary>
@@ -465,6 +469,7 @@ public abstract class PortamicalBaseDataAttribute(
             return hasFullNameProperty is bool hasFullName &&
                 !hasFullName;
         }
+
         #endregion
     }
 }

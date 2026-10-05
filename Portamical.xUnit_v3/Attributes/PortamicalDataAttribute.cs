@@ -594,7 +594,7 @@ public abstract class PortamicalBaseDataAttribute
                 argsCode = ArgsCode.Instance;
             }
 
-            return testData.ToTheoryTestDataRow(argsCode);
+            return testData.ToTheoryTestDataRow(argsCode, null);
         }
 
         mergeTraits(theoryTestDataRow, Traits);

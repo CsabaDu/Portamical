@@ -95,7 +95,7 @@ public static class Formatter
     /// <strong>Thread Safety:</strong> All operations (register, unregister, lookup) are thread-safe.
     /// </para>
     /// </remarks>
-    private static readonly ConcurrentDictionary<Type, IFormatter> _registry = new();
+    private static readonly ConcurrentDictionary<Type, IFormatter> registry = new();
 
     /// <summary>
     /// Gets the internal formatter registry for testing purposes.
@@ -113,7 +113,7 @@ public static class Formatter
     /// </para>
     /// </remarks>
     public static IReadOnlyDictionary<Type, IFormatter> Registry
-    => _registry;
+    => registry;
 
     /// <summary>
     /// Registers a custom formatter for a specific type.
@@ -171,7 +171,7 @@ public static class Formatter
         ArgumentNullException.ThrowIfNull(type);
         ArgumentNullException.ThrowIfNull(formatter);
 
-        return _registry.TryAdd(type, formatter);
+        return registry.TryAdd(type, formatter);
     }
 
     /// <summary>
@@ -240,7 +240,7 @@ public static class Formatter
     {
         ArgumentNullException.ThrowIfNull(type);
 
-        return _registry.TryRemove(type, out _);
+        return registry.TryRemove(type, out _);
     }
 
     /// <summary>
@@ -297,7 +297,7 @@ public static class Formatter
     {
         ArgumentNullException.ThrowIfNull(type);
 
-        return _registry.ContainsKey(type);
+        return registry.ContainsKey(type);
     }
 
     /// <summary>
@@ -348,7 +348,7 @@ public static class Formatter
     /// ]]></code>
     /// </example>
     public static void ClearFormatters()
-    => _registry.Clear();
+    => registry.Clear();
 
     #endregion
 
@@ -400,7 +400,7 @@ public static class Formatter
             return DefaultFormatter.Instance;
         }
 
-        if (_registry.TryGetValue(type, out var formatter))
+        if (registry.TryGetValue(type, out var formatter))
         {
             return formatter;
         }

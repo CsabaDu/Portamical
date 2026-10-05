@@ -76,7 +76,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
     => testDataCollection.ToDataProvider<TDataProvider, TTestData, TRow>(
-        testData => NotNull(initDataProvider, nameof(initDataProvider))(
+        initDataProvider: testData => NotNull(initDataProvider, nameof(initDataProvider))(
             testData,
             argsCode,
             testMethodName));
@@ -139,7 +139,7 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TDataProvider : notnull, ITestDataProvider<TTestData, TRow>
     => testDataCollection.ToDistinctDataProvider<TDataProvider, TTestData, TRow>(
-        testData => NotNull(initDataProvider, nameof(initDataProvider))(
+        initDataProvider: testData => NotNull(initDataProvider, nameof(initDataProvider))(
             testData,
             argsCode,
             testMethodName));

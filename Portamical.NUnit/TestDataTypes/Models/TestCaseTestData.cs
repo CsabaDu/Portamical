@@ -2,11 +2,12 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Core.Identity;
+using Portamical.Core.Identity.Model;
 using Portamical.Core.Safety;
 using System.Diagnostics.CodeAnalysis;
 using static Portamical.Core.Identity.Model.NamedCase;
 
-namespace Portamical.NUnit.TestDataTypes;
+namespace Portamical.NUnit.TestDataTypes.Models;
 
 /// <summary>
 /// Represents a base class for NUnit test case data that bridges Portamical test data
@@ -326,106 +327,109 @@ public abstract class TestCaseTestData
     public override sealed int GetHashCode()
     => Comparer.GetHashCode(this);
 
-    /// <summary>
-    /// Configures a test case with display name properties and returns it for fluent chaining.
-    /// </summary>
-    /// <typeparam name="TTestCaseData">
-    /// The type of the test case data, which must inherit from <see cref="TestCaseData"/>.
-    /// This generic parameter preserves the specific derived type in the return value.
-    /// </typeparam>
-    /// <typeparam name="TTestData">
-    /// The type of the test data, which must implement <see cref="ITestData"/>.
-    /// </typeparam>
-    /// <param name="testCaseData">The test case to configure.</param>
-    /// <param name="testData">The test data containing the test case name and definition.</param>
-    /// <param name="testMethodName">
-    /// Optional test method name. If provided and non-empty, generates a full display name
-    /// ("MethodName - TestCaseName") and sets <see cref="HasFullNameProperty"/> to <c>true</c>.
-    /// If <c>null</c> or empty, uses only the test case name and sets the property to <c>false</c>.
-    /// </param>
-    /// <param name="testName">
-    /// Outputs the computed test name based on whether <paramref name="testMethodName"/> is provided:
-    /// <list type="bullet">
-    ///   <item><description>With method name: "MethodName - TestCaseName"</description></item>
-    ///   <item><description>Without method name: "TestCaseName"</description></item>
-    /// </list>
-    /// </param>
-    /// <returns>
-    /// The configured <paramref name="testCaseData"/> instance, enabling fluent API usage.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This method performs two operations:
-    /// <list type="number">
-    ///   <item><description>
-    ///     Sets the <see cref="HasFullNameProperty"/> property on <paramref name="testCaseData"/>
-    ///     to indicate whether a full display name is used.
-    ///   </description></item>
-    ///   <item><description>
-    ///     Computes the display name via <see cref="ITestData.GetDisplayName(string?)"/> and
-    ///     outputs it through the <paramref name="testName"/> parameter.
-    ///   </description></item>
-    /// </list>
-    /// </para>
-    /// <para>
-    /// The method uses two generic type parameters to preserve type information:
-    /// <list type="bullet">
-    ///   <item><description>
-    ///     <typeparamref name="TTestCaseData"/>: Allows returning the exact type passed in
-    ///   </description></item>
-    ///   <item><description>
-    ///     <typeparamref name="TTestData"/>: Ensures compile-time type safety for test data
-    ///   </description></item>
-    /// </list>
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// <para><strong>With Test Method Name (Full Display Name):</strong></para>
-    /// <code>
-    /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
-    /// var testCase = new TestCaseData(2, 3);
-    /// 
-    /// var configured = SetHasFullNameProperty(testCase, testData, "TestAdd", out var name);
-    /// 
-    /// // Results:
-    /// // configured.Properties["HasFullName"] = true
-    /// // name = "TestAdd - Add(2,3)"
-    /// // configured == testCase (same instance)
-    /// </code>
-    /// 
-    /// <para><strong>Without Test Method Name (Simple Display Name):</strong></para>
-    /// <code>
-    /// var configured = SetHasFullNameProperty(testCase, testData, null, out var name);
-    /// 
-    /// // Results:
-    /// // configured.Properties["HasFullName"] = false
-    /// // name = "Add(2,3)"
-    /// </code>
-    /// </example>
-    /// <seealso cref="HasFullNameProperty"/>
-    /// <seealso cref="ITestData.GetDisplayName(string?)"/>
-    [Obsolete("this method does not have any functionality. " +
-        "Set HasFullName property with Property.Set method of TestCaseData.")]
-    internal static TTestCaseData SetHasFullNameProperty<TTestCaseData, TTestData>(
-        TTestCaseData testCaseData,
-        TTestData testData,
-        string? testMethodName,
-        out string testName)
-    where TTestCaseData : notnull, TestCaseData
-    where TTestData : notnull, ITestData
-    {
-        bool hasFullName = !string.IsNullOrEmpty(testMethodName);
+    public bool HasName(string? testCaseName)
+    => NamedCase.HasName(this, testCaseName);
 
-        testCaseData.Properties.Set(
-            HasFullNameProperty,
-            hasFullName);
+    ///// <summary>
+    ///// Configures a test case with display name properties and returns it for fluent chaining.
+    ///// </summary>
+    ///// <typeparam name="TTestCaseData">
+    ///// The type of the test case data, which must inherit from <see cref="TestCaseData"/>.
+    ///// This generic parameter preserves the specific derived type in the return value.
+    ///// </typeparam>
+    ///// <typeparam name="TTestData">
+    ///// The type of the test data, which must implement <see cref="ITestData"/>.
+    ///// </typeparam>
+    ///// <param name="testCaseData">The test case to configure.</param>
+    ///// <param name="testData">The test data containing the test case name and definition.</param>
+    ///// <param name="testMethodName">
+    ///// Optional test method name. If provided and non-empty, generates a full display name
+    ///// ("MethodName - TestCaseName") and sets <see cref="HasFullNameProperty"/> to <c>true</c>.
+    ///// If <c>null</c> or empty, uses only the test case name and sets the property to <c>false</c>.
+    ///// </param>
+    ///// <param name="testName">
+    ///// Outputs the computed test name based on whether <paramref name="testMethodName"/> is provided:
+    ///// <list type="bullet">
+    /////   <item><description>With method name: "MethodName - TestCaseName"</description></item>
+    /////   <item><description>Without method name: "TestCaseName"</description></item>
+    ///// </list>
+    ///// </param>
+    ///// <returns>
+    ///// The configured <paramref name="testCaseData"/> instance, enabling fluent API usage.
+    ///// </returns>
+    ///// <remarks>
+    ///// <para>
+    ///// This method performs two operations:
+    ///// <list type="number">
+    /////   <item><description>
+    /////     Sets the <see cref="HasFullNameProperty"/> property on <paramref name="testCaseData"/>
+    /////     to indicate whether a full display name is used.
+    /////   </description></item>
+    /////   <item><description>
+    /////     Computes the display name via <see cref="ITestData.GetDisplayName(string?)"/> and
+    /////     outputs it through the <paramref name="testName"/> parameter.
+    /////   </description></item>
+    ///// </list>
+    ///// </para>
+    ///// <para>
+    ///// The method uses two generic type parameters to preserve type information:
+    ///// <list type="bullet">
+    /////   <item><description>
+    /////     <typeparamref name="TTestCaseData"/>: Allows returning the exact type passed in
+    /////   </description></item>
+    /////   <item><description>
+    /////     <typeparamref name="TTestData"/>: Ensures compile-time type safety for test data
+    /////   </description></item>
+    ///// </list>
+    ///// </para>
+    ///// </remarks>
+    ///// <example>
+    ///// <para><strong>With Test Method Name (Full Display Name):</strong></para>
+    ///// <code>
+    ///// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
+    ///// var testCase = new TestCaseData(2, 3);
+    ///// 
+    ///// var configured = SetHasFullNameProperty(testCase, testData, "TestAdd", out var name);
+    ///// 
+    ///// // Results:
+    ///// // configured.Properties["HasFullName"] = true
+    ///// // name = "TestAdd - Add(2,3)"
+    ///// // configured == testCase (same instance)
+    ///// </code>
+    ///// 
+    ///// <para><strong>Without Test Method Name (Simple Display Name):</strong></para>
+    ///// <code>
+    ///// var configured = SetHasFullNameProperty(testCase, testData, null, out var name);
+    ///// 
+    ///// // Results:
+    ///// // configured.Properties["HasFullName"] = false
+    ///// // name = "Add(2,3)"
+    ///// </code>
+    ///// </example>
+    ///// <seealso cref="HasFullNameProperty"/>
+    ///// <seealso cref="ITestData.GetDisplayName(string?)"/>
+    //[Obsolete("this method does not have any functionality. " +
+    //    "Set HasFullName property with Property.Set method of TestCaseData.")]
+    //internal static TTestCaseData SetHasFullNameProperty<TTestCaseData, TTestData>(
+    //    TTestCaseData testCaseData,
+    //    TTestData testData,
+    //    string? testMethodName,
+    //    out string testName)
+    //where TTestCaseData : notnull, TestCaseData
+    //where TTestData : notnull, ITestData
+    //{
+    //    bool hasFullName = !string.IsNullOrEmpty(testMethodName);
 
-        testName = hasFullName ?
-            testData.GetDisplayName(testMethodName)!
-            : testData.TestCaseName;
+    //    testCaseData.Properties.Set(
+    //        HasFullNameProperty,
+    //        hasFullName);
 
-        return testCaseData;
-    }
+    //    testName = hasFullName ?
+    //        testData.GetDisplayName(testMethodName)!
+    //        : testData.TestCaseName;
+
+    //    return testCaseData;
+    //}
 
     /// <summary>
     /// Creates a new <see cref="TestCaseTestData{TTestData}"/> instance from Portamical test data.
@@ -1072,15 +1076,6 @@ where TTestData : notnull, ITestData
         {
             ExpectedResult = returns.GetExpected();
         }
-
-
-        //_ = SetHasFullNameProperty(
-        //    this,
-        //    testData,
-        //    testMethodName,
-        //    out string testName);
-
-        //TestName = testName;
     }
 
     /// <summary>

@@ -41,7 +41,7 @@ namespace Portamical.Converters;
 /// <typeparamref name="TConvertedRows"/> instance itself is not thread-safe unless its type guarantees so.
 /// </para>
 /// </remarks>
-internal static class CollectionConverter
+public static class CollectionConverter
 {
     #region ToConvertedRows
 
@@ -56,14 +56,14 @@ internal static class CollectionConverter
     /// The type of the container that accumulates the converted rows.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to process. Cannot be null or empty.
+    /// The collection of test data to processor. Cannot be null or empty.
     /// </param>
     /// <param name="initConvertedRows">
     /// A function that creates and initializes the <typeparamref name="TConvertedRows"/> container from the
     /// first test data item in the collection.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container. Called once for every item
+    /// An processor that adds a single test data item to the container. Called once for every item
     /// after the first.
     /// </param>
     /// <returns>
@@ -103,10 +103,10 @@ internal static class CollectionConverter
     /// The type of the container that accumulates the converted rows. Must have a public parameterless constructor.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to process. Cannot be null or empty.
+    /// The collection of test data to processor. Cannot be null or empty.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container. Called once for every item
+    /// An processor that adds a single test data item to the container. Called once for every item
     /// in the collection.
     /// </param>
     /// <returns>
@@ -148,14 +148,14 @@ internal static class CollectionConverter
     /// The type of the container that accumulates the converted rows.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to process. Cannot be null or empty.
+    /// The collection of test data to processor. Cannot be null or empty.
     /// </param>
     /// <param name="initConvertedRows">
     /// A function that creates and initializes the <typeparamref name="TConvertedRows"/> container from the
     /// first test data item in the collection.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container. Called only for items whose
+    /// An processor that adds a single test data item to the container. Called only for items whose
     /// <see cref="INamedCase.TestCaseName"/> has not already been seen.
     /// </param>
     /// <returns>
@@ -202,10 +202,10 @@ internal static class CollectionConverter
     /// The type of the container that accumulates the converted rows. Must have a public parameterless constructor.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to process. Cannot be null or empty.
+    /// The collection of test data to processor. Cannot be null or empty.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container. Called only for items whose
+    /// An processor that adds a single test data item to the container. Called only for items whose
     /// <see cref="INamedCase.TestCaseName"/> has not already been seen.
     /// </param>
     /// <returns>
@@ -251,13 +251,13 @@ internal static class CollectionConverter
     /// The type of the container that accumulates the converted rows.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to process. Cannot be null or empty.
+    /// The collection of test data to processor. Cannot be null or empty.
     /// </param>
     /// <param name="initConvertedRows">
     /// A function that creates and initializes the container from the first test data item.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container.
+    /// An processor that adds a single test data item to the container.
     /// </param>
     /// <param name="removeDuplicates">
     /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates
@@ -314,10 +314,10 @@ internal static class CollectionConverter
     /// The type of the container that accumulates the converted rows. Must have a public parameterless constructor.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to process. Cannot be null or empty.
+    /// The collection of test data to processor. Cannot be null or empty.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container.
+    /// An processor that adds a single test data item to the container.
     /// </param>
     /// <param name="removeDuplicates">
     /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates an
@@ -370,7 +370,7 @@ internal static class CollectionConverter
 
         TestDataProcessor.ProcessCollection(
             testDataCollection: snapshot,
-            process: testData => addConvertedRow(convertedRows, testData),
+            processor: testData => addConvertedRow(convertedRows, testData),
             removeDuplicates,
             skipFirst);
 

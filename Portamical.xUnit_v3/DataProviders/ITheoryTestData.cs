@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.DataProviders.CustomRow;
 using Portamical.xUnit_v3.TestDataTypes;
 
 namespace Portamical.xUnit_v3.DataProviders;
