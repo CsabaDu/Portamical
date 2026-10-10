@@ -4,7 +4,7 @@
 using Portamical.Converters.AsyncEnumerables.ObjectArray;
 using Portamical.Converters.RowArrays.ObjectArray;
 using Portamical.Converters.Tasks.ArrayTasks.ObjectArray;
-using Portamical.DataProviders.Models.ObjectArray;
+using Portamical.MSTest.DataProviders.Models;
 
 namespace Portamical.MSTest.Converters;
 
@@ -289,7 +289,7 @@ public static class CollectionConverter
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => new(testDataCollection, argsCode, PropsCodeAll);
+    => new(testDataCollection, argsCode);
 
     public static Task<object?[][]> ToDistinctArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection,

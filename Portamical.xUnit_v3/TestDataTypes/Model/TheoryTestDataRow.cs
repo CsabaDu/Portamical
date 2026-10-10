@@ -479,7 +479,7 @@ ITheoryTestDataRow
     /// // copy.TestDisplayName = "OriginalMethod - Add(2,3)"  ← Preserved from original
     /// </code>
     /// </example>
-    internal TheoryTestDataRow(
+    private TheoryTestDataRow(
         ITheoryTestDataRow other,
         string? testMethodName)
     : this(
@@ -882,6 +882,21 @@ ITheoryTestDataRow
 
     #endregion
 
+    public static ITheoryTestDataRow From(
+        ITheoryTestDataRow other,
+        string? testMethodName)
+    => new TheoryTestDataRow(other, testMethodName);
+
+    public static ITheoryTestDataRow From<TTestData>(
+        TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => TheoryTestDataRow<TTestData>.From(
+        testData,
+        argsCode,
+        testMethodName);
+
     #endregion
 }
 
@@ -987,9 +1002,21 @@ ITheoryTestDataRow
 /// <seealso cref="TheoryTestDataRow"/>
 /// <seealso cref="ITestData"/>
 /// <seealso cref="ArgsCode"/>
-internal sealed class TheoryTestDataRow<TTestData>(
-    TTestData testData,
-    ArgsCode argsCode,
-    string? testMethodName)
-: TheoryTestDataRow(testData, argsCode, testMethodName)
-where TTestData : notnull, ITestData;
+internal sealed class TheoryTestDataRow<TTestData>
+: TheoryTestDataRow
+where TTestData : notnull, ITestData
+{
+    private TheoryTestDataRow(
+        TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+    : base(testData, argsCode, testMethodName)
+    {
+    }
+
+    internal static TheoryTestDataRow<TTestData> From(
+        TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+    => new(testData, argsCode, testMethodName);
+}

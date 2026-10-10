@@ -200,7 +200,7 @@ public static class CollectionConverter
 
             TestDataProcessor.ProcessCollection(
                 testDataCollection: snapshot,
-                processor: testData => rowList.Add(convertRow(testData)),
+                process: testData => rowList.Add(convertRow(testData)),
                 removeDuplicates,
                 skipFirst: false);
 

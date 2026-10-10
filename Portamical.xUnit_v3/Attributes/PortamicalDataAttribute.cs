@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.xUnit_v3.Converters;
 using Portamical.xUnit_v3.TestDataTypes;
 using Portamical.xUnit_v3.TestDataTypes.Model;
 
@@ -428,7 +427,7 @@ public abstract class PortamicalBaseDataAttribute
 
             if (string.IsNullOrEmpty(ttdr.TestDisplayName))
             {
-                ttdr = new TheoryTestDataRow(ttdr, testMethodName);
+                ttdr = TheoryTestDataRow.From(ttdr, testMethodName);
             }
 
             ttdrCollection.Add(ttdr);
@@ -472,7 +471,7 @@ public abstract class PortamicalBaseDataAttribute
     ///     <list type="bullet">
     ///       <item><description>Detects <see cref="ArgsCode"/> from <see cref="MemberDataAttributeBase.Arguments"/> property using pattern matching</description></item>
     ///       <item><description>Defaults to <see cref="ArgsCode.Instance"/> if not provided</description></item>
-    ///       <item><description>Converts to <see cref="ITheoryTestDataRow"/> via <see cref="TestDataConverter.ToTheoryTestDataRow{TTestData}"/></description></item>
+    ///       <item><description>Converts to <see cref="ITheoryTestDataRow"/> via <see cref="TestDataConverter.ConvertToTheoryTestDataRow{TTestData}"/></description></item>
     ///     </list>
     ///   </description></item>
     ///   <item><description>
@@ -579,7 +578,7 @@ public abstract class PortamicalBaseDataAttribute
     /// </example>
     /// <seealso cref="MemberDataAttributeBase.ConvertDataRow(object)"/>
     /// <seealso cref="GetData(MethodInfo, DisposalTracker)"/>
-    /// <seealso cref="TestDataConverter.ToTheoryTestDataRow{TTestData}"/>
+    /// <seealso cref="TestDataConverter.ConvertToTheoryTestDataRow{TTestData}"/>
     protected override ITheoryDataRow ConvertDataRow(object dataRow)
     {
         if (dataRow is not ITheoryTestDataRow theoryTestDataRow)
@@ -589,19 +588,18 @@ public abstract class PortamicalBaseDataAttribute
                 return base.ConvertDataRow(dataRow);
             }
 
-            if (Arguments is not [ArgsCode argsCode])
-            {
-                argsCode = ArgsCode.Instance;
-            }
+            var argsCode = Arguments.FirstOrDefault(a => a is ArgsCode)
+                ?? ArgsCode.Instance;
 
-            return testData.ToTheoryTestDataRow(argsCode, null);
+            return TheoryTestDataRow.From(testData, (ArgsCode)argsCode, null);
         }
 
         mergeTraits(theoryTestDataRow, Traits);
 
-        return new TheoryTestDataRow(theoryTestDataRow, null);
+        return TheoryTestDataRow.From(theoryTestDataRow, null);
 
         #region Local Methods
+
         static void mergeTraits(ITheoryTestDataRow ttdr, string[]? attributeTraits)
         {
             var ttdrTraits = ttdr.Traits;
@@ -618,6 +616,7 @@ public abstract class PortamicalBaseDataAttribute
 
             TestIntrospectionHelper.MergeTraitsInto(traits, attributeTraits);
         }
+
         #endregion
     }
 
@@ -685,9 +684,5 @@ public abstract class PortamicalBaseDataAttribute
 /// <seealso cref="MemberDataAttributeBase"/>
 /// <seealso cref="ITheoryTestDataRow"/>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-public sealed class PortamicalDataAttribute(
-    string memberName,
-    params object[] arguments)
-: PortamicalBaseDataAttribute(
-    memberName,
-    arguments);
+public sealed class PortamicalDataAttribute(string memberName, params object[] arguments)
+: PortamicalBaseDataAttribute(memberName, arguments);

@@ -1,6 +1,15 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.Converters;
+using Portamical.Converters.RowArrays;
+using Portamical.Converters.DataProviders.CustomRow;
+using Portamical.Core.Identity;
+using Portamical.Core.Identity.Model;
+using Portamical.DataProviders.Models.CustomRow;
+using Portamical.Processing;
+using System.Diagnostics;
+
 namespace Portamical.TUnit.Attributes;
 
 /// <summary>
@@ -13,8 +22,10 @@ public abstract class PortamicalBaseDataAttribute<TTestData>(Func<IEnumerable<TT
 : DataSourceGeneratorAttribute<TTestData>
 where TTestData : notnull, ITestData
 {
+    EnvironmentVariableTarget 
     private readonly Func<IEnumerable<TTestData>> _dataFactory = dataFactory;
-
+    private readonly HashSet<INamedCase> _namedCases = new HashSet<INamedCase>(NamedCase.Comparer);
+    private readonly TestDataProcessor processor = new();
     private IEnumerable<TTestData>? _cached;
 
     /// <summary>
@@ -26,9 +37,16 @@ where TTestData : notnull, ITestData
     {
         _cached ??= _dataFactory();
 
+        //return _cached.ToDistinctConvertedRows(
+        //    initConvertedRows: testData => new List<Func<TTestData>>() { () => testData },
+        //    addConvertedRow: (testDataList, testData) => testDataList.Add(() => testData));
+
         foreach (var testData in _cached)
         {
-            yield return () => testData;
+            if (_namedCases.Add(testData))
+            {
+                yield return () => testData;
+            }
         }
     }
 }

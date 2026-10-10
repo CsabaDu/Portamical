@@ -320,6 +320,17 @@ public abstract class NamedCase : INamedCase
 
     #region Static Methods
 
+    /// <summary>
+    /// Determines whether the specified <see cref="INamedCase"/> has the given test case name.
+    /// </summary>
+    /// <param name="namedCase">The named case to check. Can be <see langword="null"/>.</param>
+    /// <param name="testCaseName">The test case name to compare against. Can be <see langword="null"/>.</param>
+    /// <returns>
+    /// <see langword="true"/> if <paramref name="namedCase"/> is not <see langword="null"/>, 
+    /// <paramref name="testCaseName"/> is not <see langword="null"/>, and the
+    /// <see cref="INamedCase.TestCaseName"/> of <paramref name="namedCase"/> equals
+    /// <paramref name="testCaseName"/> using ordinal comparison; otherwise, <see langword="false"/>.
+    /// </returns>
     public static bool HasName(INamedCase? namedCase, string? testCaseName)
     => namedCase is not null &&
         testCaseName is not null &&

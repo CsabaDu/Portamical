@@ -3,9 +3,9 @@
 
 using NUnit.Framework.Interfaces;
 using Portamical.Core.Identity.Model;
-using Portamical.NUnit.TestDataTypes.Models;
+using Portamical.NUnit.TestDataTypes.Model;
 using System.Reflection;
-using static Portamical.NUnit.TestDataTypes.Models.TestCaseTestData;
+using static Portamical.NUnit.TestDataTypes.Model.TestCaseTestData;
 
 namespace Portamical.NUnit.Attributes;
 

@@ -2,7 +2,7 @@
 //// Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 //using Portamical.xUnit_v3.Converters;
-//using Portamical.xUnit_v3.DataProviders.Model;
+//using Portamical.xUnit_v3.DataProviders.Models;
 
 //namespace Portamical.xUnit_v3.TestBases;
 

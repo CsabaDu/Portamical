@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+﻿    // SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 namespace Portamical.Converters.RowArrays.TestData;

@@ -1,15 +1,13 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.xUnit_v3.DataProviders.Model;
+using Portamical.Converters.AsyncEnumerables.CustomRow;
+using Portamical.Converters.RowArrays.CustomRow;
+using Portamical.Converters.Tasks.ArrayTasks.CustomRow;
+using Portamical.xUnit_v3.DataProviders.Models;
 using Portamical.xUnit_v3.TestDataTypes;
 using Portamical.xUnit_v3.TestDataTypes.Model;
-using Portamical.Converters.DataProviders.CustomRow;
-using Portamical.Converters.Tasks.ArrayTasks.CustomRow;
-using Portamical.Converters.RowArrays.CustomRow;
-using Portamical.Converters.AsyncEnumerables.CustomRow;
-using Portamical.Converters;
-using Portamical.DataProviders.Models.ObjectArray;
+
 
 namespace Portamical.xUnit_v3.Converters;
 
@@ -235,9 +233,16 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray<TTestData, ITheoryTestDataRow>(
-        convertRow: TestDataConverter.ToTheoryTestDataRow,
+    => testDataCollection.ToDistinctRowArray(
+        convertRow: TheoryTestDataRow.From,
         argsCode, testMethodName);
+
+    public static TestDataProvider<TTestData> ToDataProvider<TTestData>(
+        this IEnumerable<TTestData> testDataCollection,
+        ArgsCode argsCode,
+        string? testMethodName)
+    where TTestData : notnull, ITestData
+    => new(testDataCollection, argsCode, testMethodName);
 
     /// <summary>
     /// Converts a collection of Portamical test data to a <see cref="TheoryTestData{TTestData}"/> collection
@@ -362,23 +367,16 @@ public static class CollectionConverter
     where TTestData : notnull, ITestData
     where TTheoryData : TheoryData, new()
     => testDataCollection.ToDistinctConvertedRows<TTestData, TTheoryData>(
-        addConvertedRow: (theoryData, testData) =>
-        {
-            var theoryDataRow = new TheoryDataRow(testData.ToArgs(argsCode))
-            {
-                TestDisplayName = testData.GetDisplayName(testMethodName),
-            };
-
-            theoryData.Add(theoryDataRow);
-        });
+        addConvertedRow: (theoryData, testData) => theoryData.Add(
+            [TheoryTestDataRow.From(testData, argsCode, testMethodName)]));
 
     public static Task<ITheoryTestDataRow[]> ToDistinctRowArrayTask<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayTask<TTestData, ITheoryTestDataRow>(
-        convertRow: TestDataConverter.ToTheoryTestDataRow,
+    => testDataCollection.ToDistinctArrayTask(
+        convertRow: TheoryTestDataRow.From,
         argsCode, testMethodName);
 
     public static IAsyncEnumerable<ITheoryTestDataRow> ToDistinctAsyncRowEnumerable<TTestData>(
@@ -386,7 +384,7 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctAsyncRowEnumerable<TTestData, ITheoryTestDataRow>(
-        convertRow: TestDataConverter.ToTheoryTestDataRow,
+    => testDataCollection.ToDistinctAsyncRowEnumerable(
+        convertRow: TheoryTestDataRow.From,
         argsCode, testMethodName);
 }

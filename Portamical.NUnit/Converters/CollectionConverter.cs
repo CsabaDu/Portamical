@@ -2,10 +2,10 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Converters.RowArrays.CustomRow;
-using Portamical.NUnit.DataProviders.Models.TestCaseTestData;
 using Portamical.Converters.Tasks.ArrayTasks.CustomRow;
 using Portamical.Converters.AsyncEnumerables.CustomRow;
-using Portamical.NUnit.TestDataTypes.Models;
+using Portamical.NUnit.TestDataTypes.Model;
+using Portamical.NUnit.DataProviders.Model;
 
 namespace Portamical.NUnit.Converters;
 
@@ -147,7 +147,9 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(ConvertRow, argsCode, testMethodName);
+    => testDataCollection.ToDistinctRowArray(
+        convertRow: TestCaseTestData.From,
+        argsCode, testMethodName);
 
     public static TestDataProvider<TTestData> ToDataProvider<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
@@ -161,21 +163,18 @@ public static class CollectionConverter
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayTask(ConvertRow, argsCode, testMethodName);
+    => testDataCollection.ToDistinctArrayTask(
+        convertRow: TestCaseTestData.From,
+        argsCode, testMethodName);
 
     public static IAsyncEnumerable<TestCaseTestData<TTestData>> ToDistinctAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctAsyncRowEnumerable(ConvertRow, argsCode, testMethodName);
-
-    private static TestCaseTestData<TTestData> ConvertRow<TTestData>(
-        TTestData testData,
-        ArgsCode argsCode,
-        string? testMethodName)
-    where TTestData : notnull, ITestData
-    => new(testData, argsCode, testMethodName);
+    => testDataCollection.ToDistinctAsyncRowEnumerable(
+        convertRow: TestCaseTestData.From,
+        argsCode, testMethodName);
 
     ///// <summary>
     ///// Converts a collection of Portamical test data to a read-only collection of NUnit's base

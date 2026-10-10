@@ -7,7 +7,7 @@ using Portamical.Core.Safety;
 using System.Diagnostics.CodeAnalysis;
 using static Portamical.Core.Identity.Model.NamedCase;
 
-namespace Portamical.NUnit.TestDataTypes.Models;
+namespace Portamical.NUnit.TestDataTypes.Model;
 
 /// <summary>
 /// Represents a base class for NUnit test case data that bridges Portamical test data
@@ -585,7 +585,7 @@ public abstract class TestCaseTestData
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => new(testData, argsCode, testMethodName);
+    => TestCaseTestData<TTestData>.From(testData, argsCode, testMethodName);
 
     /// <summary>
     /// Extracts the type arguments for a generic test method based on test data and argument strategy.
@@ -1051,7 +1051,7 @@ where TTestData : notnull, ITestData
     /// </code>
     /// </example>
     /// <seealso cref="TestCaseTestData.From{TTestData}(TTestData, ArgsCode, string?)"/>
-    internal TestCaseTestData(
+    private TestCaseTestData(
         TTestData testData,
         ArgsCode argsCode,
         string? testMethodName)
@@ -1077,6 +1077,12 @@ where TTestData : notnull, ITestData
             ExpectedResult = returns.GetExpected();
         }
     }
+
+    internal static TestCaseTestData<TTestData> From(
+        TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+    => new(testData, argsCode, testMethodName);
 
     /// <summary>
     /// Gets or initializes the test case name that uniquely identifies this test case.

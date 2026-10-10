@@ -6,7 +6,7 @@ using Portamical.xUnit_v3.TestDataTypes.Model;
 using static Portamical.Core.Formatting.Formatter;
 using static Portamical.Core.Safety.Validator;
 
-namespace Portamical.xUnit_v3.DataProviders.Model;
+namespace Portamical.xUnit_v3.DataProviders.Models;
 
 /// <summary>
 /// Represents a theory test data provider for xUnit v3 that combines builder pattern, template method,
@@ -131,7 +131,7 @@ namespace Portamical.xUnit_v3.DataProviders.Model;
 /// <para><strong>Example 1: Builder Pattern (Native Style)</strong></para>
 /// <code>
 /// using Xunit;
-/// using Portamical.xUnit_v3.DataProviders.Model;
+/// using Portamical.xUnit_v3.DataProviders.Models;
 /// 
 /// public class CalculatorTests
 /// {
@@ -741,7 +741,7 @@ where TTestData : notnull, ITestData
     /// <seealso cref="Convert(TTestData)"/>
     /// <seealso cref="AddRow"/>
     public ITheoryTestDataRow ConvertRow(TTestData testData)
-    => new TheoryTestDataRow<TTestData>(
+    => TheoryTestDataRow<TTestData>.From(
         testData,
         ArgsCode,
         TestMethodName);
