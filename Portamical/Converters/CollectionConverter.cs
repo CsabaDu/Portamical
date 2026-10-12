@@ -235,7 +235,7 @@ public static class CollectionConverter
 
     #endregion
 
-    #region Private ToConvertedRows
+    #region Base ToConvertedRows
 
     #region TConvertedRows : notnull
 

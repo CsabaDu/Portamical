@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
+using Portamical.Converters.AsyncEnumerables;
+
 namespace Portamical.TUnit.Attributes;
 
 /// <summary>
@@ -14,26 +16,19 @@ public abstract class PortamicalAsyncBaseDataAttribute<TTestData>(Func<IEnumerab
 where TTestData : notnull, ITestData
 {
     private readonly Func<IEnumerable<TTestData>> _dataFactory = dataFactory;
+    private IEnumerable<TTestData>? _cached;
 
     /// <summary>
     /// Generates asynchronous TUnit data sources from the Portamical test data sequence.
     /// </summary>
     /// <param name="dataGeneratorMetadata">Metadata supplied by TUnit for the current data generation request.</param>
     /// <returns>An asynchronous sequence of delegates that each asynchronously return one test data item.</returns>
-    protected override IAsyncEnumerable<Func<Task<TTestData>>> GenerateDataSourcesAsync(
-        DataGeneratorMetadata dataGeneratorMetadata)
+    protected override IAsyncEnumerable<Func<Task<TTestData>>> GenerateDataSourcesAsync(DataGeneratorMetadata dataGeneratorMetadata)
     {
-        return generateAsync(_dataFactory());
+        _cached ??= _dataFactory();
 
-        static async IAsyncEnumerable<Func<Task<TTestData>>> generateAsync(IEnumerable<TTestData> items)
-        {
-            foreach (var item in items)
-            {
-                yield return () => Task.FromResult(item);
-            }
-
-            await Task.CompletedTask;
-        }
+        return _cached.ToDistinctAsyncRowEnumerable<TTestData, Func<Task<TTestData>>>(
+            convertRow: testData => () => Task.FromResult(testData));
     }
 }
 
