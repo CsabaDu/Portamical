@@ -65,13 +65,22 @@ public static class CollectionConverter
     /// for conversion, then wraps the result in an async enumerable for streaming consumption.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TTestData, TRow>(
+    public static async IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TRow> convertRow,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToRowArray(convertRow, argsCode, testMethodName).ToAsyncRowEnumerable();
+    {
+        var convertedRows = testDataCollection.ToRowArray(convertRow, argsCode, testMethodName);
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of rows using a custom
@@ -107,12 +116,21 @@ public static class CollectionConverter
     /// for conversion, then wraps the result in an async enumerable for streaming consumption.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TTestData, TRow>(
+    public static async IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, string?, TRow> convertRow,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToRowArray(convertRow, testMethodName).ToAsyncRowEnumerable();
+    {
+        var convertedRows = testDataCollection.ToRowArray(convertRow, testMethodName);
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     #endregion
 
@@ -158,13 +176,22 @@ public static class CollectionConverter
     /// for deduplication, then wraps the result in an async enumerable.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<TRow> ToDistinctAsyncRowEnumerable<TTestData, TRow>(
+    public static async IAsyncEnumerable<TRow> ToDistinctAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, ArgsCode, string?, TRow> convertRow,
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(convertRow, argsCode, testMethodName).ToAsyncRowEnumerable();
+    {
+        var convertedRows = testDataCollection.ToDistinctRowArray(convertRow, argsCode, testMethodName);
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of distinct rows using a
@@ -202,12 +229,21 @@ public static class CollectionConverter
     /// for deduplication, then wraps the result in an async enumerable.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<TRow> ToDistinctAsyncRowEnumerable<TTestData, TRow>(
+    public static async IAsyncEnumerable<TRow> ToDistinctAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, string?, TRow> convertRow,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(convertRow, testMethodName).ToAsyncRowEnumerable();
+    {
+        var convertedRows = testDataCollection.ToDistinctRowArray(convertRow, testMethodName);
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     #endregion
 }

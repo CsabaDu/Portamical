@@ -3,6 +3,7 @@
 
 using Portamical.Converters.RowArrays;
 using Portamical.Converters.RowArrays.TestData;
+using Portamical.Core.TestDataTypes.Models.General;
 
 namespace Portamical.Converters.AsyncEnumerables;
 
@@ -76,11 +77,20 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TTestData, TRow>(
+    public static async IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToRowArray(convertRow).ToAsyncRowEnumerable();
+    {
+        var convertedRows = testDataCollection.ToRowArray(convertRow);
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     #endregion
 
@@ -112,40 +122,54 @@ public static class CollectionConverter
     /// </para>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<TRow> ToDistinctAsyncRowEnumerable<TTestData, TRow>(
+    public static async IAsyncEnumerable<TRow> ToDistinctAsyncRowEnumerable<TTestData, TRow>(
         this IEnumerable<TTestData> testDataCollection,
         Func<TTestData, TRow> convertRow)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(convertRow).ToAsyncRowEnumerable();
-
-    #endregion
-
-    #region Internal Base ToAsyncRowEnumerable
-
-    /// <summary>
-    /// Internal helper that wraps an array in an <see cref="IAsyncEnumerable{T}"/> for asynchronous iteration.
-    /// </summary>
-    /// <typeparam name="TRow">
-    /// The type of elements in the array.
-    /// </typeparam>
-    /// <param name="convertedRows">
-    /// The source array to wrap. Cannot be null.
-    /// </param>
-    /// <returns>
-    /// An async enumerable that yields each element from the array.
-    /// </returns>
-    /// <remarks>
-    /// This method enables <c>await foreach</c> consumption of synchronously-processed arrays.
-    /// The <c>async</c> modifier is required for the iterator pattern, even though no actual
-    /// asynchronous I/O occurs.
-    /// </remarks>
-    internal static async IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TRow>(this TRow[] convertedRows)
     {
+        var convertedRows = testDataCollection.ToDistinctRowArray(convertRow);
+
         foreach (var row in convertedRows)
         {
             yield return row;
         }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
     }
 
     #endregion
+
+    //#region Internal Base ToAsyncRowEnumerable
+
+    ///// <summary>
+    ///// Internal helper that wraps an array in an <see cref="IAsyncEnumerable{T}"/> for asynchronous iteration.
+    ///// </summary>
+    ///// <typeparam name="TRow">
+    ///// The type of elements in the array.
+    ///// </typeparam>
+    ///// <param name="convertedRows">
+    ///// The source array to wrap. Cannot be null.
+    ///// </param>
+    ///// <returns>
+    ///// An async enumerable that yields each element from the array.
+    ///// </returns>
+    ///// <remarks>
+    ///// This method enables <c>await foreach</c> consumption of synchronously-processed arrays.
+    ///// The <c>async</c> modifier is required for the iterator pattern, even though no actual
+    ///// asynchronous I/O occurs.
+    ///// </remarks>
+    //internal static async IAsyncEnumerable<TRow> ToAsyncRowEnumerable<TTestData, TRow>(this IEnumerable<TTestData> testDataCollection, Func<IEnumerable<TTestData>, IEnumerable<TRow>> convertRows)
+    //where TTestData : notnull, ITestData
+    //{
+    //    var convertedRows = convertRows(testDataCollection);
+
+    //    foreach (var row in convertedRows)
+    //    {
+    //        yield return row;
+    //    }
+
+    //    await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    //}
+
+    //#endregion
 }

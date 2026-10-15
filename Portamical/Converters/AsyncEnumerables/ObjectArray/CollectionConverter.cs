@@ -55,11 +55,20 @@ public static class CollectionConverter
     /// for conversion, then wraps the result in an async enumerable for streaming consumption.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<object?[]> ToAsyncRowEnumerable<TTestData>(
+    public static async IAsyncEnumerable<object?[]> ToAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToRowArray(argsCode).ToAsyncRowEnumerable();
+    {
+        var convertedRows = testDataCollection.ToRowArray(argsCode);
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of argument arrays
@@ -92,12 +101,21 @@ public static class CollectionConverter
     /// for conversion, then wraps the result in an async enumerable for streaming consumption.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<object?[]> ToAsyncRowEnumerable<TTestData>(
+    public static async IAsyncEnumerable<object?[]> ToAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         PropsCode propsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToRowArray(argsCode, propsCode).ToAsyncRowEnumerable();
+    {
+        var convertedRows = testDataCollection.ToRowArray(argsCode, propsCode);
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     #endregion
 
@@ -132,11 +150,20 @@ public static class CollectionConverter
     /// for deduplication, then wraps the result in an async enumerable.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<object?[]> ToDistinctAsyncRowEnumerable<TTestData>(
+    public static async IAsyncEnumerable<object?[]> ToDistinctAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(argsCode).ToAsyncRowEnumerable();
+    {
+        var convertedRows = testDataCollection.ToDistinctRowArray(argsCode);
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     /// <summary>
     /// Converts a synchronous test data collection to an asynchronous sequence of distinct argument arrays
@@ -170,12 +197,21 @@ public static class CollectionConverter
     /// for deduplication, then wraps the result in an async enumerable.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<object?[]> ToDistinctAsyncRowEnumerable<TTestData>(
+    public static async IAsyncEnumerable<object?[]> ToDistinctAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
         PropsCode propsCode)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(argsCode, propsCode).ToAsyncRowEnumerable();
+    {
+        var convertedRows = testDataCollection.ToDistinctRowArray(argsCode, propsCode);
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     #endregion
 }

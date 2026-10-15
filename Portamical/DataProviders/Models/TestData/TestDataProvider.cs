@@ -51,7 +51,7 @@ namespace Portamical.DataProviders.Models.TestData;
 /// </code>
 /// </example>
 public sealed class TestDataProvider<TTestData>
-: DataProviderBase<TTestData, TTestData>,
+: DataProvider<TTestData, TTestData>,
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {
@@ -60,8 +60,8 @@ where TTestData : notnull, ITestData
     /// </summary>
     /// <remarks>
     /// Use this constructor when building the test data collection incrementally via
-    /// <see cref="DataProviderBase{TTestData, TRow}.AddRow"/> or
-    /// <see cref="DataProviderBase{TTestData, TRow}.AddRange"/>.
+    /// <see cref="DataProvider{TTestData, TRow}.AddRow"/> or
+    /// <see cref="DataProvider{TTestData, TRow}.AddRange"/>.
     /// </remarks>
     public TestDataProvider()
     : base()
@@ -79,7 +79,7 @@ where TTestData : notnull, ITestData
     /// </exception>
     /// <remarks>
     /// The test data is added immediately during construction via the base class constructor.
-    /// Additional items can be added later using <see cref="DataProviderBase{TTestData, TRow}.AddRow"/>.
+    /// Additional items can be added later using <see cref="DataProvider{TTestData, TRow}.AddRow"/>.
     /// </remarks>
     public TestDataProvider(TTestData testData)
     : base(testData)
@@ -100,7 +100,7 @@ where TTestData : notnull, ITestData
     /// </exception>
     /// <remarks>
     /// All items are added during construction via the base class constructor.
-    /// Additional items can be added later using <see cref="DataProviderBase{TTestData, TRow}.AddRange"/>.
+    /// Additional items can be added later using <see cref="DataProvider{TTestData, TRow}.AddRange"/>.
     /// </remarks>
     public TestDataProvider(IEnumerable<TTestData> testDataCollection)
     : base(testDataCollection)
@@ -118,7 +118,7 @@ where TTestData : notnull, ITestData
     /// </returns>
     /// <remarks>
     /// This method implements the identity function: output equals input. It's called internally
-    /// by <see cref="DataProviderBase{TTestData, TRow}.AddRow"/> during row insertion.
+    /// by <see cref="DataProvider{TTestData, TRow}.AddRow"/> during row insertion.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TTestData ConvertRow(TTestData testData)

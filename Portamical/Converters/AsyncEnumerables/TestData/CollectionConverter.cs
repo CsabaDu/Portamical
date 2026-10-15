@@ -66,10 +66,19 @@ public static class CollectionConverter
     /// </code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<TTestData> ToAsyncRowEnumerable<TTestData>(
+    public static async IAsyncEnumerable<TTestData> ToAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => AsyncEnumerables.CollectionConverter.ToAsyncRowEnumerable(testDataCollection.ToRowArray());
+    {
+        var convertedRows = testDataCollection.ToRowArray();
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     #endregion
 
@@ -118,10 +127,19 @@ public static class CollectionConverter
     /// </code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IAsyncEnumerable<TTestData> ToDistinctAsyncRowEnumerable<TTestData>(
+    public static async IAsyncEnumerable<TTestData> ToDistinctAsyncRowEnumerable<TTestData>(
         this IEnumerable<TTestData> testDataCollection)
     where TTestData : notnull, ITestData
-    => AsyncEnumerables.CollectionConverter.ToAsyncRowEnumerable(testDataCollection.ToDistinctRowArray());
+    {
+        var convertedRows = testDataCollection.ToDistinctRowArray();
+
+        foreach (var row in convertedRows)
+        {
+            yield return row;
+        }
+
+        await Task.CompletedTask; // Ensures the method is recognized as async for IAsyncEnumerable
+    }
 
     #endregion
 }

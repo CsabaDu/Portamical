@@ -68,11 +68,11 @@ namespace Portamical.DataProviders.Models.ObjectArray;
 /// </exception>
 /// <remarks>
 /// Use this constructor when building the test data collection incrementally via
-/// <see cref="DataProviderBase{TTestData, TRow}.AddRow"/> or
-/// <see cref="DataProviderBase{TTestData, TRow}.AddRange"/>.
+/// <see cref="DataProvider{TTestData, TRow}.AddRow"/> or
+/// <see cref="DataProvider{TTestData, TRow}.AddRange"/>.
 /// </remarks>
 public sealed class TestDataProvider<TTestData>
-: DataProviderBase<TTestData, object?[]>,
+: DataProvider<TTestData, object?[]>,
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {

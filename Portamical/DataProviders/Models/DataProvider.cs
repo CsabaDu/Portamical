@@ -3,6 +3,211 @@
 
 namespace Portamical.DataProviders.Models;
 
+public static class DataProvider
+{
+    public static void AddRange<TTestData, TRow>(IDataProvider<TTestData, TRow> dataProvider, IEnumerable<TTestData> testDataCollection)
+    where TTestData : notnull, ITestData
+    {
+        var snapshot = NotNullOrEmpty(
+            testDataCollection, nameof(testDataCollection));
+
+        foreach (var testData in snapshot)
+        {
+            dataProvider.AddRow(testData);
+        }
+    }
+
+    public static IEnumerator<TRow> GetEnumerator<TTestData, TRow>(IDataProvider<TTestData, TRow> dataProvider)
+    where TTestData : notnull, ITestData
+    {
+        foreach (var namedCase in dataProvider.GetNamedCases())
+        {
+            yield return dataProvider.ConvertCasted(namedCase);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string[] GetTestCaseNames<TRow>(IDataProvider<TRow> dataProvider)
+    => dataProvider.SelectFromNamedCases(namedCase => namedCase.TestCaseName);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static TRow[] GetRows<TTestData, TRow>(IDataProvider<TTestData, TRow> dataProvider)
+    where TTestData : notnull, ITestData
+    => dataProvider.SelectFromNamedCases(dataProvider.ConvertCasted);
+
+    /// <summary>
+    /// Gets an array containing all original test data items that were added to the provider's collection.
+    /// </summary>
+    /// <returns>
+    /// An array of <typeparamref name="TTestData"/> containing all test data items in their original,
+    /// unconverted form. Returns an empty array if no rows have been added.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This method is intentionally <strong>not</strong> declared on <see cref="ITestDataRegistry{TTestData}"/>
+    /// or any other interface implemented by this class. <typeparamref name="TTestData"/> is contravariant
+    /// (<c>in</c>) on <see cref="ITestDataRegistry{TTestData}"/>, which only permits the type parameter to
+    /// appear in input positions (e.g., method parameters). Returning <typeparamref name="TTestData"/> from
+    /// a method is an output position, which would violate contravariance and is disallowed by the compiler.
+    /// <see cref="GetBaseRows"/> is therefore exposed only as a concrete member of
+    /// <see cref="DataProvider{TTestData, TRow}"/>, not as part of any interface contract.
+    /// </para>
+    /// <para>
+    /// This method relies on the invariant documented on <see cref="_namedCases"/>: every key stored in
+    /// the backing dictionary is actually an instance of <typeparamref name="TTestData"/>, since only
+    /// <see cref="AddRow"/> and <see cref="AddRange"/> populate the collection. The cast from
+    /// <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> is therefore always safe.
+    /// </para>
+    /// <para>
+    /// The returned array is a snapshot of the current collection's keys. The order is determined by
+    /// the dictionary's internal structure and may not match insertion order. Subsequent modifications
+    /// to the provider will not affect the returned array.
+    /// </para>
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static TTestData[] GetBaseRows<TTestData, TRow>(this IDataProvider<TRow> dataProvider)
+    where TTestData : notnull, ITestData
+    => dataProvider.SelectFromNamedCases(CastToTestData<TTestData>);
+
+    public static TRow? GetRow<TTestData, TRow>(
+        IDataProvider<TTestData, TRow> dataProvider,
+        INamedCase? namedCase)
+    where TTestData : notnull, ITestData
+    => dataProvider.GetRow(
+        context: namedCase,
+        matchFound: nk => nk.Equals(namedCase));
+
+    public static TRow? GetRow<TTestData, TRow>(
+        IDataProvider<TTestData, TRow> dataProvider,
+        string? testCaseName)
+    where TTestData : notnull, ITestData
+    => dataProvider.GetRow(
+        context: testCaseName,
+        matchFound: nk => nk.HasName(testCaseName));
+
+    #region Private Helper Methods
+
+    /// <summary>
+    /// Casts an <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> and converts it to a row
+    /// via <see cref="ConvertRow"/>.
+    /// </summary>
+    /// <param name="namedCase">
+    /// The stored <see cref="INamedCase"/> key to convert. Must actually be a <typeparamref name="TTestData"/>
+    /// instance, per the invariant documented on <see cref="_namedCases"/>.
+    /// </param>
+    /// <returns>
+    /// The row of type <typeparamref name="TRow"/> produced by <see cref="ConvertRow"/> for the underlying
+    /// <typeparamref name="TTestData"/> instance.
+    /// </returns>
+    /// <remarks>
+    /// This helper centralizes the cast-then-convert step shared by <see cref="GetRows"/> and
+    /// <see cref="GetEnumerator"/>. <see cref="MethodImplOptions.AggressiveInlining"/> only benefits the
+    /// direct call site in <see cref="GetEnumerator"/>'s iterator body; when passed as a method group to
+    /// <see cref="SelectFromNamedCases{T}"/> (as in <see cref="GetRows"/>), the call is dispatched through
+    /// a delegate and is not inlined by the JIT.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static TRow ConvertCasted<TTestData, TRow>(this IDataProvider<TTestData, TRow> dataProvider, INamedCase namedCase)
+    where TTestData : notnull, ITestData
+    => dataProvider.ConvertRow(CastToTestData<TTestData>(namedCase));
+
+    /// <summary>
+    /// Projects each key of <see cref="_namedCases"/> into an array using the specified extraction function.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type of the elements produced by <paramref name="selector"/> and returned in the resulting array.
+    /// </typeparam>
+    /// <param name="selector">
+    /// A function that converts each <see cref="INamedCase"/> key into a value of type <typeparamref name="T"/>.
+    /// Called once for every key in <see cref="_namedCases"/>.
+    /// </param>
+    /// <returns>
+    /// An array of <typeparamref name="T"/> containing the projected values for all keys in
+    /// <see cref="_namedCases"/>. Returns an empty array if no rows have been added.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This is the shared implementation behind <see cref="GetTestCaseNames"/> and <see cref="GetBaseRows"/>.
+    /// It pre-allocates the result array based on <see cref="Dictionary{TKey, TValue}.Count"/> to avoid
+    /// resizing, then fills it in a single pass over <see cref="_namedCases"/>'s keys.
+    /// </para>
+    /// <para>
+    /// The order of elements is determined by the dictionary's internal key enumeration order and may not
+    /// match insertion order. The returned array is a snapshot; subsequent modifications to the provider
+    /// will not affect it.
+    /// </para>
+    /// </remarks>
+    private static T[] SelectFromNamedCases<TRow, T>(this IDataProvider<TRow> dataProvider, Func<INamedCase, T> selector)
+    {
+        var namedCases = dataProvider.GetNamedCases();
+        var selection = new T[namedCases.Count];
+        int i = 0;
+
+        foreach (var namedCase in namedCases)
+        {
+            selection[i++] = selector(namedCase);
+        }
+
+        return selection;
+    }
+
+    /// <summary>
+    /// Locates the first stored test case that satisfies <paramref name="matchFound"/> and converts it to a row.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type of <paramref name="context"/>, used only for the <see langword="null"/> short-circuit check.
+    /// </typeparam>
+    /// <param name="context">
+    /// The lookup value (e.g., a test case name or <see cref="INamedCase"/>) that <paramref name="matchFound"/>
+    /// was built from. If <see langword="null"/>, the lookup is skipped and <see langword="default"/> is returned.
+    /// </param>
+    /// <param name="matchFound">
+    /// A predicate that identifies the matching <see cref="INamedCase"/> entry in the collection.
+    /// </param>
+    /// <returns>
+    /// The converted <typeparamref name="TRow"/> for the first matching entry; otherwise, <see langword="default"/>.
+    /// </returns>
+    /// <remarks>
+    /// This helper centralizes the shared lookup-and-convert logic used by both <see cref="GetRow(string)"/>
+    /// and <see cref="GetRow(INamedCase)"/> overloads.
+    /// </remarks>
+    private static TRow? GetRow<TTestData, TRow, T>(
+        this IDataProvider<TTestData, TRow> dataProvider,
+        T context, Func<INamedCase, bool> matchFound)
+    where TTestData : notnull, ITestData
+    {
+        if (context is null) return default;
+
+        return dataProvider.GetNamedCases()
+            .Where(matchFound)
+            .Select(dataProvider.ConvertCasted)
+            .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Casts an <see cref="INamedCase"/> back to <typeparamref name="TTestData"/>.
+    /// </summary>
+    /// <param name="namedCase">
+    /// The stored <see cref="INamedCase"/> key to cast. Must actually be a <typeparamref name="TTestData"/>
+    /// instance, per the invariant documented on <see cref="_namedCases"/>.
+    /// </param>
+    /// <returns>
+    /// The <paramref name="namedCase"/> cast to <typeparamref name="TTestData"/>.
+    /// </returns>
+    /// <remarks>
+    /// <see cref="MethodImplOptions.AggressiveInlining"/> only benefits the direct call site in
+    /// <see cref="ConvertCasted"/>; when passed as a method group to <see cref="SelectFromNamedCases{T}"/>
+    /// (as in <see cref="GetBaseRows"/>), the call is dispatched through a delegate and is not inlined
+    /// by the JIT.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static TTestData CastToTestData<TTestData>(INamedCase namedCase)
+    where TTestData : notnull, ITestData
+    => (TTestData)namedCase;
+
+    #endregion
+}
+
 /// <summary>
 /// Provides an abstract base implementation of <see cref="IDataProvider{TTestData, TRow}"/> that ensures
 /// each test case is stored at most once, using <see cref="NamedCase.Comparer"/> identity comparison for
@@ -34,7 +239,7 @@ namespace Portamical.DataProviders.Models;
 /// or enumeration), rather than once at insertion time.
 /// </para>
 /// </remarks>
-public abstract class DataProviderBase<TTestData, TRow>
+public abstract class DataProvider<TTestData, TRow>
 : IDataProvider<TTestData, TRow>
 where TTestData : notnull, ITestData
 {
@@ -63,7 +268,7 @@ where TTestData : notnull, ITestData
     /// This constructor is <c>private protected</c> to allow derived types within the same assembly
     /// to instantiate the provider without initial data, supporting builder-pattern usage.
     /// </remarks>
-    private protected DataProviderBase()
+    private protected DataProvider()
     {
     }
 
@@ -78,7 +283,7 @@ where TTestData : notnull, ITestData
     /// This constructor is <c>private protected</c> to restrict instantiation to derived types
     /// within the same assembly.
     /// </remarks>
-    private protected DataProviderBase(TTestData testData)
+    private protected DataProvider(TTestData testData)
     {
         AddRow(testData);
     }
@@ -98,7 +303,7 @@ where TTestData : notnull, ITestData
     /// This constructor is <c>private protected</c> to restrict instantiation to derived types
     /// within the same assembly.
     /// </remarks>
-    private protected DataProviderBase(IEnumerable<TTestData> testDataCollection)
+    private protected DataProvider(IEnumerable<TTestData> testDataCollection)
     {
         AddRange(testDataCollection);
     }
@@ -123,7 +328,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddRow(TTestData testData)
-    => _namedCases.Add(testData);
+    => _ = _namedCases.Add(testData);
 
     /// <summary>
     /// Adds multiple test data rows to the provider's collection.
@@ -143,16 +348,9 @@ where TTestData : notnull, ITestData
     /// <paramref name="testDataCollection"/> itself or already present in the provider, are silently
     /// filtered out by <see cref="AddRow"/>; no exception is thrown for duplicates.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddRange(IEnumerable<TTestData> testDataCollection)
-    {
-        var snapshot = NotNullOrEmpty(
-            testDataCollection, nameof(testDataCollection));
-
-        foreach (var testData in snapshot)
-        {
-            AddRow(testData);
-        }
-    }
+    => DataProvider.AddRange(this, testDataCollection);
 
     /// <summary>
     /// Gets an array containing all test case testCaseNames in the provider's collection.
@@ -167,11 +365,15 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string[] GetTestCaseNames()
-    => SelectFromNamedCases(namedCase => namedCase.TestCaseName);
+    => DataProvider.GetTestCaseNames(this);
 
     #endregion
 
     #region IDataProvider implementation
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ICollection<INamedCase> GetNamedCases()
+    => _namedCases;
 
     /// <summary>
     /// Retrieves the row associated with the specified test case name.
@@ -187,8 +389,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow? GetRow(string testCaseName)
-    => GetRow(context: testCaseName,
-        matchFound: namedCase => namedCase.HasName(testCaseName));
+    => DataProvider.GetRow(this, testCaseName);
 
     /// <summary>
     /// Retrieves the row associated with the specified test case.
@@ -207,8 +408,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow? GetRow(INamedCase namedCase)
-    => GetRow(context: namedCase,
-        matchFound: namedCase.Equals);
+    => DataProvider.GetRow(this, namedCase);
 
     /// <summary>
     /// Gets an array containing all rows in the provider's collection.
@@ -221,8 +421,9 @@ where TTestData : notnull, ITestData
     /// The returned array is a snapshot of the current collection. Subsequent modifications to the provider
     /// will not affect the returned array.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow[] GetRows()
-    => SelectFromNamedCases(ConvertCasted);
+    => DataProvider.GetRows(this);
 
     #endregion
 
@@ -238,13 +439,9 @@ where TTestData : notnull, ITestData
     /// This method supports LINQ operations and foreach iteration over the provider's rows.
     /// The enumeration order is determined by the dictionary's internal structure.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<TRow> GetEnumerator()
-    {
-        foreach (var namedCase in _namedCases)
-        {
-            yield return ConvertCasted(namedCase);
-        }
-    }
+    => DataProvider.GetEnumerator(this);
 
     /// <summary>
     /// Returns an enumerator that iterates through the collection.
@@ -276,158 +473,6 @@ where TTestData : notnull, ITestData
     /// converted multiple times across repeated reads.
     /// </remarks>
     public abstract TRow ConvertRow(TTestData testData);
-
-    #endregion
-
-    #region GetBaseRows
-
-    /// <summary>
-    /// Gets an array containing all original test data items that were added to the provider's collection.
-    /// </summary>
-    /// <returns>
-    /// An array of <typeparamref name="TTestData"/> containing all test data items in their original,
-    /// unconverted form. Returns an empty array if no rows have been added.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This method is intentionally <strong>not</strong> declared on <see cref="ITestDataRegistry{TTestData}"/>
-    /// or any other interface implemented by this class. <typeparamref name="TTestData"/> is contravariant
-    /// (<c>in</c>) on <see cref="ITestDataRegistry{TTestData}"/>, which only permits the type parameter to
-    /// appear in input positions (e.g., method parameters). Returning <typeparamref name="TTestData"/> from
-    /// a method is an output position, which would violate contravariance and is disallowed by the compiler.
-    /// <see cref="GetBaseRows"/> is therefore exposed only as a concrete member of
-    /// <see cref="DataProviderBase{TTestData, TRow}"/>, not as part of any interface contract.
-    /// </para>
-    /// <para>
-    /// This method relies on the invariant documented on <see cref="_namedCases"/>: every key stored in
-    /// the backing dictionary is actually an instance of <typeparamref name="TTestData"/>, since only
-    /// <see cref="AddRow"/> and <see cref="AddRange"/> populate the collection. The cast from
-    /// <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> is therefore always safe.
-    /// </para>
-    /// <para>
-    /// The returned array is a snapshot of the current collection's keys. The order is determined by
-    /// the dictionary's internal structure and may not match insertion order. Subsequent modifications
-    /// to the provider will not affect the returned array.
-    /// </para>
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TTestData[] GetBaseRows()
-    => SelectFromNamedCases(CastToTestData);
-
-    #endregion
-
-    #region Private Helper Methods
-
-    /// <summary>
-    /// Casts an <see cref="INamedCase"/> back to <typeparamref name="TTestData"/> and converts it to a row
-    /// via <see cref="ConvertRow"/>.
-    /// </summary>
-    /// <param name="namedCase">
-    /// The stored <see cref="INamedCase"/> key to convert. Must actually be a <typeparamref name="TTestData"/>
-    /// instance, per the invariant documented on <see cref="_namedCases"/>.
-    /// </param>
-    /// <returns>
-    /// The row of type <typeparamref name="TRow"/> produced by <see cref="ConvertRow"/> for the underlying
-    /// <typeparamref name="TTestData"/> instance.
-    /// </returns>
-    /// <remarks>
-    /// This helper centralizes the cast-then-convert step shared by <see cref="GetRows"/> and
-    /// <see cref="GetEnumerator"/>. <see cref="MethodImplOptions.AggressiveInlining"/> only benefits the
-    /// direct call site in <see cref="GetEnumerator"/>'s iterator body; when passed as a method group to
-    /// <see cref="SelectFromNamedCases{T}"/> (as in <see cref="GetRows"/>), the call is dispatched through
-    /// a delegate and is not inlined by the JIT.
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TRow ConvertCasted(INamedCase namedCase)
-    => ConvertRow(CastToTestData(namedCase));
-
-    /// <summary>
-    /// Casts an <see cref="INamedCase"/> back to <typeparamref name="TTestData"/>.
-    /// </summary>
-    /// <param name="namedCase">
-    /// The stored <see cref="INamedCase"/> key to cast. Must actually be a <typeparamref name="TTestData"/>
-    /// instance, per the invariant documented on <see cref="_namedCases"/>.
-    /// </param>
-    /// <returns>
-    /// The <paramref name="namedCase"/> cast to <typeparamref name="TTestData"/>.
-    /// </returns>
-    /// <remarks>
-    /// <see cref="MethodImplOptions.AggressiveInlining"/> only benefits the direct call site in
-    /// <see cref="ConvertCasted"/>; when passed as a method group to <see cref="SelectFromNamedCases{T}"/>
-    /// (as in <see cref="GetBaseRows"/>), the call is dispatched through a delegate and is not inlined
-    /// by the JIT.
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static TTestData CastToTestData(INamedCase namedCase)
-    => (TTestData)namedCase;
-
-    /// <summary>
-    /// Projects each key of <see cref="_namedCases"/> into an array using the specified extraction function.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The type of the elements produced by <paramref name="selector"/> and returned in the resulting array.
-    /// </typeparam>
-    /// <param name="selector">
-    /// A function that converts each <see cref="INamedCase"/> key into a value of type <typeparamref name="T"/>.
-    /// Called once for every key in <see cref="_namedCases"/>.
-    /// </param>
-    /// <returns>
-    /// An array of <typeparamref name="T"/> containing the projected values for all keys in
-    /// <see cref="_namedCases"/>. Returns an empty array if no rows have been added.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This is the shared implementation behind <see cref="GetTestCaseNames"/> and <see cref="GetBaseRows"/>.
-    /// It pre-allocates the result array based on <see cref="Dictionary{TKey, TValue}.Count"/> to avoid
-    /// resizing, then fills it in a single pass over <see cref="_namedCases"/>'s keys.
-    /// </para>
-    /// <para>
-    /// The order of elements is determined by the dictionary's internal key enumeration order and may not
-    /// match insertion order. The returned array is a snapshot; subsequent modifications to the provider
-    /// will not affect it.
-    /// </para>
-    /// </remarks>
-    private T[] SelectFromNamedCases<T>(Func<INamedCase, T> selector)
-    {
-        var selection = new T[_namedCases.Count];
-        int i = 0;
-
-        foreach (var namedCase in _namedCases)
-        {
-            selection[i++] = selector(namedCase);
-        }
-
-        return selection;
-    }
-
-    /// <summary>
-    /// Locates the first stored test case that satisfies <paramref name="matchFound"/> and converts it to a row.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The type of <paramref name="context"/>, used only for the <see langword="null"/> short-circuit check.
-    /// </typeparam>
-    /// <param name="context">
-    /// The lookup value (e.g., a test case name or <see cref="INamedCase"/>) that <paramref name="matchFound"/>
-    /// was built from. If <see langword="null"/>, the lookup is skipped and <see langword="default"/> is returned.
-    /// </param>
-    /// <param name="matchFound">
-    /// A predicate that identifies the matching <see cref="INamedCase"/> entry in the collection.
-    /// </param>
-    /// <returns>
-    /// The converted <typeparamref name="TRow"/> for the first matching entry; otherwise, <see langword="default"/>.
-    /// </returns>
-    /// <remarks>
-    /// This helper centralizes the shared lookup-and-convert logic used by both <see cref="GetRow(string)"/>
-    /// and <see cref="GetRow(INamedCase)"/> overloads.
-    /// </remarks>
-    private TRow? GetRow<T>(T context, Func<INamedCase, bool> matchFound)
-    {
-        if (context is null) return default;
-
-        return _namedCases.Where(matchFound)
-            .Select(ConvertCasted)
-            .FirstOrDefault();
-    }
 
     #endregion
 }
