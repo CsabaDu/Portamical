@@ -26,5 +26,5 @@ where TTestData : notnull, ITestData
     }
 
     public override TestCaseTestData<TTestData> ConvertRow(TTestData testData)
-    => TestCaseTestData<TTestData>.From(testData, ArgsCode, TestMethodName);
+    => TestCaseTestData.From(testData, ArgsCode, TestMethodName);
 }

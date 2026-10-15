@@ -12,7 +12,6 @@
 	[&lt;start&gt;
 	Formatter.Format(value)
 	|
-	
 	// Elements
 	
 	[Null-check]
@@ -32,8 +31,8 @@
 	
 	[&lt;custom&gt;Use custom formatter]
 	
-	[Return
-	formatted string]
+	[Return formatted string
+	(or null)]
 	
 	// Diagram
 	
@@ -70,7 +69,7 @@
 	[
 	Use DefaultFormatter
 	] -&gt; [
-	Return
+	Return formatted string
 	]
 	
 	[
@@ -82,7 +81,7 @@
 	[
 	Use custom formatter
 	] -&gt; [
-	Return
+	Return formatted string
 	]
 	
 	]
@@ -202,14 +201,14 @@
 											</g>
 										</g>
 									</g>
-									<g data-name="Return">
-										<g fill="#fdf6e3" stroke="#33322E" data-name="Return">
-											<rect x="128.8" y="498.5" height="48.0" width="138.0" data-name="Return"></rect>
+									<g data-name="Return formatted string">
+										<g fill="#fdf6e3" stroke="#33322E" data-name="Return formatted string">
+											<rect x="101.3" y="498.5" height="48.0" width="193.0" data-name="Return formatted string"></rect>
 										</g>
-										<g transform="translate(128.75, 498.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Return" data-compartment="0">
-											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Return" data-compartment="0">
-												<text x="61.0" y="14.1" stroke="none" text-anchor="middle" data-name="Return" data-compartment="0">Return</text>
-												<text x="61.0" y="30.3" stroke="none" text-anchor="middle" data-name="Return" data-compartment="0">formatted string</text>
+										<g transform="translate(101.25, 498.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Return formatted string" data-compartment="0">
+											<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Return formatted string" data-compartment="0">
+												<text x="88.5" y="14.1" stroke="none" text-anchor="middle" data-name="Return formatted string" data-compartment="0">Return formatted string</text>
+												<text x="88.5" y="30.3" stroke="none" text-anchor="middle" data-name="Return formatted string" data-compartment="0">(or null)</text>
 												
 											</g>
 										</g>

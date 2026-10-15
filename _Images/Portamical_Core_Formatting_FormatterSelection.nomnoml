@@ -10,7 +10,6 @@
 [<start>
 Formatter.Format(value)
 |
-
 // Elements
 
 [Null-check]
@@ -30,8 +29,8 @@ found?]
 
 [<custom>Use custom formatter]
 
-[Return
-formatted string]
+[Return formatted string
+(or null)]
 
 // Diagram
 
@@ -68,7 +67,7 @@ Use DefaultFormatter
 [
 Use DefaultFormatter
 ] -> [
-Return
+Return formatted string
 ]
 
 [
@@ -80,7 +79,7 @@ Use custom formatter
 [
 Use custom formatter
 ] -> [
-Return
+Return formatted string
 ]
 
 ]

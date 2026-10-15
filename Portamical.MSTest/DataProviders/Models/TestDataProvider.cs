@@ -1,30 +1,41 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.TestDataTypes.Models.General;
 using Portamical.DataProviders.Models.CustomRow;
+using Portamical.MSTest.Converters;
 
 namespace Portamical.MSTest.DataProviders.Models;
 
 public sealed class TestDataProvider<TTestData>
-: TestDataProvider<TTestData, TTestData>, ITestDataSource
+: TestDataProvider<TTestData, object[]>, ITestDataProvider
 where TTestData : notnull, ITestData
 {
     #region Constructors
 
-    public TestDataProvider(ArgsCode argsCode)
-    : base(argsCode, testMethodName: null)
+    public TestDataProvider(ArgsCode argsCode, string? testMethodName, params string[] testCategories)
+    : base(argsCode, testMethodName)
     {
+        TestCategories = testCategories;
     }
 
-    public TestDataProvider(TTestData testData, ArgsCode argsCode)
-    : base(testData, argsCode, testMethodName: null)
+    public TestDataProvider(TTestData testData, ArgsCode argsCode, string? testMethodName, params string[] testCategories)
+    : base(testData, argsCode, testMethodName)
     {
+        TestCategories = testCategories;
     }
 
-    public TestDataProvider(IEnumerable<TTestData> testDataCollection, ArgsCode argsCode)
-    : base(testDataCollection, argsCode, testMethodName: null)
+    public TestDataProvider(IEnumerable<TTestData> testDataCollection, ArgsCode argsCode, string? testMethodName, params string[] testCategories)
+    : base(testDataCollection, argsCode, testMethodName)
     {
+        TestCategories = testCategories;
     }
+
+    #endregion
+
+    #region Properties
+
+    public string[] TestCategories { get; }
 
     #endregion
 
@@ -32,22 +43,12 @@ where TTestData : notnull, ITestData
 
     public IEnumerable<object?[]> GetData(MethodInfo methodInfo)
     {
-        foreach (var testData in this)
+        foreach (var namedCase in GetNamedCases())
         {
-            yield return ArgsCode == ArgsCode.Instance ?
-                convertRow(testData)
-                : convertRow(testData.ToArgs(ArgsCode.Properties));
+            var testData = (TTestData)namedCase;
+
+            yield return testData.ToSingleTestDataRowArray(ArgsCode, methodInfo.Name, TestCategories);
         }
-
-        #region Local function
-
-        object[] convertRow<T>(T row)
-        => [new TestDataRow<T>(row)
-        {
-            DisplayName = GetDisplayName(methodInfo, row),
-        }];
-
-        #endregion
     }
 
     public string? GetDisplayName(MethodInfo methodInfo, params object?[]? data)
@@ -57,8 +58,8 @@ where TTestData : notnull, ITestData
 
     #region TestDataProvider implementation
 
-    public override TTestData ConvertRow(TTestData testData)
-    => testData;
+    public override object[] ConvertRow(TTestData testData)
+    => testData.ToSingleTestDataRowArray(ArgsCode, TestMethodName, TestCategories);
 
     #endregion
 }

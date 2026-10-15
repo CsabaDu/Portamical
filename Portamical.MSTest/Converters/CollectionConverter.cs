@@ -1,9 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Converters.AsyncEnumerables.ObjectArray;
+using Portamical.Converters.RowArrays.CustomRow;
 using Portamical.Converters.RowArrays.ObjectArray;
-using Portamical.Converters.Tasks.ArrayTasks.ObjectArray;
 using Portamical.MSTest.DataProviders.Models;
 
 namespace Portamical.MSTest.Converters;
@@ -281,25 +280,21 @@ public static class CollectionConverter
     /// <seealso cref="INamedCase.TestCaseName"/>
     public static object?[][] ToDistinctRowArray<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
+        ArgsCode argsCode,
+        string? testMethodName,
+        params string[] testCategories)
     where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctRowArray(argsCode, PropsCodeAll);
+    => testDataCollection.ToDistinctRowArray(
+        convertRow: (testData, argsCode, testMethodName) => testData.ToSingleTestDataRowArray(
+            argsCode, testMethodName, testCategories),
+        argsCode,
+        testMethodName);
 
     public static TestDataProvider<TTestData> ToDataProvider<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
+        ArgsCode argsCode,
+        string? testMethodName,
+        params string[] testCategories)
     where TTestData : notnull, ITestData
-    => new(testDataCollection, argsCode);
-
-    public static Task<object?[][]> ToDistinctArrayTask<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctArrayTask(argsCode, PropsCodeAll);
-
-    public static IAsyncEnumerable<object?[]> ToDistinctAsyncRowEnumerable<TTestData>(
-        this IEnumerable<TTestData> testDataCollection,
-        ArgsCode argsCode)
-    where TTestData : notnull, ITestData
-    => testDataCollection.ToDistinctAsyncRowEnumerable(argsCode, PropsCodeAll);
+    => new(testDataCollection, argsCode, testMethodName, testCategories);
 }

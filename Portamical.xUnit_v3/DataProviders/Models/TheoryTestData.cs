@@ -770,6 +770,9 @@ where TTestData : notnull, ITestData
         return testCaseNames;
     }
 
+    public ICollection<INamedCase> GetNamedCases()
+    => _namedCases;
+
     #endregion
 
     #region Helpers

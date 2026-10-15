@@ -25,7 +25,7 @@ public enum PropsCode
     /// Most common case: Useful when the test case name isn't needed in
     /// the test data object array.
     /// </summary>
-    TrimTestCaseName,
+    TrimTestCaseName = default,
 
     /// <summary>
     /// Also excludes the <see cref="TestDataTypes.Patterns.IExpected{TExpected}.Expected"/> property
