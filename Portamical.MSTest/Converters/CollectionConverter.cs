@@ -3,7 +3,8 @@
 
 using Portamical.Converters.RowArrays.CustomRow;
 using Portamical.Converters.RowArrays.ObjectArray;
-using Portamical.MSTest.DataProviders.Models;
+using Portamical.Core.Safety;
+using Portamical.MSTest.DataProviders;
 
 namespace Portamical.MSTest.Converters;
 
@@ -53,10 +54,6 @@ namespace Portamical.MSTest.Converters;
 /// </remarks>
 public static class CollectionConverter
 {
-    // Prepends all ITestData properties before args
-    // Array format: [TestCaseName, arg1, arg2, ...]
-    private const PropsCode PropsCodeAll = PropsCode.All;
-
     /// <summary>
     /// Converts a collection of Portamical test data into MSTest-compatible parameter arrays
     /// with test case names prepended for identification.
@@ -285,16 +282,35 @@ public static class CollectionConverter
         params string[] testCategories)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctRowArray(
-        convertRow: (testData, argsCode, testMethodName) => testData.ToSingleTestDataRowArray(
-            argsCode, testMethodName, testCategories),
+        convertRow: (testData, argsCode, testMethodName) =>  new object[]
+        {
+            argsCode switch
+            {
+                ArgsCode.Instance => TestDataRow.From(
+                    testData,
+                    convertRow: td => td,
+                    testMethodName,
+                    testCategories),
+                ArgsCode.Properties => TestDataRow.From(
+                    testData,
+                    convertRow: td => td.ToArgs(ArgsCode.Properties),
+                    testMethodName,
+                    testCategories),
+                _ => throw argsCode.GetInvalidEnumArgumentException(nameof(argsCode)),
+            }
+        },
         argsCode,
         testMethodName);
 
-    public static TestDataProvider<TTestData> ToDataProvider<TTestData>(
+    public static ITestDataProvider ToDataProvider<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         ArgsCode argsCode,
-        string? testMethodName,
         params string[] testCategories)
     where TTestData : notnull, ITestData
-    => new(testDataCollection, argsCode, testMethodName, testCategories);
+    => argsCode switch
+    {
+        ArgsCode.Instance => new DataProviders.Models.TestData.TestDataProvider<TTestData>(testDataCollection, testCategories),
+        ArgsCode.Properties => new DataProviders.Models.ObjectArray.TestDataProvider<TTestData>(testDataCollection, testCategories),
+        _ => throw argsCode.GetInvalidEnumArgumentException(nameof(argsCode)),
+    };
 }

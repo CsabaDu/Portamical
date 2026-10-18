@@ -138,7 +138,7 @@ public abstract class TestCaseTestData
     /// </summary>
     /// <param name="args">
     /// The arguments to pass to the test method. These are extracted from <see cref="ITestData"/>
-    /// using <see cref="TestCaseDataArgsFrom"/> and exclude the expected result (which is set via
+    /// using <see cref="ArgsFrom"/> and exclude the expected result (which is set via
     /// <see cref="TestCaseData.ExpectedResult"/> for <see cref="IReturns"/> test data).
     /// </param>
     /// <remarks>
@@ -484,7 +484,7 @@ public abstract class TestCaseTestData
         ArgsCode argsCode,
         string? testMethodName = null)
     where TTestData : notnull, ITestData
-    => TestCaseTestData<TTestData>.From(testData, argsCode, testMethodName);
+    => new(testData, argsCode, testMethodName);
 
     /// <summary>
     /// Extracts the type arguments for a generic test method based on test data and argument strategy.
@@ -666,7 +666,7 @@ public abstract class TestCaseTestData
     /// <para><strong>Native Style (ArgsCode.Properties):</strong></para>
     /// <code>
     /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
-    /// var args = TestCaseTestData.TestCaseDataArgsFrom(testData, ArgsCode.Properties);
+    /// var args = TestCaseTestData.ArgsFrom(testData, ArgsCode.Properties);
     /// 
     /// // Result: [2, 3]
     /// // Note: Expected result (5) is excluded from args
@@ -676,7 +676,7 @@ public abstract class TestCaseTestData
     /// <para><strong>Shared Style (ArgsCode.Instance):</strong></para>
     /// <code>
     /// var testData = new TestDataReturns&lt;int&gt;("Add(2,3)", [2, 3], 5);
-    /// var args = TestCaseTestData.TestCaseDataArgsFrom(testData, ArgsCode.Instance);
+    /// var args = TestCaseTestData.ArgsFrom(testData, ArgsCode.Instance);
     /// 
     /// // Result: [testData]  ← Entire ITestData object
     /// </code>
@@ -698,7 +698,7 @@ public abstract class TestCaseTestData
     /// <seealso cref="PropsCode.TrimReturnsExpected"/>
     /// <seealso cref="TestCaseData.ExpectedResult"/>
     /// <seealso cref="ArgsCode"/>
-    public static object?[] TestCaseDataArgsFrom(
+    public static object?[] ArgsFrom(
         ITestData testData,
         ArgsCode argsCode)
     => testData.ToArgs(argsCode, PropsCode.TrimReturnsExpected);
@@ -850,7 +850,7 @@ where TTestData : notnull, ITestData
     /// <strong>Constructor Flow:</strong>
     /// <list type="number">
     ///   <item><description>
-    ///     Call base constructor with arguments from <see cref="TestCaseTestData.TestCaseDataArgsFrom"/>
+    ///     Call base constructor with arguments from <see cref="TestCaseTestData.ArgsFrom"/>
     ///   </description></item>
     ///   <item><description>
     ///     Set <see cref="TestCaseData.Properties"/>["Description"] to <see cref="ITestData.GetDefinition()"/>
@@ -950,11 +950,11 @@ where TTestData : notnull, ITestData
     /// </code>
     /// </example>
     /// <seealso cref="TestCaseTestData.From{TTestData}(TTestData, ArgsCode, string?)"/>
-    private TestCaseTestData(
+    internal TestCaseTestData(
         TTestData testData,
         ArgsCode argsCode,
         string? testMethodName)
-    : base(TestCaseDataArgsFrom(testData, argsCode))
+    : base(ArgsFrom(testData, argsCode))
     {
         TypeArgs = GetTypeArgs(testData, argsCode);
         TestCaseName = testData.TestCaseName;
@@ -977,11 +977,11 @@ where TTestData : notnull, ITestData
         }
     }
 
-    internal static TestCaseTestData<TTestData> From(
-        TTestData testData,
-        ArgsCode argsCode,
-        string? testMethodName)
-    => new(testData, argsCode, testMethodName);
+    //internal static TestCaseTestData<TTestData> From(
+    //    TTestData testData,
+    //    ArgsCode argsCode,
+    //    string? testMethodName)
+    //=> new(testData, argsCode, testMethodName);
 
     /// <summary>
     /// Gets or initializes the test case name that uniquely identifies this test case.

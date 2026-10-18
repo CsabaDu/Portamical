@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.TUnit.Converters;
+using Portamical.TUnit.DataProviders;
 using Portamical.TUnit.DataProviders.Models;
 using static Portamical.Core.Safety.Validator;
 
@@ -15,7 +15,7 @@ where TTestData : notnull, ITestData
     public PortamicalDataProviderAttribute(TTestData[] snapshot, params string[] categories)
     {
         _dataProvider = new TestDataProvider<TTestData>(
-            testDataCollection: NotNull(snapshot, nameof(snapshot)),
+            testDataCollection: NotNullOrEmpty(snapshot, nameof(snapshot)),
             categories);
     }
 
@@ -35,7 +35,10 @@ where TTestData : notnull, ITestData
             var testData = (TTestData)namedCase;
 
             yield return () => Task.FromResult(
-                testData.ToTestDataRow(testMethodName, _dataProvider.Categories));
+                TestDataRow.From(
+                    testData,
+                    testMethodName,
+                    categories: _dataProvider.Categories));
         }
     }
 }

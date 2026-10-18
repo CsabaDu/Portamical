@@ -2,6 +2,7 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.Converters.RowArrays;
+using Portamical.TUnit.DataProviders;
 using Portamical.TUnit.DataProviders.Models;
 
 namespace Portamical.TUnit.Converters;
@@ -20,7 +21,8 @@ public static class CollectionConverter
         params string[] categories)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctRowArray(
-        convertRow: testData => testData.ToTestDataRow(
+        convertRow: testData => TestDataRow.From(
+            testData,
             testMethodName,
             categories));
 }

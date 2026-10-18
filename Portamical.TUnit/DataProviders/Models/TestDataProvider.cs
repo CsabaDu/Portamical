@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.TUnit.Converters;
-
 namespace Portamical.TUnit.DataProviders.Models;
 
 public abstract class TestDataProvider<TTestData, TRow>
@@ -38,23 +36,7 @@ where TTestData : notnull, ITestData
 
     #endregion
 
-    public abstract IEnumerable<Func<object?[]>> GenerateDataFactories(DataSourceContext context);
-}
-
-public sealed class TestDataProvider<TTestData>(IEnumerable<TTestData> testDataCollection, params string[] categories)
-: TestDataProvider<TTestData, TTestData>(testDataCollection, categories)
-where TTestData : notnull, ITestData
-{
-    #region TestDataProvider implementation
-
-    public override TTestData ConvertRow(TTestData testData)
-    => testData;
-
-    #endregion
-
-    #region IDataSource implementation
-
-    public override IEnumerable<Func<object?[]>> GenerateDataFactories(DataSourceContext context)
+    public IEnumerable<Func<object?[]>> GenerateDataFactories(DataSourceContext context)
     {
         var testMethodName = context.TargetMember?.Name;
 
@@ -62,9 +44,19 @@ where TTestData : notnull, ITestData
         {
             var testData = (TTestData)namedCase;
 
-            yield return () => [testData.ToTestDataRow(testMethodName, Categories)];
+            yield return () => [TestDataRow.From(
+                testData,
+                ConvertRow,
+                testMethodName,
+                Categories)];
         }
     }
+}
 
-    #endregion
+public sealed class TestDataProvider<TTestData>(IEnumerable<TTestData> testDataCollection, params string[] categories)
+: TestDataProvider<TTestData, TTestData>(testDataCollection, categories)
+where TTestData : notnull, ITestData
+{
+    public override TTestData ConvertRow(TTestData testData)
+    => testData;
 }
