@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.Core.Formatting;
-
 namespace Portamical.DataProviders.Models;
 
 public static class DataProvider
@@ -18,7 +16,7 @@ public static class DataProvider
         {
             throw new InvalidCastException(
                 $"The provided INamedCase instance is not of the expected type " +
-                $"{Formatter.Format(typeof(TTestData))}.");
+                $"{Core.Formatting.Formatter.Format(typeof(TTestData))}.");
         }
 
         return dataProvider.ConvertRow(testData);
