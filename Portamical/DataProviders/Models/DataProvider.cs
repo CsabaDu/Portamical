@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.Core.Formatting;
+
 namespace Portamical.DataProviders.Models;
 
 public static class DataProvider
@@ -9,8 +11,18 @@ public static class DataProvider
         this IDataProvider<TTestData, TRow> dataProvider,
         INamedCase namedCase)
     where TTestData : notnull, ITestData
-    => NotNull(dataProvider, nameof(dataProvider))
-        .ConvertRow((TTestData)NotNull(namedCase, nameof(namedCase)));
+    {
+        _ = NotNull(dataProvider, nameof(dataProvider));
+
+        if (NotNull(namedCase, nameof(namedCase)) is not TTestData testData)
+        {
+            throw new InvalidCastException(
+                $"The provided INamedCase instance is not of the expected type " +
+                $"{Formatter.Format(typeof(TTestData))}.");
+        }
+
+        return dataProvider.ConvertRow(testData);
+    }
 
     /// <summary>
     /// Gets an array containing all original test data items that were added to the provider's collection.
@@ -42,7 +54,8 @@ public static class DataProvider
     /// </para>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TTestData[] GetBaseRows<TTestData, TRow>(this IDataProvider<TTestData, TRow> dataProvider)
+    public static TTestData[] GetBaseRows<TTestData, TRow>(
+        this IDataProvider<TTestData, TRow> dataProvider)
     where TTestData : notnull, ITestData
     => dataProvider.SelectFromNamedCases(selector: namedCase => (TTestData)namedCase);
 
