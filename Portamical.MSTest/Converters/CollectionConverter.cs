@@ -3,7 +3,7 @@
 
 using Portamical.Converters.RowArrays.CustomRow;
 using Portamical.Core.Safety;
-using Portamical.MSTest.DataProviders;
+using Portamical.MSTest.TestDataTypes;
 
 namespace Portamical.MSTest.Converters;
 
@@ -60,21 +60,20 @@ public static class CollectionConverter
         params string[] testCategories)
     where TTestData : notnull, ITestData
     => testDataCollection.ToDistinctRowArray(
-        convertRow: (testData, argsCode, tmn) => new object[]
+        convertRow: (testData, ac, tmn) => new object[]
         {
-            argsCode switch
+            ac switch
             {
                 ArgsCode.Instance => TestDataRow.From(
                     testData,
-                    convertRow: td => td,
                     testMethodName: tmn,
                     testCategories),
                 ArgsCode.Properties => TestDataRow.From(
                     testData,
-                    convertRow: td => td.ToArgs(ArgsCode.Properties),
+                    argsCode: ac,
                     testMethodName: tmn,
                     testCategories),
-                _ => throw argsCode.GetInvalidEnumArgumentException(nameof(argsCode)),
+                _ => throw ac.GetInvalidEnumArgumentException(nameof(argsCode)),
             }
         },
         argsCode,
@@ -85,16 +84,11 @@ public static class CollectionConverter
         ArgsCode argsCode,
         params string[] testCategories)
     where TTestData : notnull, ITestData
-    => new DataProviders.Models.ObjectArray.TestDataProvider<TTestData>(
-        testDataCollection,
-        argsCode,
-        testCategories);
+    => new(testDataCollection, argsCode, testCategories);
 
     public static DataProviders.Models.TestData.TestDataProvider<TTestData> ToDataProvider<TTestData>(
         this IEnumerable<TTestData> testDataCollection,
         params string[] testCategories)
     where TTestData : notnull, ITestData
-    => new DataProviders.Models.TestData.TestDataProvider<TTestData>(
-        testDataCollection,
-        testCategories);
+    => new(testDataCollection, testCategories);
 }

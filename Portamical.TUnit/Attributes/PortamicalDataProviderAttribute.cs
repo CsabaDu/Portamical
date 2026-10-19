@@ -1,8 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-using Portamical.TUnit.DataProviders;
 using Portamical.TUnit.DataProviders.Models;
+using Portamical.TUnit.TestDataTypes;
 using static Portamical.Core.Safety.Validator;
 
 namespace Portamical.TUnit.Attributes;

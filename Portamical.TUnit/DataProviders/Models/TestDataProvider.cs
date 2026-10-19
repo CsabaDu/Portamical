@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.TUnit.TestDataTypes;
+
 namespace Portamical.TUnit.DataProviders.Models;
 
 public abstract class TestDataProvider<TTestData, TRow>

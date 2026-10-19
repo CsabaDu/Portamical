@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
-namespace Portamical.TUnit.DataProviders;
+namespace Portamical.TUnit.TestDataTypes;
 
 public static class TestDataRow
 {

@@ -81,6 +81,8 @@ public interface IDataProvider<out TRow>
     /// may or may not match insertion order, depending on the implementation.
     /// </remarks>
     TRow[] GetRows();
+
+    TRow? ConvertRow(INamedCase namedCase);
 }
 
 /// <summary>

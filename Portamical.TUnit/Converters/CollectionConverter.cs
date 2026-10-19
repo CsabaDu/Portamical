@@ -2,8 +2,8 @@
 // Copyright (c) 2025. Csaba Dudas (CsabaDu)
 
 using Portamical.Converters.RowArrays;
-using Portamical.TUnit.DataProviders;
 using Portamical.TUnit.DataProviders.Models;
+using Portamical.TUnit.TestDataTypes;
 
 namespace Portamical.TUnit.Converters;
 
