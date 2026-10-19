@@ -189,11 +189,11 @@ All formatting types are in the root `Portamical.Core.Formatting` namespace:
 ```
 IFormatter (non-generic, public)
 	│
-	├── DefaultFormatter (internal built-in implementation, 12+ type patterns)
-	│
-	└── Formatter<T> (abstract base class)
+	└── DefaultFormatter (internal built-in implementation, 12+ type patterns)
 			│
-			└── [Your Custom Formatters]
+			└── Formatter<T> (abstract base class)
+					│
+					└── [Your Custom Formatters]
 ```
 
 ### Formatting Pipeline
