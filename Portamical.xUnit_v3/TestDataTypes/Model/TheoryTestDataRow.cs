@@ -892,7 +892,7 @@ ITheoryTestDataRow
         ArgsCode argsCode,
         string? testMethodName)
     where TTestData : notnull, ITestData
-    => TheoryTestDataRow<TTestData>.From(
+    => new TheoryTestDataRow<TTestData>(
         testData,
         argsCode,
         testMethodName);
@@ -1002,21 +1002,11 @@ ITheoryTestDataRow
 /// <seealso cref="TheoryTestDataRow"/>
 /// <seealso cref="ITestData"/>
 /// <seealso cref="ArgsCode"/>
-internal sealed class TheoryTestDataRow<TTestData>
-: TheoryTestDataRow
+internal sealed class TheoryTestDataRow<TTestData>(
+        TTestData testData,
+        ArgsCode argsCode,
+        string? testMethodName)
+: TheoryTestDataRow(testData, argsCode, testMethodName)
 where TTestData : notnull, ITestData
 {
-    private TheoryTestDataRow(
-        TTestData testData,
-        ArgsCode argsCode,
-        string? testMethodName)
-    : base(testData, argsCode, testMethodName)
-    {
-    }
-
-    internal static TheoryTestDataRow<TTestData> From(
-        TTestData testData,
-        ArgsCode argsCode,
-        string? testMethodName)
-    => new(testData, argsCode, testMethodName);
 }

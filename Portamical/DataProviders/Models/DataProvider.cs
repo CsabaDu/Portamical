@@ -5,6 +5,12 @@ namespace Portamical.DataProviders.Models;
 
 public static class DataProvider
 {
+    public static TRow? ConvertRow<TTestData, TRow>(IDataProvider<TTestData, TRow> dataProvider, INamedCase namedCase)
+    where TTestData : notnull, ITestData
+    => NotNull(namedCase, nameof(namedCase)) is TTestData testData ?
+        NotNull(dataProvider, nameof(dataProvider)).ConvertRow(testData)
+        : default;
+
     /// <summary>
     /// Locates the first stored test case that satisfies <paramref name="findMatch"/> and converts it to a row.
     /// </summary>
@@ -26,7 +32,7 @@ public static class DataProvider
     /// and <see cref="GetRow(INamedCase)"/> overloads.
     /// </remarks>
     public static TRow? GetRow<TTestData, TRow, T>(
-        this IDataProvider<TTestData, TRow> dataProvider,
+        IDataProvider<TTestData, TRow> dataProvider,
         Func<INamedCase, T, bool> findMatch,
         T? context)
         where TTestData : notnull, ITestData
@@ -69,7 +75,7 @@ public static class DataProvider
     /// </para>
     /// </remarks>
     public static T[] SelectFromNamedCases<T>(
-        this IDataProvider dataProvider,
+        IDataProvider dataProvider,
         Func<INamedCase, T> selector)
     {
         var namedCases = NotNull(dataProvider, nameof(dataProvider)).GetNamedCases();
@@ -116,9 +122,9 @@ public static class DataProvider
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TTestData[] GetBaseRows<TTestData, TRow>(
-        this IDataProvider<TTestData, TRow> dataProvider)
+        IDataProvider<TTestData, TRow> dataProvider)
     where TTestData : notnull, ITestData
-    => dataProvider.SelectFromNamedCases(namedCase => (TTestData)namedCase);
+    => SelectFromNamedCases(dataProvider, namedCase => (TTestData)namedCase);
 }
 
 /// <summary>
@@ -289,7 +295,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string[] GetTestCaseNames()
-    => this.SelectFromNamedCases(namedCase => namedCase.TestCaseName);
+    => DataProvider.SelectFromNamedCases(this, namedCase => namedCase.TestCaseName);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ICollection<INamedCase> GetNamedCases()
@@ -297,9 +303,7 @@ where TTestData : notnull, ITestData
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow? ConvertRow(INamedCase namedCase)
-    => NotNull(namedCase, nameof(namedCase)) is TTestData testData ?
-        ConvertRow(testData)
-        : default;
+    => DataProvider.ConvertRow(this, namedCase);
 
     /// <summary>
     /// Retrieves the row associated with the specified test case name.
@@ -315,7 +319,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow? GetRow(string testCaseName)
-    => this.GetRow(NamedCase.HasName, testCaseName);
+    => DataProvider.GetRow(this, NamedCase.HasName, testCaseName);
 
     /// <summary>
     /// Retrieves the row associated with the specified test case.
@@ -334,8 +338,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow? GetRow(INamedCase namedCase)
-    => this.GetRow(NamedCase.Comparer.Equals, namedCase);
-
+    => DataProvider.GetRow(this, NamedCase.Comparer.Equals, namedCase);
 
     /// <summary>
     /// Gets an array containing all rows in the provider's collection.
@@ -350,7 +353,7 @@ where TTestData : notnull, ITestData
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow[] GetRows()
-    => this.SelectFromNamedCases(ConvertRow)!;
+    => DataProvider.SelectFromNamedCases(this, ConvertRow)!;
 
     #endregion
 

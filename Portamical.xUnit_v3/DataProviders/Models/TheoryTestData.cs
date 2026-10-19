@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
+using Portamical.DataProviders.Models;
 using Portamical.xUnit_v3.TestDataTypes;
 using Portamical.xUnit_v3.TestDataTypes.Model;
 using static Portamical.Core.Formatting.Formatter;
@@ -678,6 +679,9 @@ where TTestData : notnull, ITestData
     public void AddRow(TTestData testData)
     => Add(ConvertRow(testData));
 
+    public ITheoryTestDataRow? ConvertRow(INamedCase namedCase)
+    => DataProvider.ConvertRow(this, namedCase);
+
     /// <summary>
     /// Converts Portamical test data to an xUnit v3 theory test data row using instance <see cref="ArgsCode"/> configuration.
     /// </summary>
@@ -741,7 +745,7 @@ where TTestData : notnull, ITestData
     /// <seealso cref="Convert(TTestData)"/>
     /// <seealso cref="AddRow"/>
     public ITheoryTestDataRow ConvertRow(TTestData testData)
-    => TheoryTestDataRow<TTestData>.From(
+    => TheoryTestDataRow.From(
         testData,
         ArgsCode,
         TestMethodName);
@@ -750,41 +754,16 @@ where TTestData : notnull, ITestData
     => [.. this];
 
     public ITheoryTestDataRow? GetRow(string testCaseName)
-    => GetRow(context: testCaseName,
-        matchFound: namedCase => namedCase.HasName(testCaseName));
+    => DataProvider.GetRow(this, NamedCase.HasName, testCaseName);
 
     public ITheoryTestDataRow? GetRow(INamedCase namedCase)
-    => GetRow(context: namedCase,
-        matchFound: namedCase.Equals);
+    => DataProvider.GetRow(this, NamedCase.Comparer.Equals, namedCase);
 
     public string[] GetTestCaseNames()
-    {
-        var testCaseNames = new string[_namedCases.Count];
-        int i = 0;
-
-        foreach (var namedCase in _namedCases)
-        {
-            testCaseNames[i++] = namedCase.TestCaseName;
-        }
-
-        return testCaseNames;
-    }
+    => DataProvider.SelectFromNamedCases(this, namedCase => namedCase.TestCaseName);
 
     public ICollection<INamedCase> GetNamedCases()
     => _namedCases;
-
-    #endregion
-
-    #region Helpers
-
-    private ITheoryTestDataRow? GetRow<T>(T context, Func<INamedCase, bool> matchFound)
-    {
-        if (context is null) return default;
-
-        return _namedCases.Where(matchFound)
-            .Select(namedCase => (ITheoryTestDataRow)namedCase)
-            .FirstOrDefault();
-    }
 
     #endregion
 
