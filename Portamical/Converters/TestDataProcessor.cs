@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
-namespace Portamical.Processing;
+namespace Portamical.Converters;
 
 /// <summary>
 /// Provides processing helpers for strongly typed <see cref="ITestData"/> sequences.
@@ -35,32 +35,32 @@ public sealed class TestDataProcessor
     private readonly HashSet<INamedCase> _namedCases = new(NamedCase.Comparer);
 
     /// <summary>
-    /// Invokes <paramref name="processor"/> for <paramref name="testData"/> only if its
+    /// Invokes <paramref name="process"/> for <paramref name="testData"/> only if its
     /// <see cref="INamedCase.TestCaseName"/> has not already been registered in <see cref="_namedCases"/>.
     /// </summary>
     /// <typeparam name="TTestData">The type of test data to process. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
     /// <param name="testData">The test data item to conditionally process.</param>
-    /// <param name="processor">
+    /// <param name="process">
     /// The process to invoke when <paramref name="testData"/> has not already been seen. If <see langword="null"/>,
     /// no process is invoked, but <paramref name="testData"/> is still registered in <see cref="_namedCases"/>.
     /// </param>
     /// <returns>
     /// <see langword="false"/> if <paramref name="testData"/> was already registered in <see cref="_namedCases"/>
-    /// (the item is a duplicate and <paramref name="processor"/> is never invoked); <see langword="null"/> if
-    /// <paramref name="testData"/> was newly registered but <paramref name="processor"/> is <see langword="null"/>;
+    /// (the item is a duplicate and <paramref name="process"/> is never invoked); <see langword="null"/> if
+    /// <paramref name="testData"/> was newly registered but <paramref name="process"/> is <see langword="null"/>;
     /// otherwise <see langword="true"/> after <paramref name="testData"/> was newly registered and
-    /// <paramref name="processor"/> was invoked.
+    /// <paramref name="process"/> was invoked.
     /// </returns>
     /// <remarks>
     /// Uses <see cref="HashSet{T}.Add(T)"/> as an atomic seen-check-and-register operation: if
     /// <paramref name="testData"/> is successfully added to <see cref="_namedCases"/> (i.e., it was not
-    /// already present), <paramref name="processor"/> is invoked (when non-<see langword="null"/>); otherwise
+    /// already present), <paramref name="process"/> is invoked (when non-<see langword="null"/>); otherwise
     /// the item is skipped as a duplicate.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool? ProcessIfDistinct<TTestData>(
         TTestData testData,
-        Action<TTestData>? processor)
+        Action<TTestData>? process)
     where TTestData : notnull, ITestData
     {
         if (!_namedCases.Add(testData))
@@ -68,12 +68,12 @@ public sealed class TestDataProcessor
             return false;
         }
 
-        if (processor is null)
+        if (process is null)
         {
             return null;
         }
 
-        processor(testData);
+        process(testData);
 
         return true;
     }
