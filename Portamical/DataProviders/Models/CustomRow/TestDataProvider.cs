@@ -64,7 +64,7 @@ namespace Portamical.DataProviders.Models.CustomRow;
 /// 
 ///     public override TheoryDataRow&lt;T1, T2, TConvertedRows&gt; ConvertRow(TestDataReturns&lt;TConvertedRows&gt; testData)
 ///     {
-///         // Convert test data to strongly-typed row
+///         // ConvertRow test data to strongly-typed row
 ///         return new TheoryDataRow&lt;T1, T2, TConvertedRows&gt;(
 ///             (T1)testData.Args[0],
 ///             (T2)testData.Args[1],

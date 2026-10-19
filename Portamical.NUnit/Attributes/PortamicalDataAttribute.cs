@@ -84,7 +84,7 @@ namespace Portamical.NUnit.Attributes;
 ///     ];
 ///     
 ///     public static IEnumerable&lt;TestCaseData&gt; GetAddTestData()
-///         =&gt; Convert(AddTestData, ArgsCode.Properties, nameof(TestAdd));
+///         =&gt; ConvertRow(AddTestData, ArgsCode.Properties, nameof(TestAdd));
 ///     
 ///     [TestMethod]
 ///     [PortamicalData(nameof(GetAddTestData))]
@@ -543,7 +543,7 @@ public abstract class PortamicalBaseDataAttribute(
 ///     ];
 ///     
 ///     public static IEnumerable&lt;TestCaseData&gt; GetAddTestData()
-///         =&gt; Convert(AddTestData, ArgsCode.Properties, nameof(TestAdd));
+///         =&gt; ConvertRow(AddTestData, ArgsCode.Properties, nameof(TestAdd));
 ///     
 ///     [TestMethod]
 ///     [PortamicalData(nameof(GetAddTestData))]

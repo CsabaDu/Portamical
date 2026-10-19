@@ -128,7 +128,7 @@ public static class CollectionConverter
     /// // Identity conversion (keeping test data as-is)
     /// var distinct = testDataCollection.ToDistinctRowArray(td => td);
     /// 
-    /// // Convert to argument arrays
+    /// // ConvertRow to argument arrays
     /// var args = testDataCollection.ToDistinctRowArray(td => td.ToArgs(ArgsCode.Instance));
     /// 
     /// // Custom row conversion

@@ -2,7 +2,6 @@
 // Copyright (c) 2026. Csaba Dudas (CsabaDu)
 
 using Portamical.Converters.RowArrays.CustomRow;
-using Portamical.Converters.RowArrays.ObjectArray;
 using Portamical.Core.Safety;
 using Portamical.MSTest.DataProviders;
 
