@@ -4,8 +4,7 @@
 namespace Portamical.MSTest.DataProviders.Models.TestData;
 
 public sealed class TestDataProvider<TTestData>
-: TestDataProvider<TTestData, TTestData>, ITestDataProvider<TTestData, TTestData>
-
+: TestDataProvider<TTestData, TTestData>
 where TTestData : notnull, ITestData
 {
     #region Constructors
