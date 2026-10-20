@@ -117,8 +117,9 @@ where TTestData : notnull, ITestData
     /// The same <paramref name="testData"/> instance, unchanged.
     /// </returns>
     /// <remarks>
-    /// This method implements the identity function: output equals input. It's called internally
-    /// by <see cref="DataProvider{TTestData, TRow}.AddRow"/> during row insertion.
+    /// This method implements the identity function: output equals input. It is invoked lazily
+    /// whenever a stored row is read (e.g., via <c>GetRow</c>, <c>GetRows</c>, or enumeration),
+    /// not at <see cref="DataProvider{TTestData, TRow}.AddRow"/> time.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TTestData ConvertRow(TTestData testData)

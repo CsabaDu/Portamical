@@ -5,6 +5,30 @@ namespace Portamical.DataProviders.Models;
 
 public static class DataProvider
 {
+    /// <summary>
+    /// Converts the specified <paramref name="namedCase"/> into a row using <paramref name="dataProvider"/>,
+    /// if it is an instance of <typeparamref name="TTestData"/>.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The test data type that implements <see cref="ITestData"/>. Must be a non-nullable reference type.
+    /// </typeparam>
+    /// <typeparam name="TRow">
+    /// The target row type for the test framework (e.g., <c>object[]</c>, <c>TheoryDataRow</c>).
+    /// </typeparam>
+    /// <param name="dataProvider">
+    /// The provider whose <see cref="IDataProvider{TTestData, TRow}.ConvertRow(TTestData)"/> implementation
+    /// performs the conversion. Cannot be <see langword="null"/>.
+    /// </param>
+    /// <param name="namedCase">
+    /// The test case to convert. Cannot be <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// The converted <typeparamref name="TRow"/> if <paramref name="namedCase"/> is a <typeparamref name="TTestData"/>;
+    /// otherwise, <see langword="default"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if <paramref name="dataProvider"/> or <paramref name="namedCase"/> is <see langword="null"/>.
+    /// </exception>
     public static TRow? ConvertRow<TTestData, TRow>(IDataProvider<TTestData, TRow> dataProvider, INamedCase namedCase)
     where TTestData : notnull, ITestData
     => NotNull(namedCase, nameof(namedCase)) is TTestData testData ?
@@ -62,14 +86,19 @@ public static class DataProvider
     /// An array of <typeparamref name="T"/> containing the projected values for all keys in
     /// <see cref="_namedCases"/>. Returns an empty array if no rows have been added.
     /// </returns>
+    /// <param name="dataProvider">
+    /// The provider whose <see cref="IDataProvider.GetNamedCases"/> collection is projected. Cannot be
+    /// <see langword="null"/>.
+    /// </param>
     /// <remarks>
     /// <para>
-    /// This is the shared implementation behind <see cref="GetTestCaseNames"/> and <see cref="GetBaseRows"/>.
-    /// It pre-allocates the result array based on <see cref="Dictionary{TKey, TValue}.Count"/> to avoid
-    /// resizing, then fills it in a single pass over <see cref="_namedCases"/>'s keys.
+    /// This is the shared implementation behind <see cref="DataProvider{TTestData, TRow}.GetTestCaseNames"/> and
+    /// <see cref="GetTestDataRows"/>. It pre-allocates the result array based on the collection's
+    /// <see cref="ICollection{T}.Count"/> to avoid resizing, then fills it in a single pass over the
+    /// provider's named cases.
     /// </para>
     /// <para>
-    /// The order of elements is determined by the dictionary's internal key enumeration order and may not
+    /// The order of elements is determined by the backing collection's internal enumeration order and may not
     /// match insertion order. The returned array is a snapshot; subsequent modifications to the provider
     /// will not affect it.
     /// </para>
@@ -105,7 +134,7 @@ public static class DataProvider
     /// (<c>in</c>) on <see cref="ITestDataRegistry{TTestData}"/>, which only permits the type parameter to
     /// appear in input positions (e.g., method parameters). Returning <typeparamref name="TTestData"/> from
     /// a method is an output position, which would violate contravariance and is disallowed by the compiler.
-    /// <see cref="GetBaseRows"/> is therefore exposed only as a concrete member of
+    /// <see cref="GetTestDataRows"/> is therefore exposed only as a concrete member of
     /// <see cref="DataProvider{TTestData, TRow}"/>, not as part of any interface contract.
     /// </para>
     /// <para>
@@ -121,8 +150,8 @@ public static class DataProvider
     /// </para>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TTestData[] GetBaseRows<TTestData, TRow>(
-        IDataProvider<TTestData, TRow> dataProvider)
+    public static TTestData[] GetTestDataRows<TTestData, TRow>(
+        this IDataProvider<TTestData, TRow> dataProvider)
     where TTestData : notnull, ITestData
     => SelectFromNamedCases(dataProvider, namedCase => (TTestData)namedCase);
 }
@@ -297,10 +326,35 @@ where TTestData : notnull, ITestData
     public string[] GetTestCaseNames()
     => DataProvider.SelectFromNamedCases(this, namedCase => namedCase.TestCaseName);
 
+    /// <summary>
+    /// Gets the backing collection of distinct test cases stored by this provider.
+    /// </summary>
+    /// <returns>
+    /// The <see cref="ICollection{T}"/> of <see cref="INamedCase"/> entries backing this provider.
+    /// Every element is actually an instance of <typeparamref name="TTestData"/>.
+    /// </returns>
+    /// <remarks>
+    /// The returned collection is the live backing store, not a snapshot; modifications to the provider
+    /// are reflected in subsequent reads of the returned collection.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ICollection<INamedCase> GetNamedCases()
     => _namedCases;
 
+    /// <summary>
+    /// Converts the specified <paramref name="namedCase"/> into a row, if it is an instance of
+    /// <typeparamref name="TTestData"/>.
+    /// </summary>
+    /// <param name="namedCase">
+    /// The test case to convert.
+    /// </param>
+    /// <returns>
+    /// The converted <typeparamref name="TRow"/> if <paramref name="namedCase"/> is a <typeparamref name="TTestData"/>;
+    /// otherwise, <see langword="default"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if <paramref name="namedCase"/> is <see langword="null"/>.
+    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TRow? ConvertRow(INamedCase namedCase)
     => DataProvider.ConvertRow(this, namedCase);

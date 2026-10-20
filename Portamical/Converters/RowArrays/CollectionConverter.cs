@@ -42,7 +42,7 @@ public static class CollectionConverter
     /// The type of elements in the output array, produced by <paramref name="convertRow"/>.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to addConvertedRow. Cannot be null or empty.
+    /// The collection of test data to convert. Cannot be null or empty.
     /// </param>
     /// <param name="convertRow">
     /// A function that transforms each test data item into a row of type <typeparamref name="TRow"/>.
@@ -105,7 +105,7 @@ public static class CollectionConverter
     /// The type of elements in the output array, produced by <paramref name="convertRow"/>.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to addConvertedRow. Cannot be null or empty.
+    /// The collection of test data to convert. Cannot be null or empty.
     /// </param>
     /// <param name="convertRow">
     /// A function that transforms each test data item into a row of type <typeparamref name="TRow"/>.
@@ -158,7 +158,7 @@ public static class CollectionConverter
     /// The type of elements in the output array, produced by <paramref name="convertRow"/>.
     /// </typeparam>
     /// <param name="testDataCollection">
-    /// The collection of test data to addConvertedRow. Cannot be null or empty.
+    /// The collection of test data to convert. Cannot be null or empty.
     /// </param>
     /// <param name="convertRow">
     /// A function that transforms each test data item into a row of type <typeparamref name="TRow"/>.

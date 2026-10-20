@@ -19,9 +19,9 @@ namespace Portamical.DataProviders.Models.ObjectArray;
 /// test data is flattened or packaged into object arrays.
 /// </para>
 /// <para>
-/// <strong>Constructor Accessibility:</strong> The parameterless constructor is marked <c>private</c>
-/// to enforce that <see cref="ArgsCode"/> and <see cref="PropsCode"/> are always explicitly specified
-/// during construction. This ensures consistent conversion behavior throughout the provider's lifetime.
+/// <strong>Constructor Accessibility:</strong> All constructors require <see cref="ArgsCode"/> and
+/// <see cref="PropsCode"/> to be explicitly specified; there is no parameterless constructor. This
+/// ensures consistent conversion behavior throughout the provider's lifetime.
 /// </para>
 /// <para>
 /// <strong>Conversion Strategies:</strong>
@@ -54,28 +54,28 @@ namespace Portamical.DataProviders.Models.ObjectArray;
 /// // Row: [2, 3, 5]
 /// </code>
 /// </example>
-/// <remarks>
-/// Initializes a new instance with specified conversion strategies.
-/// </remarks>
-/// <param name="argsCode">
-/// The argument code determining the primary conversion strategy.
-/// </param>
-/// <param name="propsCode">
-/// The properties code determining which properties to include when flattening.
-/// </param>
-/// <exception cref="ArgumentException">
-/// Thrown if <paramref name="argsCode"/> or <paramref name="propsCode"/> is undefined or invalid.
-/// </exception>
-/// <remarks>
-/// Use this constructor when building the test data collection incrementally via
-/// <see cref="DataProvider{TTestData, TRow}.AddRow"/> or
-/// <see cref="DataProvider{TTestData, TRow}.AddRange"/>.
-/// </remarks>
 public sealed class TestDataProvider<TTestData>
 : DataProvider<TTestData, object?[]>,
 ITestDataProvider<TTestData>
 where TTestData : notnull, ITestData
 {
+    /// <summary>
+    /// Initializes a new instance with an empty collection of test data rows and specified conversion strategies.
+    /// </summary>
+    /// <param name="argsCode">
+    /// The argument code determining the primary conversion strategy.
+    /// </param>
+    /// <param name="propsCode">
+    /// The properties code determining which properties to include when flattening.
+    /// </param>
+    /// <exception cref="ArgumentException">
+    /// Thrown if <paramref name="argsCode"/> or <paramref name="propsCode"/> is undefined or invalid.
+    /// </exception>
+    /// <remarks>
+    /// Use this constructor when building the test data collection incrementally via
+    /// <see cref="DataProvider{TTestData, TRow}.AddRow"/> or
+    /// <see cref="DataProvider{TTestData, TRow}.AddRange"/>.
+    /// </remarks>
     public TestDataProvider(ArgsCode argsCode, PropsCode propsCode)
     : base()
     {

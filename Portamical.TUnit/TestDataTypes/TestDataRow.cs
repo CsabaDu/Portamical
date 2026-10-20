@@ -26,6 +26,4 @@ public static class TestDataRow
         convertRow: td => td,
         testMethodName,
         categories);
-
-
 }

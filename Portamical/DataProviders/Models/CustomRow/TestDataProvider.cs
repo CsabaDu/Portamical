@@ -41,16 +41,16 @@ namespace Portamical.DataProviders.Models.CustomRow;
 /// class adaptable to any test framework or custom row format requirement.
 /// </para>
 /// <para>
-/// <strong>Constructor Ordering Contract:</strong> The constructors that accept <c>testData</c> or
-/// <c>testDataCollection</c> chain to <c>this(argsCode, testMethodName)</c> before calling
-/// <see cref="DataProvider{TTestData, TRow}.AddRow"/> or
-/// <see cref="DataProvider{TTestData, TRow}.AddRange"/>, guaranteeing that <see cref="ArgsCode"/>
-/// and <see cref="TestMethodName"/> are fully initialized before any row conversion occurs. Derived classes
-/// that introduce additional constructor parameters or fields consumed by their
-/// <see cref="DataProvider{TTestData, TRow}.ConvertRow"/> override <strong>must preserve this
-/// ordering</strong>: any state referenced by <c>ConvertRow</c> has to be assigned via constructor chaining
-/// (e.g. <c>: this(...)</c> or <c>: base(...)</c>) before invoking <c>AddRow</c>/<c>AddRange</c>, since those
-/// methods trigger <c>ConvertRow</c> immediately and will otherwise observe uninitialized (default) values.
+/// <strong>Constructor Ordering:</strong> The constructors that accept <c>testData</c> or
+/// <c>testDataCollection</c> call <see cref="DataProvider{TTestData, TRow}.AddRow"/> or
+/// <see cref="DataProvider{TTestData, TRow}.AddRange"/> via base-constructor chaining before
+/// <see cref="ArgsCode"/> and <see cref="TestMethodName"/> are assigned in the constructor body.
+/// This is safe only because <see cref="DataProvider{TTestData, TRow}.ConvertRow"/> is invoked
+/// lazily when a row is subsequently read (e.g., via <c>GetRow</c>, <c>GetRows</c>, or enumeration),
+/// not at <c>AddRow</c>/<c>AddRange</c> time. Derived classes that introduce additional constructor
+/// parameters or fields consumed by their <see cref="DataProvider{TTestData, TRow}.ConvertRow"/>
+/// override <strong>must ensure that state is assigned before any row is read</strong>, since reading
+/// a row before that state is initialized will observe default values.
 /// </para>
 /// </remarks>
 /// <example>
@@ -127,7 +127,9 @@ where TTestData : notnull, ITestData
     /// Thrown if <paramref name="argsCode"/> is undefined or invalid, or if the test case name conflicts.
     /// </exception>
     /// <remarks>
-    /// The test data is converted and added immediately during construction via <see cref="DataProvider{TTestData, TRow}.ConvertRow"/>.
+    /// The test data is stored unconverted during construction; conversion via
+    /// <see cref="DataProvider{TTestData, TRow}.ConvertRow"/> happens lazily whenever the
+    /// corresponding row is subsequently read.
     /// </remarks>
     protected TestDataProvider(TTestData testData, ArgsCode argsCode, string? testMethodName)
     : base(testData)
@@ -156,7 +158,9 @@ where TTestData : notnull, ITestData
     /// or if it contains duplicate test case names.
     /// </exception>
     /// <remarks>
-    /// All items are converted and added during construction.
+    /// All items are stored unconverted during construction; conversion via
+    /// <see cref="DataProvider{TTestData, TRow}.ConvertRow"/> happens lazily whenever each
+    /// corresponding row is subsequently read.
     /// </remarks>
     protected TestDataProvider(IEnumerable<TTestData> testDataCollection, ArgsCode argsCode, string? testMethodName)
     : base(testDataCollection)

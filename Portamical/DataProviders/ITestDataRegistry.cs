@@ -105,17 +105,4 @@ where TTestData : notnull, ITestData
     /// </code>
     /// </example>
     void AddRange(IEnumerable<TTestData> testDataCollection);
-
-    /// <summary>
-    /// Gets an array containing all test case names in the provider's collection.
-    /// </summary>
-    /// <returns>
-    /// An array of strings representing the test case names (typically from <see cref="INamedCase.TestCaseName"/>).
-    /// Returns an empty array if no rows are available.
-    /// </returns>
-    /// <remarks>
-    /// This method is useful for discovering available test cases, generating reports, or
-    /// implementing test filtering logic. The order of names may or may not match insertion order.
-    /// </remarks>
-    string[] GetTestCaseNames();
 }

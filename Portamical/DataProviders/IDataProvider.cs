@@ -3,9 +3,36 @@
 
 namespace Portamical.DataProviders;
 
+/// <summary>
+/// Defines the non-generic contract for exposing the backing collection of test cases stored by a provider.
+/// </summary>
+/// <remarks>
+/// This interface serves as the common base for the generic <see cref="IDataProvider{TRow}"/> and
+/// <see cref="IDataProvider{TTestData, TRow}"/> interfaces, allowing type-agnostic access to the
+/// stored <see cref="INamedCase"/> entries.
+/// </remarks>
 public interface IDataProvider
 {
+    /// <summary>
+    /// Gets the collection of distinct test cases stored by the provider.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="ICollection{T}"/> of <see cref="INamedCase"/> entries representing the stored test cases.
+    /// </returns>
     ICollection<INamedCase> GetNamedCases();
+
+    /// <summary>
+    /// Gets an array containing all test case names in the provider's collection.
+    /// </summary>
+    /// <returns>
+    /// An array of strings representing the test case names (typically from <see cref="INamedCase.TestCaseName"/>).
+    /// Returns an empty array if no rows are available.
+    /// </returns>
+    /// <remarks>
+    /// This method is useful for discovering available test cases, generating reports, or
+    /// implementing test filtering logic. The order of names may or may not match insertion order.
+    /// </remarks>
+    string[] GetTestCaseNames();
 }
 
 /// <summary>
@@ -41,8 +68,8 @@ public interface IDataProvider<out TRow>
     /// (e.g., by treating it as <see cref="string.Empty"/>).
     /// </param>
     /// <returns>
-    /// The row of type <typeparamref name="TRow"/> if testCaseNameFound; otherwise, <see langword="null"/> or
-    /// <see langword="default"/> for the row type.
+    /// The row of type <typeparamref name="TRow"/> if a test case with the given name is found; otherwise,
+    /// <see langword="null"/> or <see langword="default"/> for the row type.
     /// </returns>
     /// <remarks>
     /// This method enables direct lookup of test data by name, useful for selective test execution
@@ -82,6 +109,21 @@ public interface IDataProvider<out TRow>
     /// </remarks>
     TRow[] GetRows();
 
+    /// <summary>
+    /// Converts the specified <paramref name="namedCase"/> into a row representation, if possible.
+    /// </summary>
+    /// <param name="namedCase">
+    /// The <see cref="INamedCase"/> identifying the test case to convert. Implementations should handle
+    /// <see langword="null"/> gracefully by returning <see langword="default"/>.
+    /// </param>
+    /// <returns>
+    /// The converted row of type <typeparamref name="TRow"/> if <paramref name="namedCase"/> can be converted;
+    /// otherwise, <see langword="null"/> or <see langword="default"/> for the row type.
+    /// </returns>
+    /// <remarks>
+    /// This method underlies both <see cref="GetRow(INamedCase)"/> and the provider's enumeration logic,
+    /// providing a type-agnostic conversion entry point for <see cref="INamedCase"/> instances.
+    /// </remarks>
     TRow? ConvertRow(INamedCase namedCase);
 }
 

@@ -61,7 +61,7 @@ public static class CollectionConverter
     /// first test data item in the collection.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container. Called once for every item
+    /// An action that adds a single test data item to the container. Called once for every item
     /// after the first.
     /// </param>
     /// <returns>
@@ -104,7 +104,7 @@ public static class CollectionConverter
     /// The collection of test data to process. Cannot be null or empty.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container. Called once for every item
+    /// An action that adds a single test data item to the container. Called once for every item
     /// in the collection.
     /// </param>
     /// <returns>
@@ -153,7 +153,7 @@ public static class CollectionConverter
     /// first test data item in the collection.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container. Called only for items whose
+    /// An action that adds a single test data item to the container. Called only for items whose
     /// <see cref="INamedCase.TestCaseName"/> has not already been seen.
     /// </param>
     /// <returns>
@@ -203,7 +203,7 @@ public static class CollectionConverter
     /// The collection of test data to process. Cannot be null or empty.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container. Called only for items whose
+    /// An action that adds a single test data item to the container. Called only for items whose
     /// <see cref="INamedCase.TestCaseName"/> has not already been seen.
     /// </param>
     /// <returns>
@@ -255,7 +255,7 @@ public static class CollectionConverter
     /// A function that creates and initializes the container from the first test data item.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container.
+    /// An action that adds a single test data item to the container.
     /// </param>
     /// <param name="removeDuplicates">
     /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates
@@ -315,7 +315,7 @@ public static class CollectionConverter
     /// The collection of test data to process. Cannot be null or empty.
     /// </param>
     /// <param name="addConvertedRow">
-    /// An process that adds a single test data item to the container.
+    /// An action that adds a single test data item to the container.
     /// </param>
     /// <param name="removeDuplicates">
     /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates an
@@ -356,6 +356,41 @@ public static class CollectionConverter
 
     #region Helper methods
 
+    /// <summary>
+    /// Iterates <paramref name="snapshot"/> and invokes <paramref name="addConvertedRow"/> for each item,
+    /// optionally skipping the first item and/or duplicate test cases.
+    /// </summary>
+    /// <typeparam name="TTestData">
+    /// The type of test data in <paramref name="snapshot"/>. Must implement <see cref="ITestData"/> and be non-null.
+    /// </typeparam>
+    /// <typeparam name="TConvertedRows">
+    /// The type of the container that accumulates the converted rows.
+    /// </typeparam>
+    /// <param name="convertedRows">
+    /// The container to populate. Returned unmodified in identity (same reference) after population.
+    /// </param>
+    /// <param name="snapshot">
+    /// The array of test data items to process.
+    /// </param>
+    /// <param name="addConvertedRow">
+    /// An action that adds a single test data item to <paramref name="convertedRows"/>.
+    /// </param>
+    /// <param name="removeDuplicates">
+    /// If <see langword="true"/>, skips items whose <see cref="INamedCase.TestCaseName"/> duplicates an
+    /// already-processed item. If <see langword="false"/>, adds every item.
+    /// </param>
+    /// <param name="skipFirst">
+    /// If <see langword="true"/>, the first item of <paramref name="snapshot"/> is assumed to already be
+    /// reflected in <paramref name="convertedRows"/> and is not passed to <paramref name="addConvertedRow"/>;
+    /// when <paramref name="removeDuplicates"/> is also <see langword="true"/>, it is still registered as seen.
+    /// </param>
+    /// <returns>
+    /// <paramref name="convertedRows"/>, populated according to <paramref name="removeDuplicates"/> and
+    /// <paramref name="skipFirst"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="addConvertedRow"/> is null.
+    /// </exception>
     private static TConvertedRows AddRange<TTestData, TConvertedRows>(
         this TConvertedRows convertedRows,
         TTestData[] snapshot,

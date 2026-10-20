@@ -25,12 +25,12 @@ namespace Portamical.Converters;
 public sealed class TestDataProcessor
 {
     /// <summary>
-    /// Gets the set of <see cref="INamedCase"/> identities that have already been processed by this instance.
+    /// The set of <see cref="INamedCase"/> identities that have already been processed by this instance.
     /// </summary>
     /// <remarks>
     /// The set is compared using <see cref="NamedCase.Comparer"/>, based on <see cref="INamedCase.TestCaseName"/>.
-    /// Callers may pre-populate this set (e.g., to mark an item as already seen without invoking an process for it)
-    /// before calling <see cref="ProcessIfDistinct{TTestData}(TTestData, Action{TTestData})"/>.
+    /// Items are registered only as a side effect of calling
+    /// <see cref="ProcessIfDistinct{TTestData}(TTestData, Action{TTestData})"/>.
     /// </remarks>
     private readonly HashSet<INamedCase> _namedCases = new(NamedCase.Comparer);
 
@@ -41,8 +41,8 @@ public sealed class TestDataProcessor
     /// <typeparam name="TTestData">The type of test data to process. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
     /// <param name="testData">The test data item to conditionally process.</param>
     /// <param name="process">
-    /// The process to invoke when <paramref name="testData"/> has not already been seen. If <see langword="null"/>,
-    /// no process is invoked, but <paramref name="testData"/> is still registered in <see cref="_namedCases"/>.
+    /// The action to invoke when <paramref name="testData"/> has not already been seen. If <see langword="null"/>,
+    /// no action is invoked, but <paramref name="testData"/> is still registered in <see cref="_namedCases"/>.
     /// </param>
     /// <returns>
     /// <see langword="false"/> if <paramref name="testData"/> was already registered in <see cref="_namedCases"/>
@@ -79,12 +79,12 @@ public sealed class TestDataProcessor
     }
 
     /// <summary>
-    /// Validates a sequence of strongly typed test data, snapshots it, and invokes an process for each item.
+    /// Validates a sequence of strongly typed test data, snapshots it, and invokes an action for each item.
     /// </summary>
     /// <typeparam name="TTestData">The type of test data to process. Must implement <see cref="ITestData"/> and be non-null.</typeparam>
     /// <param name="testDataCollection">The source sequence of test data to process. Cannot be <see langword="null"/> or empty.</param>
     /// <param name="process">
-    /// The process to invoke for each processed item. If <see langword="null"/>, no process is invoked for any
+    /// The action to invoke for each processed item. If <see langword="null"/>, no action is invoked for any
     /// item, but the snapshot is still validated, deduplication (when requested) still registers seen items,
     /// and no exception is thrown.
     /// </param>

@@ -8,37 +8,34 @@ using static Portamical.Core.Safety.Validator;
 namespace Portamical.TUnit.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter, AllowMultiple = true)]
-public sealed class PortamicalDataProviderAttribute<TTestData>
-: TypedDataSourceAttribute<TestDataRow<TTestData>>
+public abstract class PortamicalDataProviderAttribute<TTestData, TRow>(TestDataProvider<TTestData, TRow> dataProvider)
+: TypedDataSourceAttribute<TestDataRow<TRow>>
 where TTestData : notnull, ITestData
 {
-    public PortamicalDataProviderAttribute(TTestData[] snapshot, params string[] categories)
-    {
-        _dataProvider = new TestDataProvider<TTestData>(
-            testDataCollection: NotNullOrEmpty(snapshot, nameof(snapshot)),
-            categories);
-    }
+    private readonly TestDataProvider<TTestData, TRow> _dataProvider = NotNull(dataProvider, nameof(dataProvider));
 
-    public PortamicalDataProviderAttribute(TestDataProvider<TTestData> dataProvider)
-    {
-        _dataProvider = NotNull(dataProvider, nameof(dataProvider));
-    }
-
-    private  readonly TestDataProvider<TTestData> _dataProvider;
-
-    public override async IAsyncEnumerable<Func<Task<TestDataRow<TTestData>>>> GetTypedDataRowsAsync(DataGeneratorMetadata dataGeneratorMetadata)
+    public override async IAsyncEnumerable<Func<Task<TestDataRow<TRow>>>> GetTypedDataRowsAsync(DataGeneratorMetadata dataGeneratorMetadata)
     {
         var testMethodName = dataGeneratorMetadata.TestInformation?.Name;
 
         foreach (var namedCase in _dataProvider.GetNamedCases())
         {
-            var testData = (TTestData)namedCase;
-
-            yield return () => Task.FromResult(
-                TestDataRow.From(
-                    testData,
-                    testMethodName,
-                    categories: _dataProvider.Categories));
+            yield return () => Task.FromResult(TestDataRow.From(
+                testData: (TTestData)namedCase,
+                convertRow: _dataProvider.ConvertRow,
+                testMethodName: testMethodName,
+                categories: _dataProvider.Categories));
         }
+    }
+}
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter, AllowMultiple = true)]
+public sealed class PortamicalDataProviderAttribute<TTestData>(TestDataProvider<TTestData> dataProvider)
+: PortamicalDataProviderAttribute<TTestData, TTestData>(dataProvider)
+where TTestData : notnull, ITestData
+{
+    public PortamicalDataProviderAttribute(TTestData[] snapshot, params string[] categories)
+    : this(new TestDataProvider<TTestData>(NotNullOrEmpty(snapshot, nameof(snapshot)), categories))
+    {
     }
 }
